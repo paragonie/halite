@@ -9,7 +9,7 @@ Halite was created by [Paragon Initiative Enterprises](https://paragonie.com) as
 a result of our continued efforts to improve the ecosystem and make [cryptography in PHP](https://paragonie.com/blog/2015/09/state-cryptography-in-php)
 safer and easier to implement.
 
-It's released under the GPLv3 license. Commercial licenses are available from
+It's released under the GPLv3 license. [Commercial licenses are available](https://paragonie.com/contact) from
 Paragon Initiative Enterprises if you wish to implement Halite in an application
 without making your source code available under a GPL-compatible license.
 

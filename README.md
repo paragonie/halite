@@ -94,8 +94,10 @@ use \ParagonIE\Halite\Cookie;
 use \ParagonIE\Halite\Primitive\Key;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 
-Cookie::store('index', $any_value);
-$some_value = Cookie::fetch('other_index');
+$cookie = new Cookie($encryption_key);
+
+$cookie->store('index', $any_value);
+$some_value = $cookie->fetch('other_index');
 ```
 
 ### Symmetric-key File Encryption

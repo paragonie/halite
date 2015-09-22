@@ -1,0 +1,220 @@
+<?php
+namespace ParagonIE\Halite\Primitive;
+
+use ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
+use ParagonIE\Halite\Contract;
+
+/**
+ * Symmetric Key Crypography uses one secret key, while Asymmetric Key Cryptography
+ * uses a secret key and public key pair
+ */
+final class Key implements Contract\CryptoKeyInterface
+{
+    // FLAGS:
+    const SECRET_KEY       =   1;
+    const PUBLIC_KEY       =   2;
+    const ENCRYPTION       =   4;
+    const SIGNATURE        =   8;
+    const ASYMMETRIC       =  16;
+    
+    // SHORTCUTS:
+    const CRYPTO_SECRETBOX =  5;
+    const CRYPTO_AUTH      =  9;
+    const CRYPTO_BOX       = 20;
+    const CRYPTO_SIGN      = 24;
+    
+    private $is_public_key = false;
+    private $is_signing_key = false;
+    private $is_asymmetric_key = false;
+    private $key_material = '';
+    
+    /**
+     * Don't let this ever succeed
+     * 
+     * @throws CryptoAlert\CannotCloneKey
+     */
+    public function __clone()
+    {
+        throw new CryptoAlert\CannotCloneKey;
+    }
+    
+    /**
+     * @param string $keyMaterial - The actual key data
+     * @param bool $public - Is this a public key?
+     * @param bool $signing - Is this a signing key?
+     * @param bool $asymmetric - Is this being used in asymmetric cryptography?
+     */
+    public function __construct(
+        $keyMaterial = '',
+        $public = false,
+        $signing = false,
+        $asymmetric = false
+    ) {
+        $this->key_material = $keyMaterial;
+        $this->is_public_key = $public;
+        $this->is_signing_key = $signing;
+        $this->is_asymmetric_key = $asymmetric;
+    }
+    
+    /**
+     * Make sure you wipe the key from memory on destruction
+     */
+    public function __destruct()
+    {
+        if (!$this->is_public_key) {
+            \Sodium\memzero($this->key_material);
+            $this->key_material = null;
+        }
+    }
+    
+    /**
+     * Don't serialize
+     */
+    public function __sleep()
+    {
+        throw new CryptoAlert\CannotSerializeKey;
+    }
+    
+    /**
+     * Get public keys
+     * 
+     * @return string
+     */
+    public function __toString()
+    {
+        if ($this->is_public_key) {
+            return $this->key_material;
+        }
+    }
+    
+    /**
+     * Generate a key
+     * 
+     * @param int $type
+     * @param &string $secret_key - Reference to optional variable to store secret key in
+     * @return array|Key
+     */
+    public static function generate(
+        $type = self::CRYPTO_SECRETBOX,
+        &$secret_key = null
+    ) {
+        // Set this to true to flag a key as a signing key
+        $signing = false;
+        
+        /**
+         * Are we doing public key cryptography?
+         */
+        if (($type & self::ASYMMETRIC) !== 0) {
+            /**
+             * Are we doing encryption or digital signing?
+             */
+            if (($type & self::ENCRYPTION) !== 0) {
+                // Encryption keypair
+                $kp = \Sodium\crypto_box_keypair();
+                $secret_key = \Sodium\crypto_box_secretkey($kp);
+                $public_key = \Sodium\crypto_box_publickey($kp);
+            } elseif (($type & self::SIGNATURE) !== 0) {
+                // Digital signature keypair
+                $signing = true;
+                $kp = \Sodium\crypto_sign_keypair();
+                $secret_key = \Sodium\crypto_sign_secretkey($kp);
+                $public_key = \Sodium\crypto_sign_publickey($kp);
+            } else {
+                throw new CryptoAlert\InvalidFlags(
+                    'Must specify encryption or authentication'
+                );
+            }
+            
+            // Let's wipe our $kp variable
+            \Sodium\memzero($kp);
+            
+            // Let's return an array with two keys
+            return [
+                new Key($secret_key, false, $signing, true), // Secret key
+                new Key($public_key, true, $signing, true)   // Public key
+            ];
+        } elseif ($type & self::SECRET_KEY !== 0) {
+            /**
+             * Are we doing encryption or authentication?
+             */
+            if ($type & self::ENCRYPTION !== 0) {
+                $secret_key = \random_bytes(
+                    \Sodium\CRYPTO_SECRETBOX_KEYBYTES
+                );
+            } elseif ($type & self::SIGNATURE !== 0) {
+                $signing = true;
+                
+                // ...let it throw, let it throw!
+                $secret_key = \random_bytes(
+                    \Sodium\CRYPTO_AUTH_KEYBYTES
+                );
+            }
+            return new Key($secret_key, false, $signing, false);
+        } else {
+            throw new CryptoAlert\InvalidFlags(
+                'Must specify symmetric-key or asymmetric-key'
+            );
+        }
+    }
+    
+    /**
+     * Validate the caller to a whitelist of classes before returning anything
+     * 
+     * @return string
+     * @throws CryptoAlert\CannotAccessKey
+     */
+    public function get()
+    {
+        return $this->key_material;
+    }
+    
+    /**
+     * Is this a part of a key pair?
+     * 
+     * @return bool
+     */
+    public function isAsymmetricKey()
+    {
+        return $this->is_asymmetric_key;
+    }
+    
+    /**
+     * Is this a signing key?
+     * 
+     * @return bool
+     */
+    public function isEncryptionKey()
+    {
+        return !$this->is_signing_key;
+    }
+    
+    /**
+     * Is this a public key?
+     * 
+     * @return bool
+     */
+    public function isPublicKey()
+    {
+        return $this->is_public_key;
+    }
+    
+    /**
+     * Is this a secret key?
+     * 
+     * @return bool
+     */
+    public function isSecretKey()
+    {
+        return !$this->is_public_key;
+    }
+    
+    /**
+     * Is this a signing key?
+     * 
+     * @return bool
+     */
+    public function isSigningKey()
+    {
+        return $this->is_signing_key;
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "name": "paragonie/halite",
+    "version": "0.1.0",
+    "description": "High-level cryptography interface powered by libsodium",
+    "type": "library",
+    "require": {
+        "ext-libsodium": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ParagonIE\\Halite\\": "src"
+        }
+    },
+    "license": "GPL3",
+    "authors": [
+        {
+            "name": "Paragon Initiative Enterprises",
+            "email": "info@paragonie.com"
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+/vendor/
+/test/phpunit.phar
+/test/phpunit.phar.asc
+/test/unit/tmp/paragon_avatar.decrypted.png
+/test/unit/tmp/paragon_avatar.encrypted.png
+/test/unit/tmp/paragon_avatar.opened.png
+/test/unit/tmp/paragon_avatar.sealed.png

@@ -56,11 +56,44 @@ list($sign_secret, $sign_public) = Key::generate(Key::CRYPTO_SIGN);
 To store an encryption key for long-term use, just do the following:
 
 ```php
-<?php
-
 $stored_key = \Sodium\bin2hex(
     $encryption_key->get()
 );
+```
+
+### Symmetric-Key String Encryption
+
+Encryption:
+
+```php
+<?php
+use \ParagonIE\Halite\Primitive\Symmetric;
+/**
+ * This will return a hex-encoded string.
+ * 
+ * $plaintext is your message
+ * $encryption_key is a Key object (generated above)
+ */
+$ciphertext = Symmetric::encrypt($plaintext, $encryption_key);
+
+/**
+ * To get raw binary, pass TRUE as the third argument:
+ */
+$raw_ciphertext = Symmetric::encrypt($plaintext, $encryption_key, true);
+```
+
+Decryption:
+
+```php
+/**
+ * This expects a hex-encoded string.
+ */
+$decrypted = Symmetric::decrypt($ciphertext, $encryption_key);
+
+/**
+ * If you're decrypting raw binary, pass TRUE to the third argument:
+ */
+$raw_decrypt = Symmetric::decrypt($raw_ciphertext, $encryption_key, true);
 ```
 
 ### Secure Password Storage (Hash-then-Encrypt)

@@ -2,7 +2,7 @@
 namespace ParagonIE\Halite;
 
 use \ParagonIE\Halite\Primitive;
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Primitive\Asymmetric;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 use \ParagonIE\Halite\Alerts\FileSystem as FileAlert;

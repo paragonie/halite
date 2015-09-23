@@ -1,6 +1,6 @@
 <?php
 use \ParagonIE\Halite\Password;
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 
 /**
  * @backupGlobals disabled

@@ -29,7 +29,7 @@ To generate an cryptography key, simply pass the appropriate flags to `Key::gene
 
 ```php
 <?php
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 
 // For symmetric-key encryption:
 $encryption_key = Key::generate(Key::CRYPTO_SECRET_KEY | Key::ENCRYPTION);
@@ -61,7 +61,7 @@ $stored_key = \Sodium\bin2hex(
 ```php
 <?php
 use \ParagonIE\Halite\Password;
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 
 // See above for where $encryption_key is generated
 $stored_hash = Password::hash($plaintext_password, $encryption_key);
@@ -74,7 +74,7 @@ The above snippet will return a long string of hex characters.
 ```php
 <?php
 use \ParagonIE\Halite\Password;
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 
 try {
@@ -91,7 +91,7 @@ try {
 ```php
 <?php
 use \ParagonIE\Halite\Cookie;
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 
 $cookie = new Cookie($encryption_key);
@@ -105,7 +105,7 @@ $some_value = $cookie->fetch('other_index');
 ```php
 <?php
 use \ParagonIE\Halite\File;
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 
 // Encryption
@@ -120,7 +120,7 @@ File::decryptFile('encryptedFile.png', 'decryptedFile.png', $encryption_key);
 ```php
 <?php
 use \ParagonIE\Halite\File;
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 
 // Encryption

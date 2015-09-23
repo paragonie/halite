@@ -1,5 +1,5 @@
 <?php
-namespace ParagonIE\Halite\Primitive;
+namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 use ParagonIE\Halite\Contract;

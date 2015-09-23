@@ -9,7 +9,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
 {
     public function testEncrypt()
     {
-        $key = new \ParagonIE\Halite\Primitive\Key(
+        $key = new \ParagonIE\Halite\Key(
             \str_repeat('A', 32)
         );
         $message = Symmetric::encrypt('test message', $key);
@@ -21,7 +21,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testRawEncrypt()
     {
-        $key = new \ParagonIE\Halite\Primitive\Key(
+        $key = new \ParagonIE\Halite\Key(
             \str_repeat('A', 32)
         );
         $message = Symmetric::encrypt('test message', $key, true);

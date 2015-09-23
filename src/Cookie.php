@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Primitive\Symmetric;
 
 class Cookie 

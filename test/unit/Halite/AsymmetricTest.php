@@ -1,6 +1,6 @@
 <?php
 use \ParagonIE\Halite\Primitive\Asymmetric;
-use \ParagonIE\Halite\Primitive\Key;
+use \ParagonIE\Halite\Key;
 
 /**
  * @backupGlobals disabled

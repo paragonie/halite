@@ -3,7 +3,8 @@ namespace ParagonIE\Halite\Primitive;
 
 use ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 use ParagonIE\Halite\Contract;
-use ParagonIE\Halite\Util as CryptoUtil;
+use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\KeyPair;
 
 class Asymmetric implements Contract\AsymmetricKeyCryptoInterface
 {   

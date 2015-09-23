@@ -5,6 +5,7 @@ use ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 use ParagonIE\Halite\Contract;
 use ParagonIE\Halite\Util as CryptoUtil;
 use ParagonIE\Halite\Halite as Config;
+use \ParagonIE\Halite\Key;
 
 class Symmetric implements Contract\SymmetricKeyCryptoInterface
 {   
@@ -143,7 +144,7 @@ class Symmetric implements Contract\SymmetricKeyCryptoInterface
      * Split a key using a variant of HKDF that used a keyed BLAKE2b hash rather
      * than an HMAC construct
      * 
-     * @param \ParagonIE\Halite\Primitive\Key $master
+     * @param \ParagonIE\Halite\Key $master
      * @param string $salt
      * @return array
      */

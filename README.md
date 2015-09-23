@@ -42,6 +42,15 @@ list($enc_secret, $enc_public) = Key::generate(Key::ASYMMETRIC | Key::ENCRYPTION
 
 // For asymmetric-key authentication (digital signatures):
 list($sign_secret, $sign_public) = Key::generate(Key::ASYMMETRIC | Key::AUTHENTICATION);
+
+/**
+ * Short-hand methods; the constants are named after the features they are
+ * analogous to in libsodium proper:
+ */
+$encryption_key = Key::generate(Key::CRYPTO_SECRETBOX);
+$message_auth_key = Key::generate(Key::CRYPTO_AUTH);
+list($enc_secret, $enc_public) = Key::generate(Key::CRYPTO_BOX);
+list($sign_secret, $sign_public) = Key::generate(Key::CRYPTO_SIGN);
 ```
 
 To store an encryption key for long-term use, just do the following:

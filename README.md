@@ -31,17 +31,23 @@ To generate an cryptography key, simply pass the appropriate flags to `Key::gene
 <?php
 use \ParagonIE\Halite\Key;
 
-// For symmetric-key encryption:
-$encryption_key = Key::generate(Key::SECRET_KEY | Key::ENCRYPTION);
+/**
+ * Symmetric-key cryptography:
+ */
+    // For symmetric-key encryption:
+    $encryption_key = Key::generate(Key::SECRET_KEY | Key::ENCRYPTION);
 
-// For symmetric-key authentication:
-$message_auth_key = Key::generate(Key::SECRET_KEY | Key::AUTHENTICATION);
+    // For symmetric-key authentication:
+    $message_auth_key = Key::generate(Key::SECRET_KEY | Key::AUTHENTICATION);
 
-// For asymmetric-key encryption:
-list($enc_secret, $enc_public) = Key::generate(Key::ASYMMETRIC | Key::ENCRYPTION);
+/**
+ * Asymmetric-key cryptography -- Key::generate() returns an array:
+ */
+    // For asymmetric-key encryption:
+    list($enc_secret, $enc_public) = Key::generate(Key::ASYMMETRIC | Key::ENCRYPTION);
 
-// For asymmetric-key authentication (digital signatures):
-list($sign_secret, $sign_public) = Key::generate(Key::ASYMMETRIC | Key::AUTHENTICATION);
+    // For asymmetric-key authentication (digital signatures):
+    list($sign_secret, $sign_public) = Key::generate(Key::ASYMMETRIC | Key::AUTHENTICATION);
 
 /**
  * Short-hand methods; the constants are named after the features they are
@@ -53,12 +59,26 @@ list($enc_secret, $enc_public) = Key::generate(Key::CRYPTO_BOX);
 list($sign_secret, $sign_public) = Key::generate(Key::CRYPTO_SIGN);
 ```
 
-To store an encryption key for long-term use, just do the following:
+`Key::generate()` accepts a second optional parameter, a reference to a
+variable, which it will overwrite with the secret key.
 
 ```php
-$stored_key = \Sodium\bin2hex(
-    $encryption_key->get()
-);
+$my_secret_key = '';
+$keypair = Key::generate(Key::CRYPTO_BOX, $my_secret_key);
+
+// If you were to print \Sodium\bin2hex($my_secret_key)), you would get a 64
+// character hexadecimal string with your private key.
+
+// If you wish to store the secret key for long-term use, you can simply do
+// this:
+\file_put_contents('/path/to/secretkey', $my_secret_key);
+\Sodium\memzero($my_secret_key);
+
+// And retrieval is simple too:
+$string = \file_get_contents('/path/to/secretkey');
+$key_object = new Key($string, false, false, true);
+
+// See doc/Key.md for more information
 ```
 
 ### Symmetric-Key String Encryption

@@ -7,6 +7,21 @@ use \ParagonIE\Halite\Primitive\Symmetric;
  */
 class SymmetricTest extends PHPUnit_Framework_TestCase
 {
+    public function testAuthenticate()
+    {
+        $key = new \ParagonIE\Halite\Key(
+            \str_repeat('A', 32),
+            false,
+            true,
+            false
+        );
+        $message = 'test message';
+        $mac = Symmetric::authenticate($message, $key);
+        $this->assertTrue(
+            Symmetric::verify($message, $key, $mac)
+        );
+    }
+    
     public function testEncrypt()
     {
         $key = new \ParagonIE\Halite\Key(

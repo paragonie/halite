@@ -8,7 +8,38 @@ use ParagonIE\Halite\Halite as Config;
 use \ParagonIE\Halite\Key;
 
 class Symmetric implements Contract\SymmetricKeyCryptoInterface
-{   
+{
+    /**
+     * Authenticate a string
+     * 
+     * @param string $message
+     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretKey
+     * @param boolean $raw
+     * @throws CryptoAlert\InvalidKey
+     * @return string
+     */
+    public static function authenticate(
+        $message, 
+        Contract\CryptoKeyInterface $secretKey,
+        $raw = false
+    ) {
+        if ($secretKey->isAsymmetricKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Expected a symmetric key, not an asymmetric key'
+            );
+        }
+        if (!$secretKey->isSigningKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Authentication key expected'
+            );
+        }
+        $mac = self::calculateMAC($message, $secretKey->get());
+        if ($raw) {
+            return $mac;
+        }
+        return \Sodium\bin2hex($mac);
+    }
+    
     /**
      * Decrypt a message using the Halite encryption protocol
      * 
@@ -178,36 +209,14 @@ class Symmetric implements Contract\SymmetricKeyCryptoInterface
     }
     
     /**
-     * Authenticate a string
+     * Verify a MAC, given a MAC key
      * 
      * @param string $message
      * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretKey
+     * @param string $mac
      * @param boolean $raw
-     * @throws CryptoAlert\InvalidKey
-     * @return string
+     * @return boolean
      */
-    public static function authenticate(
-        $message, 
-        Contract\CryptoKeyInterface $secretKey,
-        $raw = false
-    ) {
-        if ($secretKey->isAsymmetricKey()) {
-            throw new CryptoAlert\InvalidKey(
-                'Expected a symmetric key, not an asymmetric key'
-            );
-        }
-        if (!$secretKey->isSigningKey()) {
-            throw new CryptoAlert\InvalidKey(
-                'Authentication key expected'
-            );
-        }
-        $mac = self::calculateMAC($message, $secretKey->get());
-        if ($raw) {
-            return $mac;
-        }
-        return \Sodium\bin2hex($mac);
-    }
-    
     public static function verify(
         $message,
         Contract\CryptoKeyInterface $secretKey, 
@@ -250,7 +259,7 @@ class Symmetric implements Contract\SymmetricKeyCryptoInterface
      * @return bool
      */
     protected static function verifyMAC(
-        $mac, 
+        $mac,
         $message,
         $aKey
     ) {

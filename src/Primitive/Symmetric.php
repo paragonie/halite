@@ -18,6 +18,16 @@ class Symmetric implements Contract\SymmetricKeyCryptoInterface
      */
     public static function decrypt($ciphertext, Contract\CryptoKeyInterface $secretKey, $raw = false)
     {
+        if ($secretKey->isAsymmetricKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Expected a symmetric key, not an asymmetric key'
+            );
+        }
+        if (!$secretKey->isEncryptionKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Encryption key expected'
+            );
+        }
         if (!$raw) {
             // We were given hex data:
             $ciphertext = \Sodium\hex2bin($ciphertext);
@@ -66,7 +76,7 @@ class Symmetric implements Contract\SymmetricKeyCryptoInterface
         list($eKey, $aKey) = self::splitKeys($secretKey, $salt);
         
         // Check the MAC first
-        if (!\Sodium\crypto_auth_verify(
+        if (!self::verifyMAC(
             $auth, 
             $version . $salt . $nonce . $xored,
             $aKey
@@ -99,11 +109,21 @@ class Symmetric implements Contract\SymmetricKeyCryptoInterface
      */
     public static function encrypt($plaintext, Contract\CryptoKeyInterface $secretKey, $raw = false)
     {
+        if ($secretKey->isAsymmetricKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Expected a symmetric key, not an asymmetric key'
+            );
+        }
+        if (!$secretKey->isEncryptionKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Encryption key expected'
+            );
+        }
         $nonce = \Sodium\randombytes_buf(\Sodium\CRYPTO_SECRETBOX_NONCEBYTES);
         $salt = \Sodium\randombytes_buf(Config::HKDF_SALT_LEN);
         list($eKey, $aKey) = self::splitKeys($secretKey, $salt);
         $xored = \Sodium\crypto_stream_xor($plaintext, $nonce, $eKey);
-        $auth = \Sodium\crypto_auth(
+        $auth = self::calculateMAC(
             Config::HALITE_VERSION . $salt . $nonce . $xored,
             $aKey
         );
@@ -155,5 +175,89 @@ class Symmetric implements Contract\SymmetricKeyCryptoInterface
             CryptoUtil::hkdfBlake2b($binary, \Sodium\CRYPTO_SECRETBOX_KEYBYTES, Config::HKDF_SBOX, $salt),
             CryptoUtil::hkdfBlake2b($binary, \Sodium\CRYPTO_AUTH_KEYBYTES, Config::HKDF_AUTH, $salt)
         ];
+    }
+    
+    /**
+     * Authenticate a string
+     * 
+     * @param string $message
+     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretKey
+     * @param boolean $raw
+     * @throws CryptoAlert\InvalidKey
+     * @return string
+     */
+    public static function authenticate(
+        $message, 
+        Contract\CryptoKeyInterface $secretKey,
+        $raw = false
+    ) {
+        if ($secretKey->isAsymmetricKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Expected a symmetric key, not an asymmetric key'
+            );
+        }
+        if (!$secretKey->isSigningKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Authentication key expected'
+            );
+        }
+        $mac = self::calculateMAC($message, $secretKey->get());
+        if ($raw) {
+            return $mac;
+        }
+        return \Sodium\bin2hex($mac);
+    }
+    
+    public static function verify(
+        $message,
+        Contract\CryptoKeyInterface $secretKey, 
+        $mac,
+        $raw = false
+    ) {
+        if (!$raw) {
+            $mac = \Sodium\hex2bin($mac);
+        }
+        return self::verifyMAC(
+            $mac,
+            $message,
+            $secretKey->get()
+        );
+    }
+    
+    /**
+     * Calculate a MAC
+     * 
+     * @param string $message
+     * @param string $authKey
+     * @return string
+     */
+    protected static function calculateMAC(
+        $message,
+        $authKey
+    ) {
+        return \Sodium\crypto_auth(
+            $message,
+            $authKey
+        );
+    }
+    
+    /**
+     * Verify a MAC
+     * 
+     * @param string $mac
+     * @param string $message
+     * @param string $aKey
+     * @return bool
+     */
+    protected static function verifyMAC(
+        $mac, 
+        $message,
+        $aKey
+    ) {
+        return \Sodium\crypto_auth_verify(
+            $mac, 
+            $message,
+            $aKey
+        );
     }
 }

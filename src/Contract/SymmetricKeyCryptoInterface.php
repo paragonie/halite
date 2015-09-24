@@ -31,4 +31,33 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
         CryptoKeyInterface $secretKey,
         $raw = false
     );
+    
+    /**
+     * Authenticate a message, get a message authentication code
+     * 
+     * @param string $message
+     * @param CryptoKeyInterface $secretKey
+     * @param boolean $raw
+     */
+    public static function authenticate(
+        $message,
+        CryptoKeyInterface $secretKey,
+        $raw = false
+    );
+    
+    /**
+     * Verify the message authentication code
+     * 
+     * @param string $message
+     * @param CryptoKeyInterface $secretKey
+     * @param string $mac
+     * @param boolean $raw
+     */
+    public static function verify(
+        $message,
+        CryptoKeyInterface $secretKey,
+        $mac,
+        $raw = false
+    );
+    
 }

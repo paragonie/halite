@@ -26,6 +26,13 @@ interface CryptoKeyInterface
     public function __sleep();
     
     /**
+     * Is this a part of a key pair?
+     * 
+     * @return bool
+     */
+    public function isAsymmetricKey();
+    
+    /**
      * Is this a signing key?
      * 
      * @return bool

@@ -32,10 +32,10 @@ To generate an cryptography key, simply pass the appropriate flags to `Key::gene
 use \ParagonIE\Halite\Key;
 
 // For symmetric-key encryption:
-$encryption_key = Key::generate(Key::CRYPTO_SECRET_KEY | Key::ENCRYPTION);
+$encryption_key = Key::generate(Key::SECRET_KEY | Key::ENCRYPTION);
 
 // For symmetric-key authentication:
-$message_auth_key = Key::generate(Key::CRYPTO_SECRET_KEY | Key::AUTHENTICATION);
+$message_auth_key = Key::generate(Key::SECRET_KEY | Key::AUTHENTICATION);
 
 // For asymmetric-key encryption:
 list($enc_secret, $enc_public) = Key::generate(Key::ASYMMETRIC | Key::ENCRYPTION);

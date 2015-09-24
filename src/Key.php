@@ -88,6 +88,154 @@ final class Key implements Contract\CryptoKeyInterface
     }
     
     /**
+     * Derive an encryption key from a password and a salt
+     * 
+     * @param string $password
+     * @param string $salt
+     * @param int $type
+     * @return array|\ParagonIE\Halite\Key
+     * @throws CryptoAlert\InvalidFlags
+     */
+    public static function deriveFromPassword(
+        $password,
+        $salt,
+        $type = self::CRYPTO_SECRETBOX
+    ) {
+        // Set this to true to flag a key as a signing key
+        $signing = false;
+        
+        /**
+         * Are we doing public key cryptography?
+         */
+        if (($type & self::ASYMMETRIC) !== 0) {
+            /**
+             * Are we doing encryption or digital signing?
+             */
+            if (($type & self::ENCRYPTION) !== 0) {
+                $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                    \Sodium\CRYPTO_BOX_SECRETKEYBYTES,
+                    $password,
+                    $salt,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE
+                );
+                $public_key = \Sodium\crypto_box_publickey_from_secretkey(
+                    $secret_key
+                );
+            } elseif (($type & self::SIGNATURE) !== 0) {
+                // Digital signature keypair
+                $signing = true;
+                $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                    \Sodium\CRYPTO_SIGN_SECRETKEYBYTES,
+                    $password,
+                    $salt,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE
+                );
+                $public_key = \Sodium\crypto_sign_publickey_from_secretkey(
+                    $secret_key
+                );
+            } else {
+                throw new CryptoAlert\InvalidFlags(
+                    'Must specify encryption or authentication'
+                );
+            }
+            
+            // Let's return an array with two keys
+            return [
+                new Key($secret_key, false, $signing, true), // Secret key
+                new Key($public_key, true, $signing, true)   // Public key
+            ];
+        } elseif ($type & self::SECRET_KEY !== 0) {
+            /**
+             * Are we doing encryption or authentication?
+             */
+            if ($type & self::SIGNATURE !== 0) {
+                $signing = true;
+            }
+            $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE
+            );
+            return new Key($secret_key, false, $signing, false);
+        } else {
+            $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                \Sodium\CRYPTO_AUTH_KEYBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE
+            );
+            throw new CryptoAlert\InvalidFlags(
+                'Must specify symmetric-key or asymmetric-key'
+            );
+        }
+    }
+    
+    /**
+     * Load a key from a file
+     * 
+     * @param string $filePath
+     * @param int $type
+     * @return array|\ParagonIE\Halite\Key
+     * @throws CryptoAlert\InvalidFlags
+     */
+    public static function fromFile(
+        $filePath,
+        $type = self::CRYPTO_SECRETBOX
+    ) {
+        // Set this to true to flag a key as a signing key
+        $signing = false;
+        
+        /**
+         * Are we doing public key cryptography?
+         */
+        if (($type & self::ASYMMETRIC) !== 0) {
+            /**
+             * Are we doing encryption or digital signing?
+             */
+            $secret_key = \file_get_contents($filePath);
+            if (($type & self::ENCRYPTION) !== 0) {
+                $public_key = \Sodium\crypto_box_publickey_from_secretkey(
+                    $secret_key
+                );
+            } elseif (($type & self::SIGNATURE) !== 0) {
+                // Digital signature keypair
+                $signing = true;
+                $public_key = \Sodium\crypto_sign_publickey_from_secretkey(
+                    $secret_key
+                );
+            } else {
+                throw new CryptoAlert\InvalidFlags(
+                    'Must specify encryption or authentication'
+                );
+            }
+            
+            // Let's return an array with two keys
+            return [
+                new Key($secret_key, false, $signing, true), // Secret key
+                new Key($public_key, true, $signing, true)   // Public key
+            ];
+        } elseif ($type & self::SECRET_KEY !== 0) {
+            /**
+             * Are we doing encryption or authentication?
+             */
+            if ($type & self::SIGNATURE !== 0) {
+                $signing = true;
+            }
+            $secret_key = \file_get_contents($filePath);
+            return new Key($secret_key, false, $signing, false);
+        } else {
+            throw new CryptoAlert\InvalidFlags(
+                'Must specify symmetric-key or asymmetric-key'
+            );
+        }
+    }
+    
+    /**
      * Generate a key
      * 
      * @param int $type
@@ -216,5 +364,16 @@ final class Key implements Contract\CryptoKeyInterface
     public function isSigningKey()
     {
         return $this->is_signing_key;
+    }
+    
+    /**
+     * Save a copy of the key to a file
+     * 
+     * @param string $filePath
+     * @return bool|int
+     */
+    public static function saveToFile($filePath)
+    {
+        return \file_put_contents($filePath, $this->key_material);
     }
 }

@@ -115,9 +115,9 @@ final class Key implements Contract\CryptoKeyInterface
                 $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
                     \Sodium\CRYPTO_BOX_SECRETKEYBYTES,
                     $password,
-                    $salt,
-                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE,
-                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE
+                    $salt, 
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
                 );
                 $public_key = \Sodium\crypto_box_publickey_from_secretkey(
                     $secret_key
@@ -129,8 +129,8 @@ final class Key implements Contract\CryptoKeyInterface
                     \Sodium\CRYPTO_SIGN_SECRETKEYBYTES,
                     $password,
                     $salt,
-                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE,
-                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
                 );
                 $public_key = \Sodium\crypto_sign_publickey_from_secretkey(
                     $secret_key
@@ -157,8 +157,8 @@ final class Key implements Contract\CryptoKeyInterface
                 \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
             );
             return new Key($secret_key, false, $signing, false);
         } else {
@@ -166,8 +166,8 @@ final class Key implements Contract\CryptoKeyInterface
                 \Sodium\CRYPTO_AUTH_KEYBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
             );
             throw new CryptoAlert\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'

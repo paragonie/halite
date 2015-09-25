@@ -25,9 +25,15 @@ fi
 # Let's grab the latest release and its signature
 if [ ! -f phpunit.phar ]; then
     wget https://phar.phpunit.de/phpunit.phar
+    if [ $? -eq 0]; then
+        exit 1
+    fi
 fi
 if [ ! -f phpunit.phar.asc ]; then
     wget https://phar.phpunit.de/phpunit.phar.asc
+    if [ $? -eq 0]; then
+        exit 1
+    fi
 fi
 
 # Verify before running

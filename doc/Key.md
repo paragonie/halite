@@ -68,7 +68,9 @@ $sign_secret = new Key(
 );
 ```
 
-### deriveFromPassword
+### deriveFromPassword()
+
+Derive a key (or key pair) from a password and salt.
 
 Arguments:
 
@@ -90,3 +92,74 @@ $enc_secret = Key::deriveFromPassword(
     Key::ENCRYPTION | Key::SECRET_KEY
 );
 ```
+
+### fromFile
+
+Loads a `Key` from a file.
+
+Arguments:
+
+* `$filePath` - The full path to a file
+* `$type` - Flags
+
+Example:
+
+```php
+list ($sign_secret, $sign_public) = Key::fromFile(
+    '/var/www/secret/keypair',
+    Key::CRYPTO_SIGN
+);
+```
+
+### generate()
+
+Generates a new encryption key (or key pair)
+
+Arguments:
+
+* `$type` - Flags
+* `$secret_key` - Reference to optional variable to store secret key in
+
+Returns an instance of `Key`, or an array of two `Key` objects for asymmetric
+keys (**secret first, public last**).
+
+Example:
+
+```php
+$raw
+$encryption_key = Key::generate(Key::CRYPTO_SECRETBOX, $raw);
+if (hash_equals($encryption_key->get(), $raw)) {
+    // This should always return true
+}
+```
+
+### get()
+
+Simply returns the raw binary key data.
+
+### isAsymmetricKey()
+
+Returns true if this is a key meant for asymmetric cryptography.
+
+### isEncryptionKey()
+
+Returns true if this is a key meant for encryption.
+
+### isPublicKey()
+
+Returns true if this is the public key for a given key-pair.
+
+### isSecretKey()
+
+Returns true if:
+
+* Symmetric crypto: Always
+* Asymmetric crypto: This is the secret key for a given key-pair.
+
+### isSigningKey()
+
+Returns true if this is a key meant for authentication
+
+### saveToFile($filePath)
+
+Save the raw key data to a given path in the filesystem.

@@ -7,40 +7,7 @@ use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
 
 class Asymmetric implements Contract\AsymmetricKeyCryptoInterface
-{   
-    /**
-     * Diffie-Hellman, ECDHE, etc.
-     * 
-     * Get a shared secret from a private key you possess and a public key for
-     * the intended message recipient
-     * 
-     * @param Contract\CryptoKeyInterface $privatekey
-     * @param Contract\CryptoKeyInterface $publickey
-     * @param bool $get_as_object Get as a Key object?
-     * 
-     * @return string
-     */
-    public static function getSharedSecret(
-        Contract\CryptoKeyInterface $privatekey,
-        Contract\CryptoKeyInterface $publickey,
-        $get_as_object = false
-    ) {
-        list ($secret, $public) = self::judgeKeys($privatekey, $publickey);
-        
-        if ($get_as_object) {
-            return new Key(
-                \Sodium\crypto_scalarmult(
-                    $secret->get(),
-                    $public->get()
-                )
-            );
-        }
-        return \Sodium\crypto_scalarmult(
-            $secret->get(),
-            $public->get()
-        );
-    }
-    
+{
     /**
      * Encrypt a string using asymmetric cryptography
      * Wraps Symmetric::encrypt()
@@ -97,6 +64,61 @@ class Asymmetric implements Contract\AsymmetricKeyCryptoInterface
         $ciphertext = Symmetric::decrypt($source, $ecdh, $raw);
         unset($ecdh);
         return $ciphertext;
+    }
+    /**
+     * Generate a keypair
+     * 
+     * @param array $type
+     */
+    public static function generateKeys($type = Key::CRYPTO_BOX)
+    {
+        if ($type & Key::ASYMMETRIC === 0) {
+            throw new CryptoAlert\InvalidFlags;
+        }
+        
+        switch ($type) {
+            case Key::ENCRYPTION:
+            case Key::SIGNATURE:
+            case Key::CRYPTO_SIGN:
+            case Key::CRYPTO_BOX:
+                $keys = Key::generate($type);
+                return new KeyPair(...$keys);
+            default:
+                throw new CryptoAlert\InvalidKey;
+        }
+    }
+    
+    /**
+     * Diffie-Hellman, ECDHE, etc.
+     * 
+     * Get a shared secret from a private key you possess and a public key for
+     * the intended message recipient
+     * 
+     * @param Contract\CryptoKeyInterface $privatekey
+     * @param Contract\CryptoKeyInterface $publickey
+     * @param bool $get_as_object Get as a Key object?
+     * 
+     * @return string
+     */
+    public static function getSharedSecret(
+        Contract\CryptoKeyInterface $privatekey,
+        Contract\CryptoKeyInterface $publickey,
+        $get_as_object = false
+    ) {
+        list ($secret, $public) = self::judgeKeys($privatekey, $publickey);
+        
+        if ($get_as_object) {
+            return new Key(
+                \Sodium\crypto_scalarmult(
+                    $secret->get(),
+                    $public->get()
+                )
+            );
+        }
+        return \Sodium\crypto_scalarmult(
+            $secret->get(),
+            $public->get()
+        );
     }
     
     /**
@@ -161,6 +183,41 @@ class Asymmetric implements Contract\AsymmetricKeyCryptoInterface
         throw new CryptoAlert\InvalidKey(
             'Expected a public key'
         );
+    }
+    
+    /**
+     * Sign a message with our private key
+     * 
+     * @param string $message Message to sign
+     * @param Contract\CryptoKeyInterface $privatekey
+     * @param boolean $raw Don't hex encode the output?
+     * 
+     * @return string Signature (detached)
+     */
+    public static function sign(
+        $message,
+        Contract\CryptoKeyInterface $privatekey,
+        $raw = false
+    ) {
+        if (!$privatekey->isSigningKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Expected a signing key'
+            );
+        }
+        if (!$privatekey->isSecretKey()) {
+            throw new CryptoAlert\InvalidKey(
+                'Expected a secret key'
+            );
+        }
+        
+        $signed = \Sodium\crypto_sign_detached(
+            $message,
+            $privatekey->get()
+        );
+        if ($raw) {
+            return $signed;
+        }
+        return \Sodium\bin2hex($signed);
     }
     
     /**
@@ -258,41 +315,6 @@ class Asymmetric implements Contract\AsymmetricKeyCryptoInterface
     }
     
     /**
-     * Sign a message with our private key
-     * 
-     * @param string $message Message to sign
-     * @param Contract\CryptoKeyInterface $privatekey
-     * @param boolean $raw Don't hex encode the output?
-     * 
-     * @return string Signature (detached)
-     */
-    public static function sign(
-        $message,
-        Contract\CryptoKeyInterface $privatekey,
-        $raw = false
-    ) {
-        if (!$privatekey->isSigningKey()) {
-            throw new CryptoAlert\InvalidKey(
-                'Expected a signing key'
-            );
-        }
-        if (!$privatekey->isSecretKey()) {
-            throw new CryptoAlert\InvalidKey(
-                'Expected a secret key'
-            );
-        }
-        
-        $signed = \Sodium\crypto_sign_detached(
-            $message,
-            $privatekey->get()
-        );
-        if ($raw) {
-            return $signed;
-        }
-        return \Sodium\bin2hex($signed);
-    }
-    
-    /**
      * Verify a signed message with the correct public key
      * 
      * @param string $message Message to verify
@@ -327,29 +349,6 @@ class Asymmetric implements Contract\AsymmetricKeyCryptoInterface
             $message,
             $publickey->get()
         );
-    }
-    
-    /**
-     * Generate a keypair
-     * 
-     * @param array $type
-     */
-    public static function generateKeys($type = Key::CRYPTO_BOX)
-    {
-        if ($type & Key::ASYMMETRIC === 0) {
-            throw new CryptoAlert\InvalidFlags;
-        }
-        
-        switch ($type) {
-            case Key::ENCRYPTION:
-            case Key::SIGNATURE:
-            case Key::CRYPTO_SIGN:
-            case Key::CRYPTO_BOX:
-                $keys = Key::generate($type);
-                return new KeyPair(...$keys);
-            default:
-                throw new CryptoAlert\InvalidKey;
-        }
     }
     
     /**

@@ -53,6 +53,10 @@ final class Key implements Contract\CryptoKeyInterface
         $this->key_material = $keyMaterial;
         $this->is_public_key = $public;
         $this->is_signing_key = $signing;
+        if ($public && !$asymmetric) {
+            // This is implied.
+            $asymmetric = true;
+        }
         $this->is_asymmetric_key = $asymmetric;
     }
     
@@ -306,7 +310,7 @@ final class Key implements Contract\CryptoKeyInterface
     }
     
     /**
-     * Validate the caller to a whitelist of classes before returning anything
+     * Get the actual key material
      * 
      * @return string
      * @throws CryptoAlert\CannotAccessKey

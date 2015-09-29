@@ -12,8 +12,10 @@ interface CryptoKeyInterface
     
     /**
      * @param string $keyMaterial
+     * 
+     * Plus optional arguments
      */
-    public function __construct($keyMaterial = '', $public = false, $signing = false);
+    public function __construct($keyMaterial = '', ...$args);
     
     /**
      * Make sure you wipe the key from memory on destruction

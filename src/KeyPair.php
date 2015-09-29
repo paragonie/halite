@@ -1,6 +1,8 @@
 <?php
 namespace ParagonIE\Halite;
 
+use ParagonIE\Halite\Asymmetric\PublicKey;
+use ParagonIE\Halite\Asymmetric\SecretKey;
 use ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 
 /**
@@ -28,7 +30,12 @@ class KeyPair
                         );
                     }
                     // $keys[0] is public, $keys[1] is secret
-                    $this->secret_key = $keys[1];
+                    $this->secret_key = $keys[1] instanceof SecretKey
+                        ? $keys[1]
+                        : new SecretKey(
+                            $keys[1]->get(),
+                            $keys[1]->isSigningKey()
+                        );
                     
                     /**
                      * Let's use the secret key to calculate the *correct* 
@@ -40,20 +47,25 @@ class KeyPair
                         $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                             $keys[1]->get()
                         );
-                        $this->public_key = new Key($pub, true, true, true);
+                        $this->public_key = new PublicKey($pub, true);
                         \Sodium\memzero($pub);
                     } else {
                         // crypto_box - Curve25519
                         $pub = \Sodium\crypto_box_publickey_from_secretkey(
                             $keys[1]->get()
                         );
-                        $this->public_key = new Key($pub, true, false, true);
+                        $this->public_key = new PublicKey($pub, false);
                         \Sodium\memzero($pub);
                     }
                     
                 } elseif ($keys[1]->isPublicKey()) {
                     // We can deduce that $keys[0] is a secret key
-                    $this->secret_key = $keys[0];
+                    $this->secret_key = $keys[0] instanceof SecretKey
+                        ? $keys[0]
+                        : new SecretKey(
+                            $keys[0]->get(),
+                            $keys[0]->isSigningKey()
+                        );
                     
                     /**
                      * Let's use the secret key to calculate the *correct* 
@@ -65,13 +77,13 @@ class KeyPair
                         $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                             $keys[0]->get()
                         );
-                        $this->public_key = new Key($pub, true, true, true);
+                        $this->public_key = new PublicKey($pub, true);
                     } else {
                         // crypto_box - Curve25519
                         $pub = \Sodium\crypto_box_publickey_from_secretkey(
                             $keys[0]->get()
                         );
-                        $this->public_key = new Key($pub, true, false, true);
+                        $this->public_key = new PublicKey($pub, false);
                         \Sodium\memzero($pub);
                     }
                 } else {
@@ -86,21 +98,26 @@ class KeyPair
                         'We cannot generate a valid keypair given only a public key; we can given only a secret key, however.'
                     );
                 }
-                $this->secret_key = $keys[0];
+                $this->secret_key = $keys[0] instanceof SecretKey
+                    ? $keys[0]
+                    : new SecretKey(
+                        $keys[0]->get(),
+                        $keys[0]->isSigningKey()
+                    );
                 
                 if ($this->secret_key->isSigningKey()) {
                     // We need to calculate the public key from the secret key
                     $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                         $keys[0]->get()
                     );
-                    $this->public_key = new Key($pub, true, true, true);
+                    $this->public_key = new PublicKey($pub, true);
                     \Sodium\memzero($pub);
                 } else {
                     // We need to calculate the public key from the secret key
                     $pub = \Sodium\crypto_box_publickey_from_secretkey(
                         $keys[0]->get()
                     );
-                    $this->public_key = new Key($pub, true, false, true);
+                    $this->public_key = new PublicKey($pub, false);
                     \Sodium\memzero($pub);
                 }
                 break;

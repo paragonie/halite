@@ -1,6 +1,9 @@
 <?php
 namespace ParagonIE\Halite;
 
+use ParagonIE\Halite\Asymmetric\SecretKey as ASecretKey;
+use ParagonIE\Halite\Asymmetric\PublicKey as APublicKey;
+use ParagonIE\Halite\Symmetric\SecretKey;
 use ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 use ParagonIE\Halite\Contract;
 
@@ -8,7 +11,7 @@ use ParagonIE\Halite\Contract;
  * Symmetric Key Crypography uses one secret key, while Asymmetric Key Cryptography
  * uses a secret key and public key pair
  */
-final class Key implements Contract\CryptoKeyInterface
+class Key implements Contract\CryptoKeyInterface
 {
     // FLAGS:
     const SECRET_KEY       =   1;
@@ -46,10 +49,12 @@ final class Key implements Contract\CryptoKeyInterface
      */
     public function __construct(
         $keyMaterial = '',
-        $public = false,
-        $signing = false,
-        $asymmetric = false
+        ...$args
     ) {
+        $public = \count($args) >= 1 ? $args[0] : false;
+        $signing = \count($args) >= 2 ? $args[1] : false;
+        $asymmetric = \count($args) >= 3 ? $args[2] : false;
+        
         $this->key_material = $keyMaterial;
         $this->is_public_key = $public;
         $this->is_signing_key = $signing;
@@ -147,8 +152,8 @@ final class Key implements Contract\CryptoKeyInterface
             
             // Let's return an array with two keys
             return [
-                new Key($secret_key, false, $signing, true), // Secret key
-                new Key($public_key, true, $signing, true)   // Public key
+                new ASecretKey($secret_key, $signing), // Secret key
+                new APublicKey($public_key, $signing)  // Public key
             ];
         } elseif ($type & self::SECRET_KEY !== 0) {
             /**
@@ -164,15 +169,8 @@ final class Key implements Contract\CryptoKeyInterface
                 \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
                 \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
             );
-            return new Key($secret_key, false, $signing, false);
+            return new SecretKey($secret_key, $signing);
         } else {
-            $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-                \Sodium\CRYPTO_AUTH_KEYBYTES,
-                $password,
-                $salt,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
-            );
             throw new CryptoAlert\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'
             );
@@ -220,8 +218,8 @@ final class Key implements Contract\CryptoKeyInterface
             
             // Let's return an array with two keys
             return [
-                new Key($secret_key, false, $signing, true), // Secret key
-                new Key($public_key, true, $signing, true)   // Public key
+                new ASecretKey($secret_key, $signing), // Secret key
+                new APublicKey($public_key, $signing)  // Public key
             ];
         } elseif ($type & self::SECRET_KEY !== 0) {
             /**
@@ -231,7 +229,7 @@ final class Key implements Contract\CryptoKeyInterface
                 $signing = true;
             }
             $secret_key = \file_get_contents($filePath);
-            return new Key($secret_key, false, $signing, false);
+            return new SecretKey($secret_key, $signing);
         } else {
             throw new CryptoAlert\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'
@@ -282,8 +280,8 @@ final class Key implements Contract\CryptoKeyInterface
             
             // Let's return an array with two keys
             return [
-                new Key($secret_key, false, $signing, true), // Secret key
-                new Key($public_key, true, $signing, true)   // Public key
+                new ASecretKey($secret_key, $signing), // Secret key
+                new APublicKey($public_key, $signing)  // Public key
             ];
         } elseif ($type & self::SECRET_KEY !== 0) {
             /**
@@ -301,7 +299,7 @@ final class Key implements Contract\CryptoKeyInterface
                     \Sodium\CRYPTO_AUTH_KEYBYTES
                 );
             }
-            return new Key($secret_key, false, $signing, false);
+            return new SecretKey($secret_key, $signing);
         } else {
             throw new CryptoAlert\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'

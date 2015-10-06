@@ -1,6 +1,5 @@
 {
     "name": "paragonie/halite",
-    "version": "0.1.0",
     "description": "High-level cryptography interface powered by libsodium",
     "type": "library",
     "require": {

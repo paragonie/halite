@@ -1,5 +1,5 @@
 <?php
-namespace ParagonIE\Halite\Alerts\Crypto;
+namespace ParagonIE\Halite\Alerts;
 
 class InvalidMessage extends \Exception
 {

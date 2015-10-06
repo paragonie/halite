@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Alerts;
 
-class GearNotFound extends \Exception
+class CannotAccessKey extends \Exception
 {
     
 }

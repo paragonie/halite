@@ -1,5 +1,5 @@
 <?php
-use \ParagonIE\Halite\Primitive\Asymmetric;
+use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Key;
 
 /**

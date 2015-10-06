@@ -4,7 +4,7 @@ namespace ParagonIE\Halite;
 use ParagonIE\Halite\Asymmetric\SecretKey as ASecretKey;
 use ParagonIE\Halite\Asymmetric\PublicKey as APublicKey;
 use ParagonIE\Halite\Symmetric\SecretKey;
-use ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
+use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Contract;
 
 /**
@@ -34,11 +34,11 @@ class Key implements Contract\CryptoKeyInterface
     /**
      * Don't let this ever succeed
      * 
-     * @throws CryptoAlert\CannotCloneKey
+     * @throws CryptoException\CannotCloneKey
      */
     public function __clone()
     {
-        throw new CryptoAlert\CannotCloneKey;
+        throw new CryptoException\CannotCloneKey;
     }
     
     /**
@@ -81,7 +81,7 @@ class Key implements Contract\CryptoKeyInterface
      */
     public function __sleep()
     {
-        throw new CryptoAlert\CannotSerializeKey;
+        throw new CryptoException\CannotSerializeKey;
     }
     
     /**
@@ -103,7 +103,7 @@ class Key implements Contract\CryptoKeyInterface
      * @param string $salt
      * @param int $type
      * @return array|\ParagonIE\Halite\Key
-     * @throws CryptoAlert\InvalidFlags
+     * @throws CryptoException\InvalidFlags
      */
     public static function deriveFromPassword(
         $password,
@@ -145,7 +145,7 @@ class Key implements Contract\CryptoKeyInterface
                     $secret_key
                 );
             } else {
-                throw new CryptoAlert\InvalidFlags(
+                throw new CryptoException\InvalidFlags(
                     'Must specify encryption or authentication'
                 );
             }
@@ -171,7 +171,7 @@ class Key implements Contract\CryptoKeyInterface
             );
             return new SecretKey($secret_key, $signing);
         } else {
-            throw new CryptoAlert\InvalidFlags(
+            throw new CryptoException\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'
             );
         }
@@ -183,7 +183,7 @@ class Key implements Contract\CryptoKeyInterface
      * @param string $filePath
      * @param int $type
      * @return array|\ParagonIE\Halite\Key
-     * @throws CryptoAlert\InvalidFlags
+     * @throws CryptoException\InvalidFlags
      */
     public static function fromFile(
         $filePath,
@@ -211,7 +211,7 @@ class Key implements Contract\CryptoKeyInterface
                     $secret_key
                 );
             } else {
-                throw new CryptoAlert\InvalidFlags(
+                throw new CryptoException\InvalidFlags(
                     'Must specify encryption or authentication'
                 );
             }
@@ -231,7 +231,7 @@ class Key implements Contract\CryptoKeyInterface
             $secret_key = \file_get_contents($filePath);
             return new SecretKey($secret_key, $signing);
         } else {
-            throw new CryptoAlert\InvalidFlags(
+            throw new CryptoException\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'
             );
         }
@@ -270,7 +270,7 @@ class Key implements Contract\CryptoKeyInterface
                 $secret_key = \Sodium\crypto_sign_secretkey($kp);
                 $public_key = \Sodium\crypto_sign_publickey($kp);
             } else {
-                throw new CryptoAlert\InvalidFlags(
+                throw new CryptoException\InvalidFlags(
                     'Must specify encryption or authentication'
                 );
             }
@@ -301,7 +301,7 @@ class Key implements Contract\CryptoKeyInterface
             }
             return new SecretKey($secret_key, $signing);
         } else {
-            throw new CryptoAlert\InvalidFlags(
+            throw new CryptoException\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'
             );
         }
@@ -311,7 +311,7 @@ class Key implements Contract\CryptoKeyInterface
      * Get the actual key material
      * 
      * @return string
-     * @throws CryptoAlert\CannotAccessKey
+     * @throws CryptoException\CannotAccessKey
      */
     public function get()
     {

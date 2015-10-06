@@ -1,10 +1,10 @@
 <?php
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Primitive;
+use \ParagonIE\Halite\Halite;
 use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\Primitive\Asymmetric;
-use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
+use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
+use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Alerts\FileSystem as FileAlert;
 use \ParagonIE\Halite\Util as CryptoUtil;
 
@@ -215,12 +215,12 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             );
         }
         if (!$key->isSecretKey()) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'Expected a secret key'
             );
         }
         if ($key->isAsymmetricKey()) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'Expected a key intended for symmetric-key cryptography'
             );
         }
@@ -287,12 +287,12 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             );
         }
         if (!$key->isSecretKey()) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'Expected a secret key'
             );
         }
         if ($key->isAsymmetricKey()) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'Expected a key intended for symmetric-key cryptography'    
             );
         }
@@ -361,12 +361,12 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             );
         }
         if (!$publickey->isPublicKey()) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'Especter a public key'
             );
         }
         if (!$publickey->isAsymmetricKey()) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'Expected a key intended for asymmetric-key cryptography'
             );
         }
@@ -460,12 +460,12 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             );
         }
         if (!$secretkey->isSecretKey()) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'Expected a secret key'
             );
         }
         if (!$secretkey->isAsymmetricKey()) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'Expected a key intended for asymmetric-key cryptography'
             );
         }
@@ -533,12 +533,12 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
      * @param string $header
      * @param string $mode
      * @return array
-     * @throws CryptoAlert\InvalidMessage
+     * @throws CryptoException\InvalidMessage
      */
     protected static function getConfig($header, $mode = 'encrypt')
     {
         if (\ord($header[0]) !== 49 || \ord($header[1]) !== 66) {
-            throw new CryptoAlert\InvalidMessage(
+            throw new CryptoException\InvalidMessage(
                 'Invalid version tag'
             );
         }
@@ -557,7 +557,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
      * @param int $major
      * @param int $minor
      * @return array
-     * @throws CryptoAlert\InvalidMessage
+     * @throws CryptoException\InvalidMessage
      */
     protected static function getConfigEncrypt($major, $minor)
     {
@@ -572,7 +572,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
                     ];
             }
         }
-        throw new CryptoAlert\InvalidMessage(
+        throw new CryptoException\InvalidMessage(
             'Invalid version tag'
         );
     }
@@ -583,7 +583,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
      * @param int $major
      * @param int $minor
      * @return array
-     * @throws CryptoAlert\InvalidMessage
+     * @throws CryptoException\InvalidMessage
      */
     protected static function getConfigSeal($major, $minor)
     {
@@ -598,7 +598,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
                     ];
             }
         }
-        throw new CryptoAlert\InvalidMessage(
+        throw new CryptoException\InvalidMessage(
             'Invalid version tag'
         );
     }
@@ -730,13 +730,13 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         // Reset the stream pointer to the beginning of the ciphertext
         $start = \ftell($input);
         if (\fseek($input, (-1 * $config['MAC_SIZE']), SEEK_END) === false) {
-            throw new CryptoAlert\CannotPerformOperation(
+            throw new CryptoException\CannotPerformOperation(
                 'Stream error'
             );
         }
         $cipher_end = \ftell($input) - 1;
         if (\fseek($input, $start, SEEK_SET) === false) {
-            throw new CryptoAlert\CannotPerformOperation(
+            throw new CryptoException\CannotPerformOperation(
                 'Stream error'
             );
         }
@@ -744,7 +744,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         while (!$break) {
             $pos = \ftell($input);
             if ($pos === false) {
-                throw new CryptoAlert\CannotPerformOperation(
+                throw new CryptoException\CannotPerformOperation(
                     'Stream error'
                 );
             }
@@ -761,18 +761,18 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             \hash_update($mac, $read);
             $calcMAC = \hash_copy($mac);
             if ($calcMAC === false) {
-                throw new CryptoAlert\CannotPerformOperation(
+                throw new CryptoException\CannotPerformOperation(
                     'An unknown error has occurred'
                 );
             }
             
             $calc = \hash_final($calcMAC, true);
             if (empty($chunk_macs)) {
-                throw new CryptoAlert\InvalidMessage(
+                throw new CryptoException\InvalidMessage(
                     'Invalid message authentication code'
                 );
             } elseif (!\hash_equals(\array_shift($chunk_macs), $calc)) {
-                throw new CryptoAlert\InvalidMessage(
+                throw new CryptoException\InvalidMessage(
                     'Invalid message authentication code'
                 );
             }
@@ -810,7 +810,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
     ) {
         $start = \ftell($input);
         if (\fseek($input, (-1 * $config['MAC_SIZE']), SEEK_END) === false) {
-            throw new CryptoAlert\CannotPerformOperation(
+            throw new CryptoException\CannotPerformOperation(
                 'Stream error'
             );
         }
@@ -819,7 +819,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         $stored_mac = self::readBytes($input, $config['MAC_SIZE']);
         
         if (\fseek($input, $start, SEEK_SET) === false) {
-            throw new CryptoAlert\CannotPerformOperation(
+            throw new CryptoException\CannotPerformOperation(
                 'Stream error'
             );
         }
@@ -832,7 +832,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
              */
             $pos = \ftell($input);
             if ($pos === false) {
-                throw new CryptoAlert\CannotPerformOperation(
+                throw new CryptoException\CannotPerformOperation(
                     'Stream error'
                 );
             }
@@ -860,7 +860,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
              */
             $chunkMAC = \hash_copy($mac);
             if ($chunkMAC === false) {
-                throw new CryptoAlert\CannotPerformOperation(
+                throw new CryptoException\CannotPerformOperation(
                     'An unknown error has occurred'
                 );
             }
@@ -873,12 +873,12 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         $finalHMAC = \hash_final($mac, true);
         if (!\hash_equals($finalHMAC, $stored_mac)) {
             
-            throw new CryptoAlert\InvalidMessage(
+            throw new CryptoException\InvalidMessage(
                     'Invalid message authentication code'
             );
         }
         if (\fseek($input, $start, SEEK_SET) === false) {
-            throw new CryptoAlert\CannotPerformOperation(
+            throw new CryptoException\CannotPerformOperation(
                 'Stream error'
             );
         }

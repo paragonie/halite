@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Alerts;
 
-class InvalidType extends \Exception
+class CannotPerformOperation extends \Exception
 {
     
 }

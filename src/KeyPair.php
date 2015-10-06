@@ -3,7 +3,7 @@ namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Asymmetric\PublicKey;
 use ParagonIE\Halite\Asymmetric\SecretKey;
-use ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
+use ParagonIE\Halite\Alerts as CryptoException;
 
 /**
  * Describes a pair of secret and public keys
@@ -25,7 +25,7 @@ class KeyPair
             case 2:
                 if ($keys[0]->isPublicKey()) {
                     if ($keys[1]->isPublicKey()) {
-                        throw new CryptoAlert\InvalidKey(
+                        throw new CryptoException\InvalidKey(
                             'Both keys cannot be public keys'
                         );
                     }
@@ -87,14 +87,14 @@ class KeyPair
                         \Sodium\memzero($pub);
                     }
                 } else {
-                    throw new CryptoAlert\InvalidKey(
+                    throw new CryptoException\InvalidKey(
                         'Both keys cannot be secret keys'
                     );
                 }
                 break;
             case 1:
                 if ($keys[0]->isPublicKey()) {
-                    throw new CryptoAlert\InvalidKey(
+                    throw new CryptoException\InvalidKey(
                         'We cannot generate a valid keypair given only a public key; we can given only a secret key, however.'
                     );
                 }
@@ -135,7 +135,7 @@ class KeyPair
      * @param string $salt
      * @param int $type
      * @return array|\ParagonIE\Halite\Key
-     * @throws CryptoAlert\InvalidFlags
+     * @throws CryptoException\InvalidFlags
      */
     public static function deriveFromPassword(
         $password,
@@ -144,7 +144,7 @@ class KeyPair
     ) {
         
         if (($type & Key::ASYMMETRIC) === 0) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'An asymmetric key type must be passed to KeyPair::generate()'
             );
         }
@@ -153,7 +153,7 @@ class KeyPair
         } elseif (($type & Key::SIGNATURE) !== 0) {
             return Key::deriveFromPassword($password, $salt, Key::CRYPTO_SIGN);
         }
-        throw new CryptoAlert\InvalidKey(
+        throw new CryptoException\InvalidKey(
             'You must specify encryption or authentication flags.'
         );
     }
@@ -163,12 +163,12 @@ class KeyPair
      * 
      * @param int $type Key flags
      * @return array [Key $secret, Key $public]
-     * @throws CryptoAlert\InvalidKey
+     * @throws CryptoException\InvalidKey
      */
     public static function generate($type = Key::CRYPTO_BOX)
     {
         if (($type & Key::ASYMMETRIC) === 0) {
-            throw new CryptoAlert\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'An asymmetric key type must be passed to KeyPair::generate()'
             );
         }
@@ -177,7 +177,7 @@ class KeyPair
         } elseif (($type & Key::SIGNATURE) !== 0) {
             return Key::generate(Key::CRYPTO_SIGN);
         }
-        throw new CryptoAlert\InvalidKey(
+        throw new CryptoException\InvalidKey(
             'You must specify encryption or authentication flags.'
         );
     }

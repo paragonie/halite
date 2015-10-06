@@ -34,7 +34,7 @@ interface CryptoKeyInterface
      * @param string $salt
      * @param int $type
      * @return array|\ParagonIE\Halite\Key
-     * @throws CryptoAlert\InvalidFlags
+     * @throws CryptoException\InvalidFlags
      */
     public static function deriveFromPassword(
         $password,

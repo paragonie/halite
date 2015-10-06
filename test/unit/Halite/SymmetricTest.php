@@ -1,5 +1,5 @@
 <?php
-use \ParagonIE\Halite\Primitive\Symmetric;
+use \ParagonIE\Halite\Symmetric\Crypto as Symmetric;
 
 /**
  * @backupGlobals disabled

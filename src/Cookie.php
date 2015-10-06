@@ -2,7 +2,7 @@
 namespace ParagonIE\Halite;
 
 use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\Primitive\Symmetric;
+use \ParagonIE\Halite\Symmetric;
 
 class Cookie 
 {

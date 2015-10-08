@@ -87,19 +87,19 @@ Encryption:
 
 ```php
 <?php
-use \ParagonIE\Halite\Primitive\Symmetric;
+use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
 /**
  * This will return a hex-encoded string.
  * 
  * $plaintext is your message
  * $encryption_key is a Key object (generated above)
  */
-$ciphertext = Symmetric::encrypt($plaintext, $encryption_key);
+$ciphertext = SymmetricCrypto::encrypt($plaintext, $encryption_key);
 
 /**
  * To get raw binary, pass TRUE as the third argument:
  */
-$raw_ciphertext = Symmetric::encrypt($plaintext, $encryption_key, true);
+$raw_ciphertext = SymmetricCrypto::encrypt($plaintext, $encryption_key, true);
 ```
 
 Decryption:
@@ -108,12 +108,72 @@ Decryption:
 /**
  * This expects a hex-encoded string.
  */
-$decrypted = Symmetric::decrypt($ciphertext, $encryption_key);
+$decrypted = SymmetricCrypto::decrypt($ciphertext, $encryption_key);
 
 /**
  * If you're decrypting raw binary, pass TRUE to the third argument:
  */
-$raw_decrypt = Symmetric::decrypt($raw_ciphertext, $encryption_key, true);
+$raw_decrypt = SymmetricCrypto::decrypt($raw_ciphertext, $encryption_key, true);
+```
+
+### Asymmetric-Key String Encryption
+
+```php
+use \ParagonIE\Halite\KeyPair;
+
+// Generate a key pair like so:
+list ($enc_secret, $enc_public) = \ParagonIE\Halite\KeyPair::generate();
+```
+
+#### Anonymous Public-Key Encryption
+
+Encrypt with Public Key:
+
+```php
+use \ParagonIE\Halite\File;
+use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
+
+$encrypted = AsymmetricCrypto::seal($plaintext, $enc_public);
+$raw_encrypt = AsymmetricCrypto::seal($plaintext, $enc_public, true);
+```
+
+Decrypt with Secret Key:
+
+```php
+use \ParagonIE\Halite\File;
+use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
+
+$decrypted = AsymmetricCrypto::unseal($encrypted, $enc_secret);
+$raw_decrypt = AsymmetricCrypto::unseal($raw_encrypt, $enc_secret, true);
+```
+#### Authenticated Public-Key Encryption
+
+Getting the other party's public key:
+
+```php
+$recip_public = \ParagonIE\Halite\Asymmetric\PublicKey(
+    $raw_binary_string_here
+);
+```
+
+Authenticated Public-Key String Encryption:
+
+```php
+use \ParagonIE\Halite\File;
+use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
+
+$encrypted = AsymmetricCrypto::encrypt($plaintext, $enc_secret, $recip_public);
+$raw_encrypt = AsymmetricCrypto::encrypt($plaintext, $enc_secret, $recip_public, true);
+```
+
+Authenticated Public-Key String Decryption:
+
+```php
+use \ParagonIE\Halite\File;
+use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
+
+$decrypted = AsymmetricCrypto::decrypt($plaintext, $enc_public, $recip_secret);
+$raw_decrypt = AsymmetricCrypto::decrypt($plaintext, $enc_public, $recip_secret, true);
 ```
 
 ### Secure Password Storage (Hash-then-Encrypt)
@@ -136,14 +196,12 @@ The above snippet will return a long string of hex characters.
 ```php
 <?php
 use \ParagonIE\Halite\Password;
-use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 
 try {
     if (Password::verify($plaintext_password, $stored_hash, $encryption_key)) {
         // Password matches
     }
-} catch (CryptoAlert\InvalidMessage $ex) {
+} catch (CryptoException\InvalidMessage $ex) {
     // Handle an invalid message here. This usually means tampered cipheretxt.
 }
 ```
@@ -153,8 +211,6 @@ try {
 ```php
 <?php
 use \ParagonIE\Halite\Cookie;
-use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
 
 $cookie = new Cookie($encryption_key);
 
@@ -162,13 +218,17 @@ $cookie->store('index', $any_value);
 $some_value = $cookie->fetch('other_index');
 ```
 
-### Symmetric-key File Encryption
+### File Encryption
+
+#### Symmetric-key File Encryption
 
 ```php
 <?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
+use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
+
+$encryption_key = \ParagonIE\Halite\Symmetric\SecretKey::generate();
 
 // Encryption
 File::encryptFile('originalFile.png', 'encryptedFile.png', $encryption_key);
@@ -177,13 +237,15 @@ File::encryptFile('originalFile.png', 'encryptedFile.png', $encryption_key);
 File::decryptFile('encryptedFile.png', 'decryptedFile.png', $encryption_key);
 ```
 
-### Asymmetric-key File Encryption
+#### Asymmetric-key File Encryption
 
 ```php
 <?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\Alerts\Crypto as CryptoAlert;
+use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
+
+list($enc_secret, $enc_public) = \ParagonIE\Halite\KeyPair::generate();
 
 // Encryption
 File::sealFile('originalFile.png', 'sealedFile.png', $enc_public);

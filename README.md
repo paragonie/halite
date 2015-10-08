@@ -151,7 +151,7 @@ $raw_decrypt = AsymmetricCrypto::unseal($raw_encrypt, $enc_secret, true);
 Getting the other party's public key:
 
 ```php
-$recip_public = \ParagonIE\Halite\Asymmetric\PublicKey(
+$recip_public = new \ParagonIE\Halite\Asymmetric\PublicKey(
     $raw_binary_string_here
 );
 ```

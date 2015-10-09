@@ -5,7 +5,6 @@ use \ParagonIE\Halite\Halite;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Alerts\FileSystem as FileAlert;
 use \ParagonIE\Halite\Util as CryptoUtil;
 
 class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
@@ -23,24 +22,24 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         \ParagonIE\Halite\Contract\CryptoKeyInterface $key
     ) {
         if (!\is_readable($inputFile)) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not read from the file'
             );
         }
         if (!\is_writable($outputFile)) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         $inputHandle = \fopen($inputFile, 'rb');
         if ($inputHandle === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not read from the file'
             );
         }
         $outputHandle = \fopen($outputFile, 'wb');
         if ($outputHandle === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
@@ -68,24 +67,24 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         \ParagonIE\Halite\Contract\CryptoKeyInterface $key
     ) {
         if (!\is_readable($inputFile)) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not read from the file'
             );
         }
         if (!\is_writable($outputFile)) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         $inputHandle = \fopen($inputFile, 'rb');
         if ($inputHandle === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not read from the file'
             );
         }
         $outputHandle = \fopen($outputFile, 'wb');
         if ($outputHandle === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
@@ -114,24 +113,24 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
     ) {
         
         if (!\is_readable($inputFile)) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not read from the file'
             );
         }
         if (!\is_writable($outputFile)) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         $inputHandle = \fopen($inputFile, 'rb');
         if ($inputHandle === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not read from the file'
             );
         }
         $outputHandle = \fopen($outputFile, 'wb');
         if ($outputHandle === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
@@ -159,24 +158,24 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
     ) {
         if (!\is_readable($inputFile)) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not read from the file'
             );
         }
         if (!\is_writable($outputFile)) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         $inputHandle = \fopen($inputFile, 'rb');
         if ($inputHandle === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not read from the file'
             );
         }
         $outputHandle = \fopen($outputFile, 'wb');
         if ($outputHandle === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
@@ -239,19 +238,19 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         // Write the header
         $written = \fwrite($output, Halite::HALITE_VERSION, Halite::VERSION_TAG_LEN);
         if ($written === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         $written &= \fwrite($output, $firstnonce, \Sodium\CRYPTO_STREAM_NONCEBYTES);
         if ($written === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         $written &= \fwrite($output, $hkdfsalt, Halite::HKDF_SALT_LEN);
         if ($written === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
@@ -402,19 +401,19 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         
         $written = \fwrite($output, Halite::HALITE_VERSION, Halite::VERSION_TAG_LEN);
         if ($written === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         $written &= \fwrite($output, $eph_public->get(), \Sodium\CRYPTO_BOX_PUBLICKEYBYTES);
         if ($written === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         $written &= \fwrite($output, $hkdfsalt, Halite::HKDF_SALT_LEN);
         if ($written === false) {
-            throw new FileAlert\AccessDenied(
+            throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
@@ -623,7 +622,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             }
             $read = \fread($stream, $remaining);
             if ($read === false) {
-                throw new FileAlert\AccessDenied(
+                throw new CryptoException\FileAccessDenied(
                     'Could not read from the file'
                 );
             }
@@ -682,7 +681,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         while (!\feof($input)) {
             $read = \fread($input, $config['BUFFER']);
             if ($read === false) {
-                throw new FileAlert\AccessDenied(
+                throw new CryptoException\FileAccessDenied(
                     'Could not read from the file'
                 );
             }
@@ -696,7 +695,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             
             $written = \fwrite($output, $encrypted);
             if ($written === false) {
-                throw new FileAlert\AccessDenied(
+                throw new CryptoException\FileAccessDenied(
                     'Could not write to the file'
                 );
             }
@@ -784,7 +783,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             );
             $written = \fwrite($output, $decrypted);
             if ($written === false) {
-                throw new FileAlert\AccessDenied(
+                throw new CryptoException\FileAccessDenied(
                     'Could not write to the file'
                 );
             }

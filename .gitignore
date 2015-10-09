@@ -2,6 +2,10 @@
 /test/phpunit.phar
 /test/phpunit.phar.asc
 /test/unit/tmp/paragon_avatar.decrypted.png
+/test/unit/tmp/paragon_avatar.decrypt_fail.png
 /test/unit/tmp/paragon_avatar.encrypted.png
+/test/unit/tmp/paragon_avatar.encrypt_fail.png
 /test/unit/tmp/paragon_avatar.opened.png
+/test/unit/tmp/paragon_avatar.open_fail.png
 /test/unit/tmp/paragon_avatar.sealed.png
+/test/unit/tmp/paragon_avatar.seal_fail.png

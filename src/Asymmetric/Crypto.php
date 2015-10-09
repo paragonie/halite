@@ -270,6 +270,17 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
                     \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
                     '8bit'
                 );
+                if (\mb_strlen($eph_public, '8bit') !== \Sodium\CRYPTO_BOX_PUBLICKEYBYTES) {
+                    try { } catch (Exception $ex) { var_dump($ex->getTrace()); }
+                    \var_dump([
+                        'source' => \mb_strlen($source, '8bit'),
+                        'src' => \Sodium\bin2hex($source),
+                        'expect' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
+                        'gotten' => \mb_strlen($eph_public, '8bit')
+                    ]);
+                    throw new CryptoException\CannotPerformOperation('What even is a string length');
+                }
+                
                 $box_kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
                     $my_secret,
                     $eph_public

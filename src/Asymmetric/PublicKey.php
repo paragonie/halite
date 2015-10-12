@@ -26,6 +26,6 @@ class PublicKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
         if ($type & self::ASYMMETRIC === 0) {
             $type &= self::ASYMMETRIC;
         }
-        parent::generate($type, $secret_key);
+        return parent::generate($type, $secret_key);
     }
 }

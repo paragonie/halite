@@ -16,6 +16,26 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
     }
     
     /**
+     * Derive an encryption key from a password and a salt
+     * 
+     * @param string $password
+     * @param string $salt
+     * @param int $type
+     * @return array|\ParagonIE\Halite\Key
+     * @throws CryptoException\InvalidFlags
+     */
+    public static function deriveFromPassword($password, $salt, $type = self::CRYPTO_SECRETBOX)
+    {
+        if ($type & self::ASYMMETRIC !== 0) {
+            $type ^= self::ASYMMETRIC;
+        }
+        if ($type & self::PUBLIC_KEY !== 0) {
+            $type ^= self::PUBLIC_KEY;
+        }
+        return parent::deriveFromPassword($password, $salt, $type);
+    }
+    
+    /**
      * See Key::generate()
      * 
      * @param type $type
@@ -31,6 +51,6 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
         }
         // Force secret key
         $type &= self::SECRET_KEY;
-        parent::generate($type, $secret_key);
+        return parent::generate($type, $secret_key);
     }
 }

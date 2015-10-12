@@ -134,16 +134,18 @@ class Key implements Contract\CryptoKeyInterface
             } elseif (($type & self::SIGNATURE) !== 0) {
                 // Digital signature keypair
                 $signing = true;
-                $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-                    \Sodium\CRYPTO_SIGN_SECRETKEYBYTES,
+                $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                    \Sodium\CRYPTO_SIGN_SEEDBYTES,
                     $password,
                     $salt,
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
                 );
-                $public_key = \Sodium\crypto_sign_publickey_from_secretkey(
-                    $secret_key
-                );
+                $keypair = \Sodium\crypto_sign_seed_keypair($seed);
+                $secret_key = \Sodium\crypto_sign_secretkey($keypair);
+                $public_key = \Sodium\crypto_sign_publickey($keypair);
+                \Sodium\memzero($keypair);
+                \Sodium\memzero($seed);
             } else {
                 throw new CryptoException\InvalidFlags(
                     'Must specify encryption or authentication'
@@ -161,14 +163,22 @@ class Key implements Contract\CryptoKeyInterface
              */
             if ($type & self::SIGNATURE !== 0) {
                 $signing = true;
+                $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                    \Sodium\CRYPTO_AUTH_KEYBYTES,
+                    $password,
+                    $salt,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+                );
+            } else {
+                $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                    \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
+                    $password,
+                    $salt,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                    \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+                );
             }
-            $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-                \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
-                $password,
-                $salt,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
-            );
             return new SecretKey($secret_key, $signing);
         } else {
             throw new CryptoException\InvalidFlags(

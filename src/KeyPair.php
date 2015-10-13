@@ -173,9 +173,13 @@ class KeyPair
             );
         }
         if (($type & Key::ENCRYPTION) !== 0) {
-            return Key::generate(Key::CRYPTO_BOX);
+            $key = Key::generate(Key::CRYPTO_BOX);
+            $keypair = new KeyPair(...$key);
+            return $keypair;
         } elseif (($type & Key::SIGNATURE) !== 0) {
-            return Key::generate(Key::CRYPTO_SIGN);
+            $key = Key::generate(Key::CRYPTO_SIGN);
+            $keypair = new KeyPair(...$key);
+            return $keypair;
         }
         throw new CryptoException\InvalidKey(
             'You must specify encryption or authentication flags.'

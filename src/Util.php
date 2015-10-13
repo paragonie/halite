@@ -19,7 +19,9 @@ abstract class Util
         if ($exists) {
             $length = \mb_strlen($str, '8bit');
             if ($length === false) {
-                
+                throw new Alerts\CannotPerformOperation(
+                    'mb_strlen() failed unexpectedly'
+                );
             }
             return $length;
         } else {

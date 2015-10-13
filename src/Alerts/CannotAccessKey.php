@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Alerts;
 
-class CannotAccessKey extends \Exception
+class CannotAccessKey extends HaliteAlert
 {
     
 }

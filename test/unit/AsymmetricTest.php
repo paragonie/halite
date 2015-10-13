@@ -2,6 +2,7 @@
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\KeyPair;
 
 /**
  * @backupGlobals disabled
@@ -63,7 +64,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testSeal()
     {
-        $alice = Asymmetric::generateKeys();
+        $alice = KeyPair::generate();
         
         $message = 'This is for your eyes only';
         
@@ -81,7 +82,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     public function testSealFail()
     {
         
-        $alice = Asymmetric::generateKeys();
+        $alice = KeyPair::generate();
         
         $message = 'This is for your eyes only';
         $sealed = Asymmetric::seal($message, $alice->getPublicKey(), true);

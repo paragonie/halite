@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Alerts;
 
-class InvalidFlags extends HaliteAlert
+class HaliteAlert extends \Exception
 {
     
 }

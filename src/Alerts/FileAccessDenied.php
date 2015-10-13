@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Alerts;
 
-class FileAccessDenied extends \Exception
+class FileAccessDenied extends HaliteAlert
 {
     
 }

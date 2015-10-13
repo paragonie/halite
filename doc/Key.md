@@ -126,7 +126,6 @@ keys (**secret first, public last**).
 Example:
 
 ```php
-$raw
 $encryption_key = Key::generate(Key::CRYPTO_SECRETBOX, $raw);
 if (hash_equals($encryption_key->get(), $raw)) {
     // This should always return true

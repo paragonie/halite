@@ -39,19 +39,28 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         }
         $outputHandle = \fopen($outputFile, 'wb');
         if ($outputHandle === false) {
+            \fclose($inputHandle);
             throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         
-        self::encryptResource(
-            $inputHandle,
-            $outputHandle,
-            $key
-        );
-        
-        \fclose($inputHandle);
-        \fclose($outputHandle);
+        try {
+            self::encryptResource(
+                $inputHandle,
+                $outputHandle,
+                $key
+            );
+
+            \fclose($inputHandle);
+            \fclose($outputHandle);
+        } catch (CryptoException\HaliteAlert $e) {
+            \fclose($inputHandle);
+            \fclose($outputHandle);
+            
+            // Rethrow the exception:
+            throw $e;
+        }
     }
     
     /**
@@ -84,19 +93,28 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         }
         $outputHandle = \fopen($outputFile, 'wb');
         if ($outputHandle === false) {
+            \fclose($inputHandle);
             throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         
-        self::decryptResource(
-            $inputHandle,
-            $outputHandle,
-            $key
-        );
-        
-        \fclose($inputHandle);
-        \fclose($outputHandle);
+        try {
+            self::decryptResource(
+                $inputHandle,
+                $outputHandle,
+                $key
+            );
+
+            \fclose($inputHandle);
+            \fclose($outputHandle);
+        } catch (CryptoException\HaliteAlert $e) {
+            \fclose($inputHandle);
+            \fclose($outputHandle);
+            
+            // Rethrow the exception:
+            throw $e;
+        }
     }
     
     /**
@@ -130,19 +148,28 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         }
         $outputHandle = \fopen($outputFile, 'wb');
         if ($outputHandle === false) {
+            \fclose($inputHandle);
             throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         
-        self::sealResource(
-            $inputHandle,
-            $outputHandle,
-            $publickey
-        );
-        
-        \fclose($inputHandle);
-        \fclose($outputHandle);
+        try {
+            self::sealResource(
+                $inputHandle,
+                $outputHandle,
+                $publickey
+            );
+
+            \fclose($inputHandle);
+            \fclose($outputHandle);
+        } catch (CryptoException\HaliteAlert $e) {
+            \fclose($inputHandle);
+            \fclose($outputHandle);
+            
+            // Rethrow the exception:
+            throw $e;
+        }
     }
     
     /**
@@ -175,19 +202,28 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         }
         $outputHandle = \fopen($outputFile, 'wb');
         if ($outputHandle === false) {
+            \fclose($inputHandle);
             throw new CryptoException\FileAccessDenied(
                 'Could not write to the file'
             );
         }
         
-        self::unsealResource(
-            $inputHandle,
-            $outputHandle,
-            $secretkey
-        );
-        
-        \fclose($inputHandle);
-        \fclose($outputHandle);
+        try {
+            self::unsealResource(
+                $inputHandle,
+                $outputHandle,
+                $secretkey
+            );
+            
+            \fclose($inputHandle);
+            \fclose($outputHandle);
+        } catch (CryptoException\HaliteAlert $e) {
+            \fclose($inputHandle);
+            \fclose($outputHandle);
+            
+            // Rethrow the exception:
+            throw $e;
+        }
     }
     
     /**

@@ -32,6 +32,7 @@ class Password implements \ParagonIE\Halite\Contract\Crypto\PasswordInterface
      * @param string $password - The user-provided password
      * @param string $stored   - The encrypted password hash
      * @param Key $secret_key  - The master key for all passwords
+     * @return boolean
      */
     public static function verify($password, $stored, \ParagonIE\Halite\Contract\CryptoKeyInterface $secret_key)
     {

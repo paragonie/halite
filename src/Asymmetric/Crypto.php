@@ -140,41 +140,9 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
             if (function_exists('\\Sodium\\crypto_box_seal')) {
                 $sealed = \Sodium\crypto_box_seal($source, $publicKey->get());
             } else {
-                /**
-                 * Polyfill for libsodium < 1.0.3
-                 */
-                
-                // Generate an ephemeral keypair
-                $eph_kp = \Sodium\crypto_box_keypair();
-                $eph_secret = \Sodium\crypto_box_secretkey($eph_kp);
-                $eph_public = \Sodium\crypto_box_publickey($eph_kp);
-                $seal_pubkey = $publicKey->get();
-                $box_kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
-                    $eph_secret,
-                    $seal_pubkey
+                throw new CryptoException\CannotPerformOperation(
+                    'crypto_box_seal is not available'
                 );
-                
-                // Calculate the nonce
-                $nonce = \Sodium\crypto_generichash(
-                    $eph_public . $seal_pubkey,
-                    null,
-                    \Sodium\CRYPTO_BOX_NONCEBYTES
-                );
-                
-                // Seal the message
-                $sealed = $eph_public . \Sodium\crypto_box(
-                    $source,
-                    $nonce,
-                    $box_kp
-                );
-                
-                // Don't forget to wipe
-                \Sodium\memzero($seal_pubkey);
-                \Sodium\memzero($eph_kp);
-                \Sodium\memzero($eph_secret);
-                \Sodium\memzero($eph_public);
-                \Sodium\memzero($nonce);
-                \Sodium\memzero($box_kp);
             }
             if ($raw) {
                 return $sealed;
@@ -257,55 +225,9 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
                 \Sodium\memzero($public_key);
                 \Sodium\memzero($kp);
             } else {
-                /**
-                 * Polyfill for libsodium < 1.0.3
-                 */
-                
-                // Let's generate the box keypair
-                $my_secret = $privateKey->get();
-                $my_public = \Sodium\crypto_box_publickey_from_secretkey($my_secret);
-                $eph_public = mb_substr(
-                    $source,
-                    0,
-                    \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
-                    '8bit'
+                throw new CryptoException\CannotPerformOperation(
+                    'crypto_box_seal_open is not available'
                 );
-                if (\mb_strlen($eph_public, '8bit') !== \Sodium\CRYPTO_BOX_PUBLICKEYBYTES) {
-                    throw new CryptoException\CannotPerformOperation(
-                        'Public key has an invalid string length of ephemeral public key'
-                    );
-                }
-                
-                $box_kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
-                    $my_secret,
-                    $eph_public
-                );
-                
-                // Calculate the nonce as libsodium does
-                $nonce = \Sodium\crypto_generichash(
-                    $eph_public . $my_public,
-                    null,
-                    \Sodium\CRYPTO_BOX_NONCEBYTES
-                );
-                
-                // $boxed is the ciphertext from crypto_box_seal
-                $boxed = mb_substr(
-                    $source,
-                    \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
-                    null,
-                    '8bit'
-                );
-                
-                $message = \Sodium\crypto_box_open(
-                    $boxed,
-                    $nonce,
-                    $box_kp
-                );
-                \Sodium\memzero($my_secret);
-                \Sodium\memzero($my_public);
-                \Sodium\memzero($box_kp);
-                \Sodium\memzero($nonce);
-                \Sodium\memzero($eph_public);
             }
             if ($message === false) {
                 throw new CryptoException\InvalidKey(

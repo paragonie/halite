@@ -4,7 +4,7 @@ namespace ParagonIE\Halite;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Symmetric\Crypto as Symmetric;
 
-class Password implements \ParagonIE\Halite\Contract\Crypto\PasswordInterface
+class Password implements \ParagonIE\Halite\Contract\PasswordInterface
 {
     /**
      * Hash then encrypt a password

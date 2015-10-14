@@ -1,5 +1,5 @@
 <?php
-namespace ParagonIE\Halite\Contract\Crypto;
+namespace ParagonIE\Halite\Contract;
 
 /**
  * An interface for encrypting/decrypting files
@@ -108,5 +108,37 @@ interface FileInterface
         $input,
         $output,
         \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+    );
+    
+    
+    /**
+     * Calculate a checksum (derived from BLAKE2b) of a file
+     * 
+     * @param string $filepath The file you'd like to checksum
+     * @param string $key An optional BLAKE2b key
+     * @param bool $raw Set to true if you don't want hex
+     * 
+     * @return string
+     */
+    public static function checksumFile(
+        $filepath,
+        \ParagonIE\Halite\Contract\CryptoKeyInterface $key = null,
+        $raw = false
+    );
+    
+    
+    /**
+     * Calculate a BLAHE2b checksum of a file
+     * 
+     * @param string $fileHandle The file you'd like to checksum
+     * @param string $key An optional BLAKE2b key
+     * @param bool $raw Set to true if you don't want hex
+     * 
+     * @return string
+     */
+    public static function checksumResource(
+        $fileHandle,
+        \ParagonIE\Halite\Contract\CryptoKeyInterface $key = null,
+        $raw = false
     );
 }

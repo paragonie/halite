@@ -1,5 +1,5 @@
 <?php
-namespace ParagonIE\Halite\Contract\Crypto;
+namespace ParagonIE\Halite\Contract;
 
 /**
  * Hash then encrypt

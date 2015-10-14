@@ -7,7 +7,7 @@ use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Util as CryptoUtil;
 
-class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
+class File implements \ParagonIE\Halite\Contract\FileInterface
 {
     /**
      * Encrypt a file with a symmetric key
@@ -583,6 +583,8 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             return self::getConfigEncrypt($major, $minor);
         } elseif ($mode === 'seal') {
             return self::getConfigSeal($major, $minor);
+        } elseif ($mode === 'checksum') {
+            return self::getConfigChecksum($major, $minor);
         }
     }
     
@@ -630,6 +632,30 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,
                         'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES
+                    ];
+            }
+        }
+        throw new CryptoException\InvalidMessage(
+            'Invalid version tag'
+        );
+    }
+    
+    /**
+     * Get the configuration for encrypt operations
+     * 
+     * @param int $major
+     * @param int $minor
+     * @return array
+     * @throws CryptoException\InvalidMessage
+     */
+    protected static function getConfigChecksum($major, $minor)
+    {
+        if ($major === 0) {
+            switch ($minor) {
+                case 1:
+                    return [
+                        'BUFFER' => 1048576,
+                        'HASH_LEN' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
                     ];
             }
         }
@@ -909,7 +935,7 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
         if (!\hash_equals($finalHMAC, $stored_mac)) {
             
             throw new CryptoException\InvalidMessage(
-                    'Invalid message authentication code'
+                'Invalid message authentication code'
             );
         }
         if (\fseek($input, $start, SEEK_SET) === false) {
@@ -918,5 +944,85 @@ class File implements \ParagonIE\Halite\Contract\Crypto\FileInterface
             );
         }
         return $chunk_macs;
+    }
+    
+    /**
+     * Calculate a checksum (derived from BLAKE2b) of a file
+     * 
+     * @param string $filepath The file you'd like to checksum
+     * @param string $key An optional BLAKE2b key
+     * @param bool $raw Set to true if you don't want hex
+     * 
+     * @return string
+     */
+    public static function checksumFile(
+        $filepath,
+        \ParagonIE\Halite\Contract\CryptoKeyInterface $key = null,
+        $raw = false
+    ) {
+        if (!is_readable($filepath)) {
+            throw new CryptoException\FileAccessDenied(
+                'Could not read the file'
+            );
+        }
+        $fp = \fopen($filepath, 'rb');
+        if ($fp === false) {
+            throw new CryptoException\FileAccessDenied(
+                'Could not read the file'
+            );
+        }
+        try {
+            $checksum = self::checksumResource($fp, $key, $raw);
+        } catch (CryptoException\HaliteAlert $e) {
+            \fclose($fp);
+            throw $e;
+        }
+        \fclose($fp);
+        return $checksum;
+    }
+    
+    
+    /**
+     * Calculate a BLAHE2b checksum of a file
+     * 
+     * @param string $fileHandle The file you'd like to checksum
+     * @param string $key An optional BLAKE2b key
+     * @param bool $raw Set to true if you don't want hex
+     * 
+     * @return string
+     */
+    public static function checksumResource(
+        $fileHandle,
+        \ParagonIE\Halite\Contract\CryptoKeyInterface $key = null,
+        $raw = false
+    ) {
+        // Input validation
+        if (!\is_resource($fileHandle)) {
+            throw new \ParagonIE\Halite\Alerts\InvalidType(
+                'Expected input handle to be a resource'
+            );
+        }
+        $config = self::getConfig(Halite::HALITE_VERSION, 'checksum');
+        if ($key) {
+            $state = \Sodium\crypto_generichash_init($key->get(), $config['HASH_LEN']);
+        } else {
+            $state = \Sodium\crypto_generichash_init(null, $config['HASH_LEN']);
+        }
+        
+        while (!\feof($fileHandle)) {
+            $read = \fread($fileHandle, $config['BUFFER']);
+            if ($read === false) {
+                throw new CryptoException\FileAccessDenied(
+                    'Could not read from the file'
+                );
+            }
+            \Sodium\crypto_generichash_update($state, $read);
+        }
+        if ($raw) {
+            return \Sodium\crypto_generichash_final($state, $config['HASH_LEN']);
+        }
+        return \Sodium\bin2hex(
+            \Sodium\crypto_generichash_final($state, $config['HASH_LEN'])
+        );
     }
 }

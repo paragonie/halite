@@ -122,4 +122,14 @@ class FileTest extends PHPUnit_Framework_TestCase
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
         }
     }
+    
+    public function testChecksum()
+    {
+        $csum = File::checksumFile(__DIR__.'/tmp/paragon_avatar.png');
+        $this->assertEquals(
+            $csum,
+            "09f9f74a0e742d057ca08394db4c2e444be88c0c94fe9a914c3d3758c7eccafb".
+            "8dd286e3d6bc37f353e76c0c5aa2036d978ca28ffaccfa59f5dc1f076c5517a0"
+        );
+    }
 }

@@ -45,7 +45,7 @@ if [ ! -f phpunit.phar.asc ]; then
 fi
 
 # What are the major/minor versions?
-php -r "var_dump([\Sodium\library_version_major(), \Sodium\library_version_minor()]);"
+# php -r "var_dump([\Sodium\library_version_major(), \Sodium\library_version_minor()]);"
 
 # Verify before running
 gpg --verify phpunit.phar.asc phpunit.phar

@@ -131,5 +131,15 @@ class FileTest extends PHPUnit_Framework_TestCase
             "09f9f74a0e742d057ca08394db4c2e444be88c0c94fe9a914c3d3758c7eccafb".
             "8dd286e3d6bc37f353e76c0c5aa2036d978ca28ffaccfa59f5dc1f076c5517a0"
         );
+        
+        $data = \Sodium\randombytes_buf(32);
+        \file_put_contents(__DIR__.'/tmp/garbage.dat', $data);
+        
+        $hash = \Sodium\crypto_generichash($data, null, 64);
+        $file = File::checksumFile(__DIR__.'/tmp/garbage.dat', null, true);
+        $this->assertEquals(
+            $hash,
+            $file
+        );
     }
 }

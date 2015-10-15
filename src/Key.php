@@ -19,28 +19,28 @@ class Key implements Contract\CryptoKeyInterface
     const ENCRYPTION       =   4;
     const SIGNATURE        =   8;
     const ASYMMETRIC       =  16;
-    
+
     // SHORTCUTS:
     const CRYPTO_SECRETBOX =  5;
     const CRYPTO_AUTH      =  9;
     const CRYPTO_BOX       = 20;
     const CRYPTO_SIGN      = 24;
-    
+
     private $is_public_key = false;
     private $is_signing_key = false;
     private $is_asymmetric_key = false;
     private $key_material = '';
-    
+
     /**
      * Don't let this ever succeed
-     * 
+     *
      * @throws CryptoException\CannotCloneKey
      */
     public function __clone()
     {
         throw new CryptoException\CannotCloneKey;
     }
-    
+
     /**
      * @param string $keyMaterial - The actual key data
      * @param bool $public - Is this a public key?
@@ -54,7 +54,7 @@ class Key implements Contract\CryptoKeyInterface
         $public = \count($args) >= 1 ? $args[0] : false;
         $signing = \count($args) >= 2 ? $args[1] : false;
         $asymmetric = \count($args) >= 3 ? $args[2] : false;
-        
+
         $this->key_material = $keyMaterial;
         $this->is_public_key = $public;
         $this->is_signing_key = $signing;
@@ -64,7 +64,7 @@ class Key implements Contract\CryptoKeyInterface
         }
         $this->is_asymmetric_key = $asymmetric;
     }
-    
+
     /**
      * Make sure you wipe the key from memory on destruction
      */
@@ -75,7 +75,7 @@ class Key implements Contract\CryptoKeyInterface
             $this->key_material = null;
         }
     }
-    
+
     /**
      * Don't serialize
      */
@@ -83,10 +83,10 @@ class Key implements Contract\CryptoKeyInterface
     {
         throw new CryptoException\CannotSerializeKey;
     }
-    
+
     /**
      * Get public keys
-     * 
+     *
      * @return string
      */
     public function __toString()
@@ -95,10 +95,10 @@ class Key implements Contract\CryptoKeyInterface
             return $this->key_material;
         }
     }
-    
+
     /**
      * Derive an encryption key from a password and a salt
-     * 
+     *
      * @param string $password
      * @param string $salt
      * @param int $type
@@ -112,7 +112,7 @@ class Key implements Contract\CryptoKeyInterface
     ) {
         // Set this to true to flag a key as a signing key
         $signing = false;
-        
+
         /**
          * Are we doing public key cryptography?
          */
@@ -124,7 +124,7 @@ class Key implements Contract\CryptoKeyInterface
                 $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
                     \Sodium\CRYPTO_BOX_SECRETKEYBYTES,
                     $password,
-                    $salt, 
+                    $salt,
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
                 );
@@ -151,17 +151,17 @@ class Key implements Contract\CryptoKeyInterface
                     'Must specify encryption or authentication'
                 );
             }
-            
+
             // Let's return an array with two keys
             return [
                 new ASecretKey($secret_key, $signing), // Secret key
                 new APublicKey($public_key, $signing)  // Public key
             ];
-        } elseif ($type & self::SECRET_KEY !== 0) {
+        } elseif (($type & self::SECRET_KEY) !== 0) {
             /**
              * Are we doing encryption or authentication?
              */
-            if ($type & self::SIGNATURE !== 0) {
+            if (($type & self::SIGNATURE) !== 0) {
                 $signing = true;
                 $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
                     \Sodium\CRYPTO_AUTH_KEYBYTES,
@@ -186,10 +186,10 @@ class Key implements Contract\CryptoKeyInterface
             );
         }
     }
-    
+
     /**
      * Load a key from a file
-     * 
+     *
      * @param string $filePath
      * @param int $type
      * @return array|\ParagonIE\Halite\Key
@@ -201,7 +201,7 @@ class Key implements Contract\CryptoKeyInterface
     ) {
         // Set this to true to flag a key as a signing key
         $signing = false;
-        
+
         /**
          * Are we doing public key cryptography?
          */
@@ -225,7 +225,7 @@ class Key implements Contract\CryptoKeyInterface
                     'Must specify encryption or authentication'
                 );
             }
-            
+
             // Let's return an array with two keys
             return [
                 new ASecretKey($secret_key, $signing), // Secret key
@@ -246,10 +246,10 @@ class Key implements Contract\CryptoKeyInterface
             );
         }
     }
-    
+
     /**
      * Generate a key
-     * 
+     *
      * @param int $type
      * @param &string $secret_key - Reference to optional variable to store secret key in
      * @return array|Key
@@ -260,7 +260,7 @@ class Key implements Contract\CryptoKeyInterface
     ) {
         // Set this to true to flag a key as a signing key
         $signing = false;
-        
+
         /**
          * Are we doing public key cryptography?
          */
@@ -284,10 +284,10 @@ class Key implements Contract\CryptoKeyInterface
                     'Must specify encryption or authentication'
                 );
             }
-            
+
             // Let's wipe our $kp variable
             \Sodium\memzero($kp);
-            
+
             // Let's return an array with two keys
             return [
                 new ASecretKey($secret_key, $signing), // Secret key
@@ -303,7 +303,7 @@ class Key implements Contract\CryptoKeyInterface
                 );
             } elseif ($type & self::SIGNATURE !== 0) {
                 $signing = true;
-                
+
                 // ...let it throw, let it throw!
                 $secret_key = \random_bytes(
                     \Sodium\CRYPTO_AUTH_KEYBYTES
@@ -316,10 +316,10 @@ class Key implements Contract\CryptoKeyInterface
             );
         }
     }
-    
+
     /**
      * Get the actual key material
-     * 
+     *
      * @return string
      * @throws CryptoException\CannotAccessKey
      */
@@ -327,60 +327,60 @@ class Key implements Contract\CryptoKeyInterface
     {
         return $this->key_material;
     }
-    
+
     /**
      * Is this a part of a key pair?
-     * 
+     *
      * @return bool
      */
     public function isAsymmetricKey()
     {
         return $this->is_asymmetric_key;
     }
-    
+
     /**
      * Is this a signing key?
-     * 
+     *
      * @return bool
      */
     public function isEncryptionKey()
     {
         return !$this->is_signing_key;
     }
-    
+
     /**
      * Is this a public key?
-     * 
+     *
      * @return bool
      */
     public function isPublicKey()
     {
         return $this->is_public_key;
     }
-    
+
     /**
      * Is this a secret key?
-     * 
+     *
      * @return bool
      */
     public function isSecretKey()
     {
         return !$this->is_public_key;
     }
-    
+
     /**
      * Is this a signing key?
-     * 
+     *
      * @return bool
      */
     public function isSigningKey()
     {
         return $this->is_signing_key;
     }
-    
+
     /**
      * Save a copy of the key to a file
-     * 
+     *
      * @param string $filePath
      * @return bool|int
      */

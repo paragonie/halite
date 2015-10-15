@@ -157,11 +157,11 @@ class Key implements Contract\CryptoKeyInterface
                 new ASecretKey($secret_key, $signing), // Secret key
                 new APublicKey($public_key, $signing)  // Public key
             ];
-        } elseif ($type & self::SECRET_KEY !== 0) {
+        } elseif (($type & self::SECRET_KEY) !== 0) {
             /**
              * Are we doing encryption or authentication?
              */
-            if ($type & self::SIGNATURE !== 0) {
+            if (($type & self::SIGNATURE) !== 0) {
                 $signing = true;
                 $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
                     \Sodium\CRYPTO_AUTH_KEYBYTES,

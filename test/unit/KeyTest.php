@@ -3,7 +3,6 @@ use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Asymmetric\SecretKey as ASecretKey;
 use \ParagonIE\Halite\Asymmetric\PublicKey as APublicKey;
-use \ParagonIE\Halite\Symmetric\SecretKey as SecretKey;
 
 /**
  * @backupGlobals disabled
@@ -22,6 +21,19 @@ class KeyTest extends PHPUnit_Framework_TestCase
             $key->get(),
             "\x36\xa6\xc2\xb9\x6a\x65\x0d\x80\xbf\x7e\x02\x5e\x0f\x58\xf3\xd6".
             "\x36\x33\x95\x75\xde\xfb\x37\x08\x01\xa5\x42\x13\xbd\x54\x58\x2d"
+        );
+        $salt = \Sodium\hex2bin(
+            '762ce4cabd543065172236de1027536ad52ec4c9133ced3766ff319f10301888'
+        );
+        
+        // Issue #10
+        $enc_secret = Key::deriveFromPassword(
+            'correct horse battery staple',
+            $salt,
+            Key::ENCRYPTION | Key::SECRET_KEY
+        );
+        $this->assertTrue(
+            $enc_secret->isEncryptionKey()
         );
     }
     

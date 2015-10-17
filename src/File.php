@@ -3,6 +3,7 @@ namespace ParagonIE\Halite;
 
 use \ParagonIE\Halite\Halite;
 use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\Config;
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Util as CryptoUtil;
@@ -262,8 +263,8 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         $config = self::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
         // Generate a nonce and HKDF salt
-        $firstnonce = \Sodium\randombytes_buf($config['NONCE_BYTES']);
-        $hkdfsalt = \Sodium\randombytes_buf($config['HKDF_SALT_LEN']);
+        $firstnonce = \Sodium\randombytes_buf($config->NONCE_BYTES);
+        $hkdfsalt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
         
         // Let's split our key
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfsalt);
@@ -272,30 +273,22 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         unset($authKey);
         
         // Write the header
-        $written = \fwrite($output, Halite::HALITE_VERSION, Halite::VERSION_TAG_LEN);
-        if ($written === false) {
-            throw new CryptoException\FileAccessDenied(
-                'Could not write to the file'
-            );
-        }
-        $written &= \fwrite($output, $firstnonce, \Sodium\CRYPTO_STREAM_NONCEBYTES);
-        if ($written === false) {
-            throw new CryptoException\FileAccessDenied(
-                'Could not write to the file'
-            );
-        }
-        $written &= \fwrite($output, $hkdfsalt, Halite::HKDF_SALT_LEN);
-        if ($written === false) {
-            throw new CryptoException\FileAccessDenied(
-                'Could not write to the file'
-            );
-        }
+        self::writeBytes($output, Halite::HALITE_VERSION, Halite::VERSION_TAG_LEN);
+        self::writeBytes($output, $firstnonce, \Sodium\CRYPTO_STREAM_NONCEBYTES);
+        self::writeBytes($output, $hkdfsalt, Halite::HKDF_SALT_LEN);
         
         \hash_update($mac, Halite::HALITE_VERSION);
         \hash_update($mac, $firstnonce);
         \hash_update($mac, $hkdfsalt);
         
-        self::streamEncrypt($input, $output, new Key($encKey), $firstnonce, $mac, $config);
+        return self::streamEncrypt(
+            $input,
+            $output,
+            new Key($encKey),
+            $firstnonce,
+            $mac,
+            $config
+        );
     }
     
     /**
@@ -339,8 +332,8 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         $config = self::getConfig($header, 'encrypt');
         
         // Let's grab the first nonce and salt
-        $firstnonce = self::readBytes($input, $config['NONCE_BYTES']);
-        $hkdfsalt = self::readBytes($input, $config['HKDF_SALT_LEN']);
+        $firstnonce = self::readBytes($input, $config->NONCE_BYTES);
+        $hkdfsalt = self::readBytes($input, $config->HKDF_SALT_LEN);
         
         // Split our keys, begin the HMAC instance
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfsalt);
@@ -423,7 +416,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         );
         
         // Generate a random HKDF salt
-        $hkdfsalt = \Sodium\randombytes_buf($config['HKDF_SALT_LEN']);
+        $hkdfsalt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
         
         // Split the keys
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfsalt);
@@ -435,24 +428,9 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         // We no longer need to retain this after we've set up the hash context
         unset($authKey);
         
-        $written = \fwrite($output, Halite::HALITE_VERSION, Halite::VERSION_TAG_LEN);
-        if ($written === false) {
-            throw new CryptoException\FileAccessDenied(
-                'Could not write to the file'
-            );
-        }
-        $written &= \fwrite($output, $eph_public->get(), \Sodium\CRYPTO_BOX_PUBLICKEYBYTES);
-        if ($written === false) {
-            throw new CryptoException\FileAccessDenied(
-                'Could not write to the file'
-            );
-        }
-        $written &= \fwrite($output, $hkdfsalt, Halite::HKDF_SALT_LEN);
-        if ($written === false) {
-            throw new CryptoException\FileAccessDenied(
-                'Could not write to the file'
-            );
-        }
+        self::writeBytes($output, Halite::HALITE_VERSION, Halite::VERSION_TAG_LEN);
+        self::writeBytes($output, $eph_public->get(), \Sodium\CRYPTO_BOX_PUBLICKEYBYTES);
+        self::writeBytes($output, $hkdfsalt, Halite::HKDF_SALT_LEN);
         
         \hash_update($mac, Halite::HALITE_VERSION);
         \hash_update($mac, $eph_public->get());
@@ -513,8 +491,8 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         // Load the config
         $config = self::getConfig($header, 'seal');
         // Let's grab the public key and salt
-        $eph_public = self::readBytes($input, $config['PUBLICKEY_BYTES']);
-        $hkdfsalt = self::readBytes($input, $config['HKDF_SALT_LEN']);
+        $eph_public = self::readBytes($input, $config->PUBLICKEY_BYTES);
+        $hkdfsalt = self::readBytes($input, $config->HKDF_SALT_LEN);
         
         $nonce = \Sodium\crypto_generichash(
             $eph_public . $public_key,
@@ -559,7 +537,6 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         unset($config);
         unset($old_macs);
         return $ret;
-        
     }
     
     /**
@@ -567,7 +544,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param string $header
      * @param string $mode
-     * @return array
+     * @return \ParagonIE\Halite\Config
      * @throws CryptoException\InvalidMessage
      */
     protected static function getConfig($header, $mode = 'encrypt')
@@ -580,11 +557,17 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         $major = \ord($header[2]);
         $minor = \ord($header[3]);
         if ($mode === 'encrypt') {
-            return self::getConfigEncrypt($major, $minor);
+            return new Config(
+                self::getConfigEncrypt($major, $minor)
+            );
         } elseif ($mode === 'seal') {
-            return self::getConfigSeal($major, $minor);
+            return new Config(
+                self::getConfigSeal($major, $minor)
+            );
         } elseif ($mode === 'checksum') {
-            return self::getConfigChecksum($major, $minor);
+            return new Config(
+                self::getConfigChecksum($major, $minor)
+            );
         }
     }
     
@@ -663,37 +646,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
             'Invalid version tag'
         );
     }
-    
-    /**
-     * Read from a stream; prevent partial reads
-     * 
-     * @param resource $stream
-     * @param int $num
-     * @throws FileAlert\AccessDenied
-     */
-    final private static function readBytes($stream, $num)
-    {
-        if ($num <= 0) {
-            throw new \Exception('num < 0');
-        }
-        $buf = '';
-        $remaining = $num;
-        do {
-            if ($remaining <= 0) {
-                break;
-            }
-            $read = \fread($stream, $remaining);
-            if ($read === false) {
-                throw new CryptoException\FileAccessDenied(
-                    'Could not read from the file'
-                );
-            }
-            $buf .= $read;
-            $remaining = $num - CryptoUtil::safeStrlen($buf);
-        } while ($remaining > 0);
-        return $buf;
-    }
-    
+        
     /**
      * Split a key using HKDF
      * 
@@ -728,7 +681,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param Key $encKey
      * @param string $nonce
      * @param resource $mac (hash context)
-     * @param array $config
+     * @param Config $config
      * @throws FileAlert\AccessDenied
      */
     final private static function streamEncrypt(
@@ -737,11 +690,11 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         \ParagonIE\Halite\Contract\CryptoKeyInterface $encKey,
         $nonce,
         $mac,
-        array $config
+        Config $config
     ) {
         // Begin the streaming decryption
         while (!\feof($input)) {
-            $read = \fread($input, $config['BUFFER']);
+            $read = \fread($input, $config->BUFFER);
             if ($read === false) {
                 throw new CryptoException\FileAccessDenied(
                     'Could not read from the file'
@@ -755,17 +708,11 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
             
             \hash_update($mac, $encrypted);
             
-            $written = \fwrite($output, $encrypted);
-            if ($written === false) {
-                throw new CryptoException\FileAccessDenied(
-                    'Could not write to the file'
-                );
-            }
+            self::writeBytes($output, $encrypted);
             \Sodium\increment($nonce);
         }
-        \Sodium\memzero($nonce);
-        
-        \fwrite($output, \hash_final($mac, true));
+        \Sodium\memzero($nonce);        
+        return self::writeBytes($output, \hash_final($mac, true));
     }
     
     /**
@@ -776,7 +723,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param Key $encKey
      * @param string $nonce
      * @param resource $mac (hash context)
-     * @param &array $config
+     * @param Config $config
      * @throws FileAlert\AccessDenied
      */
     final private static function streamDecrypt(
@@ -785,12 +732,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         \ParagonIE\Halite\Contract\CryptoKeyInterface $encKey,
         $nonce,
         $mac,
-        array $config,
+        Config $config,
         array &$chunk_macs
     ) {
         // Reset the stream pointer to the beginning of the ciphertext
         $start = \ftell($input);
-        if (\fseek($input, (-1 * $config['MAC_SIZE']), SEEK_END) === false) {
+        if (\fseek($input, (-1 * $config->MAC_SIZE), SEEK_END) === false) {
             throw new CryptoException\CannotPerformOperation(
                 'Stream error'
             );
@@ -811,11 +758,11 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
             }
             
             // Read the data from the input buffer
-            if ($pos + $config['BUFFER'] >= $cipher_end) {
+            if ($pos + $config->BUFFER >= $cipher_end) {
                 $break = true;
                 $read = self::readBytes($input, $cipher_end - $pos + 1);
             } else {
-                $read = self::readBytes($input, $config['BUFFER']);
+                $read = self::readBytes($input, $config->BUFFER);
             }
             
             // Let's reculcualte the MAC of this chunk, then verify it
@@ -843,41 +790,36 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
                 $nonce,
                 $encKey->get()
             );
-            $written = \fwrite($output, $decrypted);
-            if ($written === false) {
-                throw new CryptoException\FileAccessDenied(
-                    'Could not write to the file'
-                );
-            }
-            
+            self::writeBytes($output, $decrypted);
             \Sodium\increment($nonce);
         }
+        return true;
     }
     
     /**
      * Recalculate and verify the HMAC of the input file
      * 
      * @param resource $input
-     * @param Key $authKey
      * @param resource $mac (hash context)
-     * @param &array $config
+     * @param Config $config
+     * 
      * @return Hashes of various chunks
      * @throws FileAlert\AccessDenied
      */
     final private static function streamVerify(
         $input,
         $mac,
-        array $config
+        Config $config
     ) {
         $start = \ftell($input);
-        if (\fseek($input, (-1 * $config['MAC_SIZE']), SEEK_END) === false) {
+        if (\fseek($input, (-1 * $config->MAC_SIZE), SEEK_END) === false) {
             throw new CryptoException\CannotPerformOperation(
                 'Stream error'
             );
         }
         $cipher_end = \ftell($input) - 1;
         
-        $stored_mac = self::readBytes($input, $config['MAC_SIZE']);
+        $stored_mac = self::readBytes($input, $config->MAC_SIZE);
         
         if (\fseek($input, $start, SEEK_SET) === false) {
             throw new CryptoException\CannotPerformOperation(
@@ -904,11 +846,11 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
              * Would a full BUFFER read put it past the end of the
              * ciphertext? If so, only return a portion of the file.
              */
-            if ($pos + $config['BUFFER'] >= $cipher_end) {
+            if ($pos + $config->BUFFER >= $cipher_end) {
                 $break = true;
                 $read = self::readBytes($input, $cipher_end - $pos + 1);
             } else {
-                $read = self::readBytes($input, $config['BUFFER']);
+                $read = self::readBytes($input, $config->BUFFER);
             }
             
             /**
@@ -1004,25 +946,97 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         }
         $config = self::getConfig(Halite::HALITE_VERSION, 'checksum');
         if ($key) {
-            $state = \Sodium\crypto_generichash_init($key->get(), $config['HASH_LEN']);
+            $state = \Sodium\crypto_generichash_init($key->get(), $config->HASH_LEN);
         } else {
-            $state = \Sodium\crypto_generichash_init(null, $config['HASH_LEN']);
+            $state = \Sodium\crypto_generichash_init(null, $config->HASH_LEN);
         }
+        $stat = \fstat($fileHandle);
+        $size = $stat['size'];
         
-        while (!\feof($fileHandle)) {
-            $read = \fread($fileHandle, $config['BUFFER']);
+        while (!\feof($fileHandle) && $size > 0) {
+            if ($size < $config->BUFFER) {
+                $read = self::readBytes($fileHandle, $size);
+            } else {
+                $read = self::readBytes($fileHandle, $config->BUFFER);
+            }
+            \Sodium\crypto_generichash_update($state, $read);
+            $size -= CryptoUtil::safeStrlen($read);
+        }
+        if ($raw) {
+            return \Sodium\crypto_generichash_final($state, $config->HASH_LEN);
+        }
+        return \Sodium\bin2hex(
+            \Sodium\crypto_generichash_final($state, $config->HASH_LEN)
+        );
+    }
+
+    /**
+     * Read from a stream; prevent partial reads
+     * 
+     * @param resource $stream
+     * @param int $num
+     * @return string
+     * @throws FileAlert\AccessDenied
+     */
+    final public static function readBytes($stream, $num)
+    {
+        if ($num <= 0) {
+            throw new \Exception('num < 0');
+        }
+        $fstat = \fstat($stream);
+        $pos = \ftell($stream);
+        if (($pos + $num) > $fstat['size']) {
+            throw new \Exception('Out-of-bounds read');
+        }
+        $buf = '';
+        $remaining = $num;
+        do {
+            if ($remaining <= 0) {
+                break;
+            }
+            $read = \fread($stream, $remaining);
             if ($read === false) {
                 throw new CryptoException\FileAccessDenied(
                     'Could not read from the file'
                 );
             }
-            \Sodium\crypto_generichash_update($state, $read);
+            $buf .= $read;
+            $remaining -= CryptoUtil::safeStrlen($read);
+        } while ($remaining > 0);
+        return $buf;
+    }
+
+    /**
+     * Write to a stream; prevent partial writes
+     * 
+     * @param resource $stream
+     * @param string $buf
+     * @param int $num (number of bytes)
+     * @throws FileAlert\AccessDenied
+     */
+    final public static function writeBytes($stream, $buf, $num = null)
+    {
+        $bufSize = CryptoUtil::safeStrlen($buf);
+        if ($num === null || $num > $bufSize) {
+            $num = $bufSize;
         }
-        if ($raw) {
-            return \Sodium\crypto_generichash_final($state, $config['HASH_LEN']);
+        if ($num < 0) {
+            throw new \Exception('num < 0');
         }
-        return \Sodium\bin2hex(
-            \Sodium\crypto_generichash_final($state, $config['HASH_LEN'])
-        );
+        $remaining = $num;
+        do {
+            if ($remaining <= 0) {
+                break;
+            }
+            $written = \fwrite($stream, $buf, $remaining);
+            if ($written === false) {
+                throw new CryptoException\FileAccessDenied(
+                    'Could not write to the file'
+                );
+            }
+            $buf = CryptoUtil::safeSubstr($buf, $written, null);
+            $remaining -= $written;
+        } while ($remaining > 0);
+        return $num;
     }
 }

@@ -64,6 +64,12 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testSeal()
     {
+        if (
+            \Sodium\library_version_major() < 7 ||
+            (\Sodium\library_version_major() == 7 && \Sodium\library_version_minor() < 5)
+        ) {
+            $this->markTestSkipped("Your version of libsodium is too old");
+        }
         $alice = KeyPair::generate();
         
         $message = 'This is for your eyes only';
@@ -81,6 +87,12 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testSealFail()
     {
+        if (
+            \Sodium\library_version_major() < 7 ||
+            (\Sodium\library_version_major() == 7 && \Sodium\library_version_minor() < 5)
+        ) {
+            $this->markTestSkipped("Your version of libsodium is too old");
+        }
         
         $alice = KeyPair::generate();
         

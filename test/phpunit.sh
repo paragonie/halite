@@ -53,7 +53,7 @@ if [ $? -eq 0 ]; then
     echo
     echo -e "\033[33mBegin Unit Testing\033[0m"
     # Run the testing suite
-    php phpunit.phar --bootstrap "$parentdir/vendor/autoload.php" "$parentdir/test/unit"
+    php phpunit.phar --bootstrap "$parentdir/autoload.php" "$parentdir/test/unit"
     EXITCODE=$?
     # Cleanup
     if [ "$clean" -eq 1 ]; then

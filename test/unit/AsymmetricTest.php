@@ -82,11 +82,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         $sealed = Asymmetric::seal($message, $alice->getPublicKey());
         
         $known_good = Asymmetric::unseal(
-            "\x73\x75\xf4\x09\x4f\x11\x51\x64\x0b\xd8\x53\xcb\x13\xdb\xc1\xa0".
-            "\xee\x9e\x13\xb0\x28\x7a\x89\xd3\x4f\xa2\xf6\x73\x2b\xe9\xde\x13".
-            "\xf8\x84\x57\x55\x3d\x76\x83\x47\x11\x65\x22\xd6\xd3\x2c\x9c\xb3".
-            "\x53\xef\x07\xaa\x7c\x83\xbd\x12\x9b\x2b\xb5\xdb\x35\xb2\x83\x34".
-            "\xc9\x35\xb2\x4f\x26\x39\x40\x5a\x06\x04",
+            "7375f4094f1151640bd853cb13dbc1a0ee9e13b0287a89d34fa2f6732be9de13f88457553d768347116522d6d32c9cb353ef07aa7c83bd129b2bb5db35b28334c935b24f2639405a0604",
             $alice->getSecretKey()
         );
         

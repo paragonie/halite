@@ -179,7 +179,7 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
      */
     public static function generateKeys($type = Key::CRYPTO_SECRETBOX)
     {
-        if ($type & Key::ASYMMETRIC !== 0) {
+        if (Key::hasFlag($type, self::ASYMMETRIC)) {
             throw new CryptoException\InvalidFlags;
         }
         $secret = '';

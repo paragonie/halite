@@ -1,12 +1,14 @@
 <?php
 namespace ParagonIE\Halite;
 
+use \ParagonIE\Halite\Alerts as CryptoException;
+use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
+use \ParagonIE\Halite\Asymmetric\SecretKey as SecretKey;
+use \ParagonIE\Halite\Asymmetric\PublicKey as PublicKey;
+use \ParagonIE\Halite\Config;
 use \ParagonIE\Halite\Halite;
 use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\Symmetric\SecretKey;
-use \ParagonIE\Halite\Config;
-use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
-use \ParagonIE\Halite\Alerts as CryptoException;
+use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
 use \ParagonIE\Halite\Util as CryptoUtil;
 
 class File implements \ParagonIE\Halite\Contract\FileInterface
@@ -22,7 +24,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      */
     public static function checksumFile(
         $filepath,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key = null,
+        SymmetricKey $key = null,
         $raw = false
     ) {
         if (!is_readable($filepath)) {
@@ -58,7 +60,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      */
     public static function checksumResource(
         $fileHandle,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key = null,
+        SymmetricKey $key = null,
         $raw = false
     ) {
         // Input validation
@@ -98,12 +100,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param string $inputFile
      * @param string $outputFile
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+     * @param SymmetricKey $key
      */
     public static function encryptFile(
         $inputFile,
         $outputFile,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+        SymmetricKey $key
     ) {
         if (!\is_readable($inputFile)) {
             throw new CryptoException\FileAccessDenied(
@@ -153,12 +155,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param string $inputFile
      * @param string $outputFile
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+     * @param SymmetricKey $key
      */
     public static function decryptFile(
         $inputFile,
         $outputFile,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+        SymmetricKey $key
     ) {
         if (!\is_readable($inputFile)) {
             throw new CryptoException\FileAccessDenied(
@@ -208,12 +210,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param string $inputFile
      * @param string $outputFile
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+     * @param PublicKey $publickey
      */
     public static function sealFile(
         $inputFile,
         $outputFile,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+        PublicKey $publickey
     ) {
         
         if (!\is_readable($inputFile)) {
@@ -264,12 +266,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param string $inputFile
      * @param string $outputFile
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+     * @param SecretKey $secretkey
      */
     public static function unsealFile(
         $inputFile,
         $outputFile,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+        SecretKey $secretkey
     ) {
         if (!\is_readable($inputFile)) {
             throw new CryptoException\FileAccessDenied(
@@ -318,14 +320,14 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * Signs a file
      * 
      * @param string $filename
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+     * @param SecretKey $secretkey
      * @param bool $raw_binary
      * 
      * @return string
      */
     public static function signFile(
         $filename,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey,
+        SecretKey $secretkey,
         $raw_binary = false
     ) {
         
@@ -362,12 +364,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param string $filename
      * @param string $signature
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+     * @param PublicKey $publickey
      */
     public static function verifyFile(
         $signature,
         $filename,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey,
+        PublicKey $publickey,
         $raw_binary = false
     ) {
         
@@ -405,12 +407,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param $input
      * @param $output
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+     * @param SymmetricKey $key
      */
     public static function encryptResource(
         $input,
         $output,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+        SymmetricKey $key
     ) {
         // Input validation
         if (!\is_resource($input)) {
@@ -457,7 +459,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         return self::streamEncrypt(
             $input,
             $output,
-            new SecretKey($encKey),
+            new SymmetricKey($encKey),
             $firstnonce,
             $mac,
             $config
@@ -469,12 +471,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param $input
      * @param $output
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+     * @param SymmetricKey $key
      */
     public static function decryptResource(
         $input,
         $output,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+        SymmetricKey $key
     ) {
         // Input validation
         if (!\is_resource($input)) {
@@ -522,7 +524,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         $ret = self::streamDecrypt(
             $input,
             $output, 
-            new SecretKey($encKey),
+            new SymmetricKey($encKey),
             $firstnonce,
             $mac,
             $config,
@@ -543,12 +545,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param $input
      * @param $output
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+     * @param PublicKey $publickey
      */
     public static function sealResource(
         $input,
         $output,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+        PublicKey $publickey
     ) {
         // Input validation
         if (!\is_resource($input)) {
@@ -575,7 +577,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         list ($eph_secret, $eph_public) = Key::generate(Key::CRYPTO_BOX);
         
         // Calculate the shared secret key
-        $key = Asymmetric::getSharedSecret($eph_secret, $publickey, true);
+        $key = AsymmetricCrypto::getSharedSecret($eph_secret, $publickey, true);
         
         // Destroy the secre tkey after we have the shared secret
         unset($eph_secret);
@@ -614,7 +616,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         return self::streamEncrypt(
             $input,
             $output,
-            new SecretKey($encKey),
+            new SymmetricKey($encKey),
             $nonce,
             $mac,
             $config
@@ -626,12 +628,12 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param $input
      * @param $output
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+     * @param SecretKey $secretkey
      */
     public static function unsealResource(
         $input,
         $output,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+        SecretKey $secretkey
     ) {
         // Input validation
         if (!\is_resource($input)) {
@@ -672,9 +674,9 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
             \Sodium\CRYPTO_STREAM_NONCEBYTES
         );
         
-        $ephemeral = new Key($eph_public, true, false, true);
+        $ephemeral = new PublicKey($eph_public);
         
-        $key = Asymmetric::getSharedSecret(
+        $key = AsymmetricCrypto::getSharedSecret(
             $secretkey, 
             $ephemeral,
             true
@@ -695,7 +697,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         $ret = self::streamDecrypt(
             $input,
             $output,
-            new SecretKey($encKey),
+            new SymmetricKey($encKey),
             $nonce,
             $mac,
             $config,
@@ -724,7 +726,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         $raw_binary = false
     ) {
         $csum = self::checksumResource($input, null, true);
-        return Asymmetric::sign($csum, $secretkey, $raw_binary);
+        return AsymmetricCrypto::sign($csum, $secretkey, $raw_binary);
     }
     
     /**
@@ -744,7 +746,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         $raw_binary = false
     ) {
         $csum = self::checksumResource($input, null, true);
-        return Asymmetric::verify($csum, $publickey, $signature, $raw_binary);
+        return AsymmetricCrypto::verify($csum, $publickey, $signature, $raw_binary);
     }
     
     /**

@@ -11,7 +11,7 @@ use ParagonIE\Halite\Contract;
  * Symmetric Key Crypography uses one secret key, while Asymmetric Key Cryptography
  * uses a secret key and public key pair
  */
-class Key implements Contract\CryptoKeyInterface
+abstract class Key implements Contract\CryptoKeyInterface
 {
     // FLAGS:
     const SECRET_KEY       =   1;
@@ -136,11 +136,11 @@ class Key implements Contract\CryptoKeyInterface
         /**
          * Are we doing public key cryptography?
          */
-        if (($type & self::ASYMMETRIC) !== 0) {
+        if (self::hasFlag($type, self::ASYMMETRIC)) {
             /**
              * Are we doing encryption or digital signing?
              */
-            if (($type & self::ENCRYPTION) !== 0) {
+            if (self::hasFlag($type, self::ENCRYPTION)) {
                 $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
                     \Sodium\CRYPTO_BOX_SECRETKEYBYTES,
                     $password,
@@ -151,7 +151,7 @@ class Key implements Contract\CryptoKeyInterface
                 $public_key = \Sodium\crypto_box_publickey_from_secretkey(
                     $secret_key
                 );
-            } elseif (($type & self::SIGNATURE) !== 0) {
+            } elseif (self::hasFlag($type, self::SIGNATURE)) {
                 // Digital signature keypair
                 $signing = true;
                 $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
@@ -180,11 +180,11 @@ class Key implements Contract\CryptoKeyInterface
         /**
          * Symmetric-key implies secret-key:
          */
-        } elseif (($type & self::SECRET_KEY) !== 0) {
+        } elseif (self::hasFlag($type, self::SECRET_KEY)) {
             /**
              * Are we doing encryption or authentication?
              */
-            if (($type & self::SIGNATURE) !== 0) {
+            if (self::hasFlag($type, self::SIGNATURE)) {
                 $signing = true;
                 $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
                     \Sodium\CRYPTO_AUTH_KEYBYTES,
@@ -228,16 +228,16 @@ class Key implements Contract\CryptoKeyInterface
         /**
          * Are we doing public key cryptography?
          */
-        if (($type & self::ASYMMETRIC) !== 0) {
+        if (self::hasFlag($type, self::ASYMMETRIC)) {
             /**
              * Are we doing encryption or digital signing?
              */
             $secret_key = \file_get_contents($filePath);
-            if (($type & self::ENCRYPTION) !== 0) {
+            if (self::hasFlag($type, self::ENCRYPTION)) {
                 $public_key = \Sodium\crypto_box_publickey_from_secretkey(
                     $secret_key
                 );
-            } elseif (($type & self::SIGNATURE) !== 0) {
+            } elseif (self::hasFlag($type, self::SIGNATURE)) {
                 // Digital signature keypair
                 $signing = true;
                 $public_key = \Sodium\crypto_sign_publickey_from_secretkey(
@@ -254,11 +254,11 @@ class Key implements Contract\CryptoKeyInterface
                 new AsymmetricSecretKey($secret_key, $signing), // Secret key
                 new AsymmetricPublicKey($public_key, $signing)  // Public key
             ];
-        } elseif (($type & self::SECRET_KEY) !== 0) {
+        } elseif (self::hasFlag($type, self::SECRET_KEY)) {
             /**
              * Are we doing encryption or authentication?
              */
-            if (($type & self::SIGNATURE) !== 0) {
+            if (self::hasFlag($type, self::SIGNATURE)) {
                 $signing = true;
             }
             $secret_key = \file_get_contents($filePath);
@@ -287,16 +287,16 @@ class Key implements Contract\CryptoKeyInterface
         /**
          * Are we doing public key cryptography?
          */
-        if (($type & self::ASYMMETRIC) !== 0) {
+        if (self::hasFlag($type, self::ASYMMETRIC)) {
             /**
              * Are we doing encryption or digital signing?
              */
-            if (($type & self::ENCRYPTION) !== 0) {
+            if (self::hasFlag($type, self::ENCRYPTION)) {
                 // Encryption keypair
                 $kp = \Sodium\crypto_box_keypair();
                 $secret_key = \Sodium\crypto_box_secretkey($kp);
                 $public_key = \Sodium\crypto_box_publickey($kp);
-            } elseif (($type & self::SIGNATURE) !== 0) {
+            } elseif (self::hasFlag($type, self::SIGNATURE)) {
                 // Digital signature keypair
                 $signing = true;
                 $kp = \Sodium\crypto_sign_keypair();
@@ -316,19 +316,17 @@ class Key implements Contract\CryptoKeyInterface
                 new AsymmetricSecretKey($secret_key, $signing), // Secret key
                 new AsymmetricPublicKey($public_key, $signing)  // Public key
             ];
-        } elseif (($type & self::SECRET_KEY) !== 0) {
+        } elseif (self::hasFlag($type, self::SECRET_KEY)) {
             /**
              * Are we doing encryption or authentication?
              */
-            if (($type & self::ENCRYPTION) !== 0) {
-                $secret_key = \random_bytes(
+            if (self::hasFlag($type, self::ENCRYPTION)) {
+                $secret_key = \Sodium\randombytes_buf(
                     \Sodium\CRYPTO_SECRETBOX_KEYBYTES
                 );
-            } elseif (($type & self::SIGNATURE) !== 0) {
+            } elseif (self::hasFlag($type, self::SIGNATURE)) {
                 $signing = true;
-                
-                // ...let it throw, let it throw!
-                $secret_key = \random_bytes(
+                $secret_key = \Sodium\randombytes_buf(
                     \Sodium\CRYPTO_AUTH_KEYBYTES
                 );
             }
@@ -410,5 +408,17 @@ class Key implements Contract\CryptoKeyInterface
     public function saveToFile($filePath)
     {
         return \file_put_contents($filePath, $this->key_material);
+    }
+    
+    /**
+     * Does this integer contain this flag?
+     * 
+     * @param int $int
+     * @param int $flag
+     * @return bool
+     */
+    public static function hasFlag($int, $flag)
+    {
+        return ($int & $flag) !== 0;
     }
 }

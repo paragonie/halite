@@ -1,6 +1,9 @@
 <?php
 namespace ParagonIE\Halite\Contract;
 
+use \ParagonIE\Halite\Asymmetric\PublicKey;
+use \ParagonIE\Halite\Asymmetric\SecretKey;
+
 /**
  * An interface fundamental to all cryptography implementations
  */
@@ -19,8 +22,8 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      * @return string
      */
     public static function getSharedSecret(
-        CryptoKeyInterface $privatekey,
-        CryptoKeyInterface $publickey
+        SecretKey $privatekey,
+        PublicKey $publickey
     );
     
     /**
@@ -28,16 +31,16 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      * Seal then sign
      * 
      * @param string $source Plaintext
-     * @param string $ourPrivateKey Our private key
-     * @param string $theirPublicKey Their public key
+     * @param SecretKey $privatekey Our private key
+     * @param PublicKey $publickey Their public key
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
      */
     public static function encrypt(
-        $source, 
-        CryptoKeyInterface $ourPrivateKey, 
-        CryptoKeyInterface $theirPublicKey,
+        $source,
+        SecretKey $privatekey,
+        PublicKey $publickey,
         $raw = false
     );
     
@@ -46,16 +49,16 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      * Verify then unseal
      * 
      * @param string $source Ciphertext
-     * @param string $ourPrivateKey Our private key
-     * @param string $theirPublicKey Their public key
+     * @param SecretKey $privatekey Our private key
+     * @param PublicKey $publickey Their public key
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
      */
     public static function decrypt(
         $source,
-        CryptoKeyInterface $ourPrivateKey,
-        CryptoKeyInterface $theirPublicKey,
+        SecretKey $privatekey,
+        PublicKey $publickey,
         $raw = false
     );
     
@@ -63,14 +66,14 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      * Encrypt a message with a target users' public key
      * 
      * @param string $source Message to encrypt
-     * @param string $publicKey
+     * @param PublicKey $publicKey
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
      */
     public static function seal(
         $source,
-        CryptoKeyInterface $publicKey,
+        PublicKey $publicKey,
         $raw = false
     );
     
@@ -78,14 +81,14 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      * Decrypt a sealed message with our private key
      * 
      * @param string $source Encrypted message (string or resource for a file)
-     * @param CryptoKeyInterface $privateKey
+     * @param SecretKey $privateKey
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
      */
     public static function unseal(
         $source,
-        CryptoKeyInterface $privateKey,
+        SecretKey $privateKey,
         $raw = false
     );
     
@@ -93,22 +96,22 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      * Sign a message with our private key
      * 
      * @param string $message Message to sign
-     * @param CryptoKeyInterface $privatekey
+     * @param SecretKey $privateKey
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string Signature (detached)
      */
     public static function sign(
         $message,
-        CryptoKeyInterface $privatekey,
+        SecretKey $privateKey,
         $raw = false
     );
     
     /**
      * Verify a signed message with the correct public key
      * 
-     * @param string $message Message to verify
-     * @param Key $publickey
+     * @param string $message Message to verifyn
+     * @param PublicKey $publicKey
      * @param string $signature
      * @param boolean $raw Don't hex decode the input?
      * 
@@ -116,7 +119,7 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function verify(
         $message,
-        CryptoKeyInterface $publickey,
+        PublicKey $publicKey,
         $signature,
         $raw = false
     );

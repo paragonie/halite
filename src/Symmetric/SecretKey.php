@@ -26,11 +26,11 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      */
     public static function deriveFromPassword($password, $salt, $type = self::CRYPTO_SECRETBOX)
     {
-        if ($type & self::ASYMMETRIC !== 0) {
-            $type ^= self::ASYMMETRIC;
+        if (self::hasFlag($type, self::ASYMMETRIC)) {
+            $type &= ~self::ASYMMETRIC;
         }
-        if ($type & self::PUBLIC_KEY !== 0) {
-            $type ^= self::PUBLIC_KEY;
+        if (self::hasFlag($type, self::PUBLIC_KEY)) {
+            $type &= ~self::PUBLIC_KEY;
         }
         return parent::deriveFromPassword($password, $salt, $type);
     }
@@ -43,11 +43,11 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      */
     public static function generate($type = self::CRYPTO_SECRETBOX, &$secret_key = null)
     {
-        if ($type & self::ASYMMETRIC !== 0) {
-            $type ^= self::ASYMMETRIC;
+        if (self::hasFlag($type, self::ASYMMETRIC)) {
+            $type &= ~self::ASYMMETRIC;
         }
-        if ($type & self::PUBLIC_KEY !== 0) {
-            $type ^= self::PUBLIC_KEY;
+        if (self::hasFlag($type, self::PUBLIC_KEY)) {
+            $type &= ~self::PUBLIC_KEY;
         }
         // Force secret key
         $type &= self::SECRET_KEY;

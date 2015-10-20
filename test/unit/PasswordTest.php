@@ -1,6 +1,6 @@
 <?php
 use \ParagonIE\Halite\Password;
-use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
 
 /**
  * @backupGlobals disabled
@@ -10,7 +10,7 @@ class PasswordTest extends PHPUnit_Framework_TestCase
 {
     public function testEncrypt()
     {
-        $key = new Key(\str_repeat('A', 32));
+        $key = new SymmetricKey(\str_repeat('A', 32));
         
         $hash = Password::hash('test password', $key);
         $this->assertTrue(is_string($hash));

@@ -1,7 +1,8 @@
 <?php
 namespace ParagonIE\Halite\Asymmetric;
 
-use ParagonIE\Halite\Contract;
+use \ParagonIE\Halite\Contract;
+use \ParagonIE\Halite\Key;
 
 class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInterface
 {
@@ -28,8 +29,8 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      */
     public static function deriveFromPassword($password, $salt, $type = self::CRYPTO_BOX)
     {
-        if (($type & self::ASYMMETRIC) === 0) {
-            $type &= self::ASYMMETRIC;
+        if (!self::hasFlag($type, self::ASYMMETRIC)) {
+            $type |= self::ASYMMETRIC;
         }
         return parent::deriveFromPassword($password, $salt, $type);
     }
@@ -42,8 +43,8 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      */
     public static function generate($type = self::CRYPTO_BOX, &$secret_key = null)
     {
-        if (($type & self::ASYMMETRIC) === 0) {
-            $type &= self::ASYMMETRIC;
+        if (!self::hasFlag($type, self::ASYMMETRIC)) {
+            $type |= self::ASYMMETRIC;
         }
         return parent::generate($type, $secret_key);
     }

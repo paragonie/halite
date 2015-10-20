@@ -58,10 +58,14 @@ use \ParagonIE\Halite\Asymmetric\PublicKey;
     $sign_public = $sign_keypair->getPublicKey();
 ```
 
-#### Advanced Usage
+#### Advanced Usage (the old way)
 
 Another way to generate a cryptography key is to pass the appropriate flags to 
-`Key::generate`.
+`Key::generate`. This will still return one of three types:
+
+* `\ParagonIE\Halite\Asymmetric\PublicKey`
+* `\ParagonIE\Halite\Asymmetric\SecretKey`
+* `\ParagonIE\Halite\Symmetric\SecretKey` for all symmetric-key crypto
 
 ```php
 <?php

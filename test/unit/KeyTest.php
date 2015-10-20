@@ -65,4 +65,48 @@ class KeyTest extends PHPUnit_Framework_TestCase
             "\x03\x1d\x95\xa7\x94\x5c\xe6\xd5\x55\x96\xe3\x75\x03\x17\x88\x34"
         );
     }
+    
+    public function testKeyTypes()
+    {
+        $key = Key::generate(Key::CRYPTO_AUTH);
+            $this->assertFalse($key->isAsymmetricKey());
+            $this->assertFalse($key->isEncryptionKey());
+            $this->assertTrue($key->isSecretKey());
+            $this->assertTrue($key->isSigningKey());
+            $this->assertFalse($key->isPublicKey());
+        
+        $key = Key::generate(Key::CRYPTO_SECRETBOX);
+            $this->assertFalse($key->isAsymmetricKey());
+            $this->assertTrue($key->isEncryptionKey());
+            $this->assertTrue($key->isSecretKey());
+            $this->assertFalse($key->isSigningKey());
+            $this->assertFalse($key->isPublicKey());
+        
+        list($enc_secret, $enc_public) = Key::generate(Key::CRYPTO_BOX);
+            $this->assertTrue($enc_secret->isAsymmetricKey());
+            $this->assertTrue($enc_secret->isEncryptionKey());
+            $this->assertTrue($enc_secret->isSecretKey());
+            $this->assertFalse($enc_secret->isSigningKey());
+            $this->assertFalse($enc_secret->isPublicKey());
+            
+            $this->assertTrue($enc_public->isAsymmetricKey());
+            $this->assertTrue($enc_public->isEncryptionKey());
+            $this->assertFalse($enc_public->isSecretKey());
+            $this->assertFalse($enc_public->isSigningKey());
+            $this->assertTrue($enc_public->isPublicKey());
+            
+        list($sign_secret, $sign_public) = Key::generate(Key::CRYPTO_SIGN);
+            $this->assertTrue($sign_secret->isAsymmetricKey());
+            $this->assertFalse($sign_secret->isEncryptionKey());
+            $this->assertTrue($sign_secret->isSecretKey());
+            $this->assertTrue($sign_public->isSigningKey());
+            $this->assertFalse($sign_secret->isPublicKey());
+            
+            $this->assertTrue($sign_public->isAsymmetricKey());
+            $this->assertFalse($sign_public->isEncryptionKey());
+            $this->assertFalse($sign_public->isSecretKey());
+            $this->assertTrue($sign_public->isSigningKey());
+            $this->assertTrue($sign_public->isPublicKey());
+        
+    }
 }

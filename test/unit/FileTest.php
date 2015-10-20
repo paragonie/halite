@@ -1,6 +1,9 @@
 <?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use \ParagonIE\Halite\Asymmetric\SecretKey as SecretKey;
+use \ParagonIE\Halite\Asymmetric\PublicKey as PublicKey;
 use \ParagonIE\Halite\Alerts as CryptoException;
 
 /**
@@ -16,7 +19,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         \touch(__DIR__.'/tmp/paragon_avatar.decrypted.png');
         \chmod(__DIR__.'/tmp/paragon_avatar.decrypted.png', 0777);
         
-        $key = new Key(\str_repeat('B', 32));
+        $key = new SymmetricKey(\str_repeat('B', 32));
         File::encryptFile(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.encrypted.png',
@@ -42,7 +45,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         \touch(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png');
         \chmod(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png', 0777);
         
-        $key = new Key(\str_repeat('B', 32));
+        $key = new SymmetricKey(\str_repeat('B', 32));
         File::encryptFile(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.encrypt_fail.png',

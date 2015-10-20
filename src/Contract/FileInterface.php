@@ -1,6 +1,10 @@
 <?php
 namespace ParagonIE\Halite\Contract;
 
+use \ParagonIE\Halite\Asymmetric\PublicKey;
+use \ParagonIE\Halite\Asymmetric\SecretKey;
+use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+
 /**
  * An interface for encrypting/decrypting files
  */
@@ -11,12 +15,12 @@ interface FileInterface
      * 
      * @param string $inputFile
      * @param string $outputFile
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+     * @param SymmetricKey $key
      */
     public static function encryptFile(
         $inputFile,
         $outputFile,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+        SymmetricKey $key
     );
     
     /**
@@ -24,12 +28,12 @@ interface FileInterface
      * 
      * @param string $inputFile
      * @param string $outputFile
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+     * @param SymmetricKey $key
      */
     public static function decryptFile(
         $inputFile,
         $outputFile,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+        SymmetricKey $key
     );
     
     /**
@@ -37,12 +41,12 @@ interface FileInterface
      * 
      * @param string $inputFile
      * @param string $outputFile
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+     * @param PublicKey $publickey
      */
     public static function sealFile(
         $inputFile,
         $outputFile,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+        PublicKey $publickey
     );
     
     /**
@@ -50,12 +54,12 @@ interface FileInterface
      * 
      * @param string $inputFile
      * @param string $outputFile
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+     * @param SecretKey $secretkey
      */
     public static function unsealFile(
         $inputFile,
         $outputFile,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+        SecretKey $secretkey
     );
     
     /**
@@ -63,12 +67,12 @@ interface FileInterface
      * 
      * @param $input
      * @param $output
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+     * @param SymmetricKey $key
      */
     public static function encryptResource(
         $input,
         $output,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+        SymmetricKey $key
     );
     
     /**
@@ -76,12 +80,12 @@ interface FileInterface
      * 
      * @param $input
      * @param $output
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+     * @param SymmetricKey $key
      */
     public static function decryptResource(
         $input,
         $output,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key
+        SymmetricKey $key
     );
     
     /**
@@ -89,12 +93,12 @@ interface FileInterface
      * 
      * @param $input
      * @param $output
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+     * @param PublicKey $publickey
      */
     public static function sealResource(
         $input,
         $output,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+        PublicKey $publickey
     );
     
     /**
@@ -102,12 +106,12 @@ interface FileInterface
      * 
      * @param $input
      * @param $output
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+     * @param SecretKey $secretkey
      */
     public static function unsealResource(
         $input,
         $output,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+        SecretKey $secretkey
     );
     
     
@@ -115,14 +119,14 @@ interface FileInterface
      * Calculate a checksum (derived from BLAKE2b) of a file
      * 
      * @param string $filepath The file you'd like to checksum
-     * @param string $key An optional BLAKE2b key
+     * @param SymmetricKey $key An optional BLAKE2b key
      * @param bool $raw Set to true if you don't want hex
      * 
      * @return string
      */
     public static function checksumFile(
         $filepath,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key = null,
+        SymmetricKey $key = null,
         $raw = false
     );
     
@@ -131,14 +135,14 @@ interface FileInterface
      * Calculate a BLAHE2b checksum of a file
      * 
      * @param string $fileHandle The file you'd like to checksum
-     * @param string $key An optional BLAKE2b key
+     * @param SymmetricKey $key An optional BLAKE2b key
      * @param bool $raw Set to true if you don't want hex
      * 
      * @return string
      */
     public static function checksumResource(
         $fileHandle,
-        \ParagonIE\Halite\Contract\CryptoKeyInterface $key = null,
+        SymmetricKey $key = null,
         $raw = false
     );
 }

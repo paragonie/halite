@@ -2,67 +2,62 @@
 namespace ParagonIE\Halite\Asymmetric;
 
 use \ParagonIE\Halite\Alerts as CryptoException;
+use \ParagonIE\Halite\Asymmetric\PublicKey;
+use \ParagonIE\Halite\Asymmetric\SecretKey;
 use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
-use \ParagonIE\Halite\Symmetric\Crypto as Symmetric;
+use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
+use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
 
 class Crypto implements Contract\AsymmetricKeyCryptoInterface
 {
     /**
      * Encrypt a string using asymmetric cryptography
-     * Wraps Symmetric::encrypt()
+     * Wraps SymmetricCrypto::encrypt()
      * 
      * @param string $source Plaintext
-     * @param string $ourPrivateKey Our private key
-     * @param string $theirPublicKey Their public key
+     * @param SecretKey $ourPrivateKey Our private key
+     * @param PublicKey $theirPublicKey  Their public key
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
      */
     public static function encrypt(
         $source, 
-        Contract\CryptoKeyInterface $ourPrivateKey, 
-        Contract\CryptoKeyInterface $theirPublicKey,
+        SecretKey $ourPrivateKey, 
+        PublicKey $theirPublicKey,
         $raw = false
     ) {
-        list ($secret, $public) = self::judgeKeys($ourPrivateKey, $theirPublicKey);
-        $ecdh = new Key(
-            self::getSharedSecret($secret, $public),
-            false, 
-            false
+        $ecdh = new SymmetricKey(
+            self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
-        
-        $ciphertext = Symmetric::encrypt($source, $ecdh, $raw);
+        $ciphertext = SymmetricCrypto::encrypt($source, $ecdh, $raw);
         unset($ecdh);
         return $ciphertext;
     }
     
     /**
      * Decrypt a string using asymmetric cryptography
-     * Wraps Symmetric::decrypt()
+     * Wraps SymmetricCrypto::decrypt()
      * 
      * @param string $source Ciphertext
-     * @param string $ourPrivateKey Our private key
-     * @param string $theirPublicKey Their public key
+     * @param SecretKey $ourPrivateKey Our private key
+     * @param PublicKey $theirPublicKey Their public key
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
      */
     public static function decrypt(
         $source,
-        Contract\CryptoKeyInterface $ourPrivateKey,
-        Contract\CryptoKeyInterface $theirPublicKey,
+        SecretKey $ourPrivateKey,
+        PublicKey $theirPublicKey,
         $raw = false
     ) {
-        list ($secret, $public) = self::judgeKeys($ourPrivateKey, $theirPublicKey);
-        $ecdh = new Key(
-            self::getSharedSecret($secret, $public),
-            false, 
-            false
+        $ecdh = new SymmetricKey(
+            self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
-        
-        $ciphertext = Symmetric::decrypt($source, $ecdh, $raw);
+        $ciphertext = SymmetricCrypto::decrypt($source, $ecdh, $raw);
         unset($ecdh);
         return $ciphertext;
     }
@@ -94,30 +89,28 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Get a shared secret from a private key you possess and a public key for
      * the intended message recipient
      * 
-     * @param Contract\CryptoKeyInterface $privatekey
-     * @param Contract\CryptoKeyInterface $publickey
+     * @param SecretKey $privateKey
+     * @param PublicKey $publicKey
      * @param bool $get_as_object Get as a Key object?
      * 
      * @return string
      */
     public static function getSharedSecret(
-        Contract\CryptoKeyInterface $privatekey,
-        Contract\CryptoKeyInterface $publickey,
+        SecretKey $privateKey,
+        PublicKey $publicKey,
         $get_as_object = false
     ) {
-        list ($secret, $public) = self::judgeKeys($privatekey, $publickey);
-        
         if ($get_as_object) {
-            return new Key(
+            return new SymmetricKey(
                 \Sodium\crypto_scalarmult(
-                    $secret->get(),
-                    $public->get()
+                    $privateKey->get(),
+                    $publicKey->get()
                 )
             );
         }
         return \Sodium\crypto_scalarmult(
-            $secret->get(),
-            $public->get()
+            $privateKey->get(),
+            $publicKey->get()
         );
     }
     
@@ -125,62 +118,52 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Encrypt a message with a target users' public key
      * 
      * @param string $source Message to encrypt
-     * @param string $publicKey
+     * @param PublicKey $publicKey
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
      */
     public static function seal(
         $source,
-        Contract\CryptoKeyInterface $publicKey,
+        PublicKey $publicKey,
         $raw = false
     ) {
-        if ($publicKey->isPublicKey()) {
-            if (function_exists('\\Sodium\\crypto_box_seal')) {
-                $sealed = \Sodium\crypto_box_seal($source, $publicKey->get());
-            } else {
-                throw new CryptoException\CannotPerformOperation(
-                    'crypto_box_seal is not available'
-                );
-            }
-            if ($raw) {
-                return $sealed;
-            }
-            return \Sodium\bin2hex($sealed);
+        if (!function_exists('\\Sodium\\crypto_box_seal')) {
+            throw new CryptoException\CannotPerformOperation(
+                'crypto_box_seal is not available'
+            );
         }
-        throw new CryptoException\InvalidKey(
-            'Expected a public key'
-        );
+        
+        $sealed = \Sodium\crypto_box_seal($source, $publicKey->get());
+        if ($raw) {
+            return $sealed;
+        }
+        return \Sodium\bin2hex($sealed);
     }
     
     /**
      * Sign a message with our private key
      * 
      * @param string $message Message to sign
-     * @param Contract\CryptoKeyInterface $privatekey
+     * @param SecretKey $privateKey
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string Signature (detached)
      */
     public static function sign(
         $message,
-        Contract\CryptoKeyInterface $privatekey,
+        SecretKey $privateKey,
         $raw = false
     ) {
-        if (!$privatekey->isSigningKey()) {
+        if (!$privateKey->isSigningKey()) {
             throw new CryptoException\InvalidKey(
                 'Expected a signing key'
-            );
-        }
-        if (!$privatekey->isSecretKey()) {
-            throw new CryptoException\InvalidKey(
-                'Expected a secret key'
             );
         }
         
         $signed = \Sodium\crypto_sign_detached(
             $message,
-            $privatekey->get()
+            $privateKey->get()
         );
         if ($raw) {
             return $signed;
@@ -192,54 +175,48 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Decrypt a sealed message with our private key
      * 
      * @param string $source Encrypted message (string or resource for a file)
-     * @param Contract\CryptoKeyInterface $privateKey
+     * @param SecretKey $privateKey
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
      */
     public static function unseal(
         $source,
-        Contract\CryptoKeyInterface $privateKey,
+        SecretKey $privateKey,
         $raw = false
     ) {
         if (!$raw) {
             $source = \Sodium\hex2bin($source);
         }
-        if ($privateKey->isSecretKey()) {
-            if (function_exists('\\Sodium\\crypto_box_seal_open')) {
-                
-                // Get a box keypair (needed by crypto_box_seal_open)
-                $secret_key = $privateKey->get();
-                $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
-                $kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
-                    $secret_key,
-                    $public_key
-                );
-                
-                // Now let's open that sealed box
-                $message = \Sodium\crypto_box_seal_open($source, $kp);
-                
-                // Always memzero after retrieving a value
-                \Sodium\memzero($secret_key);
-                \Sodium\memzero($public_key);
-                \Sodium\memzero($kp);
-            } else {
-                throw new CryptoException\CannotPerformOperation(
-                    'crypto_box_seal_open is not available'
-                );
-            }
-            if ($message === false) {
-                throw new CryptoException\InvalidKey(
-                    'Incorrect secret key'
-                );
-            }
-            
-            // We have our encrypted message here
-            return $message;
+        if (!function_exists('\\Sodium\\crypto_box_seal_open')) {
+            throw new CryptoException\CannotPerformOperation(
+                'crypto_box_seal_open is not available'
+            );
         }
-        throw new CryptoException\InvalidKey(
-            'Expected a secret key'
+
+        // Get a box keypair (needed by crypto_box_seal_open)
+        $secret_key = $privateKey->get();
+        $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
+        $kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
+            $secret_key,
+            $public_key
         );
+
+        // Now let's open that sealed box
+        $message = \Sodium\crypto_box_seal_open($source, $kp);
+
+        // Always memzero after retrieving a value
+        \Sodium\memzero($secret_key);
+        \Sodium\memzero($public_key);
+        \Sodium\memzero($kp);
+        if ($message === false) {
+            throw new CryptoException\InvalidKey(
+                'Incorrect secret key'
+            );
+        }
+
+        // We have our encrypted message here
+        return $message;
     }
     
     /**
@@ -254,18 +231,13 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function verify(
         $message,
-        Contract\CryptoKeyInterface $publickey,
+        PublicKey $publickey,
         $signature,
         $raw = false
     ) {
         if (!$publickey->isSigningKey()) {
             throw new CryptoException\InvalidKey(
                 'Expected a signing key'
-            );
-        }
-        if (!$publickey->isPublicKey()) {
-            throw new CryptoException\InvalidKey(
-                'Expected a public key'
             );
         }
         if (!$raw) {
@@ -277,37 +249,5 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
             $message,
             $publickey->get()
         );
-    }
-    
-    /**
-     * We are expecting one secret key and one public key
-     * 
-     * @param type $privatekey
-     * @param type $publickey
-     * @return [Key, Key] secret, public
-     * @throws CryptoException\InvalidKey
-     */
-    protected static function judgeKeys(Contract\CryptoKeyInterface $privatekey, Contract\CryptoKeyInterface $publickey)
-    {
-        if ($privatekey->isPublicKey()) {
-            if ($publickey->isPublicKey()) {
-                throw new CryptoException\InvalidKey(
-                    'Both keys cannot be public keys'
-                );
-            }
-            return [
-                $publickey,
-                $privatekey
-            ];
-        } elseif ($publickey->isPublicKey()) {
-            return [
-                $privatekey,
-                $publickey
-            ];
-        } else {
-            throw new CryptoException\InvalidKey(
-                'Both keys cannot be secret keys'
-            );
-        }
     }
 }

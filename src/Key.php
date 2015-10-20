@@ -66,6 +66,20 @@ class Key implements Contract\CryptoKeyInterface
     }
     
     /**
+     * Hide this from var_dump(), etc.
+     * 
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return [
+            'is_asymmetric_key' => $this->is_asymmetric_key,
+            'is_public_key' => $this->is_public_key,
+            'is_signing_key' => $this->is_signing_key
+        ];
+    }
+    
+    /**
      * Make sure you wipe the key from memory on destruction
      */
     public function __destruct()

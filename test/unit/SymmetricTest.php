@@ -60,7 +60,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
             \str_repeat('A', 32)
         );
         $message = Symmetric::encrypt('test message', $key);
-        $this->assertTrue(strpos($message, '31420001') === 0);
+        $this->assertTrue(strpos($message, '31420006') === 0);
         
         $plain = Symmetric::decrypt($message, $key);
         $this->assertEquals($plain, 'test message');

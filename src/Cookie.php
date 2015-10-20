@@ -13,6 +13,17 @@ class Cookie
         $this->key = $key;
         \Sodium\memzero($key);
     }
+    /**
+     * Hide this from var_dump(), etc.
+     * 
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return [
+            'key' => 'private'
+        ];
+    }
     
     /**
      * Store a value in an encrypted cookie

@@ -4,6 +4,9 @@ namespace ParagonIE\Halite;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Symmetric\Crypto as Symmetric;
 
+/**
+ * Secure password storage and secure password verification
+ */
 class Password implements \ParagonIE\Halite\Contract\PasswordInterface
 {
     /**
@@ -38,7 +41,7 @@ class Password implements \ParagonIE\Halite\Contract\PasswordInterface
     {
         // First let's decrypt the hash
         $hash_str = Symmetric::decrypt($stored, $secret_key);
-        // And now to verify the hash
+        // Upon successful decryption, verify the password is correct
         return \Sodium\crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $password);
     }
 }

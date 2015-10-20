@@ -11,7 +11,9 @@ class PublicKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
-        $signing = \count($args) >= 1 ? $args[0] : false;
+        $signing = \count($args) >= 1
+            ? $args[0]
+            : false;
         parent::__construct($keyMaterial, true, $signing, true);
     }
     
@@ -23,7 +25,7 @@ class PublicKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      */
     public static function generate($type = self::CRYPTO_BOX, &$secret_key = null)
     {
-        if ($type & self::ASYMMETRIC === 0) {
+        if (($type & self::ASYMMETRIC) === 0) {
             $type &= self::ASYMMETRIC;
         }
         return parent::generate($type, $secret_key);

@@ -362,7 +362,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         // Write the header
         self::writeBytes($output, Halite::HALITE_VERSION_FILE, Halite::VERSION_TAG_LEN);
         self::writeBytes($output, $firstnonce, \Sodium\CRYPTO_STREAM_NONCEBYTES);
-        self::writeBytes($output, $hkdfsalt, Halite::HKDF_SALT_LEN);
+        self::writeBytes($output, $hkdfsalt, $config->HKDF_SALT_LEN);
         
         \hash_update($mac, Halite::HALITE_VERSION_FILE);
         \hash_update($mac, $firstnonce);
@@ -517,7 +517,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         
         self::writeBytes($output, Halite::HALITE_VERSION_FILE, Halite::VERSION_TAG_LEN);
         self::writeBytes($output, $eph_public->get(), \Sodium\CRYPTO_BOX_PUBLICKEYBYTES);
-        self::writeBytes($output, $hkdfsalt, Halite::HKDF_SALT_LEN);
+        self::writeBytes($output, $hkdfsalt, $config->HKDF_SALT_LEN);
         
         \hash_update($mac, Halite::HALITE_VERSION_FILE);
         \hash_update($mac, $eph_public->get());
@@ -813,7 +813,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
             'Invalid version tag'
         );
     }
-        
+    
     /**
      * Split a key using HKDF
      * 

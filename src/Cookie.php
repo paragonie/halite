@@ -11,7 +11,6 @@ class Cookie
     public function __construct(Key $key)
     {
         $this->key = $key;
-        \Sodium\memzero($key);
     }
     /**
      * Hide this from var_dump(), etc.

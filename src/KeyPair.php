@@ -22,7 +22,20 @@ class KeyPair
     public function __construct(Key ...$keys)
     {
         switch (\count($keys)) {
+            /**
+             * If we received two keys, it must be an asymmetric secret key and
+             * an asymmetric public key, in either order.
+             */
             case 2:
+                if (!$keys[0]->isAsymmetricKey()) {
+                    throw new CryptoException\InvalidKey(
+                        'Only keys intended for asymmetric cryptography can be used in a KeyPair object'
+                    );
+                } elseif (!$keys[1]->isAsymmetricKey()) {
+                    throw new CryptoException\InvalidKey(
+                        'Only keys intended for asymmetric cryptography can be used in a KeyPair object'
+                    );
+                }
                 if ($keys[0]->isPublicKey()) {
                     if ($keys[1]->isPublicKey()) {
                         throw new CryptoException\InvalidKey(
@@ -92,7 +105,15 @@ class KeyPair
                     );
                 }
                 break;
+            /**
+             * If we only received one key, it must be an asymmetric secret key!
+             */
             case 1:
+                if (!$keys[0]->isAsymmetricKey()) {
+                    throw new CryptoException\InvalidKey(
+                        'Only keys intended for asymmetric cryptography can be used in a KeyPair object'
+                    );
+                }
                 if ($keys[0]->isPublicKey()) {
                     throw new CryptoException\InvalidKey(
                         'We cannot generate a valid keypair given only a public key; we can given only a secret key, however.'
@@ -161,9 +182,13 @@ class KeyPair
             );
         }
         if (($type & Key::ENCRYPTION) !== 0) {
-            return Key::deriveFromPassword($password, $salt, Key::CRYPTO_BOX);
+            $key = Key::deriveFromPassword($password, $salt, Key::CRYPTO_BOX);
+            $keypair = new KeyPair(...$key);
+            return $keypair;
         } elseif (($type & Key::SIGNATURE) !== 0) {
-            return Key::deriveFromPassword($password, $salt, Key::CRYPTO_SIGN);
+            $key = Key::deriveFromPassword($password, $salt, Key::CRYPTO_SIGN);
+            $keypair = new KeyPair(...$key);
+            return $keypair;
         }
         throw new CryptoException\InvalidKey(
             'You must specify encryption or authentication flags.'

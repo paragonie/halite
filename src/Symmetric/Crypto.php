@@ -1,10 +1,12 @@
 <?php
 namespace ParagonIE\Halite\Symmetric;
 
-use ParagonIE\Halite\Alerts as CryptoException;
-use ParagonIE\Halite\Contract;
-use ParagonIE\Halite\Util as CryptoUtil;
-use ParagonIE\Halite\Halite as Config;
+use \ParagonIE\Halite\Alerts as CryptoException;
+use \ParagonIE\Halite\Contract;
+use \ParagonIE\Halite\Util as CryptoUtil;
+use \ParagonIE\Halite\Halite;
+use \ParagonIE\Halite\Config;
+use \ParagonIE\Halite\Symmetric\Config as SymmetricConfig;
 use \ParagonIE\Halite\Key;
 
 class Crypto implements Contract\SymmetricKeyCryptoInterface
@@ -33,7 +35,8 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
                 'Authentication key expected'
             );
         }
-        $mac = self::calculateMAC($message, $secretKey->get());
+        $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'auth');
+        $mac = self::calculateMAC($message, $secretKey->get(), $config);
         if ($raw) {
             return $mac;
         }
@@ -66,20 +69,21 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
         $length = CryptoUtil::safeStrlen($ciphertext);
         
         // The first 4 bytes are reserved for the version size
-        $version = CryptoUtil::safeSubstr($ciphertext, 0, Config::VERSION_TAG_LEN);
+        $version = CryptoUtil::safeSubstr($ciphertext, 0, Halite::VERSION_TAG_LEN);
+        $config = SymmetricConfig::getConfig($version, 'encrypt');
         
         // The HKDF is used for key splitting
         $salt = CryptoUtil::safeSubstr(
             $ciphertext,
-            Config::VERSION_TAG_LEN,
-            Config::HKDF_SALT_LEN
+            Halite::VERSION_TAG_LEN,
+            $config->HKDF_SALT_LEN
         );
         
         // This is the nonce (we authenticated it):
         $nonce = CryptoUtil::safeSubstr(
             $ciphertext, 
             // 36:
-            Config::VERSION_TAG_LEN + Config::HKDF_SALT_LEN,
+            Halite::VERSION_TAG_LEN + $config->HKDF_SALT_LEN,
             // 24:
             \Sodium\CRYPTO_STREAM_NONCEBYTES
         );
@@ -88,13 +92,13 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
         $xored = CryptoUtil::safeSubstr(
             $ciphertext, 
             // 60:
-                Config::VERSION_TAG_LEN +
-                Config::HKDF_SALT_LEN +
+                Halite::VERSION_TAG_LEN +
+                $config->HKDF_SALT_LEN +
                 \Sodium\CRYPTO_STREAM_NONCEBYTES,
             // $length - 92:
             $length - (
-                Config::VERSION_TAG_LEN +
-                Config::HKDF_SALT_LEN +
+                Halite::VERSION_TAG_LEN +
+                $config->HKDF_SALT_LEN +
                 \Sodium\CRYPTO_STREAM_NONCEBYTES +
                 \Sodium\CRYPTO_AUTH_BYTES
             )
@@ -104,7 +108,7 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
         $auth = CryptoUtil::safeSubstr($ciphertext, $length - \Sodium\CRYPTO_AUTH_BYTES);
         
         // Split our keys
-        list($eKey, $aKey) = self::splitKeys($secretKey, $salt);
+        list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
         
         // Check the MAC first
         if (!self::verifyMAC(
@@ -150,21 +154,22 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
                 'Encryption key expected'
             );
         }
+        $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         $nonce = \Sodium\randombytes_buf(\Sodium\CRYPTO_SECRETBOX_NONCEBYTES);
-        $salt = \Sodium\randombytes_buf(Config::HKDF_SALT_LEN);
-        list($eKey, $aKey) = self::splitKeys($secretKey, $salt);
+        $salt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
+        list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
         $xored = \Sodium\crypto_stream_xor($plaintext, $nonce, $eKey);
         $auth = self::calculateMAC(
-            Config::HALITE_VERSION . $salt . $nonce . $xored,
+            Halite::HALITE_VERSION . $salt . $nonce . $xored,
             $aKey
         );
         
         \Sodium\memzero($eKey);
         \Sodium\memzero($aKey);
         if (!$raw) {
-            return \Sodium\bin2hex(Config::HALITE_VERSION . $salt . $nonce . $xored . $auth);
+            return \Sodium\bin2hex(Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth);
         }
-        return Config::HALITE_VERSION . $salt . $nonce . $xored . $auth;
+        return Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth;
     }
     
     /**
@@ -197,14 +202,18 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
      * 
      * @param \ParagonIE\Halite\Key $master
      * @param string $salt
+     * @param Config $config
      * @return array
      */
-    public static function splitKeys(Key $master, $salt = null)
-    {
+    public static function splitKeys(
+        Key $master,
+        $salt = null,
+        Config $config = null
+    ) {
         $binary = $master->get();
         return [
-            CryptoUtil::hkdfBlake2b($binary, \Sodium\CRYPTO_SECRETBOX_KEYBYTES, Config::HKDF_SBOX, $salt),
-            CryptoUtil::hkdfBlake2b($binary, \Sodium\CRYPTO_AUTH_KEYBYTES, Config::HKDF_AUTH, $salt)
+            CryptoUtil::hkdfBlake2b($binary, \Sodium\CRYPTO_SECRETBOX_KEYBYTES, $config->HKDF_SBOX, $salt),
+            CryptoUtil::hkdfBlake2b($binary, \Sodium\CRYPTO_AUTH_KEYBYTES, $config->HKDF_AUTH, $salt)
         ];
     }
     

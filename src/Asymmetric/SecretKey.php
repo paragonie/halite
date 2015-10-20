@@ -11,7 +11,9 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
-        $signing = \count($args) >= 1 ? $args[0] : false;
+        $signing = \count($args) >= 1
+            ? $args[0]
+            : false;
         parent::__construct($keyMaterial, false, $signing, true);
     }
     
@@ -26,7 +28,7 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      */
     public static function deriveFromPassword($password, $salt, $type = self::CRYPTO_BOX)
     {
-        if ($type & self::ASYMMETRIC === 0) {
+        if (($type & self::ASYMMETRIC) === 0) {
             $type &= self::ASYMMETRIC;
         }
         return parent::deriveFromPassword($password, $salt, $type);
@@ -40,7 +42,7 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      */
     public static function generate($type = self::CRYPTO_BOX, &$secret_key = null)
     {
-        if ($type & self::ASYMMETRIC === 0) {
+        if (($type & self::ASYMMETRIC) === 0) {
             $type &= self::ASYMMETRIC;
         }
         return parent::generate($type, $secret_key);

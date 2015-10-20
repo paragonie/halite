@@ -5,6 +5,8 @@ abstract class Util
 {
     /**
      * Safe string length
+     * 
+     * @ref mbstring.func_overload
      *
      * @staticvar boolean $exists
      * @param string $str
@@ -25,9 +27,11 @@ abstract class Util
             }
             return $length;
         } else {
+            // If we reached here, we can rely on strlen to count bytes:
             return \strlen($str);
         }
     }
+    
     /**
      * Safe substring
      *
@@ -46,7 +50,7 @@ abstract class Util
         if ($exists) {
             // mb_substr($str, 0, NULL, '8bit') returns an empty string on PHP
             // 5.3, so we have to find the length ourselves.
-            if (!isset($length)) {
+            if ($length === null) {
                 if ($start >= 0) {
                     $length = self::safeStrlen($str) - $start;
                 } else {
@@ -93,7 +97,7 @@ abstract class Util
                 'Bad HKDF Digest Length'
             );
         }
-        // "if [salt] not provided, is set to a string of HashLen zeroes."
+        // "If [salt] not provided, is set to a string of HashLen zeroes."
         if (\is_null($salt)) {
             $salt = \str_repeat("\x00", \Sodium\CRYPTO_GENERICHASH_KEYBYTES);
         }

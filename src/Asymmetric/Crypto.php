@@ -82,8 +82,7 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
             case Key::SIGNATURE:
             case Key::CRYPTO_SIGN:
             case Key::CRYPTO_BOX:
-                $keys = Key::generate($type);
-                return new KeyPair(...$keys);
+                return KeyPair::generate($type);
             default:
                 throw new CryptoException\InvalidKey;
         }

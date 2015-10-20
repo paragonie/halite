@@ -6,15 +6,12 @@ namespace ParagonIE\Halite;
  */
 abstract class Halite
 {
-    const VERSION = '0.6.0';
-    const HALITE_VERSION = "\x31\x42\x00\x06";
+    const VERSION             = '0.6.0';
+    const HALITE_VERSION      = "\x31\x42\x00\x06";
     // \x31\x42 => 3.142 (approx. pi)
     // Because pi is the symbol we use for Paragon Initiative Enterprises
     // \x00\x01 => version 0.01
     const HALITE_VERSION_FILE = "\x31\x41\x00\x06";
-    
-    const HKDF_SBOX = 'Halite|EncryptionKey';
-    const HKDF_AUTH = 'AuthenticationKeyFor_|Halite';
+    // This must never change:
     const VERSION_TAG_LEN = 4;
-    const HKDF_SALT_LEN = 32;
 }

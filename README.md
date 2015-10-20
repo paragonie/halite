@@ -28,7 +28,6 @@ document these features in detail in the `doc/` directory.
 Generating a cryptography key is simple and convenient:
 
 ```php
-<?php
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
 use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
@@ -68,7 +67,6 @@ Another way to generate a cryptography key is to pass the appropriate flags to
 * `\ParagonIE\Halite\Symmetric\SecretKey` for all symmetric-key crypto
 
 ```php
-<?php
 use \ParagonIE\Halite\Key;
 
 /**
@@ -125,7 +123,6 @@ $key_object = KeyPair::fromFile('/path/to/secretkey', Key::CRYPTO_BOX);
 Encryption:
 
 ```php
-<?php
 use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
 /**
  * This will return a hex-encoded string.
@@ -250,7 +247,6 @@ if (AsymmetricCrypto::verify($message, $sign_public, $signature)) {
 #### Creating a password
 
 ```php
-<?php
 use \ParagonIE\Halite\Password;
 use \ParagonIE\Halite\Key;
 
@@ -263,7 +259,6 @@ The above snippet will return a long string of hex characters.
 #### Validating a password
 
 ```php
-<?php
 use \ParagonIE\Halite\Password;
 
 try {
@@ -278,7 +273,6 @@ try {
 ### Secure Encrypted Cookies
 
 ```php
-<?php
 use \ParagonIE\Halite\Cookie;
 
 $cookie = new Cookie($encryption_key);
@@ -295,7 +289,6 @@ Quickly calculate the BLAKE2b hash of a large file while consuming low amounts
 of memory.
 
 ```php
-<?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
 
@@ -309,7 +302,6 @@ $checksum = File::checksumFile('sourceFile.png', true);
 #### Symmetric-key File Encryption
 
 ```php
-<?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
@@ -327,7 +319,6 @@ File::decryptFile('encryptedFile.png', 'decryptedFile.png', $encryption_key);
 #### Asymmetric-key File Encryption
 
 ```php
-<?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
@@ -347,8 +338,6 @@ File::unsealFile('sealedFile.png', 'unsealedFile.png', $enc_secret);
 #### Asymmetric-key Digital Signatures for Files
 
 ```php
-
-<?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;

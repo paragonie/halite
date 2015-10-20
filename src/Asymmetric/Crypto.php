@@ -204,6 +204,14 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
 
         // Now let's open that sealed box
         $message = \Sodium\crypto_box_seal_open($source, $kp);
+        
+        \var_dump([
+            'secret' => \Sodium\bin2hex($secret_key),
+            'public' => \Sodium\bin2hex($public_key),
+            'kp' => \Sodium\bin2hex($kp),
+            'sealed' => \Sodium\bin2hex($source),
+            'unsealed' => $message
+        ]);
 
         // Always memzero after retrieving a value
         \Sodium\memzero($secret_key);

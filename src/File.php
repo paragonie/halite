@@ -315,6 +315,92 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
     }
     
     /**
+     * Signs a file
+     * 
+     * @param string $filename
+     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+     * @param bool $raw_binary
+     * 
+     * @return string
+     */
+    public static function signFile(
+        $filename,
+        \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey,
+        $raw_binary = false
+    ) {
+        
+        if (!\is_readable($filename)) {
+            throw new CryptoException\FileAccessDenied(
+                'Could not read from the file'
+            );
+        }
+        $inputHandle = \fopen($filename, 'rb');
+        if ($inputHandle === false) {
+            throw new CryptoException\FileAccessDenied(
+                'Could not read from the file'
+            );
+        }
+        
+        try {
+            $return = self::signResource(
+                $inputHandle,
+                $secretkey,
+                $raw_binary
+            );
+
+            \fclose($inputHandle);
+            return $return;
+        } catch (CryptoException\HaliteAlert $e) {
+            \fclose($inputHandle);
+            // Rethrow the exception:
+            throw $e;
+        }
+    }
+    
+    /**
+     * Verifies a file
+     * 
+     * @param string $filename
+     * @param string $signature
+     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+     */
+    public static function verifyFile(
+        $signature,
+        $filename,
+        \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey,
+        $raw_binary = false
+    ) {
+        
+        if (!\is_readable($filename)) {
+            throw new CryptoException\FileAccessDenied(
+                'Could not read from the file'
+            );
+        }
+        $inputHandle = \fopen($filename, 'rb');
+        if ($inputHandle === false) {
+            throw new CryptoException\FileAccessDenied(
+                'Could not read from the file'
+            );
+        }
+        
+        try {
+            $return = self::verifyResource(
+                $inputHandle,
+                $publickey,
+                $signature,
+                $raw_binary
+            );
+
+            \fclose($inputHandle);
+            return $return;
+        } catch (CryptoException\HaliteAlert $e) {
+            \fclose($inputHandle);
+            // Rethrow the exception:
+            throw $e;
+        }
+    }
+    
+    /**
      * Encrypt a (file handle)
      * 
      * @param $input
@@ -547,7 +633,6 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         $output,
         \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
     ) {
-        
         // Input validation
         if (!\is_resource($input)) {
             throw new \ParagonIE\Halite\Alerts\InvalidType(
@@ -625,6 +710,43 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         unset($old_macs);
         return $ret;
     }
+    
+    /**
+     * Sign the contents of a file
+     * 
+     * @param $input (file handle)
+     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey
+     * @param bool $raw_binary Don't hex encode?
+     */
+    public static function signResource(
+        $input,
+        \ParagonIE\Halite\Contract\CryptoKeyInterface $secretkey,
+        $raw_binary = false
+    ) {
+        $csum = self::checksumResource($input, null, true);
+        return Asymmetric::sign($csum, $secretkey, $raw_binary);
+    }
+    
+    /**
+     * Verify the contents of a file
+     * 
+     * @param $input (file handle)
+     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey
+     * @param string $signature
+     * @param bool $raw_binary Don't hex encode?
+     * 
+     * @return bool
+     */
+    public static function verifyResource(
+        $input,
+        \ParagonIE\Halite\Contract\CryptoKeyInterface $publickey,
+        $signature,
+        $raw_binary = false
+    ) {
+        $csum = self::checksumResource($input, null, true);
+        return Asymmetric::verify($csum, $publickey, $signature, $raw_binary);
+    }
+    
     /**
      * Read from a stream; prevent partial reads
      * 

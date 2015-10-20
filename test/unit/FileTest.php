@@ -123,6 +123,24 @@ class FileTest extends PHPUnit_Framework_TestCase
         }
     }
     
+    public function testSign()
+    {
+        list($secretkey, $publickey) = Key::generate(Key::CRYPTO_SIGN);
+        
+        $signature = File::signFile(
+            __DIR__.'/tmp/paragon_avatar.png',
+            $secretkey
+        );
+        
+        $this->assertTrue(
+            File::verifyFile(
+                $signature,
+                __DIR__.'/tmp/paragon_avatar.png',
+                $publickey
+            )
+        );
+    }
+    
     public function testChecksum()
     {
         $csum = File::checksumFile(__DIR__.'/tmp/paragon_avatar.png');

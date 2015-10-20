@@ -20,6 +20,9 @@ class Key implements Contract\CryptoKeyInterface
     const SIGNATURE        =   8;
     const ASYMMETRIC       =  16;
     
+    // ALIAS:
+    const AUTHENTICATION   =   8;
+    
     // SHORTCUTS:
     const CRYPTO_SECRETBOX =  5;
     const CRYPTO_AUTH      =  9;
@@ -251,11 +254,11 @@ class Key implements Contract\CryptoKeyInterface
                 new AsymmetricSecretKey($secret_key, $signing), // Secret key
                 new AsymmetricPublicKey($public_key, $signing)  // Public key
             ];
-        } elseif ($type & self::SECRET_KEY !== 0) {
+        } elseif (($type & self::SECRET_KEY) !== 0) {
             /**
              * Are we doing encryption or authentication?
              */
-            if ($type & self::SIGNATURE !== 0) {
+            if (($type & self::SIGNATURE) !== 0) {
                 $signing = true;
             }
             $secret_key = \file_get_contents($filePath);
@@ -313,15 +316,15 @@ class Key implements Contract\CryptoKeyInterface
                 new AsymmetricSecretKey($secret_key, $signing), // Secret key
                 new AsymmetricPublicKey($public_key, $signing)  // Public key
             ];
-        } elseif ($type & self::SECRET_KEY !== 0) {
+        } elseif (($type & self::SECRET_KEY) !== 0) {
             /**
              * Are we doing encryption or authentication?
              */
-            if ($type & self::ENCRYPTION !== 0) {
+            if (($type & self::ENCRYPTION) !== 0) {
                 $secret_key = \random_bytes(
                     \Sodium\CRYPTO_SECRETBOX_KEYBYTES
                 );
-            } elseif ($type & self::SIGNATURE !== 0) {
+            } elseif (($type & self::SIGNATURE) !== 0) {
                 $signing = true;
                 
                 // ...let it throw, let it throw!
@@ -404,7 +407,7 @@ class Key implements Contract\CryptoKeyInterface
      * @param string $filePath
      * @return bool|int
      */
-    public static function saveToFile($filePath)
+    public function saveToFile($filePath)
     {
         return \file_put_contents($filePath, $this->key_material);
     }

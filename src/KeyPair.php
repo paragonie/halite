@@ -199,10 +199,11 @@ class KeyPair
      * Generate a new keypair
      * 
      * @param int $type Key flags
-     * @return array [Key $secret, Key $public]
+     * @param &string $secret_key - Reference to optional variable to store secret key in
+     * @return KeyPair
      * @throws CryptoException\InvalidKey
      */
-    public static function generate($type = Key::CRYPTO_BOX)
+    public static function generate($type = Key::CRYPTO_BOX, &$secret_key = null)
     {
         if (($type & Key::ASYMMETRIC) === 0) {
             throw new CryptoException\InvalidKey(
@@ -210,11 +211,11 @@ class KeyPair
             );
         }
         if (($type & Key::ENCRYPTION) !== 0) {
-            $key = Key::generate(Key::CRYPTO_BOX);
+            $key = Key::generate(Key::CRYPTO_BOX, $secret_key);
             $keypair = new KeyPair(...$key);
             return $keypair;
         } elseif (($type & Key::SIGNATURE) !== 0) {
-            $key = Key::generate(Key::CRYPTO_SIGN);
+            $key = Key::generate(Key::CRYPTO_SIGN, $secret_key);
             $keypair = new KeyPair(...$key);
             return $keypair;
         }
@@ -241,5 +242,36 @@ class KeyPair
     public function getSecretKey()
     {
        return $this->secret_key;
+    }
+    
+    /**
+     * Load a keypair from a file
+     * 
+     * @param string $filePath
+     * @param int $type
+     * @return KeyPair
+     * 
+     * @throws CryptoException\InvalidFlags
+     */
+    public static function fromFile(
+        $filePath,
+        $type = Key::CRYPTO_BOX
+    ) {
+        $keys = Key::fromFile(
+            $filePath,
+            ($type | Key::ASYMMETRIC)
+        );
+        return new KeyPair(...$keys);
+    }
+    
+    /**
+     * Save a copy of the secret key to a file
+     *
+     * @param string $filePath
+     * @return bool|int
+     */
+    public function saveToFile($filePath)
+    {
+        return $this->secret_key->saveToFile($filePath);
     }
 }

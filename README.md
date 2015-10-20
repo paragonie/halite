@@ -23,9 +23,45 @@ without making your source code available under a GPL-compatible license.
 These are the high-level APIs we expose to the developer. We will attempt to
 document these features in detail in the `doc/` directory.
 
-### Generating Keys and Keypairs
+### Generating Keys and Key-Pairs
 
-To generate an cryptography key, simply pass the appropriate flags to `Key::generate`
+Generating a cryptography key is simple and convenient:
+
+```php
+<?php
+use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\KeyPair;
+use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use \ParagonIE\Halite\Asymmetric\SecretKey;
+use \ParagonIE\Halite\Asymmetric\PublicKey;
+
+/**
+ * Symmetric-key cryptography:
+ */
+    // For symmetric-key encryption:
+    $encryption_key = SymmetricKey::generate(Key::ENCRYPTION);
+    
+    // For symmetric-key authentication:
+    $message_auth_key = SymmetricKey::generate(Key::SIGNATURE);
+
+/**
+ * Asymmetric-key cryptography:
+ */
+    // For asymmetric-key encryption:
+    $enc_keypair = KeyPair::generate(Key::ENCRYPTION);
+    $enc_secret = $enc_keypair->getSecretKey();
+    $enc_public = $enc_keypair->getPublicKey();
+
+    // For asymmetric-key authentication (digital signatures):
+    $sign_keypair = KeyPair::generate(Key::SIGNATURE);
+    $sign_secret = $sign_keypair->getSecretKey();
+    $sign_public = $sign_keypair->getPublicKey();
+```
+
+#### Advanced Usage
+
+Another way to generate a cryptography key is to pass the appropriate flags to 
+`Key::generate`.
 
 ```php
 <?php
@@ -36,9 +72,9 @@ use \ParagonIE\Halite\Key;
  */
     // For symmetric-key encryption:
     $encryption_key = Key::generate(Key::SECRET_KEY | Key::ENCRYPTION);
-
+    
     // For symmetric-key authentication:
-    $message_auth_key = Key::generate(Key::SECRET_KEY | Key::AUTHENTICATION);
+    $message_auth_key = Key::generate(Key::SECRET_KEY | Key::SIGNATURE);
 
 /**
  * Asymmetric-key cryptography -- Key::generate() returns an array:
@@ -47,7 +83,7 @@ use \ParagonIE\Halite\Key;
     list($enc_secret, $enc_public) = Key::generate(Key::ASYMMETRIC | Key::ENCRYPTION);
 
     // For asymmetric-key authentication (digital signatures):
-    list($sign_secret, $sign_public) = Key::generate(Key::ASYMMETRIC | Key::AUTHENTICATION);
+    list($sign_secret, $sign_public) = Key::generate(Key::ASYMMETRIC | Key::SIGNATURE);
 
 /**
  * Short-hand methods; the constants are named after the features they are
@@ -59,24 +95,23 @@ list($enc_secret, $enc_public) = Key::generate(Key::CRYPTO_BOX);
 list($sign_secret, $sign_public) = Key::generate(Key::CRYPTO_SIGN);
 ```
 
-`Key::generate()` accepts a second optional parameter, a reference to a
-variable, which it will overwrite with the secret key.
+`Key::generate()` and `KeyPair::generate()` both accept a second optional 
+parameter, a reference to a variable, which it will overwrite with the secret
+key.
 
 ```php
-$my_secret_key = '';
-$keypair = Key::generate(Key::CRYPTO_BOX, $my_secret_key);
+$keypair = KeyPair::generate(Key::CRYPTO_BOX, $my_secret_key);
 
 // If you were to print \Sodium\bin2hex($my_secret_key)), you would get a 64
 // character hexadecimal string with your private key.
 
 // If you wish to store the secret key for long-term use, you can simply do
 // this:
-\file_put_contents('/path/to/secretkey', $my_secret_key);
+$keypair->saveToFile('/path/to/secretkey');
 \Sodium\memzero($my_secret_key);
 
 // And retrieval is simple too:
-$string = \file_get_contents('/path/to/secretkey');
-$key_object = new Key($string, false, false, true);
+$key_object = KeyPair::fromFile('/path/to/secretkey', Key::CRYPTO_BOX);
 
 // See doc/Key.md for more information
 ```
@@ -122,7 +157,9 @@ $raw_decrypt = SymmetricCrypto::decrypt($raw_ciphertext, $encryption_key, true);
 use \ParagonIE\Halite\KeyPair;
 
 // Generate a key pair like so:
-list ($enc_secret, $enc_public) = \ParagonIE\Halite\KeyPair::generate();
+$enc_keypair = \ParagonIE\Halite\KeyPair::generate();
+$enc_secret = $enc_keypair->getSecretKey();
+$enc_public = $enc_keypair->getPublicKey();
 ```
 
 #### Anonymous Public-Key Encryption
@@ -159,7 +196,6 @@ $recip_public = new \ParagonIE\Halite\Asymmetric\PublicKey(
 Authenticated Public-Key String Encryption:
 
 ```php
-use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
 
 $encrypted = AsymmetricCrypto::encrypt($plaintext, $enc_secret, $recip_public);
@@ -169,11 +205,40 @@ $raw_encrypt = AsymmetricCrypto::encrypt($plaintext, $enc_secret, $recip_public,
 Authenticated Public-Key String Decryption:
 
 ```php
-use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
 
 $decrypted = AsymmetricCrypto::decrypt($plaintext, $enc_public, $recip_secret);
 $raw_decrypt = AsymmetricCrypto::decrypt($plaintext, $enc_public, $recip_secret, true);
+```
+
+#### Asymmetric Digital Signatures
+
+Generating a digital signature keypair:
+
+```php
+use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
+
+$sign_keypair = KeyPair::generate(Key::CRYPTO_SIGN);
+$sign_secret = $sign_keypair->getSecretKey();
+$sign_public = $sign_keypair->getPublicKey();
+```
+
+Signing a message:
+
+```php
+use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
+
+$signature = AsymmetricCrypto::sign($message, $sign_secret);
+```
+
+Verifying the signature for a given message:
+
+```php
+use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
+
+if (AsymmetricCrypto::verify($message, $sign_public, $signature)) {
+    // Signature is good
+}
 ```
 
 ### Secure Password Storage (Hash-then-Encrypt)
@@ -220,15 +285,33 @@ $some_value = $cookie->fetch('other_index');
 
 ### File Encryption
 
+#### File Hashing (Checksum)
+
+Quickly calculate the BLAKE2b hash of a large file while consuming low amounts
+of memory.
+
+```php
+<?php
+use \ParagonIE\Halite\File;
+use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
+
+// 128 character hexadecimal hash:
+$checksum = File::checksumFile('sourceFile.png');
+
+// 64 character raw binary hash:
+$checksum = File::checksumFile('sourceFile.png', true);
+```
+
 #### Symmetric-key File Encryption
 
 ```php
 <?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
 
-$encryption_key = \ParagonIE\Halite\Symmetric\SecretKey::generate();
+$encryption_key = SymmetricKey::generate(Key::ENCRYPTION);
 
 // Encryption
 File::encryptFile('originalFile.png', 'encryptedFile.png', $encryption_key);
@@ -243,13 +326,37 @@ File::decryptFile('encryptedFile.png', 'decryptedFile.png', $encryption_key);
 <?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\KeyPair;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
 
-list($enc_secret, $enc_public) = \ParagonIE\Halite\KeyPair::generate();
+$enc_keypair = KeyPair::generate(Key::ENCRYPTION);
+$enc_secret = $enc_keypair->getSecretKey();
+$enc_public = $enc_keypair->getPublicKey();
 
 // Encryption
 File::sealFile('originalFile.png', 'sealedFile.png', $enc_public);
 
 // Decryption
 File::unsealFile('sealedFile.png', 'unsealedFile.png', $enc_secret);
+```
+
+#### Asymmetric-key Digital Signatures for Files
+
+```php
+
+<?php
+use \ParagonIE\Halite\File;
+use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\KeyPair;
+use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
+
+$sign_keypair = KeyPair::generate(Key::CRYPTO_SIGN);
+$sign_secret = $sign_keypair->getSecretKey();
+$sign_public = $sign_keypair->getPublicKey();
+
+// Authentication
+$signature = File::signFile('originalFile.png', $sign_secret);
+
+// Verification
+$valid = File::verifyFile('originalFile', $sign_secret, $signature);
 ```

@@ -41,4 +41,19 @@ class KeyPairTest extends PHPUnit_Framework_TestCase
             "\x03\x1d\x95\xa7\x94\x5c\xe6\xd5\x55\x96\xe3\x75\x03\x17\x88\x34"
         );
     }
+    
+    public function testFileStorage()
+    {
+        $filename = \tempnam(__DIR__.'/tmp/', 'key');
+        $key = KeyPair::generate(Key::CRYPTO_BOX);
+        $key->saveToFile($filename);
+        
+        $copy = KeyPair::fromFile($filename, Key::CRYPTO_BOX);
+        
+        $this->assertEquals(
+            $key->getPublicKey()->get(),
+            $copy->getPublicKey()->get()
+        );
+        \unlink($filename);
+    }
 }

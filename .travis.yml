@@ -14,12 +14,12 @@ before_install:
 - sudo apt-get install make build-essential automake php5-dev php-pear
 - git clone git://github.com/jedisct1/libsodium.git
 - cd libsodium
-- git checkout 1.0.3
+- git checkout 1.0.4
 - ./autogen.sh
 - ./configure && make check
 - sudo make install
 - cd ..
-- pecl install libsodium-beta
+- pecl install libsodium
 - echo "extension = libsodium.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 install:

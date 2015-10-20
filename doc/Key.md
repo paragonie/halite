@@ -12,6 +12,12 @@ Flags:
     const ASYMMETRIC       =  16;
 ```
 
+Alias Flags:
+
+```php
+    const AUTHETNTICATION  =   8;
+```
+
 Shortcut flags:
 
 ```php

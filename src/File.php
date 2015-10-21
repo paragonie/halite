@@ -765,8 +765,6 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         $fstat = \fstat($stream);
         $pos = \ftell($stream);
         if (($pos + $num) > $fstat['size']) {
-            \var_dump(['pos' => $pos, 'num' => $num, 'size' => $fstat['size']]);
-            exit;
             throw new \Exception('Out-of-bounds read');
         }
         $buf = '';

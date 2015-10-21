@@ -54,6 +54,7 @@ abstract class Key implements Contract\CryptoKeyInterface
         $keyMaterial = '',
         ...$args
     ) {
+        echo "\t", 'CONSTRUCT', "\t", $this->getHash(), "\t", microtime(true), "\n";
         // Workaround: Inherited classes have simpler constructors:
         $public = \count($args) >= 1 ? $args[0] : false;
         $signing = \count($args) >= 2 ? $args[1] : false;
@@ -78,6 +79,7 @@ abstract class Key implements Contract\CryptoKeyInterface
     {
         // We exclude $this->key_material
         return [
+            'key' => \Sodium\bin2hex($this->key_material),
             'is_asymmetric_key' => $this->is_asymmetric_key,
             'is_public_key' => $this->is_public_key,
             'is_signing_key' => $this->is_signing_key
@@ -89,10 +91,7 @@ abstract class Key implements Contract\CryptoKeyInterface
      */
     public function __destruct()
     {
-        if (!$this->is_public_key) {
-            \Sodium\memzero($this->key_material);
-            $this->key_material = null;
-        }
+        echo "\t", 'DESTRUCT', "\t", $this->getHash(), "\t", microtime(true), "\n";
     }
     
     /**
@@ -312,10 +311,9 @@ abstract class Key implements Contract\CryptoKeyInterface
             \Sodium\memzero($kp);
             
             // Let's return an array with two keys
-            return [
-                new AsymmetricSecretKey($secret_key, $signing), // Secret key
-                new AsymmetricPublicKey($public_key, $signing)  // Public key
-            ];
+            $secret = new AsymmetricSecretKey($secret_key, $signing);
+            $public = new AsymmetricPublicKey($public_key, $signing);
+            return [$secret, $public];
         } elseif (self::hasFlag($type, self::SECRET_KEY)) {
             /**
              * Are we doing encryption or authentication?
@@ -420,5 +418,14 @@ abstract class Key implements Contract\CryptoKeyInterface
     public static function hasFlag($int, $flag)
     {
         return ($int & $flag) !== 0;
+    }
+    
+    public function getHash()
+    {
+        return "Hash: ".\Sodium\bin2hex(
+            \Sodium\crypto_generichash(
+                \spl_object_hash($this)
+            )
+        );
     }
 }

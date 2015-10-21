@@ -43,9 +43,6 @@ class KeyPair
                         );
                     }
                     unset($keys[0]);
-                    \var_dump(
-                        \Sodium\bin2hex($keys[1]->get())
-                    );
                     
                     // $keys[0] is public, $keys[1] is secret
                     $this->secret_key = $keys[1] instanceof SecretKey
@@ -54,9 +51,6 @@ class KeyPair
                             $keys[1]->get(),
                             $keys[1]->isSigningKey()
                         );
-                    \var_dump(
-                        \Sodium\bin2hex($this->secret_key->get())
-                    );
                     
                     /**
                      * Let's use the secret key to calculate the *correct* 
@@ -76,12 +70,8 @@ class KeyPair
                             $keys[1]->get()
                         );
                         $this->public_key = new PublicKey($pub, false);
-                        \Sodium\memzero($pub);
                     }
                 } elseif ($keys[1]->isPublicKey()) {
-                    \var_dump(
-                        \Sodium\bin2hex($keys[0]->get())
-                    );
                     // We can deduce that $keys[0] is a secret key
                     $this->secret_key = $keys[0] instanceof SecretKey
                         ? $keys[0]
@@ -90,9 +80,6 @@ class KeyPair
                             $keys[0]->isSigningKey()
                         );
                     
-                    \var_dump(
-                        \Sodium\bin2hex($this->secret_key->get())
-                    );
                     /**
                      * Let's use the secret key to calculate the *correct* 
                      * public key. We're effectively discarding $keys[0] but
@@ -110,7 +97,6 @@ class KeyPair
                             $keys[0]->get()
                         );
                         $this->public_key = new PublicKey($pub, false);
-                        \Sodium\memzero($pub);
                     }
                 } else {
                     throw new CryptoException\InvalidKey(

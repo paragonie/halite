@@ -54,7 +54,6 @@ abstract class Key implements Contract\CryptoKeyInterface
         $keyMaterial = '',
         ...$args
     ) {
-        echo "\t", 'CONSTRUCT', "\t", $this->getHash(), "\t", microtime(true), "\n";
         // Workaround: Inherited classes have simpler constructors:
         $public = \count($args) >= 1 ? $args[0] : false;
         $signing = \count($args) >= 2 ? $args[1] : false;
@@ -91,7 +90,6 @@ abstract class Key implements Contract\CryptoKeyInterface
      */
     public function __destruct()
     {
-        echo "\t", 'DESTRUCT', "\t", $this->getHash(), "\t", microtime(true), "\n";
     }
     
     /**
@@ -422,10 +420,5 @@ abstract class Key implements Contract\CryptoKeyInterface
     
     public function getHash()
     {
-        return "Hash: ".\Sodium\bin2hex(
-            \Sodium\crypto_generichash(
-                \spl_object_hash($this)
-            )
-        );
     }
 }

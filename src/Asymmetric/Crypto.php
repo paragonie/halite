@@ -135,8 +135,6 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
         }
         
         $pubkey = $publicKey->get();
-        \var_dump($publicKey->getHash());
-        var_dump(['sealed_with' => \Sodium\bin2hex($pubkey)]);
         $sealed = \Sodium\crypto_box_seal($source, $pubkey);
         if ($raw) {
             return $sealed;
@@ -199,23 +197,13 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
 
         // Get a box keypair (needed by crypto_box_seal_open)
         $secret_key = $privateKey->get();
-        if (\Sodium\bin2hex($secret_key) === \str_repeat('0', 64)) {
-            \var_dump(['kill' => $privateKey->getHash()]);
-            unset($privateKey);
-            echo "\nKILLED\n";
-            exit;
-        }
+        
         $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
-        var_dump(['unsealed_with' => \Sodium\bin2hex($public_key)]);
+        
         $kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
             $secret_key,
             $public_key
         );
-
-        $src = \Sodium\crypto_box_seal('test', $public_key);
-        if ('test' !== \Sodium\crypto_box_seal_open($src, $kp)) {
-            die('wut');
-        }
         // Now let's open that sealed box
         $message = \Sodium\crypto_box_seal_open($source, $kp);
 

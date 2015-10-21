@@ -147,19 +147,6 @@ class KeyPair
                 );
         }
     }
-    
-    /**
-     * Hide this from var_dump(), etc.
-     * 
-     * @return array
-     */
-    public function __debugInfo()
-    {
-        return [
-            'privateKey' => '**protected**',
-            'publicKey' => '**protected**'
-        ];
-    }
     /**
      * Derive an encryption key from a password and a salt
      * 

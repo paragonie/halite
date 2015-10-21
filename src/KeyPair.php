@@ -91,6 +91,7 @@ class KeyPair
                             $keys[0]->get()
                         );
                         $this->public_key = new PublicKey($pub, true);
+                        \Sodium\memzero($pub);
                     } else {
                         // crypto_box - Curve25519
                         $pub = \Sodium\crypto_box_publickey_from_secretkey(
@@ -174,18 +175,17 @@ class KeyPair
         $password,
         $salt,
         $type = self::CRYPTO_BOX
-    ) {
-        
-        if (($type & Key::ASYMMETRIC) === 0) {
+    ) { 
+        if (!Key::hasFlag($type, Key::ASYMMETRIC)) {
             throw new CryptoException\InvalidKey(
                 'An asymmetric key type must be passed to KeyPair::generate()'
             );
         }
-        if (($type & Key::ENCRYPTION) !== 0) {
+        if (Key::hasFlag($type, Key::ENCRYPTION)) {
             $key = Key::deriveFromPassword($password, $salt, Key::CRYPTO_BOX);
             $keypair = new KeyPair(...$key);
             return $keypair;
-        } elseif (($type & Key::SIGNATURE) !== 0) {
+        } elseif (Key::hasFlag($type, Key::SIGNATURE)) {
             $key = Key::deriveFromPassword($password, $salt, Key::CRYPTO_SIGN);
             $keypair = new KeyPair(...$key);
             return $keypair;
@@ -205,16 +205,16 @@ class KeyPair
      */
     public static function generate($type = Key::CRYPTO_BOX, &$secret_key = null)
     {
-        if (($type & Key::ASYMMETRIC) === 0) {
+        if (!Key::hasFlag($type, Key::ASYMMETRIC)) {
             throw new CryptoException\InvalidKey(
                 'An asymmetric key type must be passed to KeyPair::generate()'
             );
         }
-        if (($type & Key::ENCRYPTION) !== 0) {
+        if (Key::hasFlag($type, Key::ENCRYPTION)) {
             $key = Key::generate(Key::CRYPTO_BOX, $secret_key);
             $keypair = new KeyPair(...$key);
             return $keypair;
-        } elseif (($type & Key::SIGNATURE) !== 0) {
+        } elseif (Key::hasFlag($type, Key::SIGNATURE)) {
             $key = Key::generate(Key::CRYPTO_SIGN, $secret_key);
             $keypair = new KeyPair(...$key);
             return $keypair;

@@ -59,7 +59,9 @@ abstract class Key implements Contract\CryptoKeyInterface
         $signing = \count($args) >= 2 ? $args[1] : false;
         $asymmetric = \count($args) >= 3 ? $args[2] : false;
         
-        $this->key_material = $keyMaterial;
+        // String concatenation used to undo a PHP 7 optimization that causes
+        // the wrong memory to get overwritten by \Sodium\memzero:
+        $this->key_material .= $keyMaterial;
         $this->is_public_key = $public;
         $this->is_signing_key = $signing;
         if ($public && !$asymmetric) {
@@ -346,7 +348,7 @@ abstract class Key implements Contract\CryptoKeyInterface
      */
     public function get()
     {
-        return $this->key_material;
+        return ''.$this->key_material;
     }
     
     /**

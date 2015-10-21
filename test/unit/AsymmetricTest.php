@@ -70,17 +70,35 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         ) {
             $this->markTestSkipped("Your version of libsodium is too old");
         }
-        $alice = KeyPair::generate();
+        $alice = KeyPair::deriveFromPassword(
+            'apple',
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f".
+            "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f",
+            Key::CRYPTO_BOX
+        );
         
         $message = 'This is for your eyes only';
         
         $sealed = Asymmetric::seal($message, $alice->getPublicKey());
-        $opened = Asymmetric::unseal($sealed, $alice->getSecretKey());
+        
+        Asymmetric::unseal(
+            "7375f4094f1151640bd853cb13dbc1a0ee9e13b0287a89d34fa2f6732be9de13f88457553d768347116522d6d32c9cb353ef07aa7c83bd129b2bb5db35b28334c935b24f2639405a0604",
+            $alice->getSecretKey()
+        );
+        
+        $enc_secret = $alice->getSecretKey();
+        $enc_public = $alice->getPublicKey();
+        
+        var_dump([
+            \Sodium\bin2hex($enc_secret->get()),
+            \Sodium\bin2hex($enc_public->get())
+        ]);
+        $opened = Asymmetric::unseal($sealed, $enc_secret);
         
         $this->assertEquals($opened, $message);
         
-        $sealed_raw = Asymmetric::seal($message, $alice->getPublicKey());
-        $opened_raw = Asymmetric::unseal($sealed_raw, $alice->getSecretKey());
+        $sealed_raw = Asymmetric::seal($message, $enc_public, true);
+        $opened_raw = Asymmetric::unseal($sealed_raw, $enc_secret, true);
         
         $this->assertEquals($opened_raw, $message);
     }

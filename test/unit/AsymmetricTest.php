@@ -81,11 +81,20 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         
         $sealed = Asymmetric::seal($message, $alice->getPublicKey());
         
-        $known_good = Asymmetric::unseal(
+        Asymmetric::unseal(
             "7375f4094f1151640bd853cb13dbc1a0ee9e13b0287a89d34fa2f6732be9de13f88457553d768347116522d6d32c9cb353ef07aa7c83bd129b2bb5db35b28334c935b24f2639405a0604",
             $alice->getSecretKey()
         );
         
+        var_dump([
+            \Sodium\bin2hex($alice->getSecretKey()->get()),
+            \Sodium\bin2hex($alice->getPublicKey()->get()),
+            // Is it a CSPRNG problem on Travis?
+            \Sodium\bin2hex(\Sodium\randombytes_buf(16)),
+            \Sodium\bin2hex(\Sodium\randombytes_buf(16)),
+            \Sodium\bin2hex(\Sodium\randombytes_buf(16)),
+            \Sodium\bin2hex(\Sodium\randombytes_buf(16))
+        ]);
         $opened = Asymmetric::unseal($sealed, $alice->getSecretKey());
         
         $this->assertEquals($opened, $message);

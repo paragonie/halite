@@ -128,6 +128,16 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
         PublicKey $publicKey,
         $raw = false
     ) {
+        if (!$publicKey->isEncryptionKey()) {
+            throw new CryptoException\InvalidKey(
+                'Expected an encryption key'
+            );
+        }
+        if ($publicKey->isSigningKey()) {
+            throw new CryptoException\InvalidKey(
+                'Unexpected signing key'
+            );
+        }
         if (!function_exists('\\Sodium\\crypto_box_seal')) {
             throw new CryptoException\CannotPerformOperation(
                 'crypto_box_seal is not available'
@@ -160,6 +170,11 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
                 'Expected a signing key'
             );
         }
+        if ($privateKey->isEncryptionKey()) {
+            throw new CryptoException\InvalidKey(
+                'Unexpected encryption key'
+            );
+        }
         
         $signed = \Sodium\crypto_sign_detached(
             $message,
@@ -185,6 +200,16 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
         SecretKey $privateKey,
         $raw = false
     ) {
+        if (!$privateKey->isEncryptionKey()) {
+            throw new CryptoException\InvalidKey(
+                'Expected an encryption key'
+            );
+        }
+        if ($privateKey->isSigningKey()) {
+            throw new CryptoException\InvalidKey(
+                'Unexpected signing key'
+            );
+        }
         if (!$raw) {
             $source = \Sodium\hex2bin($source);
         }
@@ -238,6 +263,11 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
         if (!$publickey->isSigningKey()) {
             throw new CryptoException\InvalidKey(
                 'Expected a signing key'
+            );
+        }
+        if ($publickey->isEncryptionKey()) {
+            throw new CryptoException\InvalidKey(
+                'Unexpected encryption key'
             );
         }
         if (!$raw) {

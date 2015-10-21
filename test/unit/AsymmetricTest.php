@@ -3,6 +3,8 @@ use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
+use \ParagonIE\Halite\Asymmetric\SecretKey as SecretKey;
+use \ParagonIE\Halite\Asymmetric\PublicKey as PublicKey;
 
 /**
  * @backupGlobals disabled
@@ -71,11 +73,26 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $this->markTestSkipped("Your version of libsodium is too old");
         }
         $alice = KeyPair::generate();
+        $enc_secret = $alice->getSecretKey();
+        $enc_public = $alice->getPublicKey();
+        
+        $this->assertEquals(
+            \Sodium\crypto_box_publickey_from_secretkey($enc_secret->get()),
+            $enc_public->get()
+        );
         
         $message = 'This is for your eyes only';
         
-        $sealed = Asymmetric::seal($message, $alice->getPublicKey());
-        $opened = Asymmetric::unseal($sealed, $alice->getSecretKey());
+        $kp = \Sodium\crypto_box_keypair();
+        $test = \Sodium\crypto_box_seal($message, \Sodium\crypto_box_publickey($kp));
+        $decr = \Sodium\crypto_box_seal_open($test, $kp);
+        $this->assertTrue($decr !== false);
+        
+        $sealed = Asymmetric::seal($message, new PublicKey(\Sodium\crypto_box_publickey($kp)));
+        $opened = Asymmetric::unseal($sealed, new SecretKey(\Sodium\crypto_box_secretkey($kp)));
+        
+        $sealed = Asymmetric::seal($message, $enc_public);
+        $opened = Asymmetric::unseal($sealed, $enc_secret);
         
         $this->assertEquals($opened, $message);
         

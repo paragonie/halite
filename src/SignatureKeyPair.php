@@ -7,7 +7,7 @@ use ParagonIE\Halite\Alerts as CryptoException;
 /**
  * Describes a pair of secret and public keys
  */
-class SigningKeyPair extends KeyPair
+class SignatureKeyPair extends KeyPair
 {
     /**
      * Hide this from var_dump(), etc.

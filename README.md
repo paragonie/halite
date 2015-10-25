@@ -249,7 +249,7 @@ $raw_decrypt = AsymmetricCrypto::unseal($raw_encrypt, $enc_secret, true);
 Getting the other party's public key:
 
 ```php
-$recip_public = new \ParagonIE\Halite\Asymmetric\PublicKey(
+$recip_public = new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(
     $raw_binary_string_here
 );
 ```
@@ -277,9 +277,10 @@ $raw_decrypt = AsymmetricCrypto::decrypt($plaintext, $enc_public, $recip_secret,
 Generating a digital signature keypair:
 
 ```php
+use \ParagonIE\Halite\SignatureKeyPair;
 use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
 
-$sign_keypair = KeyPair::generate(Key::CRYPTO_SIGN);
+$sign_keypair = SignatureKeyPair::generate();
 $sign_secret = $sign_keypair->getSecretKey();
 $sign_public = $sign_keypair->getPublicKey();
 ```
@@ -364,10 +365,10 @@ $checksum = File::checksumFile('sourceFile.png', true);
 ```php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
 
-$encryption_key = SymmetricKey::generate(Key::ENCRYPTION);
+$encryption_key = EncryptionKey::generate();
 
 // Encryption
 File::encryptFile('originalFile.png', 'encryptedFile.png', $encryption_key);
@@ -380,13 +381,12 @@ File::decryptFile('encryptedFile.png', 'decryptedFile.png', $encryption_key);
 
 ```php
 use \ParagonIE\Halite\File;
-use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\KeyPair;
+use \ParagonIE\Halite\EncryptionKeyPair;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
 
-$enc_keypair = KeyPair::generate(Key::ENCRYPTION);
-$enc_secret = $enc_keypair->getSecretKey();
-$enc_public = $enc_keypair->getPublicKey();
+$enc_keypair = EncryptionKeyPair::generate();
+    $enc_secret = $enc_keypair->getSecretKey();
+    $enc_public = $enc_keypair->getPublicKey();
 
 // Encryption
 File::sealFile('originalFile.png', 'sealedFile.png', $enc_public);
@@ -403,9 +403,9 @@ use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
 use \ParagonIE\Halite\Alerts\Crypto as CryptoException;
 
-$sign_keypair = KeyPair::generate(Key::CRYPTO_SIGN);
-$sign_secret = $sign_keypair->getSecretKey();
-$sign_public = $sign_keypair->getPublicKey();
+$sign_keypair = SigningKeyPair::generate();
+    $sign_secret = $sign_keypair->getSecretKey();
+    $sign_public = $sign_keypair->getPublicKey();
 
 // Authentication
 $signature = File::signFile('originalFile.png', $sign_secret);

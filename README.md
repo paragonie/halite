@@ -272,7 +272,40 @@ $decrypted = AsymmetricCrypto::decrypt($plaintext, $enc_public, $recip_secret);
 $raw_decrypt = AsymmetricCrypto::decrypt($plaintext, $enc_public, $recip_secret, true);
 ```
 
-#### Asymmetric Digital Signatures
+### Authentication
+
+Sometimes you might not want to encrypt information, but you do need to prevent
+tampering. In these instances, transparent authentication is all you need to
+do the job.
+
+#### Symmetric-Key Authentication
+
+```php
+use \ParagonIE\Halite\Symmetric\AuthenticationKey;
+$message_auth_key = AuthenticationKey::generate();
+```
+
+Calculating the authentication tag for a given message:
+
+```php
+use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
+$auth_code = SymmetricCrypto::authenticate(
+    $message,
+    $message_auth_key
+);
+```
+
+Verifying that a message is authentic:
+
+```php
+$valid = SymmetricCrypto::verify(
+    $message,
+    $message_auth_key,
+    $auth_code
+);
+```
+
+#### Asymmetric-Key Digital Signatures
 
 Generating a digital signature keypair:
 

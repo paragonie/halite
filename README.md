@@ -18,7 +18,62 @@ without making your source code available under a GPL-compatible license.
 1. [Install Libsodium and the PHP Extension](https://paragonie.com/book/pecl-libsodium/read/00-intro.md#installing-libsodium)
 2. `composer require paragonie/halite`
 
-## Halite Features
+## Halite's API at a Glance
+
+### Cryptography Keys
+
+* `\ParagonIE\Halite\Asymmetric\EncryptionSecretKey`
+* `\ParagonIE\Halite\Asymmetric\EncryptionPublicKey`
+* `\ParagonIE\Halite\Asymmetric\SignatureSecretKey`
+* `\ParagonIE\Halite\Asymmetric\SignaturePublicKey`
+* `\ParagonIE\Halite\Symmetric\AuthenticationKey`
+* `\ParagonIE\Halite\Symmetric\EncryptionKey`
+
+### String encryption / decryption (symmetric-key)
+
+```php
+string \ParagonIE\Halite\Symmetric\Crypto::encrypt(
+    string $plaintext,
+    EncryptionKey $key,
+    boolean $raw_binary
+);
+string \ParagonIE\Halite\Symmetric\Crypto::decrypt(
+    string $ciphertext,
+    EncryptionKey $key,
+    boolean $raw_binary
+);
+```
+
+### String encryption / decryption (asymmetric-key)
+
+```php
+// If you want both participants to be capable of decryption:
+string \ParagonIE\Halite\Asymmetric\Crypto::encrypt(
+    string $plaintext,
+    EncryptionSecretKey $mySecretKey,
+    EncryptionPublicKey $theirPublicKey,
+    boolean $raw_binary
+);
+string \ParagonIE\Halite\Asymmetric\Crypto::decrypt(
+    string $plaintext,
+    EncryptionSecretKey $mySecretKey,
+    EncryptionPublicKey $theirPublicKey,
+    boolean $raw_binary
+);
+// If only the recipient should be capable of decryption:
+string \ParagonIE\Halite\Asymmetric\Crypto::seal(
+    string $plaintext,
+    EncryptionPublicKey $theirPublicKey,
+    boolean $raw_binary
+);
+string \ParagonIE\Halite\Asymmetric\Crypto::unseal(
+    string $ciphertext,
+    EncryptionSecretKey $mySecretKey,
+    boolean $raw_binary
+);
+```
+
+## Halite Features in Depth
 
 These are the high-level APIs we expose to the developer. We will attempt to
 document these features in detail in the `doc/` directory.
@@ -30,29 +85,34 @@ Generating a cryptography key is simple and convenient:
 ```php
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
-use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
-use \ParagonIE\Halite\Asymmetric\SecretKey;
-use \ParagonIE\Halite\Asymmetric\PublicKey;
+use \ParagonIE\Halite\EncryptionKeyPair;
+use \ParagonIE\Halite\SignatureKeyPair;
+use \ParagonIE\Halite\Symmetric\AuthenticationKey;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
+use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
+use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
+use \ParagonIE\Halite\Asymmetric\SignatureSecretKey;
+use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
 
 /**
  * Symmetric-key cryptography:
  */
     // For symmetric-key encryption:
-    $encryption_key = SymmetricKey::generate(Key::ENCRYPTION);
+    $encryption_key = EncryptionKey::generate();
     
     // For symmetric-key authentication:
-    $message_auth_key = SymmetricKey::generate(Key::SIGNATURE);
+    $message_auth_key = AuthenticationKey::generate();
 
 /**
  * Asymmetric-key cryptography:
  */
     // For asymmetric-key encryption:
-    $enc_keypair = KeyPair::generate(Key::ENCRYPTION);
+    $enc_keypair = EncryptionKeyPair::generate();
     $enc_secret = $enc_keypair->getSecretKey();
     $enc_public = $enc_keypair->getPublicKey();
 
     // For asymmetric-key authentication (digital signatures):
-    $sign_keypair = KeyPair::generate(Key::SIGNATURE);
+    $sign_keypair = SignatureKeyPair::generate();
     $sign_secret = $sign_keypair->getSecretKey();
     $sign_public = $sign_keypair->getPublicKey();
 ```

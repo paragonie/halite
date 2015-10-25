@@ -1,19 +1,14 @@
 <?php
 namespace ParagonIE\Halite\Symmetric;
 
-use \ParagonIE\Halite\Contract;
-use \ParagonIE\Halite\Key;
-
-class SecretKey extends Key implements Contract\CryptoKeyInterface
+class EncryptionKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool $signing - Is this a signing key?
      */
-    public function __construct($keyMaterial = '', ...$args) 
+    public function __construct($keyMaterial = '', ...$args)
     {
-        $signing = \count($args) >= 1 ? $args[0] : false;
-        parent::__construct($keyMaterial, false, $signing, false);
+        parent::__construct($keyMaterial, false);
     }
     
     /**
@@ -27,11 +22,8 @@ class SecretKey extends Key implements Contract\CryptoKeyInterface
      */
     public static function deriveFromPassword($password, $salt, $type = self::CRYPTO_SECRETBOX)
     {
-        if (self::hasFlag($type, self::ASYMMETRIC)) {
-            $type &= ~self::ASYMMETRIC;
-        }
-        if (self::hasFlag($type, self::PUBLIC_KEY)) {
-            $type &= ~self::PUBLIC_KEY;
+        if (self::hasFlag($type, self::SIGNATURE)) {
+            $type &= ~self::SIGNATURE;
         }
         return parent::deriveFromPassword($password, $salt, $type);
     }
@@ -44,14 +36,9 @@ class SecretKey extends Key implements Contract\CryptoKeyInterface
      */
     public static function generate($type = self::CRYPTO_SECRETBOX, &$secret_key = null)
     {
-        if (self::hasFlag($type, self::ASYMMETRIC)) {
-            $type &= ~self::ASYMMETRIC;
+        if (self::hasFlag($type, self::SIGNATURE)) {
+            $type &= ~self::SIGNATURE;
         }
-        if (self::hasFlag($type, self::PUBLIC_KEY)) {
-            $type &= ~self::PUBLIC_KEY;
-        }
-        // Force secret key
-        $type |= self::SECRET_KEY;
         return parent::generate($type, $secret_key);
     }
 }

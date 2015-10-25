@@ -3,7 +3,13 @@ namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Asymmetric\SecretKey as AsymmetricSecretKey;
 use ParagonIE\Halite\Asymmetric\PublicKey as AsymmetricPublicKey;
+use ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
+use ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
+use ParagonIE\Halite\Asymmetric\SignaturePublicKey;
+use ParagonIE\Halite\Asymmetric\SignatureSecretKey;
 use ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use ParagonIE\Halite\Symmetric\AuthenticationKey;
+use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Contract;
 
@@ -131,10 +137,7 @@ abstract class Key implements Contract\CryptoKeyInterface
         $password,
         $salt,
         $type = self::CRYPTO_SECRETBOX
-    ) {
-        // Set this to true to flag a key as a signing key
-        $signing = false;
-        
+    ) { 
         /**
          * Are we doing public key cryptography?
          */
@@ -143,19 +146,22 @@ abstract class Key implements Contract\CryptoKeyInterface
              * Are we doing encryption or digital signing?
              */
             if (self::hasFlag($type, self::ENCRYPTION)) {
-                $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-                    \Sodium\CRYPTO_BOX_SECRETKEYBYTES,
+                $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                    \Sodium\CRYPTO_BOX_SEEDBYTES,
                     $password,
                     $salt, 
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
                 );
-                $public_key = \Sodium\crypto_box_publickey_from_secretkey(
-                    $secret_key
-                );
+                $keypair = \Sodium\crypto_box_seed_keypair($seed);
+                $secret_key = \Sodium\crypto_box_secretkey($keypair);
+                $public_key = \Sodium\crypto_box_publickey($keypair);
+                return [
+                    new EncryptionSecretKey($secret_key), // Secret key
+                    new EncryptionPublicKey($public_key)  // Public key
+                ];
             } elseif (self::hasFlag($type, self::SIGNATURE)) {
                 // Digital signature keypair
-                $signing = true;
                 $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
                     \Sodium\CRYPTO_SIGN_SEEDBYTES,
                     $password,
@@ -168,17 +174,15 @@ abstract class Key implements Contract\CryptoKeyInterface
                 $public_key = \Sodium\crypto_sign_publickey($keypair);
                 \Sodium\memzero($keypair);
                 \Sodium\memzero($seed);
+                return [
+                    new SignatureSecretKey($secret_key), // Secret key
+                    new SignaturePublicKey($public_key)  // Public key
+                ];
             } else {
                 throw new CryptoException\InvalidFlags(
                     'Must specify encryption or authentication'
                 );
             }
-            
-            // Let's return an array with two keys
-            return [
-                new AsymmetricSecretKey($secret_key, $signing), // Secret key
-                new AsymmetricPublicKey($public_key, $signing)  // Public key
-            ];
         /**
          * Symmetric-key implies secret-key:
          */
@@ -187,7 +191,6 @@ abstract class Key implements Contract\CryptoKeyInterface
              * Are we doing encryption or authentication?
              */
             if (self::hasFlag($type, self::SIGNATURE)) {
-                $signing = true;
                 $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
                     \Sodium\CRYPTO_AUTH_KEYBYTES,
                     $password,
@@ -195,7 +198,8 @@ abstract class Key implements Contract\CryptoKeyInterface
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
                 );
-            } else {
+                return new AuthenticationKey($secret_key);
+            } elseif (self::hasFlag($type, self::ENCRYPTION)) {
                 $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
                     \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
                     $password,
@@ -203,8 +207,12 @@ abstract class Key implements Contract\CryptoKeyInterface
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
                     \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
                 );
+                return new EncryptionKey($secret_key);
+            } else {
+                throw new CryptoException\InvalidFlags(
+                    'Must specify encryption or authentication'
+                );
             }
-            return new SymmetricKey($secret_key, $signing);
         } else {
             throw new CryptoException\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'
@@ -224,9 +232,6 @@ abstract class Key implements Contract\CryptoKeyInterface
         $filePath,
         $type = self::CRYPTO_SECRETBOX
     ) {
-        // Set this to true to flag a key as a signing key
-        $signing = false;
-        
         /**
          * Are we doing public key cryptography?
          */
@@ -235,36 +240,41 @@ abstract class Key implements Contract\CryptoKeyInterface
              * Are we doing encryption or digital signing?
              */
             $secret_key = \file_get_contents($filePath);
-            if (self::hasFlag($type, self::ENCRYPTION)) {
-                $public_key = \Sodium\crypto_box_publickey_from_secretkey(
-                    $secret_key
-                );
-            } elseif (self::hasFlag($type, self::SIGNATURE)) {
-                // Digital signature keypair
-                $signing = true;
+            if (self::hasFlag($type, self::SIGNATURE)) {
                 $public_key = \Sodium\crypto_sign_publickey_from_secretkey(
                     $secret_key
                 );
+                return [
+                    new SignatureSecretKey($secret_key), // Secret key
+                    new SignaturePublicKey($public_key)  // Public key
+                ];
+            } elseif (self::hasFlag($type, self::ENCRYPTION)) {
+                $public_key = \Sodium\crypto_box_publickey_from_secretkey(
+                    $secret_key
+                );
+                return [
+                    new EncryptionSecretKey($secret_key), // Secret key
+                    new EncryptionPublicKey($public_key)  // Public key
+                ];
             } else {
                 throw new CryptoException\InvalidFlags(
                     'Must specify encryption or authentication'
                 );
             }
-            
-            // Let's return an array with two keys
-            return [
-                new AsymmetricSecretKey($secret_key, $signing), // Secret key
-                new AsymmetricPublicKey($public_key, $signing)  // Public key
-            ];
         } elseif (self::hasFlag($type, self::SECRET_KEY)) {
             /**
              * Are we doing encryption or authentication?
              */
-            if (self::hasFlag($type, self::SIGNATURE)) {
-                $signing = true;
-            }
             $secret_key = \file_get_contents($filePath);
-            return new SymmetricKey($secret_key, $signing);
+            if (self::hasFlag($type, self::ENCRYPTION)) {
+                return new EncryptionKey($secret_key);
+            } elseif (self::hasFlag($type, self::SIGNATURE)) {
+                return new AuthenticationKey($secret_key);
+            } else {
+                throw new CryptoException\InvalidFlags(
+                    'Must specify encryption or authentication'
+                );
+            }
         } else {
             throw new CryptoException\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'
@@ -283,8 +293,6 @@ abstract class Key implements Contract\CryptoKeyInterface
         $type = self::CRYPTO_SECRETBOX,
         &$secret_key = null
     ) {
-        // Set this to true to flag a key as a signing key
-        $signing = false;
         
         /**
          * Are we doing public key cryptography?
@@ -293,31 +301,33 @@ abstract class Key implements Contract\CryptoKeyInterface
             /**
              * Are we doing encryption or digital signing?
              */
-            if (self::hasFlag($type, self::ENCRYPTION)) {
+            if (self::hasFlag($type, self::SIGNATURE)) {
+                // Digital signature keypair
+                $kp = \Sodium\crypto_sign_keypair();
+                $secret_key = \Sodium\crypto_sign_secretkey($kp);
+                $public_key = \Sodium\crypto_sign_publickey($kp);
+                // Let's wipe our $kp variable
+                \Sodium\memzero($kp);
+                return [
+                    new SignatureSecretKey($secret_key), // Secret key
+                    new SignaturePublicKey($public_key)  // Public key
+                ];
+            } elseif (self::hasFlag($type, self::ENCRYPTION)) {
                 // Encryption keypair
                 $kp = \Sodium\crypto_box_keypair();
                 $secret_key = \Sodium\crypto_box_secretkey($kp);
                 $public_key = \Sodium\crypto_box_publickey($kp);
-            } elseif (self::hasFlag($type, self::SIGNATURE)) {
-                // Digital signature keypair
-                $signing = true;
-                $kp = \Sodium\crypto_sign_keypair();
-                $secret_key = \Sodium\crypto_sign_secretkey($kp);
-                $public_key = \Sodium\crypto_sign_publickey($kp);
+                // Let's wipe our $kp variable
+                \Sodium\memzero($kp);
+                return [
+                    new EncryptionSecretKey($secret_key), // Secret key
+                    new EncryptionPublicKey($public_key)  // Public key
+                ];
             } else {
                 throw new CryptoException\InvalidFlags(
                     'Must specify encryption or authentication'
                 );
             }
-            
-            // Let's wipe our $kp variable
-            \Sodium\memzero($kp);
-            
-            // Let's return an array with two keys
-            return [
-                new AsymmetricSecretKey($secret_key, $signing), // Secret key
-                new AsymmetricPublicKey($public_key, $signing)  // Public key
-            ];
         } elseif (self::hasFlag($type, self::SECRET_KEY)) {
             /**
              * Are we doing encryption or authentication?
@@ -326,13 +336,17 @@ abstract class Key implements Contract\CryptoKeyInterface
                 $secret_key = \Sodium\randombytes_buf(
                     \Sodium\CRYPTO_SECRETBOX_KEYBYTES
                 );
+                return new EncryptionKey($secret_key);
             } elseif (self::hasFlag($type, self::SIGNATURE)) {
-                $signing = true;
                 $secret_key = \Sodium\randombytes_buf(
                     \Sodium\CRYPTO_AUTH_KEYBYTES
                 );
+                return new AuthenticationKey($secret_key);
+            } else {
+                throw new CryptoException\InvalidFlags(
+                    'Must specify encryption or authentication'
+                );
             }
-            return new SymmetricKey($secret_key, $signing);
         } else {
             throw new CryptoException\InvalidFlags(
                 'Must specify symmetric-key or asymmetric-key'
@@ -422,5 +436,17 @@ abstract class Key implements Contract\CryptoKeyInterface
     public static function hasFlag($int, $flag)
     {
         return ($int & $flag) !== 0;
+    }
+    
+    /**
+     * Opposite of hasFlag()
+     * 
+     * @param int $int
+     * @param int $flag
+     * @return bool
+     */
+    public static function doesNotHaveFlag($int, $flag)
+    {
+        return ($int & $flag) === 0;
     }
 }

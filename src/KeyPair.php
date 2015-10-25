@@ -176,7 +176,7 @@ class KeyPair
         $salt,
         $type = self::CRYPTO_BOX
     ) { 
-        if (!Key::hasFlag($type, Key::ASYMMETRIC)) {
+        if (Key::doesNotHaveFlag($type, Key::ASYMMETRIC)) {
             throw new CryptoException\InvalidKey(
                 'An asymmetric key type must be passed to KeyPair::generate()'
             );
@@ -205,7 +205,7 @@ class KeyPair
      */
     public static function generate($type = Key::CRYPTO_BOX, &$secret_key = null)
     {
-        if (!Key::hasFlag($type, Key::ASYMMETRIC)) {
+        if (Key::doesNotHaveFlag($type, Key::ASYMMETRIC)) {
             throw new CryptoException\InvalidKey(
                 'An asymmetric key type must be passed to KeyPair::generate()'
             );

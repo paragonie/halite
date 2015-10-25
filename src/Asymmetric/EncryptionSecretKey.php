@@ -1,10 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Asymmetric;
 
-use \ParagonIE\Halite\Contract;
-use \ParagonIE\Halite\Key;
-
-class PublicKey extends Key implements Contract\CryptoKeyInterface
+class EncryptionSecretKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
@@ -12,10 +9,7 @@ class PublicKey extends Key implements Contract\CryptoKeyInterface
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
-        $signing = \count($args) >= 1
-            ? $args[0]
-            : false;
-        parent::__construct($keyMaterial, true, $signing, true);
+        parent::__construct($keyMaterial, false);
     }
     
     /**
@@ -26,9 +20,9 @@ class PublicKey extends Key implements Contract\CryptoKeyInterface
      */
     public static function generate($type = self::CRYPTO_BOX, &$secret_key = null)
     {
-        return parent::generate(
-            $type | self::ASYMMETRIC,
-            $secret_key
-        );
+        if (self::hasFlag($type, self::SIGNATURE)) {
+            $type &= ~self::SIGNATURE;
+        }
+        return parent::generate($type, $secret_key);
     }
 }

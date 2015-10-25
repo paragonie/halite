@@ -4,7 +4,7 @@ namespace ParagonIE\Halite\Asymmetric;
 use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Key;
 
-class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInterface
+class SecretKey extends Key implements Contract\CryptoKeyInterface
 {
     /**
      * @param string $keyMaterial - The actual key data
@@ -27,12 +27,16 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      * @return array|\ParagonIE\Halite\Key
      * @throws CryptoException\InvalidFlags
      */
-    public static function deriveFromPassword($password, $salt, $type = self::CRYPTO_BOX)
-    {
-        if (!self::hasFlag($type, self::ASYMMETRIC)) {
-            $type |= self::ASYMMETRIC;
-        }
-        return parent::deriveFromPassword($password, $salt, $type);
+    public static function deriveFromPassword(
+        $password,
+        $salt,
+        $type = self::CRYPTO_BOX
+    ) {
+        return parent::deriveFromPassword(
+            $password,
+            $salt,
+            $type | self::ASYMMETRIC
+        );
     }
     
     /**
@@ -41,11 +45,13 @@ class SecretKey extends \ParagonIE\Halite\Key implements Contract\CryptoKeyInter
      * @param type $type
      * @param type $secret_key
      */
-    public static function generate($type = self::CRYPTO_BOX, &$secret_key = null)
-    {
-        if (!self::hasFlag($type, self::ASYMMETRIC)) {
-            $type |= self::ASYMMETRIC;
-        }
-        return parent::generate($type, $secret_key);
+    public static function generate(
+        $type = self::CRYPTO_BOX,
+        &$secret_key = null
+    ) {
+        return parent::generate(
+            $type | self::ASYMMETRIC,
+            $secret_key
+        );
     }
 }

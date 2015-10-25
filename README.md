@@ -411,5 +411,5 @@ $sign_keypair = SigningKeyPair::generate();
 $signature = File::signFile('originalFile.png', $sign_secret);
 
 // Verification
-$valid = File::verifyFile('originalFile', $sign_secret, $signature);
+$valid = File::verifyFile('originalFile.png', $sign_secret, $signature);
 ```

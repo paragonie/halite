@@ -45,25 +45,33 @@ For authentication functions, Halite will typically just return `false`.
 First, you'll need is an encryption key. The easiest way to obtain one is to 
 generate it:
 
-    $enc_key = \ParagonIE\Halite\Symmetric\EncryptionKey::generate();
+```php
+$enc_key = \ParagonIE\Halite\Symmetric\EncryptionKey::generate();
+```
 
 This generates a strong random key. If you'd like to reuse it, you can simply
 store it in a file.
 
-    $enc_key->saveToFile('/path/to/encryption.key');
+```php
+$enc_key->saveToFile('/path/to/encryption.key');
+```
 
 Later, you can load it like so:
 
-    $enc_key = \ParagonIE\Halite\Symmetric\EncryptionKey::fromFile('/path/to/encryption.key');
+```php
+$enc_key = \ParagonIE\Halite\Symmetric\EncryptionKey::fromFile('/path/to/encryption.key');
+```
 
 --------------------------------------------------------------------------------
 
 **Encryption** should be rather straightforward:
 
-    $ciphertext = \ParagonIE\Halite\Symmetric\Crypto::encrypt(
-        "Your message here. Any string content will do just fine.",
-        $enc_key
-    );
+```php
+$ciphertext = \ParagonIE\Halite\Symmetric\Crypto::encrypt(
+    "Your message here. Any string content will do just fine.",
+    $enc_key
+);
+```
 
 By default, `Crypto::encrypt()` will return a hexadecimal encoded string. If you
 want raw binary, simply pass `true` as the third argument (similar to the API
@@ -71,10 +79,12 @@ used by PHP's `hash()` function).
 
 The inverse operation, **decryption** is congruent:
 
-    $plaintext = \ParagonIE\Halite\Symmetric\Crypto::decrypt(
-        $ciphertext,
-        $enc_key
-    );
+```php
+$plaintext = \ParagonIE\Halite\Symmetric\Crypto::decrypt(
+    $ciphertext,
+    $enc_key
+);
+```
 
 The important thing to keep in mind is that `$enc_key` is not a string, it is an
 instance of `\ParagonIE\Halite\Symmetric\EncryptionKey`.
@@ -90,26 +100,32 @@ conversation. It requires your secret key and your partner's public key.
 Assuming you are Alice, you would generate your keypair like so. (The other
 person, Bob, will do the same on his end.)
 
-    $alice_keypair = \ParagonIE\Halite\EncryptionKeyPair::generate();
-    $alice_secret = $alice_keypair->getSecretKey();
-    $alice_public = $alice_keypair->getPublicKey();
-    $send_to_bob = \Sodium\bin2hex($alice_public->get());
+```php
+$alice_keypair = \ParagonIE\Halite\EncryptionKeyPair::generate();
+$alice_secret = $alice_keypair->getSecretKey();
+$alice_public = $alice_keypair->getPublicKey();
+$send_to_bob = \Sodium\bin2hex($alice_public->get());
+```
 
 Alice will then load Bob's public key into the appropriate object like so:
 
-    $bob_public = new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(
-        \Sodium\hex2bin($recv_from_bob)
-    );
+```php
+$bob_public = new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(
+    \Sodium\hex2bin($recv_from_bob)
+);
+```
 
 --------------------------------------------------------------------------------
 
 **Encrypting** a message from Alice to send to Bob:
 
-    $send_to_bob = \ParagonIE\Halite\Asymmetric\Crypto::encrypt(
-        "Your message here. Any string content will do just fine.",
-        $alice_secret,
-        $bob_public
-    );
+```php
+$send_to_bob = \ParagonIE\Halite\Asymmetric\Crypto::encrypt(
+    "Your message here. Any string content will do just fine.",
+    $alice_secret,
+    $bob_public
+);
+```
 
 As with symmetric-key encryption, this defaults to hexadecimal encoded output.
 If you desire raw binary, you can pass an optional `true` as the fourth argument
@@ -117,11 +133,13 @@ to `Crypto::encrypt()`.
 
 **Decrypting** a message that Alice received from Bob:
 
-    $message = \ParagonIE\Halite\Asymmetric\Crypto::decrypt(
-        $received_ciphertext,
-        $alice_secret,
-        $bob_public
-    );
+```php
+$message = \ParagonIE\Halite\Asymmetric\Crypto::decrypt(
+    $received_ciphertext,
+    $alice_secret,
+    $bob_public
+);
+```
 
 ### Anonymous Asymmetric-Key Encryption (Sealing)
 
@@ -130,9 +148,11 @@ that only the person possessing the corresponding secret key can decrypt it.
 
 If you wish to seal information, you only need one keypair rather than two:
 
-    $seal_keypair = \ParagonIE\Halite\EncryptionKeyPair::generate();
-    $seal_secret = $seal_keypair->getSecretKey();
-    $seal_public = $seal_keypair->getPublicKey();
+```php
+$seal_keypair = \ParagonIE\Halite\EncryptionKeyPair::generate();
+$seal_secret = $seal_keypair->getSecretKey();
+$seal_public = $seal_keypair->getPublicKey();
+```
 
 You want to only keep `$seal_public` stored outside of the trusted environment.
 
@@ -140,10 +160,12 @@ You want to only keep `$seal_public` stored outside of the trusted environment.
 
 **Encrypting** an anonymous message:
 
-    $sealed = \ParagonIE\Halite\Asymmetric\Crypto::seal(
-        "Your message here. Any string content will do just fine.",
-        $seal_public
-    );
+```php
+$sealed = \ParagonIE\Halite\Asymmetric\Crypto::seal(
+    "Your message here. Any string content will do just fine.",
+    $seal_public
+);
+```
 
 Once again, this defaults to hexadecimal encoded output. If you desire raw 
 binary, you can pass an optional `true` as the fourth argument to 
@@ -151,10 +173,12 @@ binary, you can pass an optional `true` as the fourth argument to
 
 **Decrypting** an anonymous message:
 
-    $opened = \ParagonIE\Halite\Asymmetric\Crypto::unseal(
-        $sealed,
-        $seal_secret
-    );
+```php
+$opened = \ParagonIE\Halite\Asymmetric\Crypto::unseal(
+    $sealed,
+    $seal_secret
+);
+```
 
 ## Authentication
 
@@ -168,29 +192,34 @@ First, you will need an appropriate key. The easiest way to get one is to simply
 generate one randomly then store it for reuse (similar to secret-key encryption
 above):
 
-    $auth_key = \ParagonIE\Halite\Symmetric\AuthenticationKey::generate();
+```php
+$auth_key = \ParagonIE\Halite\Symmetric\AuthenticationKey::generate();
+```
 
 --------------------------------------------------------------------------------
 
 **Authenticating** a message:
 
-    // MAC stands for Message Authentication Code
-    $mac = \ParagonIE\Halite\Symmetric\Crypto::authenticate(
-        "Your message here. Any string content will do just fine.",
-        $auth_key
-    );
+```php
+// MAC stands for Message Authentication Code
+$mac = \ParagonIE\Halite\Symmetric\Crypto::authenticate(
+    "Your message here. Any string content will do just fine.",
+    $auth_key
+);
+```
 
 **Verifying** a message, given the message and a message authentication code:
 
-    $valid = \ParagonIE\Halite\Symmetric\Crypto::verify(
-        "Your message here. Any string content will do just fine.",
-        $auth_key,
-        $mac
-    );
-    if ($valid) {
-        // Success!
-    }
-
+```php
+$valid = \ParagonIE\Halite\Symmetric\Crypto::verify(
+    "Your message here. Any string content will do just fine.",
+    $auth_key,
+    $mac
+);
+if ($valid) {
+    // Success!
+}
+```
 
 By default, `$mac` will be hex-encoded. If you need a raw binary string, pass
 `true` as the third (optional) argument to `Crypto::authenticate()`. You will 
@@ -201,25 +230,31 @@ also need to pass `true` as the fourth (optional) argument in `Crypto::verify()`
 As with anonymous asymmetric-key encryption, you only need one keypair and you
 only give out your public key.
 
-    $sign_keypair = \ParagonIE\Halite\SignatureKeyPair::generate();
-    $sign_secret = $sign_keypair->getSecretKey();
-    $sign_public = $sign_keypair->getPublicKey();
+```php
+$sign_keypair = \ParagonIE\Halite\SignatureKeyPair::generate();
+$sign_secret = $sign_keypair->getSecretKey();
+$sign_public = $sign_keypair->getPublicKey();
+```
 
 --------------------------------------------------------------------------------
 
 **Signing** a message with a secret key:
 
-    $signature = \ParagonIE\Halite\Asymmetric\Crypto::sign(
-        "Your message here. Any string content will do just fine.",
-        $sign_secret
-    );
+```php
+$signature = \ParagonIE\Halite\Asymmetric\Crypto::sign(
+    "Your message here. Any string content will do just fine.",
+    $sign_secret
+);
+```
 
 **Verifying** the signature of a message with its corresponding public key:
 
-    $valid = \ParagonIE\Halite\Asymmetric\Crypto::verify(
-        "Your message here. Any string content will do just fine.",
-        $sign_public,
-        $signature
-    );
+```php
+$valid = \ParagonIE\Halite\Asymmetric\Crypto::verify(
+    "Your message here. Any string content will do just fine.",
+    $sign_public,
+    $signature
+);
+```
 
 The typical rules for hex-encoding apply here as well.

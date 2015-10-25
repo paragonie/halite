@@ -272,13 +272,13 @@ $decrypted = AsymmetricCrypto::decrypt($plaintext, $enc_public, $recip_secret);
 $raw_decrypt = AsymmetricCrypto::decrypt($plaintext, $enc_public, $recip_secret, true);
 ```
 
-### Authentication
+### String Authentication
 
 Sometimes you might not want to encrypt information, but you do need to prevent
 tampering. In these instances, transparent authentication is all you need to
 do the job.
 
-#### Symmetric-Key Authentication
+#### Symmetric-Key Message Authentication
 
 ```php
 use \ParagonIE\Halite\Symmetric\AuthenticationKey;

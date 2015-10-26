@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Contract;
 
-use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
 /**
  * Hash then encrypt
@@ -13,17 +13,18 @@ interface PasswordInterface
      * Hash then encrypt a password
      * 
      * @param string $password   - The user's password
-     * @param Key $secret_key - The master key for all passwords
+     * @param EncryptionKey $secret_key - The master key for all passwords
      * @return string
      */
-    public static function hash($password, SymmetricKey $secret_key);
+    public static function hash($password, EncryptionKey $secret_key);
     
     /**
      * Decrypt then verify a password
      * 
      * @param string $password - The user-provided password
      * @param string $stored   - The encrypted password hash
-     * @param Key $secret_key  - The master key for all passwords
+     * @param EncryptionKey $secret_key  - The master key for all passwords
+     * @return boolean
      */
-    public static function verify($password, $stored, SymmetricKey $secret_key);
+    public static function verify($password, $stored, EncryptionKey $secret_key);
 }

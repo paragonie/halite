@@ -1,8 +1,8 @@
 <?php
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
-use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use \ParagonIE\Halite\Symmetric\Crypto;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
 /**
  * Secure password storage and secure password verification
@@ -13,10 +13,10 @@ class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * Hash then encrypt a password
      * 
      * @param string $password         - The user's password
-     * @param SymmetricKey $secret_key - The master key for all passwords
+     * @param EncryptionKey $secret_key - The master key for all passwords
      * @return string
      */
-    public static function hash($password, SymmetricKey $secret_key)
+    public static function hash($password, EncryptionKey $secret_key)
     {
         // First, let's calculate the hash
         $hashed = \Sodium\crypto_pwhash_scryptsalsa208sha256_str(
@@ -26,7 +26,7 @@ class Password implements \ParagonIE\Halite\Contract\PasswordInterface
         );
         
         // Now let's encrypt the result
-        return SymmetricCrypto::encrypt($hashed, $secret_key);
+        return Crypto::encrypt($hashed, $secret_key);
     }
 
     /**
@@ -34,13 +34,13 @@ class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * 
      * @param string $password          - The user-provided password
      * @param string $stored            - The encrypted password hash
-     * @param SymmetricKey $secret_key  - The master key for all passwords
+     * @param EncryptionKey $secret_key  - The master key for all passwords
      * @return boolean
      */
-    public static function verify($password, $stored, SymmetricKey $secret_key)
+    public static function verify($password, $stored, EncryptionKey $secret_key)
     {
         // First let's decrypt the hash
-        $hash_str = SymmetricCrypto::decrypt($stored, $secret_key);
+        $hash_str = Crypto::decrypt($stored, $secret_key);
         // Upon successful decryption, verify the password is correct
         return \Sodium\crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $password);
     }

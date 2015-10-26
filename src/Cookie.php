@@ -1,14 +1,15 @@
 <?php
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\Symmetric;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
+use \ParagonIE\Halite\Symmetric\Crypto;
+use ParagonIE\Halite\Alerts\InvalidMessage;
 
 class Cookie 
 {
     protected $key;
     
-    public function __construct(Key $key)
+    public function __construct(EncryptionKey $key)
     {
         $this->key = $key;
     }
@@ -35,11 +36,15 @@ class Cookie
         if (!isset($_COOKIE[$name])) {
             return null;
         }
-        $decrypted = Symmetric::decrypt($_COOKIE[$name], $this->key);
-        if (empty($decrypted)) {
-            return null;
+        try {
+            $decrypted = Crypto::decrypt($_COOKIE[$name], $this->key);
+            if (empty($decrypted)) {
+                return null;
+            }
+            return \json_decode($decrypted, true);
+        } catch (InvalidMessage $e) {
+            return;
         }
-        return \json_decode($decrypted, true);
     }
     
     /**
@@ -47,11 +52,11 @@ class Cookie
      * 
      * @param string $name
      * @param mixed $value
-     * @param int $expire
-     * @param string $path
-     * @param string $domain
-     * @param bool $secure
-     * @param bool $httponly
+     * @param int $expire    (defaults to 0)
+     * @param string $path   (defaults to '/')
+     * @param string $domain (defaults to NULL)
+     * @param bool $secure   (defaults to TRUE)
+     * @param bool $httponly (defaults to TRUE)
      * @return bool
      */
     public function store(
@@ -60,12 +65,12 @@ class Cookie
         $expire = 0,
         $path = '/',
         $domain = null,
-        $secure = null,
-        $httponly = null
+        $secure = true,
+        $httponly = true
     ) {
         return \setcookie(
             $name,
-            Symmetric::encrypt(
+            Crypto::encrypt(
                 \json_encode($value),
                 $this->key
             ),

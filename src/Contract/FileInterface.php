@@ -4,6 +4,12 @@ namespace ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Asymmetric\PublicKey;
 use \ParagonIE\Halite\Asymmetric\SecretKey;
 use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
+use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
+use \ParagonIE\Halite\Asymmetric\SignatureSecretKey;
+use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
+use \ParagonIE\Halite\Symmetric\AuthenticationKey;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
 /**
  * An interface for encrypting/decrypting files
@@ -20,7 +26,7 @@ interface FileInterface
     public static function encryptFile(
         $inputFile,
         $outputFile,
-        SymmetricKey $key
+        EncryptionKey $key
     );
     
     /**
@@ -33,7 +39,7 @@ interface FileInterface
     public static function decryptFile(
         $inputFile,
         $outputFile,
-        SymmetricKey $key
+        EncryptionKey $key
     );
     
     /**
@@ -46,7 +52,7 @@ interface FileInterface
     public static function sealFile(
         $inputFile,
         $outputFile,
-        PublicKey $publickey
+        EncryptionPublicKey $publickey
     );
     
     /**
@@ -59,7 +65,7 @@ interface FileInterface
     public static function unsealFile(
         $inputFile,
         $outputFile,
-        SecretKey $secretkey
+        EncryptionSecretKey $secretkey
     );
     
     /**
@@ -72,7 +78,7 @@ interface FileInterface
     public static function encryptResource(
         $input,
         $output,
-        SymmetricKey $key
+        EncryptionKey $key
     );
     
     /**
@@ -85,7 +91,7 @@ interface FileInterface
     public static function decryptResource(
         $input,
         $output,
-        SymmetricKey $key
+        EncryptionKey $key
     );
     
     /**
@@ -98,7 +104,7 @@ interface FileInterface
     public static function sealResource(
         $input,
         $output,
-        PublicKey $publickey
+        EncryptionPublicKey $publickey
     );
     
     /**
@@ -111,7 +117,7 @@ interface FileInterface
     public static function unsealResource(
         $input,
         $output,
-        SecretKey $secretkey
+        EncryptionSecretKey $secretkey
     );
     
     
@@ -126,7 +132,7 @@ interface FileInterface
      */
     public static function checksumFile(
         $filepath,
-        SymmetricKey $key = null,
+        AuthenticationKey $key = null,
         $raw = false
     );
     
@@ -142,7 +148,7 @@ interface FileInterface
      */
     public static function checksumResource(
         $fileHandle,
-        SymmetricKey $key = null,
+        AuthenticationKey $key = null,
         $raw = false
     );
 }

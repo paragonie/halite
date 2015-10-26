@@ -21,6 +21,7 @@ class EncryptionKeyPair extends KeyPair
             'publicKey' => '**protected**'
         ];
     }
+    
     /**
      * Derive an encryption key from a password and a salt
      * 
@@ -67,7 +68,7 @@ class EncryptionKeyPair extends KeyPair
         }
         if (Key::hasFlag($type, Key::ENCRYPTION)) {
             $key = EncryptionSecretKey::generate(Key::CRYPTO_BOX, $secret_key);
-            $keypair = new KeyPair(...$key);
+            $keypair = new EncryptionKeyPair(...$key);
             return $keypair;
         }
         throw new CryptoException\InvalidKey(

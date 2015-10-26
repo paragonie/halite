@@ -1,16 +1,18 @@
 <?php
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Asymmetric\PublicKey;
-use ParagonIE\Halite\Asymmetric\SecretKey;
-use ParagonIE\Halite\Alerts as CryptoException;
+use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
+use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
+use \ParagonIE\Halite\Asymmetric\SignatureSecretKey;
+use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
+use \ParagonIE\Halite\Alerts as CryptoException;
 
 /**
  * Describes a pair of secret and public keys
  */
 class KeyPair
 {
-    private    $secret_key;
+    protected  $secret_key;
     protected  $public_key;
     
     /**
@@ -42,62 +44,58 @@ class KeyPair
                             'Both keys cannot be public keys'
                         );
                     }
+                    $sign = $keys[1]->isSigningKey();
                     // $keys[0] is public, $keys[1] is secret
-                    $this->secret_key = $keys[1] instanceof SecretKey
-                        ? $keys[1]
-                        : new SecretKey(
-                            $keys[1]->get(),
-                            $keys[1]->isSigningKey()
-                        );
-                    
-                    /**
-                     * Let's use the secret key to calculate the *correct* 
-                     * public key. We're effectively discarding $keys[0] but
-                     * this ensures correct usage down the line.
-                     */
-                    if ($this->secret_key->isSigningKey()) {
-                        // crypto_sign - Ed25519
+                    if ($sign) {
+                        $this->secret_key = $keys[1] instanceof SignatureSecretKey
+                            ? $keys[1]
+                            : new SignatureSecretKey(
+                                $keys[1]->get()
+                            );
                         $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                             $keys[1]->get()
                         );
-                        $this->public_key = new PublicKey($pub, true);
+                        $this->public_key = new SignaturePublicKey($pub, true);
                         \Sodium\memzero($pub);
                     } else {
+                        $this->secret_key = $keys[1] instanceof EncryptionSecretKey
+                            ? $keys[1]
+                            : new EncryptionSecretKey(
+                                $keys[1]->get()
+                            );
                         // crypto_box - Curve25519
                         $pub = \Sodium\crypto_box_publickey_from_secretkey(
                             $keys[1]->get()
                         );
-                        $this->public_key = new PublicKey($pub, false);
+                        $this->public_key = new EncryptionPublicKey($pub, false);
                         \Sodium\memzero($pub);
                     }
-                    
                 } elseif ($keys[1]->isPublicKey()) {
+                    $sign = $keys[0]->isSigningKey();
                     // We can deduce that $keys[0] is a secret key
-                    $this->secret_key = $keys[0] instanceof SecretKey
-                        ? $keys[0]
-                        : new SecretKey(
-                            $keys[0]->get(),
-                            $keys[0]->isSigningKey()
-                        );
-                    
-                    /**
-                     * Let's use the secret key to calculate the *correct* 
-                     * public key. We're effectively discarding $keys[0] but
-                     * this ensures correct usage down the line.
-                     */
-                    if ($this->secret_key->isSigningKey()) {
+                    if ($sign) {
+                        $this->secret_key = $keys[0] instanceof SignatureSecretKey
+                            ? $keys[0]
+                            : new SignatureSecretKey(
+                                $keys[0]->get()
+                            );
                         // crypto_sign - Ed25519
                         $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                             $keys[0]->get()
                         );
-                        $this->public_key = new PublicKey($pub, true);
+                        $this->public_key = new SignaturePublicKey($pub);
                         \Sodium\memzero($pub);
                     } else {
+                        $this->secret_key = $keys[0] instanceof EncryptionSecretKey
+                            ? $keys[0]
+                            : new EncryptionSecretKey(
+                                $keys[0]->get()
+                            );
                         // crypto_box - Curve25519
                         $pub = \Sodium\crypto_box_publickey_from_secretkey(
                             $keys[0]->get()
                         );
-                        $this->public_key = new PublicKey($pub, false);
+                        $this->public_key = new EncryptionPublicKey($pub);
                         \Sodium\memzero($pub);
                     }
                 } else {
@@ -120,32 +118,37 @@ class KeyPair
                         'We cannot generate a valid keypair given only a public key; we can given only a secret key, however.'
                     );
                 }
-                $this->secret_key = $keys[0] instanceof SecretKey
-                    ? $keys[0]
-                    : new SecretKey(
-                        $keys[0]->get(),
-                        $keys[0]->isSigningKey()
-                    );
-                
-                if ($this->secret_key->isSigningKey()) {
-                    // We need to calculate the public key from the secret key
+                $sign = $keys[0]->isSigningKey();
+                // We can deduce that $keys[0] is a secret key
+                if ($sign) {
+                    $this->secret_key = $keys[0] instanceof SignatureSecretKey
+                        ? $keys[0]
+                        : new SignatureSecretKey(
+                            $keys[0]->get()
+                        );
+                    // crypto_sign - Ed25519
                     $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                         $keys[0]->get()
                     );
-                    $this->public_key = new PublicKey($pub, true);
+                    $this->public_key = new SignaturePublicKey($pub);
                     \Sodium\memzero($pub);
                 } else {
-                    // We need to calculate the public key from the secret key
+                    $this->secret_key = $keys[0] instanceof EncryptionSecretKey
+                        ? $keys[0]
+                        : new EncryptionSecretKey(
+                            $keys[0]->get()
+                        );
+                    // crypto_box - Curve25519
                     $pub = \Sodium\crypto_box_publickey_from_secretkey(
                         $keys[0]->get()
                     );
-                    $this->public_key = new PublicKey($pub, false);
+                    $this->public_key = new EncryptionPublicKey($pub);
                     \Sodium\memzero($pub);
                 }
                 break;
             default:
                 throw new \InvalidArgumentException(
-                    'Halite\\Keypair expects 1 or 2 keys'
+                    'Halite\\KeyPair expects 1 or 2 keys'
                 );
         }
     }
@@ -162,6 +165,7 @@ class KeyPair
             'publicKey' => '**protected**'
         ];
     }
+    
     /**
      * Derive an encryption key from a password and a salt
      * 

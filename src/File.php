@@ -363,13 +363,13 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * Verifies a file
      * 
      * @param string $filename
-     * @param string $signature
      * @param PublicKey $publickey
+     * @param string $signature
      */
     public static function verifyFile(
-        $signature,
         $filename,
         PublicKey $publickey,
+        $signature,
         $raw_binary = false
     ) {
         

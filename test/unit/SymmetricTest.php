@@ -1,6 +1,7 @@
 <?php
 use \ParagonIE\Halite\Symmetric\Crypto as Symmetric;
-use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use \ParagonIE\Halite\Symmetric\AuthenticationKey;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
 use \ParagonIE\Halite\Alerts as CryptoException;
 
 /**
@@ -11,7 +12,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
 {
     public function testAuthenticate()
     {
-        $key = new SymmetricKey(\str_repeat('A', 32), true);
+        $key = new AuthenticationKey(\str_repeat('A', 32), true);
         $message = 'test message';
         $mac = Symmetric::authenticate($message, $key);
         $this->assertTrue(
@@ -21,7 +22,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testAuthenticateFail()
     {
-        $key = new SymmetricKey(\str_repeat('A', 32), true);
+        $key = new AuthenticationKey(\str_repeat('A', 32), true);
         $message = 'test message';
         $mac = Symmetric::authenticate($message, $key, true);
         
@@ -47,7 +48,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testEncrypt()
     {
-        $key = new SymmetricKey(\str_repeat('A', 32));
+        $key = new EncryptionKey(\str_repeat('A', 32));
         $message = Symmetric::encrypt('test message', $key);
         $this->assertTrue(strpos($message, '31420006') === 0);
         
@@ -57,7 +58,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testRawEncrypt()
     {
-        $key = new SymmetricKey(\str_repeat('A', 32));
+        $key = new EncryptionKey(\str_repeat('A', 32));
         $message = Symmetric::encrypt('test message', $key, true);
         $this->assertTrue(strpos($message, \ParagonIE\Halite\Halite::HALITE_VERSION) === 0);
         
@@ -67,7 +68,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testEncryptFail()
     {
-        $key = new SymmetricKey(\str_repeat('A', 32));
+        $key = new EncryptionKey(\str_repeat('A', 32));
         $message = Symmetric::encrypt('test message', $key, true);
         $r = \Sodium\randombytes_uniform(\mb_strlen($message, '8bit'));
         $message[$r] = \chr(

@@ -1,6 +1,9 @@
 <?php
 namespace ParagonIE\Halite\Contract;
 
+use \ParagonIE\Halite\Symmetric\AuthenticationKey;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
+
 /**
  * An interface fundamental to all cryptography implementations
  */
@@ -14,8 +17,8 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      * @param boolean $raw Don't hex encode the output?
      */
     public static function encrypt(
-        $plaintext, 
-        CryptoKeyInterface $secretKey,
+        $plaintext,
+        EncryptionKey $secretKey,
         $raw = false
     );
     
@@ -28,7 +31,7 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function decrypt(
         $ciphertext,
-        CryptoKeyInterface $secretKey,
+        EncryptionKey $secretKey,
         $raw = false
     );
     
@@ -41,7 +44,7 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function authenticate(
         $message,
-        CryptoKeyInterface $secretKey,
+        AuthenticationKey $secretKey,
         $raw = false
     );
     
@@ -55,7 +58,7 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function verify(
         $message,
-        CryptoKeyInterface $secretKey,
+        AuthenticationKey $secretKey,
         $mac,
         $raw = false
     );

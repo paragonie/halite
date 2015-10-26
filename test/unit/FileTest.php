@@ -137,9 +137,9 @@ class FileTest extends PHPUnit_Framework_TestCase
         
         $this->assertTrue(
             File::verifyFile(
-                $signature,
                 __DIR__.'/tmp/paragon_avatar.png',
-                $publickey
+                $publickey,
+                $signature
             )
         );
     }

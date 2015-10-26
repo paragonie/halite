@@ -45,6 +45,14 @@ footprint.
 
 The `File` API looks like this:
 
+* Lazy Mode
+  * `File::checksum`(`lazy`, [`AuthenticationKey?`](Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
+  * `File::encrypt`(`lazy`, `lazy`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
+  * `File::decrypt`(`lazy`, `lazy`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
+  * `File::seal`(`lazy`, `lazy`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md))
+  * `File::unseal`(`lazy`, `lazy`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md))
+  * `File::sign`(`lazy`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md)): `string`
+  * `File::verify`(`lazy`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `bool`
 * Filenames
   * `File::checksumFile`(`string`, [`AuthenticationKey?`](Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
   * `File::encryptFile`(`string`, `string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
@@ -62,6 +70,10 @@ The `File` API looks like this:
   * `File::signResource`(`resource`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md)): `string`
   * `File::verifyResource`(`resource`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `bool`
 
+The `lazy` type indicates that the argument can be either a `string` containing
+the file's path, or a `resource` (open file handle). Don't mix and match types.
+If one is a `resource`, both must be. If the other is a `string`, both must be.
+
 Each of feature is designed to work in a streaming fashion.
 
 > In each case, any call to `::*File` is just a friendly wrapper for 
@@ -73,7 +85,7 @@ Each of feature is designed to work in a streaming fashion.
 Basic usage:
 
 ```php
-$checksum = \ParagonIE\Halite\File::checksumFile('/source/file/path');
+$checksum = \ParagonIE\Halite\File::checksum('/source/file/path');
 ```
 
 If for some reason you desire to use a keyed hash rather than just a plain one,
@@ -81,14 +93,14 @@ you can pass an [`AuthenticationKey`](Classes/Symmetric/AuthenticationKey.md) to
 an optional second parameter, or `null`.
 
 ```php
-$keyed = \ParagonIE\Halite\File::checksumFile('/source/file/path', $auth_key);
+$keyed = \ParagonIE\Halite\File::checksum('/source/file/path', $auth_key);
 ```
 
 Finally, you can pass `true` as the optional third argument if you would like a
 raw binary string rather than a hexadecimal string.
 
 ```php
-$keyed_checksum = \ParagonIE\Halite\File::checksumFile('/source/file/path', null, true);
+$keyed_checksum = \ParagonIE\Halite\File::checksum('/source/file/path', null, true);
 ```
 
 ### Symmetric-Key File Encryption / Decryption
@@ -100,7 +112,7 @@ API. To work around these limitations, use `File::encryptFile()` instead.
 For example:
 
 ```php
-\ParagonIE\Halite\File::encryptFile(
+\ParagonIE\Halite\File::encrypt(
     $inputFilename,
     $outputFilename,
     $enc_key
@@ -134,7 +146,7 @@ $seal_public = $seal_keypair->getPublicKey();
 **Sealing** the contents of a file using Halite:
 
 ```php
-\ParagonIE\Halite\File::sealFile(
+\ParagonIE\Halite\File::seal(
     $inputFilename,
     $outputFilename,
     $seal_public
@@ -144,7 +156,7 @@ $seal_public = $seal_keypair->getPublicKey();
 **Opening** the contents of a sealed file using Halite:
 
 ```php
-\ParagonIE\Halite\File::unsealFile(
+\ParagonIE\Halite\File::unseal(
     $inputFilename,
     $outputFilename,
     $seal_secret
@@ -164,7 +176,7 @@ $sign_keypair = \ParagonIE\Halite\SignatureKeyPair::generate();
 **Signing** the contents of a file using your secret key:
 
 ```php
-$signature = \ParagonIE\Halite\File::signFile(
+$signature = \ParagonIE\Halite\File::sign(
     $inputFilename,
     $sign_secret
 );
@@ -173,7 +185,7 @@ $signature = \ParagonIE\Halite\File::signFile(
 **Verifying** the contents of a file using a known public key:
 
 ```php
-$valid = \ParagonIE\Halite\File::verifyFile(
+$valid = \ParagonIE\Halite\File::verify(
     $inputFilename,
     $sign_public,
     $signature

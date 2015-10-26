@@ -9,7 +9,7 @@ use \ParagonIE\Halite\Alerts as CryptoException;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class FileTest extends PHPUnit_Framework_TestCase
+class FileLazyTest extends PHPUnit_Framework_TestCase
 {
     public function testEncrypt()
     {
@@ -19,13 +19,13 @@ class FileTest extends PHPUnit_Framework_TestCase
         \chmod(__DIR__.'/tmp/paragon_avatar.decrypted.png', 0777);
         
         $key = new EncryptionKey(\str_repeat('B', 32));
-        File::encryptFile(
+        File::encrypt(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.encrypted.png',
             $key
         );
         
-        File::decryptFile(
+        File::decrypt(
             __DIR__.'/tmp/paragon_avatar.encrypted.png',
             __DIR__.'/tmp/paragon_avatar.decrypted.png',
             $key
@@ -45,7 +45,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         \chmod(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png', 0777);
         
         $key = new EncryptionKey(\str_repeat('B', 32));
-        File::encryptFile(
+        File::encrypt(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.encrypt_fail.png',
             $key
@@ -56,7 +56,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         fclose($fp);
             
         try {
-            File::decryptFile(
+            File::decrypt(
                 __DIR__.'/tmp/paragon_avatar.encrypt_fail.png',
                 __DIR__.'/tmp/paragon_avatar.decrypt_fail.png',
                 $key
@@ -78,13 +78,13 @@ class FileTest extends PHPUnit_Framework_TestCase
             $secretkey = $keypair->getSecretKey();
             $publickey = $keypair->getPublicKey();
         
-        File::sealFile(
+        File::seal(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.sealed.png',
             $publickey
         );
         
-        File::unsealFile(
+        File::unseal(
             __DIR__.'/tmp/paragon_avatar.sealed.png',
             __DIR__.'/tmp/paragon_avatar.opened.png',
             $secretkey
@@ -107,7 +107,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             $secretkey = $keypair->getSecretKey();
             $publickey = $keypair->getPublicKey();
         
-        File::sealFile(
+        File::seal(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.seal_fail.png',
             $publickey
@@ -118,7 +118,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         fclose($fp);
         
         try {
-            File::unsealFile(
+            File::unseal(
                 __DIR__.'/tmp/paragon_avatar.seal_fail.png',
                 __DIR__.'/tmp/paragon_avatar.opened.png',
                 $secretkey
@@ -135,13 +135,13 @@ class FileTest extends PHPUnit_Framework_TestCase
             $secretkey = $keypair->getSecretKey();
             $publickey = $keypair->getPublicKey();
         
-        $signature = File::signFile(
+        $signature = File::sign(
             __DIR__.'/tmp/paragon_avatar.png',
             $secretkey
         );
         
         $this->assertTrue(
-            File::verifyFile(
+            File::verify(
                 __DIR__.'/tmp/paragon_avatar.png',
                 $publickey,
                 $signature
@@ -151,7 +151,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     
     public function testChecksum()
     {
-        $csum = File::checksumFile(__DIR__.'/tmp/paragon_avatar.png');
+        $csum = File::checksum(__DIR__.'/tmp/paragon_avatar.png');
         $this->assertEquals(
             $csum,
             "09f9f74a0e742d057ca08394db4c2e444be88c0c94fe9a914c3d3758c7eccafb".
@@ -162,31 +162,30 @@ class FileTest extends PHPUnit_Framework_TestCase
         \file_put_contents(__DIR__.'/tmp/garbage.dat', $data);
         
         $hash = \Sodium\crypto_generichash($data, null, 64);
-        $file = File::checksumFile(__DIR__.'/tmp/garbage.dat', null, true);
+        $file = File::checksum(__DIR__.'/tmp/garbage.dat', null, true);
         $this->assertEquals(
             $hash,
             $file
         );
     }
     
-    public function testStreamOperations()
+    public function testArgFail()
     {
-        $filename = \tempnam('/tmp', 'x');
-        
-        $BYTES = (\Sodium\randombytes_uniform(63) + 1) * 8;
-        $buf = \Sodium\randombytes_buf($BYTES);
-        \file_put_contents($filename, $buf);
-        $file = \fopen($filename, 'rb');
-        
-        $read = File::readBytes($file, $BYTES);
-        $this->assertEquals($buf, $read);
-        
-        $other_filename = \tempnam('/tmp', 'x');
-        
-        $fp = \fopen($other_filename, 'wb');
-        $written = File::writeBytes($fp, $buf);
-        \fclose($fp);
-        
-        $this->assertEquals($written, $BYTES);
-    }    
+        try {
+            \touch(__DIR__.'/tmp/paragon_avatar.encrypted.png');
+            \chmod(__DIR__.'/tmp/paragon_avatar.encrypted.png', 0777);
+            \touch(__DIR__.'/tmp/paragon_avatar.decrypted.png');
+            \chmod(__DIR__.'/tmp/paragon_avatar.decrypted.png', 0777);
+
+            $key = new EncryptionKey(\str_repeat('B', 32));
+            File::encrypt(
+                __DIR__.'/tmp/paragon_avatar.png',
+                 \fopen(__DIR__.'/tmp/paragon_avatar.encrypted.png', 'wb'),
+                $key
+            );
+            $this->fail('We should be throwing an exception, not failing open.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertTrue($e instanceof \InvalidArgumentException);
+        }
+    }
 }

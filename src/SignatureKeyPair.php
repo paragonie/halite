@@ -2,6 +2,7 @@
 namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Asymmetric\SignatureSecretKey;
+use ParagonIE\Halite\Asymmetric\SignaturePublicKey;
 use ParagonIE\Halite\Alerts as CryptoException;
 
 /**

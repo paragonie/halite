@@ -82,7 +82,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
     }
     
     /**
-     * Encrypt a file with a public key
+     * Lazy fallthrough method for sealFile() and sealResource()
      * 
      * @param string|resource $input
      * @param string|resource $output
@@ -100,6 +100,76 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
         }
         throw new \InvalidArgumentException(
             'Strings or file handles expected'
+        );
+    }
+    
+    /**
+     * Lazy fallthrough method for sealFile() and sealResource()
+     * 
+     * @param string|resource $input
+     * @param string|resource $output
+     * @param EncryptionSecretKey $secretkey
+     */
+    public static function unseal(
+        $input,
+        $output,
+        EncryptionSecretKey $secretkey
+    ) {
+        if (\is_resource($input) && \is_resource($output)) {
+            return self::unsealResource($input, $output, $secretkey);
+        } elseif (\is_string($input) && \is_string($output)) {
+            return self::unsealFile($input, $output, $secretkey);
+        }
+        throw new \InvalidArgumentException(
+            'Strings or file handles expected'
+        );
+    }
+    
+    /**
+     * Lazy fallthrough method for signFile() and signResource()
+     * 
+     * @param string|resource $filename
+     * @param SignatureSecretKey $secretkey
+     * @param bool $raw_binary
+     * 
+     * @return string
+     */
+    public static function sign(
+        $filename,
+        SignatureSecretKey $secretkey,
+        $raw_binary = false
+    ) {
+        if (\is_resource($filename)) {
+            return self::signResource($filename, $secretkey, $raw_binary);
+        } elseif (\is_string($filename)) {
+            return self::signFile($filename, $secretkey, $raw_binary);
+        }
+        throw new \InvalidArgumentException(
+            'String or file handle expected'
+        );
+    }
+    
+    /**
+     * Lazy fallthrough method for verifyFile() and verifyResource()
+     * 
+     * @param string|resource $filename
+     * @param SignaturePublicKey $publickey
+     * @param bool $raw_binary
+     * 
+     * @return string
+     */
+    public static function verify(
+        $filename,
+        SignaturePublicKey $publickey,
+        $raw_binary = false
+    ) {
+        if (\is_resource($filename)) {
+            return self::verifyResource($filename, $publickey, $raw_binary);
+        } elseif (\is_string($filename)) {
+            return self::verifyFile($filename, $publickey, $raw_binary);
+        }
+        throw new \InvalidArgumentException(
+            'String or file handle expected'
         );
     }
     

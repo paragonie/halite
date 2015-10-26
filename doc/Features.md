@@ -38,3 +38,23 @@ var_dump($token); // array(2) ...
 
 ## File Cryptography
 
+Halite's `File` class provides streaming file cryptography features, such as
+authenticated encryption and digital signatures. `File` allows developers to
+perform secure cryptographic operations on large files with a low memory
+footprint.
+
+The `File` API looks like this:
+
+* Filenames
+  * `File::encryptFile`(`string`, `string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
+  * `File::decryptFile`(`string`, `string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
+  * `File::sealFile`(`string`, `string`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md))
+  * `File::unsealFile`(`string`, `string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md))
+  * `File::signFile`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md)): `string`
+  * `File::verifyFile`(`string`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `bool`
+* Resources
+  * `File::encryptResource`(`resource`, `resource`, `EncryptionKey`)
+  * `File::decryptResource`(`resource`, `resource`, `EncryptionKey`)
+  * `File::sealResource`(`resource`, `resource`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md))
+  * `File::unsealResource`(`resource`, `resource`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md))
+

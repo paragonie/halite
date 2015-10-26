@@ -197,3 +197,34 @@ signature instead of a hexadecimal-encoded string.
 
 ## Secure Password Storage
 
+This feature serves a very narrow use case: You have the webserver and database
+on separate hardware, and would like to prevent a database compromise from 
+leaking the actual password hashes.
+
+If your webserver and database server are the same machine, there is no
+advantage to using this feature over [libsodium's scrypt implementation](https://paragonie.com/book/pecl-libsodium/read/07-password-hashing.md#crypto-pwhash-scryptsalsa208sha256-str).
+
+**Hashing then Encrypting** a password:
+
+```php
+$stored_hash = \ParagonIE\Halite\Password::hash(
+    $plaintext_password, // string
+    $encryption_key      // \ParagonIE\Halite\Symmetric\EncryptionKey
+);
+```
+
+**Validating a password**:
+
+```php
+try {
+    if (\ParagonIE\Halite\Password::verify(
+        $plaintext_password, // string
+        $stored_hash,        // string
+        $encryption_key      // \ParagonIE\Halite\Symmetric\EncryptionKey
+    )) {
+        // Password matches
+    }
+} catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
+    // Handle an invalid message here. This usually means tampered ciphertext.
+}
+```

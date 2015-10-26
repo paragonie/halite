@@ -15,14 +15,14 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
      * Authenticate a string
      * 
      * @param string $message
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretKey
+     * @param AuthenticationKey $secretKey
      * @param boolean $raw
      * @throws CryptoException\InvalidKey
      * @return string
      */
     public static function authenticate(
-        $message, 
-        Contract\CryptoKeyInterface $secretKey,
+        $message,
+        AuthenticationKey $secretKey,
         $raw = false
     ) {
         if ($secretKey->isAsymmetricKey()) {
@@ -47,11 +47,14 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
      * Decrypt a message using the Halite encryption protocol
      * 
      * @param string $ciphertext
-     * @param Key $secretKey
+     * @param EncryptionKey $secretKey
      * @param boolean $raw Don't hex decode the input?
      */
-    public static function decrypt($ciphertext, Contract\CryptoKeyInterface $secretKey, $raw = false)
-    {
+    public static function decrypt(
+        $ciphertext,
+        EncryptionKey $secretKey,
+        $raw = false
+    ) {
         if ($secretKey->isAsymmetricKey()) {
             throw new CryptoException\InvalidKey(
                 'Expected a symmetric key, not an asymmetric key'
@@ -142,8 +145,11 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex encode the output?
      * @return string
      */
-    public static function encrypt($plaintext, Contract\CryptoKeyInterface $secretKey, $raw = false)
-    {
+    public static function encrypt(
+        $plaintext,
+        EncryptionKey $secretKey,
+        $raw = false
+    ) {
         if ($secretKey->isAsymmetricKey()) {
             throw new CryptoException\InvalidKey(
                 'Expected a symmetric key, not an asymmetric key'
@@ -221,14 +227,14 @@ class Crypto implements Contract\SymmetricKeyCryptoInterface
      * Verify a MAC, given a MAC key
      * 
      * @param string $message
-     * @param \ParagonIE\Halite\Contract\CryptoKeyInterface $secretKey
+     * @param AuthenticationKey $secretKey
      * @param string $mac
      * @param boolean $raw
      * @return boolean
      */
     public static function verify(
         $message,
-        Contract\CryptoKeyInterface $secretKey, 
+        AuthenticationKey $secretKey,
         $mac,
         $raw = false
     ) {

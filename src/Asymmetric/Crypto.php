@@ -8,7 +8,7 @@ use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
 use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
-use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
 class Crypto implements Contract\AsymmetricKeyCryptoInterface
 {
@@ -29,7 +29,7 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
         PublicKey $theirPublicKey,
         $raw = false
     ) {
-        $ecdh = new SymmetricKey(
+        $ecdh = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
         $ciphertext = SymmetricCrypto::encrypt($source, $ecdh, $raw);
@@ -54,7 +54,7 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
         PublicKey $theirPublicKey,
         $raw = false
     ) {
-        $ecdh = new SymmetricKey(
+        $ecdh = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
         $ciphertext = SymmetricCrypto::decrypt($source, $ecdh, $raw);
@@ -101,7 +101,7 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
         $get_as_object = false
     ) {
         if ($get_as_object) {
-            return new SymmetricKey(
+            return new EncryptionKey(
                 \Sodium\crypto_scalarmult(
                     $privateKey->get(),
                     $publicKey->get()

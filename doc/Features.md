@@ -13,7 +13,7 @@ Unlike the core Halite APIs, the Cookie class is not static. You must create an
 instance of `Cookie` and work with it.
 
 ```php
-$enc_key = \ParagonIE\Halite\Symmetric\EncryptionKey::fromFile('/path/to/key');
+$enc_key = \ParagonIE\Halite\KeyFactory::loadEncryptionKey('/path/to/key');
 $cookie = new \ParagonIE\Halite\Cookie($enc_key);
 ```
 
@@ -138,7 +138,7 @@ This feature encrypts files with a public key so that they can be  decrypted
 offline with a secret key.
 
 ```php
-$seal_keypair = \ParagonIE\Halite\EncryptionKeyPair::generate();
+$seal_keypair = \ParagonIE\Halite\KeyFactory::generateEncryptionKeyPair();
 $seal_secret = $seal_keypair->getSecretKey();
 $seal_public = $seal_keypair->getPublicKey();
 ```
@@ -168,7 +168,7 @@ $seal_public = $seal_keypair->getPublicKey();
 First, you need a key pair.
 
 ```php
-$sign_keypair = \ParagonIE\Halite\SignatureKeyPair::generate();
+$sign_keypair = \ParagonIE\Halite\KeyFactory::generateSignatureKeyPair();
     $sign_secret = $sign_keypair->getSecretKey();
     $sign_public = $sign_keypair->getPublicKey();
 ```

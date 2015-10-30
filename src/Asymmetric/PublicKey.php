@@ -17,18 +17,4 @@ class PublicKey extends Key implements Contract\CryptoKeyInterface
             : false;
         parent::__construct($keyMaterial, true, $signing, true);
     }
-    
-    /**
-     * See Key::generate()
-     * 
-     * @param type $type
-     * @param type $secret_key
-     */
-    public static function generate($type = self::CRYPTO_BOX, &$secret_key = null)
-    {
-        return parent::generate(
-            $type | self::ASYMMETRIC,
-            $secret_key
-        );
-    }
 }

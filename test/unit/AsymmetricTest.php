@@ -3,8 +3,9 @@ use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
-use \ParagonIE\Halite\Asymmetric\SecretKey as SecretKey;
-use \ParagonIE\Halite\Asymmetric\PublicKey as PublicKey;
+use \ParagonIE\Halite\KeyFactory;
+use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
+use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
 
 /**
  * @backupGlobals disabled
@@ -14,8 +15,8 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
 {
     public function testEncrypt()
     {
-        $alice = Asymmetric::generateKeys();
-        $bob = Asymmetric::generateKeys();
+        $alice = KeyFactory::generateEncryptionKeyPair();
+        $bob = KeyFactory::generateEncryptionKeyPair();
         
         $message = Asymmetric::encrypt(
             'test message',
@@ -23,7 +24,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $bob->getPublicKey()
         );
         
-        $this->assertTrue(strpos($message, '31420006') === 0);
+        $this->assertTrue(strpos($message, '31420007') === 0);
         
         $plain = Asymmetric::decrypt(
             $message,
@@ -36,9 +37,8 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testEncryptFail()
     {
-        
-        $alice = Asymmetric::generateKeys();
-        $bob = Asymmetric::generateKeys();
+        $alice = KeyFactory::generateEncryptionKeyPair();
+        $bob = KeyFactory::generateEncryptionKeyPair();
         
         $message = Asymmetric::encrypt(
             'test message',
@@ -72,7 +72,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         ) {
             $this->markTestSkipped("Your version of libsodium is too old");
         }
-        $alice = KeyPair::generate();
+        $alice = KeyFactory::generateEncryptionKeyPair();
         $enc_secret = $alice->getSecretKey();
         $enc_public = $alice->getPublicKey();
         
@@ -88,8 +88,8 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         $decr = \Sodium\crypto_box_seal_open($test, $kp);
         $this->assertTrue($decr !== false);
         
-        $sealed = Asymmetric::seal($message, new PublicKey(\Sodium\crypto_box_publickey($kp)));
-        $opened = Asymmetric::unseal($sealed, new SecretKey(\Sodium\crypto_box_secretkey($kp)));
+        $sealed = Asymmetric::seal($message, new EncryptionPublicKey(\Sodium\crypto_box_publickey($kp)));
+        $opened = Asymmetric::unseal($sealed, new EncryptionSecretKey(\Sodium\crypto_box_secretkey($kp)));
         
         $sealed = Asymmetric::seal($message, $enc_public);
         $opened = Asymmetric::unseal($sealed, $enc_secret);
@@ -111,7 +111,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $this->markTestSkipped("Your version of libsodium is too old");
         }
         
-        $alice = KeyPair::generate();
+        $alice = KeyFactory::generateEncryptionKeyPair();
         
         $message = 'This is for your eyes only';
         $sealed = Asymmetric::seal($message, $alice->getPublicKey(), true);
@@ -135,7 +135,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testSign()
     {
-        $alice = Asymmetric::generateKeys(Key::CRYPTO_SIGN);
+        $alice = KeyFactory::generateSignatureKeyPair();
         
         $message = 'test message';
         $signature = Asymmetric::sign($message, $alice->getSecretKey());
@@ -149,7 +149,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     
     public function testSignFail()
     {
-        $alice = Asymmetric::generateKeys(Key::CRYPTO_SIGN);
+        $alice = KeyFactory::generateSignatureKeyPair();
         
         $message = 'test message';
         $signature = Asymmetric::sign($message, $alice->getSecretKey(), true);

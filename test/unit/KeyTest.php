@@ -1,5 +1,6 @@
 <?php
 use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\KeyFactory;
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Asymmetric\SecretKey as ASecretKey;
 use \ParagonIE\Halite\Asymmetric\PublicKey as APublicKey;
@@ -12,7 +13,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
 {
     public function testDerive()
     {
-        $key = Key::deriveFromPassword(
+        $key = KeyFactory::deriveEncryptionKey(
             'apple',
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f".
             "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
@@ -27,7 +28,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
         );
         
         // Issue #10
-        $enc_secret = Key::deriveFromPassword(
+        $enc_secret = KeyFactory::deriveEncryptionKey(
             'correct horse battery staple',
             $salt,
             Key::ENCRYPTION | Key::SECRET_KEY
@@ -39,12 +40,14 @@ class KeyTest extends PHPUnit_Framework_TestCase
     
     public function testDeriveSigningKey()
     {
-        list($sign_secret, $sign_public) = ASecretKey::deriveFromPassword(
+        $keypair = KeyFactory::deriveSignatureKeyPair(
             'apple',
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f".
             "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f",
             Key::CRYPTO_SIGN
         );
+        $sign_secret = $keypair->getSecretKey();
+        $sign_public = $keypair->getPublicKey();
         
         $this->assertTrue($sign_secret instanceof ASecretKey);
         $this->assertTrue($sign_public instanceof APublicKey);
@@ -68,21 +71,23 @@ class KeyTest extends PHPUnit_Framework_TestCase
     
     public function testKeyTypes()
     {
-        $key = Key::generate(Key::CRYPTO_AUTH);
+        $key = KeyFactory::generateAuthenticationKey();
             $this->assertFalse($key->isAsymmetricKey());
             $this->assertFalse($key->isEncryptionKey());
             $this->assertTrue($key->isSecretKey());
             $this->assertTrue($key->isSigningKey());
             $this->assertFalse($key->isPublicKey());
         
-        $key = Key::generate(Key::CRYPTO_SECRETBOX);
+        $key = KeyFactory::generateEncryptionKey();
             $this->assertFalse($key->isAsymmetricKey());
             $this->assertTrue($key->isEncryptionKey());
             $this->assertTrue($key->isSecretKey());
             $this->assertFalse($key->isSigningKey());
             $this->assertFalse($key->isPublicKey());
         
-        list($enc_secret, $enc_public) = Key::generate(Key::CRYPTO_BOX);
+        $keypair = KeyFactory::generateEncryptionKeyPair();
+            $enc_secret = $keypair->getSecretKey();
+            $enc_public = $keypair->getPublicKey();
             $this->assertTrue($enc_secret->isAsymmetricKey());
             $this->assertTrue($enc_secret->isEncryptionKey());
             $this->assertTrue($enc_secret->isSecretKey());
@@ -95,7 +100,9 @@ class KeyTest extends PHPUnit_Framework_TestCase
             $this->assertFalse($enc_public->isSigningKey());
             $this->assertTrue($enc_public->isPublicKey());
             
-        list($sign_secret, $sign_public) = Key::generate(Key::CRYPTO_SIGN);
+        $keypair = KeyFactory::generateSignatureKeyPair();
+            $sign_secret = $keypair->getSecretKey();
+            $sign_public = $keypair->getPublicKey();
             $this->assertTrue($sign_secret->isAsymmetricKey());
             $this->assertFalse($sign_secret->isEncryptionKey());
             $this->assertTrue($sign_secret->isSecretKey());

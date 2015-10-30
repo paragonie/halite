@@ -11,18 +11,4 @@ class EncryptionSecretKey extends SecretKey
     {
         parent::__construct($keyMaterial, false);
     }
-    
-    /**
-     * See Key::generate()
-     * 
-     * @param type $type
-     * @param type $secret_key
-     */
-    public static function generate($type = self::CRYPTO_BOX, &$secret_key = null)
-    {
-        if (self::hasFlag($type, self::SIGNATURE)) {
-            $type &= ~self::SIGNATURE;
-        }
-        return parent::generate($type, $secret_key);
-    }
 }

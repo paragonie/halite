@@ -24,11 +24,7 @@ class SignatureKeyPair extends KeyPair
              * an asymmetric public key, in either order.
              */
             case 2:
-                if (!$keys[0]->isAsymmetricKey()) {
-                    throw new CryptoException\InvalidKey(
-                        'Only keys intended for asymmetric cryptography can be used in a KeyPair object'
-                    );
-                } elseif (!$keys[1]->isAsymmetricKey()) {
+                if (!$keys[0]->isAsymmetricKey() || !$keys[1]->isAsymmetricKey()) {
                     throw new CryptoException\InvalidKey(
                         'Only keys intended for asymmetric cryptography can be used in a KeyPair object'
                     );
@@ -40,63 +36,46 @@ class SignatureKeyPair extends KeyPair
                         );
                     }
                     // $keys[0] is public, $keys[1] is secret
-                    $this->secret_key = $keys[1] instanceof SecretKey
+                    $this->secret_key = $keys[1] instanceof SignatureSecretKey
                         ? $keys[1]
-                        : new SecretKey(
-                            $keys[1]->get(),
-                            $keys[1]->isSigningKey()
-                        );
-                    
+                        : new SignatureSecretKey($keys[1]->get());
                     /**
                      * Let's use the secret key to calculate the *correct* 
                      * public key. We're effectively discarding $keys[0] but
                      * this ensures correct usage down the line.
                      */
-                    if ($this->secret_key->isSigningKey()) {
-                        // crypto_sign - Ed25519
-                        $pub = \Sodium\crypto_sign_publickey_from_secretkey(
-                            $keys[1]->get()
+                    if (!$this->secret_key->isSigningKey()) {
+                        throw new CryptoException\InvalidKey(
+                            'Must be a signing key pair'
                         );
-                        $this->public_key = new SignaturePublicKey($pub, true);
-                        \Sodium\memzero($pub);
-                    } else {
-                        // crypto_box - Curve25519
-                        $pub = \Sodium\crypto_box_publickey_from_secretkey(
-                            $keys[1]->get()
-                        );
-                        $this->public_key = new SignaturePublicKey($pub, false);
-                        \Sodium\memzero($pub);
                     }
-                    
+                    // crypto_sign - Ed25519
+                    $pub = \Sodium\crypto_sign_publickey_from_secretkey(
+                        $keys[1]->get()
+                    );
+                    $this->public_key = new SignaturePublicKey($pub, true);
+                    \Sodium\memzero($pub);
                 } elseif ($keys[1]->isPublicKey()) {
                     // We can deduce that $keys[0] is a secret key
                     $this->secret_key = $keys[0] instanceof SignatureSecretKey
                         ? $keys[0]
-                        : new SignatureSecretKey(
-                            $keys[0]->get(),
-                            $keys[0]->isSigningKey()
-                        );
-                    
+                        : new SignatureSecretKey($keys[0]->get());
                     /**
                      * Let's use the secret key to calculate the *correct* 
                      * public key. We're effectively discarding $keys[0] but
                      * this ensures correct usage down the line.
                      */
-                    if ($this->secret_key->isSigningKey()) {
-                        // crypto_sign - Ed25519
-                        $pub = \Sodium\crypto_sign_publickey_from_secretkey(
-                            $keys[0]->get()
+                    if (!$this->secret_key->isSigningKey()) {
+                        throw new CryptoException\InvalidKey(
+                            'Must be a signing key pair'
                         );
-                        $this->public_key = new SignaturePublicKey($pub, true);
-                        \Sodium\memzero($pub);
-                    } else {
-                        // crypto_box - Curve25519
-                        $pub = \Sodium\crypto_box_publickey_from_secretkey(
-                            $keys[0]->get()
-                        );
-                        $this->public_key = new SignaturePublicKey($pub, false);
-                        \Sodium\memzero($pub);
                     }
+                    // crypto_sign - Ed25519
+                    $pub = \Sodium\crypto_sign_publickey_from_secretkey(
+                        $keys[0]->get()
+                    );
+                    $this->public_key = new SignaturePublicKey($pub, true);
+                    \Sodium\memzero($pub);
                 } else {
                     throw new CryptoException\InvalidKey(
                         'Both keys cannot be secret keys'
@@ -124,21 +103,17 @@ class SignatureKeyPair extends KeyPair
                         $keys[0]->isSigningKey()
                     );
                 
-                if ($this->secret_key->isSigningKey()) {
-                    // We need to calculate the public key from the secret key
-                    $pub = \Sodium\crypto_sign_publickey_from_secretkey(
-                        $keys[0]->get()
+                if (!$this->secret_key->isSigningKey()) {
+                    throw new CryptoException\InvalidKey(
+                        'Must be a signing key pair'
                     );
-                    $this->public_key = new SignaturePublicKey($pub, true);
-                    \Sodium\memzero($pub);
-                } else {
-                    // We need to calculate the public key from the secret key
-                    $pub = \Sodium\crypto_box_publickey_from_secretkey(
-                        $keys[0]->get()
-                    );
-                    $this->public_key = new SignaturePublicKey($pub, false);
-                    \Sodium\memzero($pub);
                 }
+                // We need to calculate the public key from the secret key
+                $pub = \Sodium\crypto_sign_publickey_from_secretkey(
+                    $keys[0]->get()
+                );
+                $this->public_key = new SignaturePublicKey($pub, true);
+                \Sodium\memzero($pub);
                 break;
             default:
                 throw new \InvalidArgumentException(
@@ -170,7 +145,7 @@ class SignatureKeyPair extends KeyPair
     public static function deriveFromPassword(
         $password,
         $salt,
-        $type = self::CRYPTO_BOX
+        $type = self::CRYPTO_SIGN
     ) { 
         if (Key::doesNotHaveFlag($type, Key::ASYMMETRIC)) {
             throw new CryptoException\InvalidKey(
@@ -178,8 +153,12 @@ class SignatureKeyPair extends KeyPair
             );
         }
         if (Key::hasFlag($type, Key::SIGNATURE)) {
-            $key = SignatureSecretKey::deriveFromPassword($password, $salt, Key::CRYPTO_SIGN);
-            $keypair = new KeyPair(...$key);
+            $key = SignatureSecretKey::deriveFromPassword(
+                $password,
+                $salt,
+                Key::CRYPTO_SIGN
+            );
+            $keypair = new SignatureKeyPair($key[0]);
             return $keypair;
         }
         throw new CryptoException\InvalidKey(
@@ -243,13 +222,13 @@ class SignatureKeyPair extends KeyPair
      */
     public static function fromFile(
         $filePath,
-        $type = Key::CRYPTO_BOX
+        $type = Key::CRYPTO_SIGN
     ) {
-        $keys = Key::fromFile(
+        $keys = SignatureSecretKey::fromFile(
             $filePath,
             ($type | Key::ASYMMETRIC | Key::ENCRYPTION)
         );
-        return new KeyPair(...$keys);
+        return new SignatureKeyPair(...$keys);
     }
     
     /**

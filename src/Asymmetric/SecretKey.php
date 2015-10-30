@@ -17,41 +17,4 @@ class SecretKey extends Key implements Contract\CryptoKeyInterface
             : false;
         parent::__construct($keyMaterial, false, $signing, true);
     }
-    
-    /**
-     * Derive an encryption key from a password and a salt
-     * 
-     * @param string $password
-     * @param string $salt
-     * @param int $type
-     * @return array|\ParagonIE\Halite\Key
-     * @throws CryptoException\InvalidFlags
-     */
-    public static function deriveFromPassword(
-        $password,
-        $salt,
-        $type = self::CRYPTO_BOX
-    ) {
-        return parent::deriveFromPassword(
-            $password,
-            $salt,
-            $type | self::ASYMMETRIC
-        );
-    }
-    
-    /**
-     * See Key::generate()
-     * 
-     * @param type $type
-     * @param type $secret_key
-     */
-    public static function generate(
-        $type = self::CRYPTO_BOX,
-        &$secret_key = null
-    ) {
-        return parent::generate(
-            $type | self::ASYMMETRIC,
-            $secret_key
-        );
-    }
 }

@@ -11,18 +11,4 @@ class SignatureSecretKey extends SecretKey
     {
         parent::__construct($keyMaterial, true);
     }
-    
-    /**
-     * See Key::generate()
-     * 
-     * @param type $type
-     * @param type $secret_key
-     */
-    public static function generate($type = self::CRYPTO_SIGN, &$secret_key = null)
-    {
-        if (self::hasFlag($type, self::ENCRYPTION)) {
-            $type &= ~self::ENCRYPTION;
-        }
-        return parent::generate($type, $secret_key);
-    }
 }

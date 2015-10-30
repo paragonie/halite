@@ -51,6 +51,7 @@ class Config extends BaseConfig
             switch ($minor) {
                 case 1:
                 case 6:
+                case 7:
                     return [
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
@@ -79,6 +80,7 @@ class Config extends BaseConfig
             switch ($minor) {
                 case 1:
                 case 6:
+                case 7:
                     return [
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,

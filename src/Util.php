@@ -3,68 +3,78 @@ namespace ParagonIE\Halite;
 
 abstract class Util
 {
-    /**
-     * Safe string length
-     * 
-     * @ref mbstring.func_overload
-     *
-     * @staticvar boolean $exists
-     * @param string $str
-     * @return int
-     */
-    public static function safeStrlen($str)
-    {
-        static $exists = null;
-        if ($exists === null) {
-            $exists = \function_exists('mb_strlen');
-        }
-        if ($exists) {
-            $length = \mb_strlen($str, '8bit');
-            if ($length === false) {
-                throw new Alerts\CannotPerformOperation(
-                    'mb_strlen() failed unexpectedly'
-                );
-            }
-            return $length;
-        } else {
-            // If we reached here, we can rely on strlen to count bytes:
-            return \strlen($str);
-        }
-    }
+    
     
     /**
-     * Safe substring
-     *
-     * @staticvar boolean $exists
-     * @param string $str
-     * @param int $start
-     * @param int $length
+     * Read from a stream; prevent partial reads
+     * 
+     * @param resource $stream
+     * @param int $num
      * @return string
+     * @throws FileAlert\AccessDenied
      */
-    public static function safeSubstr($str, $start, $length = null)
+    final public static function readBytes($stream, $num)
     {
-        static $exists = null;
-        if ($exists === null) {
-            $exists = \function_exists('mb_substr');
+        if ($num <= 0) {
+            throw new \Exception('num < 0');
         }
-        if ($exists) {
-            // mb_substr($str, 0, NULL, '8bit') returns an empty string on PHP
-            // 5.3, so we have to find the length ourselves.
-            if ($length === null) {
-                if ($start >= 0) {
-                    $length = self::safeStrlen($str) - $start;
-                } else {
-                    $length = -$start;
-                }
+        $fstat = \fstat($stream);
+        $pos = \ftell($stream);
+        if (($pos + $num) > $fstat['size']) {
+            \var_dump(['pos' => $pos, 'num' => $num, 'size' => $fstat['size']]);
+            exit;
+            throw new \Exception('Out-of-bounds read');
+        }
+        $buf = '';
+        $remaining = $num;
+        do {
+            if ($remaining <= 0) {
+                break;
             }
-            return \mb_substr($str, $start, $length, '8bit');
+            $read = \fread($stream, $remaining);
+            if ($read === false) {
+                throw new CryptoException\FileAccessDenied(
+                    'Could not read from the file'
+                );
+            }
+            $buf .= $read;
+            $remaining -= self::safeStrlen($read);
+        } while ($remaining > 0);
+        return $buf;
+    }
+
+    /**
+     * Write to a stream; prevent partial writes
+     * 
+     * @param resource $stream
+     * @param string $buf
+     * @param int $num (number of bytes)
+     * @throws FileAlert\AccessDenied
+     */
+    final public static function writeBytes($stream, $buf, $num = null)
+    {
+        $bufSize = self::safeStrlen($buf);
+        if ($num === null || $num > $bufSize) {
+            $num = $bufSize;
         }
-        // Unlike mb_substr(), substr() doesn't accept NULL for length
-        if ($length !== null) {
-            return \substr($str, $start, $length);
-        } else {
-            return \substr($str, $start);
+        if ($num < 0) {
+            throw new \Exception('num < 0');
         }
+        $remaining = $num;
+        do {
+            if ($remaining <= 0) {
+                break;
+            }
+            $written = \fwrite($stream, $buf, $remaining);
+            if ($written === false) {
+                throw new CryptoException\FileAccessDenied(
+                    'Could not write to the file'
+                );
+            }
+            $buf = self::safeSubstr($buf, $written, null);
+            $remaining -= $written;
+        } while ($remaining > 0);
+        return $num;
     }
     
     /**
@@ -134,5 +144,69 @@ abstract class Util
             );
         }
         return $orm;
+    }
+    
+    /**
+     * Safe string length
+     * 
+     * @ref mbstring.func_overload
+     *
+     * @staticvar boolean $exists
+     * @param string $str
+     * @return int
+     */
+    public static function safeStrlen($str)
+    {
+        static $exists = null;
+        if ($exists === null) {
+            $exists = \function_exists('mb_strlen');
+        }
+        if ($exists) {
+            $length = \mb_strlen($str, '8bit');
+            if ($length === false) {
+                throw new Alerts\CannotPerformOperation(
+                    'mb_strlen() failed unexpectedly'
+                );
+            }
+            return $length;
+        } else {
+            // If we reached here, we can rely on strlen to count bytes:
+            return \strlen($str);
+        }
+    }
+    
+    /**
+     * Safe substring
+     *
+     * @staticvar boolean $exists
+     * @param string $str
+     * @param int $start
+     * @param int $length
+     * @return string
+     */
+    public static function safeSubstr($str, $start, $length = null)
+    {
+        static $exists = null;
+        if ($exists === null) {
+            $exists = \function_exists('mb_substr');
+        }
+        if ($exists) {
+            // mb_substr($str, 0, NULL, '8bit') returns an empty string on PHP
+            // 5.3, so we have to find the length ourselves.
+            if ($length === null) {
+                if ($start >= 0) {
+                    $length = self::safeStrlen($str) - $start;
+                } else {
+                    $length = -$start;
+                }
+            }
+            return \mb_substr($str, $start, $length, '8bit');
+        }
+        // Unlike mb_substr(), substr() doesn't accept NULL for length
+        if ($length !== null) {
+            return \substr($str, $start, $length);
+        } else {
+            return \substr($str, $start);
+        }
     }
 }

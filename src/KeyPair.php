@@ -165,69 +165,7 @@ class KeyPair
             'publicKey' => '**protected**'
         ];
     }
-    
-    /**
-     * Derive an encryption key from a password and a salt
-     * 
-     * @param string $password
-     * @param string $salt
-     * @param int $type
-     * @return array|\ParagonIE\Halite\Key
-     * @throws CryptoException\InvalidFlags
-     */
-    public static function deriveFromPassword(
-        $password,
-        $salt,
-        $type = self::CRYPTO_BOX
-    ) { 
-        if (Key::doesNotHaveFlag($type, Key::ASYMMETRIC)) {
-            throw new CryptoException\InvalidKey(
-                'An asymmetric key type must be passed to KeyPair::generate()'
-            );
-        }
-        if (Key::hasFlag($type, Key::ENCRYPTION)) {
-            $key = Key::deriveFromPassword($password, $salt, Key::CRYPTO_BOX);
-            $keypair = new KeyPair(...$key);
-            return $keypair;
-        } elseif (Key::hasFlag($type, Key::SIGNATURE)) {
-            $key = Key::deriveFromPassword($password, $salt, Key::CRYPTO_SIGN);
-            $keypair = new KeyPair(...$key);
-            return $keypair;
-        }
-        throw new CryptoException\InvalidKey(
-            'You must specify encryption or authentication flags.'
-        );
-    }
-    
-    /**
-     * Generate a new keypair
-     * 
-     * @param int $type Key flags
-     * @param &string $secret_key - Reference to optional variable to store secret key in
-     * @return KeyPair
-     * @throws CryptoException\InvalidKey
-     */
-    public static function generate($type = Key::CRYPTO_BOX, &$secret_key = null)
-    {
-        if (Key::doesNotHaveFlag($type, Key::ASYMMETRIC)) {
-            throw new CryptoException\InvalidKey(
-                'An asymmetric key type must be passed to KeyPair::generate()'
-            );
-        }
-        if (Key::hasFlag($type, Key::ENCRYPTION)) {
-            $key = Key::generate(Key::CRYPTO_BOX, $secret_key);
-            $keypair = new KeyPair(...$key);
-            return $keypair;
-        } elseif (Key::hasFlag($type, Key::SIGNATURE)) {
-            $key = Key::generate(Key::CRYPTO_SIGN, $secret_key);
-            $keypair = new KeyPair(...$key);
-            return $keypair;
-        }
-        throw new CryptoException\InvalidKey(
-            'You must specify encryption or authentication flags.'
-        );
-    }
-    
+        
     /**
      * Get a Key object for the public key
      * 
@@ -246,26 +184,6 @@ class KeyPair
     public function getSecretKey()
     {
        return $this->secret_key;
-    }
-    
-    /**
-     * Load a keypair from a file
-     * 
-     * @param string $filePath
-     * @param int $type
-     * @return KeyPair
-     * 
-     * @throws CryptoException\InvalidFlags
-     */
-    public static function fromFile(
-        $filePath,
-        $type = Key::CRYPTO_BOX
-    ) {
-        $keys = Key::fromFile(
-            $filePath,
-            ($type | Key::ASYMMETRIC)
-        );
-        return new KeyPair(...$keys);
     }
     
     /**

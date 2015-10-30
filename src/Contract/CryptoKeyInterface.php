@@ -28,21 +28,6 @@ interface CryptoKeyInterface
     public function __sleep();
     
     /**
-     * Derive an encryption key from a password and a salt
-     * 
-     * @param string $password
-     * @param string $salt
-     * @param int $type
-     * @return array|\ParagonIE\Halite\Key
-     * @throws CryptoException\InvalidFlags
-     */
-    public static function deriveFromPassword(
-        $password,
-        $salt,
-        $type = self::CRYPTO_SECRETBOX
-    );
-    
-    /**
      * Is this a part of a key pair?
      * 
      * @return bool

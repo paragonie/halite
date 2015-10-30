@@ -1,5 +1,6 @@
 <?php
 use \ParagonIE\Halite\File;
+use \ParagonIE\Halite\KeyFactory;
 use \ParagonIE\Halite\EncryptionKeyPair;
 use \ParagonIE\Halite\SignatureKeyPair;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
@@ -74,7 +75,7 @@ class FileLazyTest extends PHPUnit_Framework_TestCase
         \touch(__DIR__.'/tmp/paragon_avatar.opened.png');
         \chmod(__DIR__.'/tmp/paragon_avatar.opened.png', 0777);
         
-        $keypair = EncryptionKeyPair::generate();
+        $keypair = KeyFactory::generateEncryptionKeyPair();
             $secretkey = $keypair->getSecretKey();
             $publickey = $keypair->getPublicKey();
         
@@ -103,7 +104,7 @@ class FileLazyTest extends PHPUnit_Framework_TestCase
         \touch(__DIR__.'/tmp/paragon_avatar.open_fail.png');
         \chmod(__DIR__.'/tmp/paragon_avatar.open_fail.png', 0777);
         
-        $keypair = EncryptionKeyPair::generate();
+        $keypair = KeyFactory::generateEncryptionKeyPair();
             $secretkey = $keypair->getSecretKey();
             $publickey = $keypair->getPublicKey();
         
@@ -131,7 +132,7 @@ class FileLazyTest extends PHPUnit_Framework_TestCase
     
     public function testSign()
     {
-        $keypair = SignatureKeyPair::generate();
+        $keypair = KeyFactory::generateSignatureKeyPair();
             $secretkey = $keypair->getSecretKey();
             $publickey = $keypair->getPublicKey();
         

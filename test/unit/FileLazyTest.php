@@ -169,24 +169,4 @@ class FileLazyTest extends PHPUnit_Framework_TestCase
             $file
         );
     }
-    
-    public function testArgFail()
-    {
-        try {
-            \touch(__DIR__.'/tmp/paragon_avatar.encrypted.png');
-            \chmod(__DIR__.'/tmp/paragon_avatar.encrypted.png', 0777);
-            \touch(__DIR__.'/tmp/paragon_avatar.decrypted.png');
-            \chmod(__DIR__.'/tmp/paragon_avatar.decrypted.png', 0777);
-
-            $key = new EncryptionKey(\str_repeat('B', 32));
-            File::encrypt(
-                __DIR__.'/tmp/paragon_avatar.png',
-                 \fopen(__DIR__.'/tmp/paragon_avatar.encrypted.png', 'wb'),
-                $key
-            );
-            $this->fail('We should be throwing an exception, not failing open.');
-        } catch (\InvalidArgumentException $e) {
-            $this->assertTrue($e instanceof \InvalidArgumentException);
-        }
-    }
 }

@@ -5,6 +5,9 @@ use \ParagonIE\Halite\Contract\StreamInterface;
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Util;
 
+/**
+ * Contrast with ReadOnlyFile: does not prevent race conditions by itself
+ */
 class MutableFile implements StreamInterface
 {
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
@@ -57,7 +60,6 @@ class MutableFile implements StreamInterface
             $readSize = Util::safeStrlen($read);
             $this->pos += $readSize;
             $remaining -= $readSize;
-            \var_dump($remaining);
         } while ($remaining > 0);
         return $buf;
     }

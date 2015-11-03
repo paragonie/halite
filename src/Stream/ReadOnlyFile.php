@@ -29,7 +29,7 @@ class ReadOnlyFile implements StreamInterface
     }
     
     /**
-     * Where are we in the buffeR?
+     * Where are we in the buffer?
      * 
      * @return int
      */
@@ -48,13 +48,19 @@ class ReadOnlyFile implements StreamInterface
     }
     
     /**
-     * Read from a stream; prevent partial reads
+     * Read from a stream; prevent partial reads (also uses run-time testing to
+     * prevent partial reads -- you can turn this off if you need performance
+     * and aren't concerned about race condition attacks, but this isn't a
+     * decision to make lightly!)
      * 
      * @param int $num
+     * @param boolean $skipTests Only set this to TRUE if you're absolutely sure
+     *                           that you don't want to defend against TOCTOU /
+     *                           race condition attacks on the filesystem!
      * @return string
      * @throws FileAlert\AccessDenied
      */
-    public function readBytes($num)
+    public function readBytes($num, $skipTests = false)
     {
         if ($num <= 0) {
             throw new \Exception('num < 0');
@@ -64,7 +70,9 @@ class ReadOnlyFile implements StreamInterface
         }
         $buf = '';
         $remaining = $num;
-        $this->toctouTest();
+        if (!$skipTests) {
+            $this->toctouTest();
+        }
         do {
             if ($remaining <= 0) {
                 break;
@@ -94,7 +102,7 @@ class ReadOnlyFile implements StreamInterface
     }
     
     /**
-     * Write to a stream; prevent partial writes
+     * This is a meaningless operation for a Read-Only File!
      * 
      * @param string $buf
      * @param int $num (number of bytes)
@@ -102,19 +110,35 @@ class ReadOnlyFile implements StreamInterface
      */
     public function writeBytes($buf, $num = null)
     {
+        unset($buf);
+        unset($num);
         throw new CryptoException\FileAccessDenied(
             'This is a read-only file handle.'
         );
     }
     
+    /**
+     * Set the current cursor position to 
+     * 
+     * @param int $i
+     * 
+     * @return boolean
+     * 
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     */
     public function reset($i = 0)
     {
         $this->pos = $i;
-        \fseek($this->fp, $i, SEEK_SET);
+        if (\fseek($this->fp, $i, SEEK_SET) === 0) {
+            return true;
+        }
+        throw new CryptoException\CannotPerformOperation(
+            'fseek() failed'
+        );
     }
     
     /**
-     * Calculate a hash of a file
+     * Calculate a BLAKE2b hash of a file
      * 
      * @return string
      */
@@ -122,11 +146,12 @@ class ReadOnlyFile implements StreamInterface
     {
         $init = $this->pos;
         \fseek($this->fp, 0, SEEK_SET);
+        
+        // Create a hash context:
         $h = \Sodium\crypto_generichash_init(
             null,
             \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
         );
-        $i = 0;
         for ($i = 0; $i < $this->stat['size']; $i += self::CHUNK) {
             if (($i + self::CHUNK) > $this->stat['size']) {
                 $c = \fread($this->fp, ($this->stat['size'] - $i));
@@ -135,23 +160,51 @@ class ReadOnlyFile implements StreamInterface
             }
             \Sodium\crypto_generichash_update($h, $c);
         }
+        // Reset the file pointer's internal cursor to where it was:
         \fseek($this->fp, $init, SEEK_SET);
         return \Sodium\crypto_generichash_final($h);
     }
     
     /**
-     * Run-time test to prevent TOCTOU attacks (race conditions)
+     * Run-time test to prevent TOCTOU attacks (race conditions) through
+     * verifying that the hash matches and the current cursor position/file
+     * size matches their values when the file was first opened.
      * 
      * @throws CryptoException\FileModified
      * @return true
      */
     public function toctouTest()
     {
+        // Pre-hash checks
+        $this->internalTest();
+        // Is the hash we had at first access the same one we have now?
         if (!\hash_equals($this->hash, $this->getHash())) {
             throw new CryptoException\FileModified(
                 'Read-only file has been modified since it was opened for reading'
             );
         }
+        // Post-hash checks
+        $this->internalTest();
         return true;
+    }
+    
+    /**
+     * Verify that ftell() and fstat() return the values we expect
+     * 
+     * @throws CryptoException\FileModified
+     */
+    private function internalTest()
+    {
+        if (\ftell($this->fp) !== $this->pos) {
+            throw new CryptoException\FileModified(
+                'Read-only file has been modified since it was opened for reading'
+            );
+        }
+        $stat = \fstat($this->fp);
+        if ($stat['size'] !== $this->stat['size']) {
+            throw new CryptoException\FileModified(
+                'Read-only file has been modified since it was opened for reading'
+            );
+        }
     }
 }

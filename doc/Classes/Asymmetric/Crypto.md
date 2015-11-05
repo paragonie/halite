@@ -17,7 +17,7 @@ This method will:
 3. Split the shared secret using salted HKDF.
 4. Generate a random nonce.
 5. Encrypt your plaintext (`$source`) with the derived encryption key (step 3).
-6. MAC the ciphertext (step 5), along with the currnet library version, the HKDF 
+6. MAC the ciphertext (step 5), along with the current library version, the HKDF 
    salt, and the nonce, with the derived authentication key (step 3).
 7. Return the output of step 6 either as raw binary or as a hex-encoded string.
 
@@ -32,7 +32,7 @@ This method will:
 3. Parse the library version tag, HKDF salt, and nonce from the message.
 4. Split the shared secret using salted HKDF.
 5. Verify the MAC using the derived authentication key (step 4).
-6. If step 4 is successful, decrypt the ciphertext with the derived encryption 
+6. If step 5 is successful, decrypt the ciphertext with the derived encryption 
    key (step 4).
 7. Return what should be the original plaintext.
 

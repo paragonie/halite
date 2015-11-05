@@ -127,7 +127,6 @@ abstract class Key implements Contract\CryptoKeyInterface
      * Get the actual key material
      * 
      * @return string
-     * @throws CryptoException\CannotAccessKey
      */
     public function get()
     {

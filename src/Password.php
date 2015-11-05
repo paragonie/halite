@@ -7,7 +7,7 @@ use \ParagonIE\Halite\Symmetric\EncryptionKey;
 /**
  * Secure password storage and secure password verification
  */
-class Password implements \ParagonIE\Halite\Contract\PasswordInterface
+abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
 {
     /**
      * Hash then encrypt a password

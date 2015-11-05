@@ -170,25 +170,4 @@ class FileTest extends PHPUnit_Framework_TestCase
             $file
         );
     }
-    
-    public function testStreamOperations()
-    {
-        $filename = \tempnam('/tmp', 'x');
-        
-        $BYTES = (\Sodium\randombytes_uniform(63) + 1) * 8;
-        $buf = \Sodium\randombytes_buf($BYTES);
-        \file_put_contents($filename, $buf);
-        $file = \fopen($filename, 'rb');
-        
-        $read = Util::readBytes($file, $BYTES);
-        $this->assertEquals($buf, $read);
-        
-        $other_filename = \tempnam('/tmp', 'x');
-        
-        $fp = \fopen($other_filename, 'wb');
-        $written = Util::writeBytes($fp, $buf);
-        \fclose($fp);
-        
-        $this->assertEquals($written, $BYTES);
-    }    
 }

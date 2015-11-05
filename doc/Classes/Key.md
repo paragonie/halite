@@ -15,7 +15,7 @@ Flags:
 Alias Flags:
 
 ```php
-    const AUTHETNTICATION  =   8;
+    const AUTHENTICATION  =   8;
 ```
 
 Shortcut flags:
@@ -74,33 +74,29 @@ $sign_secret = new Key(
 );
 ```
 
-### get()
+### `public` get()
 
 Simply returns the raw binary key data.
 
-### isAsymmetricKey()
+### `public` isAsymmetricKey()
 
 Returns true if this is a key meant for asymmetric cryptography.
 
-### isEncryptionKey()
+### `public` isEncryptionKey()
 
 Returns true if this is a key meant for encryption.
 
-### isPublicKey()
+### `public` isPublicKey()
 
 Returns true if this is the public key for a given key-pair.
 
-### isSecretKey()
+### `public` isSecretKey()
 
 Returns true if:
 
 * Symmetric crypto: Always
 * Asymmetric crypto: This is the secret key for a given key-pair.
 
-### isSigningKey()
+### `public` isSigningKey()
 
 Returns true if this is a key meant for authentication
-
-### saveToFile($filePath)
-
-Save the raw key data to a given path in the filesystem.

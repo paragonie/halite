@@ -1139,11 +1139,9 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      */
     protected static function getConfigEncrypt($major, $minor)
     {
-        if ($major === 0) {
+        if ($major === 1) {
             switch ($minor) {
-                case 1:
-                case 6:
-                case 7:
+                case 0:
                     return [
                         'BUFFER' => 1048576,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
@@ -1169,11 +1167,9 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      */
     protected static function getConfigSeal($major, $minor)
     {
-        if ($major === 0) {
+        if ($major === 1) {
             switch ($minor) {
-                case 1:
-                case 6:
-                case 7:
+                case 0:
                     return [
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
@@ -1199,11 +1195,9 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      */
     protected static function getConfigChecksum($major, $minor)
     {
-        if ($major === 0) {
+        if ($major === 1) {
             switch ($minor) {
-                case 1:
-                case 6:
-                case 7:
+                case 0:
                     return [
                         'BUFFER' => 1048576,
                         'HASH_LEN' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX

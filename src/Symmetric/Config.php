@@ -47,11 +47,9 @@ class Config extends BaseConfig
      */
     public static function getConfigEncrypt($major, $minor)
     {
-        if ($major === 0) {
+        if ($major === 1) {
             switch ($minor) {
-                case 1:
-                case 6:
-                case 7:
+                case 0:
                     return [
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
@@ -76,11 +74,9 @@ class Config extends BaseConfig
      */
     public static function getConfigAuth($major, $minor)
     {
-        if ($major === 0) {
+        if ($major === 1) {
             switch ($minor) {
-                case 1:
-                case 6:
-                case 7:
+                case 0:
                     return [
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,

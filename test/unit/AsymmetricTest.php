@@ -24,7 +24,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $bob->getPublicKey()
         );
         
-        $this->assertTrue(strpos($message, '31420007') === 0);
+        $this->assertTrue(strpos($message, '31420100') === 0);
         
         $plain = Asymmetric::decrypt(
             $message,

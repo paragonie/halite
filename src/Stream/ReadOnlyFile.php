@@ -24,6 +24,10 @@ class ReadOnlyFile implements StreamInterface
             $this->fp = $file;
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
+        } else {
+            throw new \ParagonIE\Halite\Alerts\InvalidType(
+                'Argument 1: Expected a filename or resource'
+            );
         }
         $this->hash = $this->getHash();
     }
@@ -118,7 +122,7 @@ class ReadOnlyFile implements StreamInterface
     }
     
     /**
-     * Set the current cursor position to 
+     * Set the current cursor position to the desired location
      * 
      * @param int $i
      * 
@@ -174,26 +178,6 @@ class ReadOnlyFile implements StreamInterface
      * @return true
      */
     public function toctouTest()
-    {
-        // Pre-hash checks
-        $this->internalTest();
-        // Is the hash we had at first access the same one we have now?
-        if (!\hash_equals($this->hash, $this->getHash())) {
-            throw new CryptoException\FileModified(
-                'Read-only file has been modified since it was opened for reading'
-            );
-        }
-        // Post-hash checks
-        $this->internalTest();
-        return true;
-    }
-    
-    /**
-     * Verify that ftell() and fstat() return the values we expect
-     * 
-     * @throws CryptoException\FileModified
-     */
-    private function internalTest()
     {
         if (\ftell($this->fp) !== $this->pos) {
             throw new CryptoException\FileModified(

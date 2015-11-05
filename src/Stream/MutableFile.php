@@ -26,6 +26,10 @@ class MutableFile implements StreamInterface
             $this->fp = $file;
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
+        } else {
+            throw new \ParagonIE\Halite\Alerts\InvalidType(
+                'Argument 1: Expected a filename or resource'
+            );
         }
     }
     
@@ -100,9 +104,23 @@ class MutableFile implements StreamInterface
         return $num;
     }
     
+    /**
+     * Set the current cursor position to the desired location
+     * 
+     * @param int $i
+     * 
+     * @return boolean
+     * 
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     */
     public function reset($i = 0)
     {
         $this->pos = $i;
-        \fseek($this->fp, $i, SEEK_SET);
+        if (\fseek($this->fp, $i, SEEK_SET) === 0) {
+            return true;
+        }
+        throw new CryptoException\CannotPerformOperation(
+            'fseek() failed'
+        );
     }
 }

@@ -38,8 +38,8 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
                 $raw
             );
         }
-        throw new \InvalidArgumentException(
-            'String or file handle expected'
+        throw new \ParagonIE\Halite\Alerts\InvalidType(
+            'Argument 1: Expected a filename or resource'
         );
     }
     
@@ -67,8 +67,8 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
                 $key
             );
         }
-        throw new \InvalidArgumentException(
-            'Strings or file handles expected'
+        throw new \ParagonIE\Halite\Alerts\InvalidType(
+            'Argument 1: Expected a filename or resource'
         );
     }
     
@@ -125,8 +125,8 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
                 $publickey
             );
         }
-        throw new \InvalidArgumentException(
-            'Strings or file handles expected'
+        throw new \ParagonIE\Halite\Alerts\InvalidType(
+            'Argument 1: Expected a filename or resource'
         );
     }
     
@@ -154,8 +154,8 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
                 $secretkey
             );
         }
-        throw new \InvalidArgumentException(
-            'Strings or file handles expected'
+        throw new \ParagonIE\Halite\Alerts\InvalidType(
+            'Argument 1: Expected a filename or resource'
         );
     }
     
@@ -184,8 +184,8 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
                 $raw_binary
             );
         }
-        throw new \InvalidArgumentException(
-            'String or file handle expected'
+        throw new \ParagonIE\Halite\Alerts\InvalidType(
+            'Argument 1: Expected a filename or resource'
         );
     }
     
@@ -213,8 +213,8 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
                 $raw_binary
             );
         }
-        throw new \InvalidArgumentException(
-            'String or file handle expected'
+        throw new \ParagonIE\Halite\Alerts\InvalidType(
+            'Argument 1: Expected a filename or resource'
         );
     }
     
@@ -1260,6 +1260,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
                 'Argument 3: Expected an instance of EncryptionKey'
             );
         }
+        $initHash = $input->getHash();
         // Begin the streaming decryption
         $size = $input->getSize();
         while ($input->remainingBytes() > 0) {
@@ -1278,7 +1279,13 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
             $output->writeBytes($encrypted);
             \Sodium\increment($nonce);
         }
-        \Sodium\memzero($nonce);        
+        \Sodium\memzero($nonce);
+        // Check that our input file was not modified before we MAC it
+        if (!\hash_equals($input->gethash(), $initHash)) {
+            throw new CryptoException\FileModified(
+                'Read-only file has been modified since it was opened for reading'
+            );
+        }
         return $output->writeBytes(
             \hash_final($mac, true)
         );

@@ -2,11 +2,7 @@
 namespace ParagonIE\Halite\Asymmetric;
 
 use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Asymmetric\PublicKey;
-use \ParagonIE\Halite\Asymmetric\SecretKey;
 use \ParagonIE\Halite\Contract;
-use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\KeyPair;
 use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
@@ -17,8 +13,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Wraps SymmetricCrypto::encrypt()
      * 
      * @param string $source Plaintext
-     * @param SecretKey $ourPrivateKey Our private key
-     * @param PublicKey $theirPublicKey  Their public key
+     * @param EncryptionSecretKey $ourPrivateKey Our private key
+     * @param EncryptionPublicKey $theirPublicKey  Their public key
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
@@ -52,8 +48,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Wraps SymmetricCrypto::decrypt()
      * 
      * @param string $source Ciphertext
-     * @param SecretKey $ourPrivateKey Our private key
-     * @param PublicKey $theirPublicKey Their public key
+     * @param EncryptionSecretKey $ourPrivateKey Our private key
+     * @param EncryptionPublicKey $theirPublicKey Their public key
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
@@ -88,8 +84,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Get a shared secret from a private key you possess and a public key for
      * the intended message recipient
      * 
-     * @param SecretKey $privateKey
-     * @param PublicKey $publicKey
+     * @param EncryptionSecretKey $privateKey
+     * @param EncryptionPublicKey $publicKey
      * @param bool $get_as_object Get as a Key object?
      * 
      * @return string
@@ -127,7 +123,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Encrypt a message with a target users' public key
      * 
      * @param string $source Message to encrypt
-     * @param PublicKey $publicKey
+     * @param EncryptionPublicKey $publicKey
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
@@ -159,7 +155,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Sign a message with our private key
      * 
      * @param string $message Message to sign
-     * @param SecretKey $privateKey
+     * @param SignatureSecretKey $privateKey
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string Signature (detached)
@@ -199,7 +195,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Decrypt a sealed message with our private key
      * 
      * @param string $source Encrypted message (string or resource for a file)
-     * @param SecretKey $privateKey
+     * @param EncryptionSecretKey $privateKey
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
@@ -252,7 +248,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Verify a signed message with the correct public key
      * 
      * @param string $message Message to verify
-     * @param Key $publicKey
+     * @param SignaturePublicKey $publicKey
      * @param string $signature
      * @param boolean $raw Don't hex decode the input?
      * 

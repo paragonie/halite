@@ -7,7 +7,6 @@ use \ParagonIE\Halite\Util as CryptoUtil;
 use \ParagonIE\Halite\Halite;
 use \ParagonIE\Halite\Config;
 use \ParagonIE\Halite\Symmetric\Config as SymmetricConfig;
-use \ParagonIE\Halite\Key;
 
 abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
 {
@@ -141,7 +140,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * Encrypt a message using the Halite encryption protocol
      * 
      * @param string $plaintext
-     * @param Key $secretKey
+     * @param EncryptionKey $secretKey
      * @param boolean $raw Don't hex encode the output?
      * @return string
      */
@@ -177,7 +176,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * Split a key using a variant of HKDF that used a keyed BLAKE2b hash rather
      * than an HMAC construct
      * 
-     * @param \ParagonIE\Halite\Key $master
+     * @param EncryptionKey $master
      * @param string $salt
      * @param Config $config
      * @return array

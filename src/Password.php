@@ -1,6 +1,7 @@
 <?php
 namespace ParagonIE\Halite;
 
+use \ParagonIE\Halite\Contract\CryptoKeyInterface;
 use \ParagonIE\Halite\Symmetric\Crypto;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
@@ -16,8 +17,13 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * @param EncryptionKey $secret_key - The master key for all passwords
      * @return string
      */
-    public static function hash($password, EncryptionKey $secret_key)
+    public static function hash($password, CryptoKeyInterface $secret_key)
     {
+        if (!($secret_key instanceof EncryptionKey)) {
+            throw new \ParagonIE\Halite\Alerts\InvalidKey(
+                'Argument 2: Expected an instance of EncryptionKey'
+            );
+        }
         // First, let's calculate the hash
         $hashed = \Sodium\crypto_pwhash_scryptsalsa208sha256_str(
             $password,
@@ -37,8 +43,13 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * @param EncryptionKey $secret_key  - The master key for all passwords
      * @return boolean
      */
-    public static function verify($password, $stored, EncryptionKey $secret_key)
+    public static function verify($password, $stored, CryptoKeyInterface $secret_key)
     {
+        if (!($secret_key instanceof EncryptionKey)) {
+            throw new \ParagonIE\Halite\Alerts\InvalidKey(
+                'Argument 3: Expected an instance of EncryptionKey'
+            );
+        }
         // First let's decrypt the hash
         $hash_str = Crypto::decrypt($stored, $secret_key);
         // Upon successful decryption, verify the password is correct

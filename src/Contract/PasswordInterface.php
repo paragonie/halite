@@ -16,7 +16,7 @@ interface PasswordInterface
      * @param EncryptionKey $secret_key - The master key for all passwords
      * @return string
      */
-    public static function hash($password, EncryptionKey $secret_key);
+    public static function hash($password, CryptoKeyInterface $secret_key);
     
     /**
      * Decrypt then verify a password
@@ -26,5 +26,5 @@ interface PasswordInterface
      * @param EncryptionKey $secret_key  - The master key for all passwords
      * @return boolean
      */
-    public static function verify($password, $stored, EncryptionKey $secret_key);
+    public static function verify($password, $stored, CryptoKeyInterface $secret_key);
 }

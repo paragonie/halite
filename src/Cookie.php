@@ -1,16 +1,22 @@
 <?php
 namespace ParagonIE\Halite;
 
+use \ParagonIE\Halite\Contract\CryptoKeyInterface;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 use \ParagonIE\Halite\Symmetric\Crypto;
-use ParagonIE\Halite\Alerts\InvalidMessage;
+use \ParagonIE\Halite\Alerts\InvalidMessage;
 
 class Cookie 
 {
     protected $key;
     
-    public function __construct(EncryptionKey $key)
+    public function __construct(CryptoKeyInterface $key)
     {
+        if (!($key instanceof EncryptionKey)) {
+            throw new \ParagonIE\Halite\Alerts\InvalidKey(
+                'Argument 1: Expected an instance of EncryptionKey'
+            );
+        }
         $this->key = $key;
     }
     /**

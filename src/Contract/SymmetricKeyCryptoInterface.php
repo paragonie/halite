@@ -7,7 +7,7 @@ use \ParagonIE\Halite\Symmetric\EncryptionKey;
 /**
  * An interface fundamental to all cryptography implementations
  */
-interface SymmetricKeyCryptoInterface extends CryptoInterface
+interface SymmetricKeyCryptoInterface
 {    
     /**
      * Encrypt a message with a Key
@@ -18,7 +18,7 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function encrypt(
         $plaintext,
-        EncryptionKey $secretKey,
+        CryptoKeyInterface $secretKey,
         $raw = false
     );
     
@@ -31,7 +31,7 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function decrypt(
         $ciphertext,
-        EncryptionKey $secretKey,
+        CryptoKeyInterface $secretKey,
         $raw = false
     );
     
@@ -44,7 +44,7 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function authenticate(
         $message,
-        AuthenticationKey $secretKey,
+        CryptoKeyInterface $secretKey,
         $raw = false
     );
     
@@ -58,7 +58,7 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function verify(
         $message,
-        AuthenticationKey $secretKey,
+        CryptoKeyInterface $secretKey,
         $mac,
         $raw = false
     );

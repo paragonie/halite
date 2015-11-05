@@ -22,9 +22,14 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      */
     public static function authenticate(
         $message,
-        AuthenticationKey $secretKey,
+        Contract\CryptoKeyInterface $secretKey,
         $raw = false
     ) {
+        if (!$secretKey instanceof AuthenticationKey) {
+            throw new CryptoException\InvalidKey(
+                'Expected an instnace of AuthenticationKey'
+            );
+        }
         if ($secretKey->isAsymmetricKey()) {
             throw new CryptoException\InvalidKey(
                 'Expected a symmetric key, not an asymmetric key'
@@ -52,17 +57,12 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      */
     public static function decrypt(
         $ciphertext,
-        EncryptionKey $secretKey,
+        Contract\CryptoKeyInterface $secretKey,
         $raw = false
     ) {
-        if ($secretKey->isAsymmetricKey()) {
+        if (!$secretKey instanceof EncryptionKey) {
             throw new CryptoException\InvalidKey(
-                'Expected a symmetric key, not an asymmetric key'
-            );
-        }
-        if (!$secretKey->isEncryptionKey()) {
-            throw new CryptoException\InvalidKey(
-                'Encryption key expected'
+                'Expected an instance of EncryptionKey'
             );
         }
         if (!$raw) {
@@ -147,17 +147,12 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      */
     public static function encrypt(
         $plaintext,
-        EncryptionKey $secretKey,
+        Contract\CryptoKeyInterface $secretKey,
         $raw = false
     ) {
-        if ($secretKey->isAsymmetricKey()) {
+        if (!$secretKey instanceof EncryptionKey) {
             throw new CryptoException\InvalidKey(
-                'Expected a symmetric key, not an asymmetric key'
-            );
-        }
-        if (!$secretKey->isEncryptionKey()) {
-            throw new CryptoException\InvalidKey(
-                'Encryption key expected'
+                'Expected an instance of EncryptionKey'
             );
         }
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
@@ -179,30 +174,6 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
     }
     
     /**
-     * Generate an encryption key
-     * 
-     * @param array $type
-     */
-    public static function generateKeys($type = Key::CRYPTO_SECRETBOX)
-    {
-        if (Key::hasFlag($type, self::ASYMMETRIC)) {
-            throw new CryptoException\InvalidFlags;
-        }
-        $secret = '';
-        switch ($type) {
-            case Key::ENCRYPTION:
-            case Key::CRYPTO_AUTH:
-            case Key::CRYPTO_SECRETBOX:
-                return [
-                    Key::generate($type, $secret),
-                    $secret
-                ];
-            default:
-                throw new CryptoException\InvalidKey;
-        }
-    }
-    
-    /**
      * Split a key using a variant of HKDF that used a keyed BLAKE2b hash rather
      * than an HMAC construct
      * 
@@ -212,14 +183,24 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @return array
      */
     public static function splitKeys(
-        Key $master,
+        Contract\CryptoKeyInterface $master,
         $salt = null,
         Config $config = null
     ) {
         $binary = $master->get();
         return [
-            CryptoUtil::hkdfBlake2b($binary, \Sodium\CRYPTO_SECRETBOX_KEYBYTES, $config->HKDF_SBOX, $salt),
-            CryptoUtil::hkdfBlake2b($binary, \Sodium\CRYPTO_AUTH_KEYBYTES, $config->HKDF_AUTH, $salt)
+            CryptoUtil::hkdfBlake2b(
+                $binary,
+                \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
+                $config->HKDF_SBOX,
+                $salt
+            ),
+            CryptoUtil::hkdfBlake2b(
+                $binary,
+                \Sodium\CRYPTO_AUTH_KEYBYTES,
+                $config->HKDF_AUTH, 
+                $salt
+            )
         ];
     }
     
@@ -234,10 +215,15 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      */
     public static function verify(
         $message,
-        AuthenticationKey $secretKey,
+        Contract\CryptoKeyInterface $secretKey,
         $mac,
         $raw = false
     ) {
+        if (!$secretKey instanceof AuthenticationKey) {
+            throw new CryptoException\InvalidKey(
+                'Expected an instance of AuthenticationKey'
+            );
+        }
         if (!$raw) {
             $mac = \Sodium\hex2bin($mac);
         }

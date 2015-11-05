@@ -24,11 +24,21 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @return string
      */
     public static function encrypt(
-        $source, 
-        EncryptionSecretKey $ourPrivateKey, 
-        EncryptionPublicKey $theirPublicKey,
+        $source,
+        Contract\CryptoKeyInterface $ourPrivateKey,
+        Contract\CryptoKeyInterface $theirPublicKey,
         $raw = false
     ) {
+        if (!$ourPrivateKey instanceof EncryptionSecretKey) {
+            throw new CryptoException\InvalidKey(
+                'Argument 2: Expected an instance of EncryptionSecretKey'
+            );
+        }
+        if (!$theirPublicKey instanceof EncryptionPublicKey) {
+            throw new CryptoException\InvalidKey(
+                'Argument 3: Expected an instance of EncryptionPublicKey'
+            );
+        }
         $ecdh = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
@@ -50,10 +60,20 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function decrypt(
         $source,
-        EncryptionSecretKey $ourPrivateKey,
-        EncryptionPublicKey $theirPublicKey,
+        Contract\CryptoKeyInterface $ourPrivateKey,
+        Contract\CryptoKeyInterface $theirPublicKey,
         $raw = false
     ) {
+        if (!$ourPrivateKey instanceof EncryptionSecretKey) {
+            throw new CryptoException\InvalidKey(
+                'Argument 2: Expected an instance of EncryptionSecretKey'
+            );
+        }
+        if (!$theirPublicKey instanceof EncryptionPublicKey) {
+            throw new CryptoException\InvalidKey(
+                'Argument 3: Expected an instance of EncryptionPublicKey'
+            );
+        }
         $ecdh = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
@@ -75,10 +95,20 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @return string
      */
     public static function getSharedSecret(
-        EncryptionSecretKey $privateKey,
-        EncryptionPublicKey $publicKey,
+        Contract\CryptoKeyInterface $privateKey,
+        Contract\CryptoKeyInterface $publicKey,
         $get_as_object = false
     ) {
+        if (!$privateKey instanceof EncryptionSecretKey) {
+            throw new CryptoException\InvalidKey(
+                'Argument 1: Expected an instance of EncryptionSecretKey'
+            );
+        }
+        if (!$publicKey instanceof EncryptionPublicKey) {
+            throw new CryptoException\InvalidKey(
+                'Argument 2: Expected an instance of EncryptionPublicKey'
+            );
+        }
         if ($get_as_object) {
             return new EncryptionKey(
                 \Sodium\crypto_scalarmult(
@@ -104,17 +134,12 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function seal(
         $source,
-        EncryptionPublicKey $publicKey,
+        Contract\CryptoKeyInterface $publicKey,
         $raw = false
     ) {
-        if (!$publicKey->isEncryptionKey()) {
+        if (!$publicKey instanceof EncryptionPublicKey) {
             throw new CryptoException\InvalidKey(
-                'Expected an encryption key'
-            );
-        }
-        if ($publicKey->isSigningKey()) {
-            throw new CryptoException\InvalidKey(
-                'Unexpected signing key'
+                'Argument 2: Expected an instance of EncryptionPublicKey'
             );
         }
         if (!function_exists('\\Sodium\\crypto_box_seal')) {
@@ -141,9 +166,14 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function sign(
         $message,
-        SignatureSecretKey $privateKey,
+        Contract\CryptoKeyInterface $privateKey,
         $raw = false
     ) {
+        if (!$privateKey instanceof SignatureSecretKey) {
+            throw new CryptoException\InvalidKey(
+                'Argument 2: Expected an instance of SignatureSecretKey'
+            );
+        }
         if (!$privateKey->isSigningKey()) {
             throw new CryptoException\InvalidKey(
                 'Expected a signing key'
@@ -176,17 +206,12 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function unseal(
         $source,
-        EncryptionSecretKey $privateKey,
+        Contract\CryptoKeyInterface $privateKey,
         $raw = false
     ) {
-        if (!$privateKey->isEncryptionKey()) {
+        if (!$privateKey instanceof EncryptionSecretKey) {
             throw new CryptoException\InvalidKey(
-                'Expected an encryption key'
-            );
-        }
-        if ($privateKey->isSigningKey()) {
-            throw new CryptoException\InvalidKey(
-                'Unexpected signing key'
+                'Argument 2: Expected an instance of EncryptionSecretKey'
             );
         }
         if (!$raw) {
@@ -227,7 +252,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * Verify a signed message with the correct public key
      * 
      * @param string $message Message to verify
-     * @param Key $publickey
+     * @param Key $publicKey
      * @param string $signature
      * @param boolean $raw Don't hex decode the input?
      * 
@@ -235,18 +260,13 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function verify(
         $message,
-        SignaturePublicKey $publickey,
+        Contract\CryptoKeyInterface $publicKey,
         $signature,
         $raw = false
     ) {
-        if (!$publickey->isSigningKey()) {
+        if (!$publicKey instanceof SignaturePublicKey) {
             throw new CryptoException\InvalidKey(
-                'Expected a signing key'
-            );
-        }
-        if ($publickey->isEncryptionKey()) {
-            throw new CryptoException\InvalidKey(
-                'Unexpected encryption key'
+                'Argument 2: Expected an instance of SignaturePublicKey'
             );
         }
         if (!$raw) {
@@ -256,7 +276,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         return \Sodium\crypto_sign_verify_detached(
             $signature,
             $message,
-            $publickey->get()
+            $publicKey->get()
         );
     }
 }

@@ -9,7 +9,7 @@ use \ParagonIE\Halite\Config;
 use \ParagonIE\Halite\Symmetric\Config as SymmetricConfig;
 use \ParagonIE\Halite\Key;
 
-class Crypto implements Contract\SymmetricKeyCryptoInterface
+abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
 {
     /**
      * Authenticate a string

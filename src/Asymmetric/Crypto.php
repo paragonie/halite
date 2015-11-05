@@ -10,7 +10,7 @@ use \ParagonIE\Halite\KeyPair;
 use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
-class Crypto implements Contract\AsymmetricKeyCryptoInterface
+abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
 {
     /**
      * Encrypt a string using asymmetric cryptography
@@ -25,8 +25,8 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function encrypt(
         $source, 
-        SecretKey $ourPrivateKey, 
-        PublicKey $theirPublicKey,
+        EncryptionSecretKey $ourPrivateKey, 
+        EncryptionPublicKey $theirPublicKey,
         $raw = false
     ) {
         $ecdh = new EncryptionKey(
@@ -50,8 +50,8 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function decrypt(
         $source,
-        SecretKey $ourPrivateKey,
-        PublicKey $theirPublicKey,
+        EncryptionSecretKey $ourPrivateKey,
+        EncryptionPublicKey $theirPublicKey,
         $raw = false
     ) {
         $ecdh = new EncryptionKey(
@@ -60,27 +60,6 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
         $ciphertext = SymmetricCrypto::decrypt($source, $ecdh, $raw);
         unset($ecdh);
         return $ciphertext;
-    }
-    /**
-     * Generate a keypair
-     * 
-     * @param array $type
-     */
-    public static function generateKeys($type = Key::CRYPTO_BOX)
-    {
-        if ($type & Key::ASYMMETRIC === 0) {
-            throw new CryptoException\InvalidFlags;
-        }
-        
-        switch ($type) {
-            case Key::ENCRYPTION:
-            case Key::SIGNATURE:
-            case Key::CRYPTO_SIGN:
-            case Key::CRYPTO_BOX:
-                return KeyPair::generate($type);
-            default:
-                throw new CryptoException\InvalidKey;
-        }
     }
     
     /**
@@ -96,8 +75,8 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @return string
      */
     public static function getSharedSecret(
-        SecretKey $privateKey,
-        PublicKey $publicKey,
+        EncryptionSecretKey $privateKey,
+        EncryptionPublicKey $publicKey,
         $get_as_object = false
     ) {
         if ($get_as_object) {
@@ -125,7 +104,7 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function seal(
         $source,
-        PublicKey $publicKey,
+        EncryptionPublicKey $publicKey,
         $raw = false
     ) {
         if (!$publicKey->isEncryptionKey()) {
@@ -162,7 +141,7 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function sign(
         $message,
-        SecretKey $privateKey,
+        SignatureSecretKey $privateKey,
         $raw = false
     ) {
         if (!$privateKey->isSigningKey()) {
@@ -197,7 +176,7 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function unseal(
         $source,
-        SecretKey $privateKey,
+        EncryptionSecretKey $privateKey,
         $raw = false
     ) {
         if (!$privateKey->isEncryptionKey()) {
@@ -256,7 +235,7 @@ class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function verify(
         $message,
-        PublicKey $publickey,
+        SignaturePublicKey $publickey,
         $signature,
         $raw = false
     ) {

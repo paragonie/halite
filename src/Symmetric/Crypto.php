@@ -22,7 +22,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      */
     public static function authenticate(
         $message,
-        Contract\CryptoKeyInterface $secretKey,
+        Contract\KeyInterface $secretKey,
         $raw = false
     ) {
         if (!$secretKey instanceof AuthenticationKey) {
@@ -57,7 +57,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      */
     public static function decrypt(
         $ciphertext,
-        Contract\CryptoKeyInterface $secretKey,
+        Contract\KeyInterface $secretKey,
         $raw = false
     ) {
         if (!$secretKey instanceof EncryptionKey) {
@@ -147,7 +147,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      */
     public static function encrypt(
         $plaintext,
-        Contract\CryptoKeyInterface $secretKey,
+        Contract\KeyInterface $secretKey,
         $raw = false
     ) {
         if (!$secretKey instanceof EncryptionKey) {
@@ -183,7 +183,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @return array
      */
     public static function splitKeys(
-        Contract\CryptoKeyInterface $master,
+        Contract\KeyInterface $master,
         $salt = null,
         Config $config = null
     ) {
@@ -215,7 +215,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      */
     public static function verify(
         $message,
-        Contract\CryptoKeyInterface $secretKey,
+        Contract\KeyInterface $secretKey,
         $mac,
         $raw = false
     ) {

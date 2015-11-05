@@ -13,14 +13,14 @@ interface AsymmetricKeyCryptoInterface
      * Get a shared secret from a private key you possess and a public key for
      * the intended message recipient
      * 
-     * @param CryptoKeyInterface $privateKey
-     * @param CryptoKeyInterface $publicKey
+     * @param KeyInterface $privateKey
+     * @param KeyInterface $publicKey
      * 
      * @return string
      */
     public static function getSharedSecret(
-        CryptoKeyInterface $privateKey,
-        CryptoKeyInterface $publicKey
+        KeyInterface $privateKey,
+        KeyInterface $publicKey
     );
     
     /**
@@ -36,8 +36,8 @@ interface AsymmetricKeyCryptoInterface
      */
     public static function encrypt(
         $source,
-        CryptoKeyInterface $privateKey,
-        CryptoKeyInterface $publicKey,
+        KeyInterface $privateKey,
+        KeyInterface $publicKey,
         $raw = false
     );
     
@@ -54,8 +54,8 @@ interface AsymmetricKeyCryptoInterface
      */
     public static function decrypt(
         $source,
-        CryptoKeyInterface $privateKey,
-        CryptoKeyInterface $publicKey,
+        KeyInterface $privateKey,
+        KeyInterface $publicKey,
         $raw = false
     );
     
@@ -70,7 +70,7 @@ interface AsymmetricKeyCryptoInterface
      */
     public static function seal(
         $source,
-        CryptoKeyInterface $publicKey,
+        KeyInterface $publicKey,
         $raw = false
     );
     
@@ -85,7 +85,7 @@ interface AsymmetricKeyCryptoInterface
      */
     public static function unseal(
         $source,
-        CryptoKeyInterface $privateKey,
+        KeyInterface $privateKey,
         $raw = false
     );
     
@@ -100,7 +100,7 @@ interface AsymmetricKeyCryptoInterface
      */
     public static function sign(
         $message,
-        CryptoKeyInterface $privateKey,
+        KeyInterface $privateKey,
         $raw = false
     );
     
@@ -116,7 +116,7 @@ interface AsymmetricKeyCryptoInterface
      */
     public static function verify(
         $message,
-        CryptoKeyInterface $publicKey,
+        KeyInterface $publicKey,
         $signature,
         $raw = false
     );

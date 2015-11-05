@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Contract\CryptoKeyInterface;
+use \ParagonIE\Halite\Contract\KeyInterface;
 use \ParagonIE\Halite\Symmetric\Crypto;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
@@ -17,7 +17,7 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * @param EncryptionKey $secret_key - The master key for all passwords
      * @return string
      */
-    public static function hash($password, CryptoKeyInterface $secret_key)
+    public static function hash($password, KeyInterface $secret_key)
     {
         if (!($secret_key instanceof EncryptionKey)) {
             throw new \ParagonIE\Halite\Alerts\InvalidKey(
@@ -43,7 +43,7 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * @param EncryptionKey $secret_key  - The master key for all passwords
      * @return boolean
      */
-    public static function verify($password, $stored, CryptoKeyInterface $secret_key)
+    public static function verify($password, $stored, KeyInterface $secret_key)
     {
         if (!($secret_key instanceof EncryptionKey)) {
             throw new \ParagonIE\Halite\Alerts\InvalidKey(

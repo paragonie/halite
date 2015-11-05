@@ -17,7 +17,7 @@ use ParagonIE\Halite\Contract;
  * Symmetric Key Crypography uses one secret key, while Asymmetric Key Cryptography
  * uses a secret key and public key pair
  */
-abstract class Key implements Contract\CryptoKeyInterface
+abstract class Key implements Contract\KeyInterface
 {
     // FLAGS:
     const SECRET_KEY       =   1;

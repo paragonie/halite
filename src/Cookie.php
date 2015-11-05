@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Contract\CryptoKeyInterface;
+use \ParagonIE\Halite\Contract\KeyInterface;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 use \ParagonIE\Halite\Symmetric\Crypto;
 use \ParagonIE\Halite\Alerts\InvalidMessage;
@@ -10,7 +10,7 @@ class Cookie
 {
     protected $key;
     
-    public function __construct(CryptoKeyInterface $key)
+    public function __construct(KeyInterface $key)
     {
         if (!($key instanceof EncryptionKey)) {
             throw new \ParagonIE\Halite\Alerts\InvalidKey(

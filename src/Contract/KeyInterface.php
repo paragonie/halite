@@ -3,7 +3,7 @@ namespace ParagonIE\Halite\Contract;
 /**
  * An inferface for cryptographic secrets -- They should be protected!
  */
-interface CryptoKeyInterface
+interface KeyInterface
 {
     /**
      * Don't let this ever succeed

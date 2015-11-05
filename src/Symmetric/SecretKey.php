@@ -4,7 +4,7 @@ namespace ParagonIE\Halite\Symmetric;
 use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Key;
 
-class SecretKey extends Key implements Contract\CryptoKeyInterface
+class SecretKey extends Key implements Contract\KeyInterface
 {
     /**
      * @param string $keyMaterial - The actual key data

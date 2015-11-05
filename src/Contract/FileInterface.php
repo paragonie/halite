@@ -20,7 +20,7 @@ interface FileInterface
     public static function encryptFile(
         $inputFile,
         $outputFile,
-        CryptoKeyInterface $key
+        KeyInterface $key
     );
     
     /**
@@ -33,7 +33,7 @@ interface FileInterface
     public static function decryptFile(
         $inputFile,
         $outputFile,
-        CryptoKeyInterface $key
+        KeyInterface $key
     );
     
     /**
@@ -46,7 +46,7 @@ interface FileInterface
     public static function sealFile(
         $inputFile,
         $outputFile,
-        CryptoKeyInterface $publickey
+        KeyInterface $publickey
     );
     
     /**
@@ -59,7 +59,7 @@ interface FileInterface
     public static function unsealFile(
         $inputFile,
         $outputFile,
-        CryptoKeyInterface $secretkey
+        KeyInterface $secretkey
     );
     
     /**
@@ -72,7 +72,7 @@ interface FileInterface
     public static function encryptResource(
         $input,
         $output,
-        CryptoKeyInterface $key
+        KeyInterface $key
     );
     
     /**
@@ -85,7 +85,7 @@ interface FileInterface
     public static function decryptResource(
         $input,
         $output,
-        CryptoKeyInterface $key
+        KeyInterface $key
     );
     
     /**
@@ -98,7 +98,7 @@ interface FileInterface
     public static function sealResource(
         $input,
         $output,
-        CryptoKeyInterface $publickey
+        KeyInterface $publickey
     );
     
     /**
@@ -111,7 +111,7 @@ interface FileInterface
     public static function unsealResource(
         $input,
         $output,
-        CryptoKeyInterface $secretkey
+        KeyInterface $secretkey
     );
     
     
@@ -126,7 +126,7 @@ interface FileInterface
      */
     public static function checksumFile(
         $filepath,
-        CryptoKeyInterface $key = null,
+        KeyInterface $key = null,
         $raw = false
     );
     
@@ -142,7 +142,7 @@ interface FileInterface
      */
     public static function checksumResource(
         $fileHandle,
-        CryptoKeyInterface $key = null,
+        KeyInterface $key = null,
         $raw = false
     );
 }

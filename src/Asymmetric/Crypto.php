@@ -25,8 +25,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function encrypt(
         $source,
-        Contract\CryptoKeyInterface $ourPrivateKey,
-        Contract\CryptoKeyInterface $theirPublicKey,
+        Contract\KeyInterface $ourPrivateKey,
+        Contract\KeyInterface $theirPublicKey,
         $raw = false
     ) {
         if (!$ourPrivateKey instanceof EncryptionSecretKey) {
@@ -60,8 +60,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function decrypt(
         $source,
-        Contract\CryptoKeyInterface $ourPrivateKey,
-        Contract\CryptoKeyInterface $theirPublicKey,
+        Contract\KeyInterface $ourPrivateKey,
+        Contract\KeyInterface $theirPublicKey,
         $raw = false
     ) {
         if (!$ourPrivateKey instanceof EncryptionSecretKey) {
@@ -95,8 +95,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @return string
      */
     public static function getSharedSecret(
-        Contract\CryptoKeyInterface $privateKey,
-        Contract\CryptoKeyInterface $publicKey,
+        Contract\KeyInterface $privateKey,
+        Contract\KeyInterface $publicKey,
         $get_as_object = false
     ) {
         if (!$privateKey instanceof EncryptionSecretKey) {
@@ -134,7 +134,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function seal(
         $source,
-        Contract\CryptoKeyInterface $publicKey,
+        Contract\KeyInterface $publicKey,
         $raw = false
     ) {
         if (!$publicKey instanceof EncryptionPublicKey) {
@@ -166,7 +166,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function sign(
         $message,
-        Contract\CryptoKeyInterface $privateKey,
+        Contract\KeyInterface $privateKey,
         $raw = false
     ) {
         if (!$privateKey instanceof SignatureSecretKey) {
@@ -206,7 +206,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function unseal(
         $source,
-        Contract\CryptoKeyInterface $privateKey,
+        Contract\KeyInterface $privateKey,
         $raw = false
     ) {
         if (!$privateKey instanceof EncryptionSecretKey) {
@@ -260,7 +260,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      */
     public static function verify(
         $message,
-        Contract\CryptoKeyInterface $publicKey,
+        Contract\KeyInterface $publicKey,
         $signature,
         $raw = false
     ) {

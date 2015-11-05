@@ -13,12 +13,12 @@ interface SymmetricKeyCryptoInterface
      * Encrypt a message with a Key
      * 
      * @param string $plaintext
-     * @param CryptoKeyInterface $secretKey
+     * @param KeyInterface $secretKey
      * @param boolean $raw Don't hex encode the output?
      */
     public static function encrypt(
         $plaintext,
-        CryptoKeyInterface $secretKey,
+        KeyInterface $secretKey,
         $raw = false
     );
     
@@ -26,12 +26,12 @@ interface SymmetricKeyCryptoInterface
      * Decrypt a message with a Key
      * 
      * @param string $ciphertext
-     * @param CryptoKeyInterface $secretKey
+     * @param KeyInterface $secretKey
      * @param boolean $raw Don't hex decode the input?
      */
     public static function decrypt(
         $ciphertext,
-        CryptoKeyInterface $secretKey,
+        KeyInterface $secretKey,
         $raw = false
     );
     
@@ -39,12 +39,12 @@ interface SymmetricKeyCryptoInterface
      * Authenticate a message, get a message authentication code
      * 
      * @param string $message
-     * @param CryptoKeyInterface $secretKey
+     * @param KeyInterface $secretKey
      * @param boolean $raw
      */
     public static function authenticate(
         $message,
-        CryptoKeyInterface $secretKey,
+        KeyInterface $secretKey,
         $raw = false
     );
     
@@ -52,13 +52,13 @@ interface SymmetricKeyCryptoInterface
      * Verify the message authentication code
      * 
      * @param string $message
-     * @param CryptoKeyInterface $secretKey
+     * @param KeyInterface $secretKey
      * @param string $mac
      * @param boolean $raw
      */
     public static function verify(
         $message,
-        CryptoKeyInterface $secretKey,
+        KeyInterface $secretKey,
         $mac,
         $raw = false
     );

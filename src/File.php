@@ -194,6 +194,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param string|resource $filename
      * @param SignaturePublicKey $publickey
+     * @param string $signature
      * @param bool $raw_binary
      * 
      * @return string
@@ -201,6 +202,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
     public static function verify(
         $filename,
         KeyInterface $publickey,
+        $signature,
         $raw_binary = false
     ) {
         if (
@@ -210,6 +212,7 @@ class File implements \ParagonIE\Halite\Contract\FileInterface
             return self::verifyStream(
                 new ReadOnlyFile($filename),
                 $publickey,
+                $signature,
                 $raw_binary
             );
         }

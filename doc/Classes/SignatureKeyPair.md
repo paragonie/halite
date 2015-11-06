@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\SignatureKeyPair extends [KeyPair](KeyPair.md)
+# SignatureKeyPair extends [KeyPair](KeyPair.md)
+
+**Namespace**: `\ParagonIE\Halite`
 
 ## Methods
 

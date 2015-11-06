@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Asymmetric\EncryptionPublicKey extends [PublicKey](PublicKey.md)
+# EncryptionPublicKey extends [PublicKey](PublicKey.md)
+
+**Namespace**: `\ParagonIE\Halite\Asymmetric`
 
 Represents a Curve25519 public key.
 

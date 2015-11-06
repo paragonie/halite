@@ -1,12 +1,18 @@
-# \ParagonIE\Halite\Symmetric\Crypto (abstract)
+# Crypto (abstract)
+
+**Namespace**: `\ParagonIE\Halite\Symmetric`
 
 ## Methods
 
-### `public` authenticate(`string $message`, [`AuthenticationKey`](AuthenticationKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+### `authenticate()`
+
+> `public` authenticate(`string $message`, [`AuthenticationKey`](AuthenticationKey.md) `$secretKey`, `boolean $raw = false`) : `string`
 
 Calculate a MAC for a given message, using a secret authentication key.
 
-### `public` encrypt(`string $plaintext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+### `encrypt()`
+
+> `public` encrypt(`string $plaintext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `string`
 
 Encrypt-then-authenticate a message. This method will:
 
@@ -19,7 +25,9 @@ Encrypt-then-authenticate a message. This method will:
    salt, and the nonce, with the derived authentication key (step 2).
 6. Return the output of step 5 either as raw binary or as a hex-encoded string.
 
-### `public` decrypt(`string $ciphertext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+### `decrypt()`
+
+> `public` decrypt(`string $ciphertext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `string`
 
 Verify-then-decrypt a message. This method will:
 
@@ -33,6 +41,8 @@ Verify-then-decrypt a message. This method will:
    key (step 3).
 6. Return what should be the original plaintext.
 
-### `public` verify(`string $message`, [`AuthenticationKey`](AuthenticationKey.md) `$secretKey`, `string $mac` `boolean $raw = false`) : `boolean`
+### `verify()`
+
+> `public` verify(`string $message`, [`AuthenticationKey`](AuthenticationKey.md) `$secretKey`, `string $mac` `boolean $raw = false`) : `boolean`
 
 Verify the MAC for a given message and secret authentication key.

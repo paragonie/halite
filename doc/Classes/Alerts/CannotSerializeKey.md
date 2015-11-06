@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Alerts\CannotSerializeKey extends [HaliteAlert](HaliteAlert.md)
+# CannotSerializeKey extends [HaliteAlert](HaliteAlert.md)
+
+**Namespace**: `\ParagonIE\Halite\Alerts`
 
 All key objects should never permit this usage:
 

@@ -1,58 +1,86 @@
-# \ParagonIE\Halite\KeyFactory (abstract)
+# KeyFactory (abstract)
+
+**Namespace**: `\ParagonIE\Halite`
 
 A factory class responsible for the creation and persistence of cryptography
 keys.
 
 ## Methods
 
-### public static function generateAuthenticationKey(`&$secret_key = null`) : [`AuthenticationKey`](Symmetric/AuthenticationKey.md)
+### `generateAuthenticationKey()`
+
+> `public static` generateAuthenticationKey(`&$secret_key = null`) : [`AuthenticationKey`](Symmetric/AuthenticationKey.md)
 
 Generate an authentication key (symmetric-key cryptography).
     
-### public static function generateEncryptionKey(`&$secret_key = null`) : [`EncryptionKey`](Symmetric/EncryptionKey.md)
+### `generateEncryptionKey()`
+
+> `public static` generateEncryptionKey(`&$secret_key = null`) : [`EncryptionKey`](Symmetric/EncryptionKey.md)
 
 Generate an encryption key (symmetric-key cryptography).
 
-### public static function generateEncryptionKeyPair(`&$secret_key = null`) : [`EncryptionKeyPair`](EncryptionKeyPair.md)
+### `generateEncryptionKeyPair()`
+
+> `public static` generateEncryptionKeyPair(`&$secret_key = null`) : [`EncryptionKeyPair`](EncryptionKeyPair.md)
 
 Generate a key pair for public key encryption.
 
-### public static function generateSignatureKeyPair(`&$secret_key = null`) : [`SignatureKeyPair`](SignatureKeyPair.md)
+### `generateSignatureKeyPair()`
+
+> `public static` generateSignatureKeyPair(`&$secret_key = null`) : [`SignatureKeyPair`](SignatureKeyPair.md)
 
 Generate a key pair for public key digital signatures.
 
-### public static function deriveAuthenticationKey(`string $password`, `string $salt`) : [`AuthenticationKey`](Symmetric/AuthenticationKey.md)
+### `deriveAuthenticationKey()`
+
+> `public static` deriveAuthenticationKey(`string $password`, `string $salt`) : [`AuthenticationKey`](Symmetric/AuthenticationKey.md)
 
 Derive a symmetric authentication key from a password and salt.
     
-### public static function deriveEncryptionKey(`string $password`, `string $salt`) : [`EncryptionKey`](Symmetric/EncryptionKey.md)
+### `deriveEncryptionKey()`
+
+> `public static` deriveEncryptionKey(`string $password`, `string $salt`) : [`EncryptionKey`](Symmetric/EncryptionKey.md)
 
 Derive a symmetric encryption key from a password and salt.
 
-### public static function deriveEncryptionKeyPair(`string $password`, `string $salt`) : [`EncryptionKeyPair`](EncryptionKeyPair.md)
+### `deriveEncryptionKeyPair()`
+
+> `public static` deriveEncryptionKeyPair(`string $password`, `string $salt`) : [`EncryptionKeyPair`](EncryptionKeyPair.md)
 
 Derive an asymmetric encryption key pair from a password and salt.
 
-### public static function generateSignatureKeyPair(`string $password`, `string $salt`) : [`SignatureKeyPair`](SignatureKeyPair.md)
+### `deriveSignatureKeyPair()`
+
+> `public static` deriveSignatureKeyPair(`string $password`, `string $salt`) : [`SignatureKeyPair`](SignatureKeyPair.md)
 
 Derive an asymmetric signature key pair from a password and salt.
 
-### public static function loadAuthenticationKey(`string $filePath`) : [`AuthenticationKey`](Symmetric/AuthenticationKey.md)
+### `loadAuthenticationKey()`
+
+> `public static` loadAuthenticationKey(`string $filePath`) : [`AuthenticationKey`](Symmetric/AuthenticationKey.md)
 
 Load an `AuthenticationKey` from a file.
 
-### public static function loadEncryptionKey(`string $filePath`) : [`EncryptionKey`](Symmetric/EncryptionKey.md)
+### `loadEncryptionKey()`
+
+> `public static` loadEncryptionKey(`string $filePath`) : [`EncryptionKey`](Symmetric/EncryptionKey.md)
 
 Load an `EncryptionKey` from a file.
 
-### public static function loadEncryptionKeyPair(`string $filePath`) : [`EncryptionKeyPair`](EncryptionKeyPair.md)
+### `loadEncryptionKeyPair()`
+
+> `public static` loadEncryptionKeyPair(`string $filePath`) : [`EncryptionKeyPair`](EncryptionKeyPair.md)
 
 Load an `EncryptionKeyPair` from a file.
 
-### public static function loadSignatureKeyPair(`string $filePath`) : [`SignatureKeyPair`](SignatureKeyPair.md)
+### `loadSignatureKeyPair()`
+
+> `public static` loadSignatureKeyPair(`string $filePath`) : [`SignatureKeyPair`](SignatureKeyPair.md)
 
 Load an `SignatureKeyPair` from a file.
 
-### public static function save(`Key|KeyPair $key`, `string $filename = ''`)
+### `save()`
+
+> `public static` save(`Key|KeyPair $key`, `string $filename = ''`)
 
 Save a key to a file.

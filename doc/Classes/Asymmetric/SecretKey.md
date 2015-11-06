@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Asymmetric\SecretKey extends [Key](../Key.md)
+# SecretKey extends [Key](../Key.md)
+
+**Namespace**: `\ParagonIE\Halite\Asymmetric`
 
 Represents an asymmetric secret key (Curve25519 or Ed25519).
 

@@ -1,2 +1,4 @@
-# \ParagonIE\Halite\Alerts\InvalidMessage extends [HaliteAlert](HaliteAlert.md)
+# InvalidMessage extends [HaliteAlert](HaliteAlert.md)
+
+**Namespace**: `\ParagonIE\Halite\Alerts`
 

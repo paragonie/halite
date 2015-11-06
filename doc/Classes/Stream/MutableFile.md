@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Stream\MutableFile
+# MutableFile
+
+**Namespace**: `\ParagonIE\Halite\Stream`
 
 This represents a file that we are writing to, and therefore is mutable.
 
@@ -24,15 +26,21 @@ Arguments:
 * `$file` - Either a string containing a file location or a resource (file 
   handle opened by `fopen()`)
 
-### `public` readBytes(`int $num`) : `string`
+### `readBytes()`
+
+> `public` readBytes(`int $num`) : `string`
 
 Read the desired number of bytes from the internal stream, preventing partial
 reads.
 
-### `public` reset(`int $i = 0`)
+### `reset()`
+
+> `public` reset(`int $i = 0`)
 
 Set the current position in the stream to the desired value.
 
-### `public` writeBytes(`string $buf`, `int $num = null`) : `int`
+### `writeBytes()`
+
+> `public` writeBytes(`string $buf`, `int $num = null`) : `int`
 
 Write `$buf` to the internal stream.

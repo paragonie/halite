@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Alerts\HaliteAlert
+# HaliteAlert
+
+**Namespace**: `\ParagonIE\Halite\Alerts`
 
 This is the base class from which all of our custom Exception classes extend.
 

@@ -1,2 +1,4 @@
-# \ParagonIE\Halite\Alerts\InvalidKey extends [HaliteAlert](HaliteAlert.md)
+# InvalidKey extends [HaliteAlert](HaliteAlert.md)
+
+**Namespace**: `\ParagonIE\Halite\Alerts`
 

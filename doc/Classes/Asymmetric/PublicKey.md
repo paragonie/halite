@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Asymmetric\PublicKey extends [Key](../Key.md)
+# PublicKey extends [Key](../Key.md)
+
+**Namespace**: `\ParagonIE\Halite\Asymmetric`
 
 Represents an asymmetric public key (Curve25519 or Ed25519).
 

@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Stream\ReadOnlyFile
+# ReadOnlyFile
+
+**Namespace**: `\ParagonIE\Halite\Stream`
 
 This represents a file that we are reading from, which should never be altered
 while our cryptography operations are being performed.
@@ -25,29 +27,41 @@ Arguments:
 * `$file` - Either a string containing a file location or a resource (file 
   handle opened by `fopen()`)
 
-### `public` getHash() : `string`
+### `getHash()`
+
+> `public` getHash() : `string`
 
 Returns the BLAKE2b hash of the file contents.
 
-### `public` readBytes(`int $num`) : `string`
+### `readBytes()`
+
+> `public` readBytes(`int $num`) : `string`
 
 Read the desired number of bytes from the internal stream, preventing partial
 reads. Also performs runtime checks to prevent TOCTOU attacks (race conditions).
 
-### `public` remainingBytes() : `int`
+### `remainingBytes()`
+
+> `public` remainingBytes() : `int`
 
 Returns the number of bytes between the current location and the end of the 
 stream.
 
-### `public` reset(`int $i = 0`)
+### `reset()`
+
+> `public` reset(`int $i = 0`)
 
 Set the current position in the stream to the desired value.
 
-### `public` toctouTest()
+### `toctouTest()`
+
+> `public` toctouTest()
 
 Verifies that the file location (`ftell($this->fp)`) has not diverged from our
 current location (`$this->loc`), and that the file size has not changed.
 
-### `public `writeBytes(`string $buf`, `int $num = null`)
+### `writeBytes()`
+
+> `public `writeBytes(`string $buf`, `int $num = null`)
 
 Just returns `false`.

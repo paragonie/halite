@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Cookie
+# Cookie
+
+**Namespace**: `\ParagonIE\Halite`
 
 Encrypted cookie storage, powered by our [symmetric-key cryptography](Symmetric/Crypto.md).
 
@@ -16,10 +18,14 @@ Arguments:
 
 * [`EncryptionKey $key`](Symmetric/EncryptionKey.md) - The key used for symmetric-key encryption
 
-### `public` fetch(`string $name`)
+### `fetch()`
+
+> `public` fetch(`string $name`)
 
 Fetch the data stored in an encrypted cookie.
 
-### `public` store(`string $name`, `mixed $value`, `int $expire = 0`, `string $path = '/'`, `string $domain = null`, `boolean $secure = true`, `boolean $httponly = true`)
+### `store()`
+
+> `public` store(`string $name`, `mixed $value`, `int $expire = 0`, `string $path = '/'`, `string $domain = null`, `boolean $secure = true`, `boolean $httponly = true`)
 
 Encrypt then store a cookie.

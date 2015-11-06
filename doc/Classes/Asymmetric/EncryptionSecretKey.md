@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Asymmetric\EncryptionSecretKey extends [SecretKey](SecretKey.md)
+# EncryptionSecretKey extends [SecretKey](SecretKey.md)
+
+**Namespace**: `\ParagonIE\Halite\Asymmetric`
 
 Represents a Curve25519 secret key.
 

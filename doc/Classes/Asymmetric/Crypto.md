@@ -1,13 +1,19 @@
-# \ParagonIE\Halite\Asymmetric\Crypto (abstract)
+# Crypto (abstract)
+
+**Namespace**: `\ParagonIE\Halite\Asymmetric`
 
 ## Methods
 
-### `public` getSharedSecret([`EncryptionSecretKey`](EncryptionSecretKey.md) `$privateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `$get_as_object = false`) : [`EncryptionKey`](../Symmetric/EncryptionKey.md)
+### `getSharedSecret()`
+
+> `public` getSharedSecret([`EncryptionSecretKey`](EncryptionSecretKey.md) `$privateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `$get_as_object = false`) : [`EncryptionKey`](../Symmetric/EncryptionKey.md)
 
 This method calculates a shared [`EncryptionKey`](../Symmetric/EncryptionKey.md)
 using Elliptic Curve Diffie Hellman key agreement over Curve25519.
 
-### `public` encrypt(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `string`
+### `encrypt()`
+
+> `public` encrypt(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `string`
 
 This method will:
 
@@ -21,7 +27,9 @@ This method will:
    salt, and the nonce, with the derived authentication key (step 3).
 7. Return the output of step 6 either as raw binary or as a hex-encoded string.
 
-### `public` decrypt(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `string`
+### `decrypt()`
+
+> `public` decrypt(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `string`
 
 This method will:
 
@@ -36,23 +44,31 @@ This method will:
    key (step 4).
 7. Return what should be the original plaintext.
 
-### `public` seal(`string $source`,  [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `boolean $raw = false`) : `string`
+### `seal()`
+
+> `public` seal(`string $source`,  [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `boolean $raw = false`) : `string`
 
 Anonymous public-key encryption. Encrypt a message with your recipient's public
 key and they can use their secret key to decrypt it.
 
 The actual underlying protocol is [`\Sodium\crypto_box_seal()`](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-box-seal).
 
-### `public` unseal(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+### `unseal()`
+
+> `public` unseal(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$secretKey`, `boolean $raw = false`) : `string`
 
 Anonymous public-key decryption. Decrypt a sealed message with your secret key.
 
 The actual underlying protocol is [`\Sodium\crypto_box_seal_open()`](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-box-seal).
 
-### `public` sign(`string $message`, [`SignatureSecretKey`](SignatureSecretKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+### `sign()`
+
+> `public` sign(`string $message`, [`SignatureSecretKey`](SignatureSecretKey.md) `$secretKey`, `boolean $raw = false`) : `string`
 
 Calculates a digital signature of `$message`, using [`\Sodium\crypto_sign()`](https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md#crypto-sign).
 
-### `public` verify(`string $message`, [`SignaturePublicKey`](SignaturePublicKey.md) `$secretKey`, `string $signature`, `boolean $raw = false`) : `boolean`
+### `verify()`
+
+> `public` verify(`string $message`, [`SignaturePublicKey`](SignaturePublicKey.md) `$secretKey`, `string $signature`, `boolean $raw = false`) : `boolean`
 
 Does the signature match the contents of the message, for the given public key?

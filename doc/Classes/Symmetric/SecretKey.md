@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Symmetric\SecretKey extends [Key](../Key.md)
+# SecretKey extends [Key](../Key.md)
+
+**Namespace**: `\ParagonIE\Halite\Symmetric`
 
 Represents a secret key (Xsalsa20 or HMAC-SHA512/256)
 

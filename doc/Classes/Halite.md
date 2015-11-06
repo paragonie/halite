@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Halite
+# Halite
+
+**Namespace**: `\ParagonIE\Halite`
 
 This is just an abstract class that contains some constants for the current
 release of Halite.

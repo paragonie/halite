@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Asymmetric\SignaturePublicKey extends [PublicKey](PublicKey.md)
+# SignaturePublicKey extends [PublicKey](PublicKey.md)
+
+**Namespace**: `\ParagonIE\Halite\Asymmetric`
 
 Represents an Ed25519 secret key.
 

@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\Key
+# Key
+
+**Namespace**: `\ParagonIE\Halite`
 
 ## Constants
 
@@ -74,29 +76,41 @@ $sign_secret = new Key(
 );
 ```
 
-### `public` get()
+### `get()`
+
+> `public` get()
 
 Simply returns the raw binary key data.
 
-### `public` isAsymmetricKey()
+### `isAsymmetricKey()`
+
+>`public` isAsymmetricKey()
 
 Returns true if this is a key meant for asymmetric cryptography.
 
-### `public` isEncryptionKey()
+### `isEncryptionKey()`
+
+> `public` isEncryptionKey()
 
 Returns true if this is a key meant for encryption.
 
-### `public` isPublicKey()
+### `isPublicKey()`
+
+> `public` isPublicKey()
 
 Returns true if this is the public key for a given key-pair.
 
-### `public` isSecretKey()
+### `isSecretKey()`
+
+> `public` isSecretKey()
 
 Returns true if:
 
 * Symmetric crypto: Always
 * Asymmetric crypto: This is the secret key for a given key-pair.
 
-### `public` isSigningKey()
+### `isSigningKey()`
+
+> `public` isSigningKey()
 
 Returns true if this is a key meant for authentication

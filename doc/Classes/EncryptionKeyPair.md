@@ -1,4 +1,6 @@
-# \ParagonIE\Halite\EncryptionKeyPair extends [KeyPair](KeyPair.md)
+# EncryptionKeyPair extends [KeyPair](KeyPair.md)
+
+**Namespace**: `\ParagonIE\Halite`
 
 ## Methods
 

@@ -11,3 +11,4 @@
 /test/unit/tmp/paragon_avatar.seal_fail.png
 /test/unit/tmp/garbage.dat
 /test/unit/tmp/key*
+/composer.lock

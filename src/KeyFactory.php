@@ -14,7 +14,6 @@ use \ParagonIE\Halite\KeyPair;
  */
 abstract class KeyFactory
 {
-    
     /**
      * Generate an an authentication key (symmetric-key cryptography)
      * 
@@ -63,7 +62,7 @@ abstract class KeyFactory
     }
     
     /**
-     * Generate a key pair for public key encryption
+     * Generate a key pair for public key digital signatures
      * 
      * @param type $secret_key
      * @return \ParagonIE\Halite\EncryptionKeyPair
@@ -83,6 +82,7 @@ abstract class KeyFactory
     
     
     /**
+     * Derive an authentication key (symmetric) from a password and salt
      * 
      * @param string $password
      * @param string $salt
@@ -103,7 +103,8 @@ abstract class KeyFactory
     }
     
     /**
-     * Generate an an encryption key (symmetric-key cryptography)
+     * Derive an encryption key (symmetric-key cryptography) from a password
+     * and salt
      * 
      * @param &string $secret_key
      * @return EncryptionKey
@@ -179,7 +180,7 @@ abstract class KeyFactory
     }
     
     /**
-     * Load a key from a file
+     * Load a symmetric authentication key from a file
      * 
      * @param string $filePath
      * @return EncryptionKey
@@ -197,7 +198,7 @@ abstract class KeyFactory
     }
     
     /**
-     * Load a key from a file
+     * Load a symmetric encryption key from a file
      * 
      * @param string $filePath
      * @return EncryptionKey
@@ -215,7 +216,7 @@ abstract class KeyFactory
     }
     
     /**
-     * Load a key from a file
+     * Load an asymmetric encryption key pair from a file
      * 
      * @param string $filePath
      * @return EncryptionKey
@@ -235,7 +236,7 @@ abstract class KeyFactory
     }
     
     /**
-     * Load a key from a file
+     * Load an asymmetric signature key pair from a file
      * 
      * @param string $filePath
      * @return EncryptionKey
@@ -255,7 +256,7 @@ abstract class KeyFactory
     }
     
     /**
-     * Save a file
+     * Save a key to a file
      * 
      * @param Key|KeyPair $key
      * @param string $filename
@@ -285,7 +286,20 @@ abstract class KeyFactory
             );
         }
         $data = \Sodium\hex2bin($filedata);
-        
+        \Sodium\memzero($filedata);
+        return self::getKeyDataFromString($data);
+    }
+    
+    /**
+     * Take a stored key string, get the derived key (after verifying the
+     * checksum)
+     * 
+     * @param string $data
+     * @return string
+     * @throws Alerts\InvalidKey
+     */
+    public static function getKeyDataFromString($data)
+    {
         $vtag = Util::safeSubstr($data, 0, Halite::VERSION_TAG_LEN);
         $kdat = Util::safeSubstr(
             $data,
@@ -307,7 +321,6 @@ abstract class KeyFactory
                 'Checksum validation fail'
             );
         }
-        \Sodium\memzero($filedata);
         \Sodium\memzero($data);
         \Sodium\memzero($vtag);
         \Sodium\memzero($calc);

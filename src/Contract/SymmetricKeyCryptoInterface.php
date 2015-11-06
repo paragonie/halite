@@ -7,18 +7,18 @@ use \ParagonIE\Halite\Symmetric\EncryptionKey;
 /**
  * An interface fundamental to all cryptography implementations
  */
-interface SymmetricKeyCryptoInterface extends CryptoInterface
+interface SymmetricKeyCryptoInterface
 {    
     /**
      * Encrypt a message with a Key
      * 
      * @param string $plaintext
-     * @param CryptoKeyInterface $secretKey
+     * @param KeyInterface $secretKey
      * @param boolean $raw Don't hex encode the output?
      */
     public static function encrypt(
         $plaintext,
-        EncryptionKey $secretKey,
+        KeyInterface $secretKey,
         $raw = false
     );
     
@@ -26,12 +26,12 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      * Decrypt a message with a Key
      * 
      * @param string $ciphertext
-     * @param CryptoKeyInterface $secretKey
+     * @param KeyInterface $secretKey
      * @param boolean $raw Don't hex decode the input?
      */
     public static function decrypt(
         $ciphertext,
-        EncryptionKey $secretKey,
+        KeyInterface $secretKey,
         $raw = false
     );
     
@@ -39,12 +39,12 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      * Authenticate a message, get a message authentication code
      * 
      * @param string $message
-     * @param CryptoKeyInterface $secretKey
+     * @param KeyInterface $secretKey
      * @param boolean $raw
      */
     public static function authenticate(
         $message,
-        AuthenticationKey $secretKey,
+        KeyInterface $secretKey,
         $raw = false
     );
     
@@ -52,13 +52,13 @@ interface SymmetricKeyCryptoInterface extends CryptoInterface
      * Verify the message authentication code
      * 
      * @param string $message
-     * @param CryptoKeyInterface $secretKey
+     * @param KeyInterface $secretKey
      * @param string $mac
      * @param boolean $raw
      */
     public static function verify(
         $message,
-        AuthenticationKey $secretKey,
+        KeyInterface $secretKey,
         $mac,
         $raw = false
     );

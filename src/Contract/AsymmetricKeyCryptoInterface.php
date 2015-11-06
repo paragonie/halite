@@ -1,13 +1,10 @@
 <?php
 namespace ParagonIE\Halite\Contract;
 
-use \ParagonIE\Halite\Asymmetric\PublicKey;
-use \ParagonIE\Halite\Asymmetric\SecretKey;
-
 /**
  * An interface fundamental to all cryptography implementations
  */
-interface AsymmetricKeyCryptoInterface extends CryptoInterface
+interface AsymmetricKeyCryptoInterface
 {
     
     /**
@@ -16,14 +13,14 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      * Get a shared secret from a private key you possess and a public key for
      * the intended message recipient
      * 
-     * @param CryptoKeyInterface $privatekey
-     * @param CryptoKeyInterface $publickey
+     * @param KeyInterface $privateKey
+     * @param KeyInterface $publicKey
      * 
      * @return string
      */
     public static function getSharedSecret(
-        SecretKey $privatekey,
-        PublicKey $publickey
+        KeyInterface $privateKey,
+        KeyInterface $publicKey
     );
     
     /**
@@ -39,8 +36,8 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function encrypt(
         $source,
-        SecretKey $privatekey,
-        PublicKey $publickey,
+        KeyInterface $privateKey,
+        KeyInterface $publicKey,
         $raw = false
     );
     
@@ -57,8 +54,8 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function decrypt(
         $source,
-        SecretKey $privatekey,
-        PublicKey $publickey,
+        KeyInterface $privateKey,
+        KeyInterface $publicKey,
         $raw = false
     );
     
@@ -73,7 +70,7 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function seal(
         $source,
-        PublicKey $publicKey,
+        KeyInterface $publicKey,
         $raw = false
     );
     
@@ -88,7 +85,7 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function unseal(
         $source,
-        SecretKey $privateKey,
+        KeyInterface $privateKey,
         $raw = false
     );
     
@@ -103,7 +100,7 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function sign(
         $message,
-        SecretKey $privateKey,
+        KeyInterface $privateKey,
         $raw = false
     );
     
@@ -119,7 +116,7 @@ interface AsymmetricKeyCryptoInterface extends CryptoInterface
      */
     public static function verify(
         $message,
-        PublicKey $publicKey,
+        KeyInterface $publicKey,
         $signature,
         $raw = false
     );

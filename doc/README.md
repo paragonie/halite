@@ -1,8 +1,8 @@
 # Halite Documentation
 
-1. [Basic Halite Usage](Classes/Basic.md)
-2. [Halite Features](Classes/Features.md)
-3. [Cryptography Primitives](Classes/Primitives.md)
+1. [Basic Halite Usage](Basic.md)
+2. [Halite Features](Features.md)
+3. [Cryptography Primitives](Primitives.md)
 4. Class Documentation
     * [`Alerts`](Classes/Alerts) (Exceptions)
        * [`\ParagonIE\Halite\Alerts\CannotCloneKey`](Classes/Alerts/CannotCloneKey.md)

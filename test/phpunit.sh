@@ -48,7 +48,7 @@ fi
 # php -r "var_dump([\Sodium\library_version_major(), \Sodium\library_version_minor()]);"
 
 # Verify before running
-gpg --verify phpunit.phar.asc phpunit.phar
+gpg --batch --verify phpunit.phar.asc phpunit.phar
 if [ $? -eq 0 ]; then
     echo
     echo -e "\033[33mBegin Unit Testing\033[0m"

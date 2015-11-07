@@ -71,8 +71,7 @@ The `File` API looks like this:
   * `File::verifyResource`(`resource`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `bool`
 
 The `lazy` type indicates that the argument can be either a `string` containing
-the file's path, or a `resource` (open file handle). Don't mix and match types.
-If one is a `resource`, both must be. If the other is a `string`, both must be.
+the file's path, or a `resource` (open file handle).
 
 Each of feature is designed to work in a streaming fashion.
 

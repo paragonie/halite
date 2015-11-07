@@ -1,8 +1,6 @@
 <?php
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\KeyFactory;
-use \ParagonIE\Halite\EncryptionKeyPair;
-use \ParagonIE\Halite\SignatureKeyPair;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 use \ParagonIE\Halite\Alerts as CryptoException;
 
@@ -62,7 +60,7 @@ class FileLazyTest extends PHPUnit_Framework_TestCase
                 __DIR__.'/tmp/paragon_avatar.decrypt_fail.png',
                 $key
             );
-            throw new \Exception('ERROR: THIS SHOULD ALWAYS FAIL');
+            $this->fail('Possible authentication bypass in File::decrypt()!');
         } catch (CryptoException\InvalidMessage $e) {
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
         }
@@ -124,7 +122,7 @@ class FileLazyTest extends PHPUnit_Framework_TestCase
                 __DIR__.'/tmp/paragon_avatar.opened.png',
                 $secretkey
             );
-            throw new \Exception('ERROR: THIS SHOULD ALWAYS FAIL');
+            $this->fail('Possible authentication bypass in File::unseal()!');
         } catch (CryptoException\InvalidMessage $e) {
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
         }
@@ -140,6 +138,8 @@ class FileLazyTest extends PHPUnit_Framework_TestCase
             __DIR__.'/tmp/paragon_avatar.png',
             $secretkey
         );
+        
+        $this->assertTrue(!empty($signature));
         
         $this->assertTrue(
             File::verify(

@@ -46,20 +46,20 @@ First, you'll need is an encryption key. The easiest way to obtain one is to
 generate it:
 
 ```php
-$enc_key = \ParagonIE\Halite\Symmetric\EncryptionKey::generate();
+$enc_key = \ParagonIE\Halite\KeyFactory::generateEncryptionKey();
 ```
 
 This generates a strong random key. If you'd like to reuse it, you can simply
 store it in a file.
 
 ```php
-$enc_key->saveToFile('/path/to/encryption.key');
+\ParagonIE\Halite\KeyFactory::save($enc_key, '/path/to/encryption.key');
 ```
 
 Later, you can load it like so:
 
 ```php
-$enc_key = \ParagonIE\Halite\Symmetric\EncryptionKey::fromFile('/path/to/encryption.key');
+$enc_key = \ParagonIE\Halite\KeyFactory::loadEncryptionKey('/path/to/encryption.key');
 ```
 
 --------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ Assuming you are Alice, you would generate your keypair like so. (The other
 person, Bob, will do the same on his end.)
 
 ```php
-$alice_keypair = \ParagonIE\Halite\EncryptionKeyPair::generate();
+$alice_keypair = \ParagonIE\Halite\KeyFactory::generateEncryptionKeyPair();
 $alice_secret = $alice_keypair->getSecretKey();
 $alice_public = $alice_keypair->getPublicKey();
 $send_to_bob = \Sodium\bin2hex($alice_public->get());
@@ -149,7 +149,7 @@ that only the person possessing the corresponding secret key can decrypt it.
 If you wish to seal information, you only need one keypair rather than two:
 
 ```php
-$seal_keypair = \ParagonIE\Halite\EncryptionKeyPair::generate();
+$seal_keypair = \ParagonIE\Halite\KeyFactory::generateEncryptionKeyPair();
 $seal_secret = $seal_keypair->getSecretKey();
 $seal_public = $seal_keypair->getPublicKey();
 ```
@@ -193,7 +193,7 @@ generate one randomly then store it for reuse (similar to secret-key encryption
 above):
 
 ```php
-$auth_key = \ParagonIE\Halite\Symmetric\AuthenticationKey::generate();
+$auth_key = \ParagonIE\Halite\KeyFactory::generateAuthenticationKey();
 ```
 
 --------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ As with anonymous asymmetric-key encryption, you only need one keypair and you
 only give out your public key.
 
 ```php
-$sign_keypair = \ParagonIE\Halite\SignatureKeyPair::generate();
+$sign_keypair = \ParagonIE\Halite\KeyFactory::generateSignatureKeyPair();
 $sign_secret = $sign_keypair->getSecretKey();
 $sign_public = $sign_keypair->getPublicKey();
 ```

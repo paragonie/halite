@@ -18,6 +18,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
+     * 
+     * @throws CryptoException\InvalidKey
      */
     public static function encrypt(
         $source,
@@ -53,6 +55,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
+     * 
+     * @throws CryptoException\InvalidKey
      */
     public static function decrypt(
         $source,
@@ -89,6 +93,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param bool $get_as_object Get as a Key object?
      * 
      * @return string
+     * 
+     * @throws CryptoException\InvalidKey
      */
     public static function getSharedSecret(
         Contract\KeyInterface $privateKey,
@@ -127,6 +133,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
+     * 
+     * @throws CryptoException\CannotPerformOperation
      */
     public static function seal(
         $source,
@@ -159,6 +167,8 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string Signature (detached)
+     * 
+     * @throws CryptoException\InvalidKey
      */
     public static function sign(
         $message,
@@ -199,6 +209,9 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
+     * 
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\CannotPerformOperation
      */
     public static function unseal(
         $source,
@@ -253,6 +266,9 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return boolean
+     * 
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\CannotPerformOperation
      */
     public static function verify(
         $message,

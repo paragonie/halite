@@ -45,39 +45,18 @@ footprint.
 
 The `File` API looks like this:
 
-* Lazy Mode
-  * `File::checksum`(`lazy`, [`AuthenticationKey?`](Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
-  * `File::encrypt`(`lazy`, `lazy`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
-  * `File::decrypt`(`lazy`, `lazy`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
-  * `File::seal`(`lazy`, `lazy`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md))
-  * `File::unseal`(`lazy`, `lazy`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md))
-  * `File::sign`(`lazy`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md)): `string`
-  * `File::verify`(`lazy`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `bool`
-* Filenames
-  * `File::checksumFile`(`string`, [`AuthenticationKey?`](Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
-  * `File::encryptFile`(`string`, `string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
-  * `File::decryptFile`(`string`, `string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
-  * `File::sealFile`(`string`, `string`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md))
-  * `File::unsealFile`(`string`, `string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md))
-  * `File::signFile`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md)): `string`
-  * `File::verifyFile`(`string`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `bool`
-* Resources
-  * `File::checksumResource`(`resource`, [`AuthenticationKey?`](Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
-  * `File::encryptResource`(`resource`, `resource`, `EncryptionKey`)
-  * `File::decryptResource`(`resource`, `resource`, `EncryptionKey`)
-  * `File::sealResource`(`resource`, `resource`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md))
-  * `File::unsealResource`(`resource`, `resource`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md))
-  * `File::signResource`(`resource`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md)): `string`
-  * `File::verifyResource`(`resource`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `bool`
+* `File::checksum`(`file`, [`AuthenticationKey?`](Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
+* `File::encrypt`(`file`, `file`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
+* `File::decrypt`(`file`, `file`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
+* `File::seal`(`file`, `file`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md))
+* `File::unseal`(`file`, `file`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md))
+* `File::sign`(`file`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md)): `string`
+* `File::verify`(`file`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `bool`
 
-The `lazy` type indicates that the argument can be either a `string` containing
+The `file` type indicates that the argument can be either a `string` containing
 the file's path, or a `resource` (open file handle).
 
-Each of feature is designed to work in a streaming fashion.
-
-> In each case, any call to `::*File` is just a friendly wrapper for 
-> the identical `::*Resource` endpoint. We're documenting the File steps, but if
-> you have an open file handle, feel free to use the resource methods too.
+Each of these features is designed to work in a streaming fashion.
 
 ### Calculating the Checksum of a File
 

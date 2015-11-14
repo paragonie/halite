@@ -1,7 +1,9 @@
 <?php
 namespace ParagonIE\Halite;
 
+use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
 use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
+use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
 use \ParagonIE\Halite\Asymmetric\SignatureSecretKey;
 use \ParagonIE\Halite\Symmetric\AuthenticationKey;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
@@ -211,6 +213,42 @@ abstract class KeyFactory
             );
         }
         return new EncryptionKey(
+            self::loadKeyFile($filePath)
+        );
+    }
+    
+    /**
+     * Load, specifically, an encryption public key from a file
+     * 
+     * @param string $filePath
+     * @return EncryptionKey
+     */
+    public static function loadEncryptionPublicKey($filePath)
+    {
+        if (!\is_readable($filePath)) {
+            throw new Alerts\CannotPerformOperation(
+                'Cannot read keyfile: '. $filePath
+            );
+        }
+        return new EncryptionPublicKey(
+            self::loadKeyFile($filePath)
+        );
+    }
+    
+    /**
+     * Load, specifically, a signature public key from a file
+     * 
+     * @param string $filePath
+     * @return EncryptionKey
+     */
+    public static function loadSignaturePublicKey($filePath)
+    {
+        if (!\is_readable($filePath)) {
+            throw new Alerts\CannotPerformOperation(
+                'Cannot read keyfile: '. $filePath
+            );
+        }
+        return new SignaturePublicKey(
             self::loadKeyFile($filePath)
         );
     }

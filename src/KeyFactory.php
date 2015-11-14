@@ -221,7 +221,7 @@ abstract class KeyFactory
      * Load, specifically, an encryption public key from a file
      * 
      * @param string $filePath
-     * @return EncryptionKey
+     * @return EncryptionPublicKey
      */
     public static function loadEncryptionPublicKey($filePath)
     {
@@ -236,10 +236,28 @@ abstract class KeyFactory
     }
     
     /**
+     * Load, specifically, an encryption public key from a file
+     * 
+     * @param string $filePath
+     * @return EncryptionSecretKey
+     */
+    public static function loadEncryptionSecretKey($filePath)
+    {
+        if (!\is_readable($filePath)) {
+            throw new Alerts\CannotPerformOperation(
+                'Cannot read keyfile: '. $filePath
+            );
+        }
+        return new EncryptionSecretKey(
+            self::loadKeyFile($filePath)
+        );
+    }
+    
+    /**
      * Load, specifically, a signature public key from a file
      * 
      * @param string $filePath
-     * @return EncryptionKey
+     * @return SignaturePublicKey
      */
     public static function loadSignaturePublicKey($filePath)
     {
@@ -254,10 +272,28 @@ abstract class KeyFactory
     }
     
     /**
+     * Load, specifically, a signature secret key from a file
+     * 
+     * @param string $filePath
+     * @return SignatureSecretKey
+     */
+    public static function loadSignatureSecretKey($filePath)
+    {
+        if (!\is_readable($filePath)) {
+            throw new Alerts\CannotPerformOperation(
+                'Cannot read keyfile: '. $filePath
+            );
+        }
+        return new SignatureSecretKey(
+            self::loadKeyFile($filePath)
+        );
+    }
+    
+    /**
      * Load an asymmetric encryption key pair from a file
      * 
      * @param string $filePath
-     * @return EncryptionKey
+     * @return EncryptionKeyPair
      */
     public static function loadEncryptionKeyPair($filePath)
     {
@@ -277,7 +313,7 @@ abstract class KeyFactory
      * Load an asymmetric signature key pair from a file
      * 
      * @param string $filePath
-     * @return EncryptionKey
+     * @return SignatureKeyPair
      */
     public static function loadSignatureKeyPair($filePath)
     {

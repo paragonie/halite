@@ -2,8 +2,12 @@
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyFactory;
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
-use \ParagonIE\Halite\Asymmetric\SecretKey as ASecretKey;
-use \ParagonIE\Halite\Asymmetric\PublicKey as APublicKey;
+use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
+use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
+use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
+use \ParagonIE\Halite\Asymmetric\SignatureSecretKey;
+use \ParagonIE\Halite\Symmetric\AuthenticationKey;
+use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
 /**
  * @backupGlobals disabled
@@ -43,14 +47,13 @@ class KeyTest extends PHPUnit_Framework_TestCase
         $keypair = KeyFactory::deriveSignatureKeyPair(
             'apple',
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f".
-            "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f",
-            Key::CRYPTO_SIGN
+            "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
         );
         $sign_secret = $keypair->getSecretKey();
         $sign_public = $keypair->getPublicKey();
         
-        $this->assertTrue($sign_secret instanceof ASecretKey);
-        $this->assertTrue($sign_public instanceof APublicKey);
+        $this->assertTrue($sign_secret instanceof SignatureSecretKey);
+        $this->assertTrue($sign_public instanceof SignaturePublicKey);
         
         // Can this be used?        
         $message = 'This is a test message';
@@ -114,6 +117,69 @@ class KeyTest extends PHPUnit_Framework_TestCase
             $this->assertFalse($sign_public->isSecretKey());
             $this->assertTrue($sign_public->isSigningKey());
             $this->assertTrue($sign_public->isPublicKey());
+    }
+    
+    public function testEncKeyStorage()
+    {
+        $enc_keypair = KeyFactory::deriveEncryptionKeyPair(
+            'apple',
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f".
+            "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
+        );
+        $enc_secret = $enc_keypair->getSecretKey();
+        $enc_public = $enc_keypair->getPublicKey();
         
+        $file_secret = \tempnam(__DIR__.'/tmp', 'key');
+        $file_public = \tempnam(__DIR__.'/tmp', 'key');
+        
+        $this->assertTrue(
+            KeyFactory::save($enc_secret, $file_secret) !== false
+        );
+        $this->assertTrue(
+            KeyFactory::save($enc_public, $file_public) !== false
+        );
+        
+        $load_public = KeyFactory::loadEncryptionPublicKey($file_public);
+        $this->assertTrue(
+            $load_public instanceof EncryptionPublicKey
+        );
+        $this->assertTrue(
+            \hash_equals($enc_public->get(), $load_public->get())
+        );
+        
+        \unlink($file_secret);
+        \unlink($file_public);
+    }
+    
+    public function testSignKeyStorage()
+    {
+        $sign_keypair = KeyFactory::deriveSignatureKeyPair(
+            'apple',
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f".
+            "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
+        );
+        $sign_secret = $sign_keypair->getSecretKey();
+        $sign_public = $sign_keypair->getPublicKey();
+        
+        $file_secret = \tempnam(__DIR__.'/tmp', 'key');
+        $file_public = \tempnam(__DIR__.'/tmp', 'key');
+        
+        $this->assertTrue(
+            KeyFactory::save($sign_secret, $file_secret) !== false
+        );
+        $this->assertTrue(
+            KeyFactory::save($sign_public, $file_public) !== false
+        );
+        
+        $load_public = KeyFactory::loadSignaturePublicKey($file_public);
+        $this->assertTrue(
+            $load_public instanceof SignaturePublicKey
+        );
+        $this->assertTrue(
+            \hash_equals($sign_public->get(), $load_public->get())
+        );
+        
+        \unlink($file_secret);
+        \unlink($file_public);
     }
 }

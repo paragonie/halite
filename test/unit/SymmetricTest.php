@@ -79,7 +79,9 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         try {
             $plain = Symmetric::decrypt($message, $key, true);
             $this->assertEquals($plain, $message);
-            throw new Exception('ERROR: THIS SHOULD ALWAYS FAIL');
+            $this->fail(
+                'This should have thrown an InvalidMessage exception!'
+            );
         } catch (CryptoException\InvalidMessage $e) {
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
         }

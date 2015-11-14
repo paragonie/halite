@@ -37,6 +37,8 @@ class FileTest extends PHPUnit_Framework_TestCase
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted.png')
         );
+        \unlink(__DIR__.'/tmp/paragon_avatar.encrypted.png');
+        \unlink(__DIR__.'/tmp/paragon_avatar.decrypted.png');
     }
     
     public function testEncryptFail()
@@ -63,9 +65,13 @@ class FileTest extends PHPUnit_Framework_TestCase
                 __DIR__.'/tmp/paragon_avatar.decrypt_fail.png',
                 $key
             );
-            throw new \Exception('ERROR: THIS SHOULD ALWAYS FAIL');
+            $this->fail(
+                'This should have thrown an InvalidMessage exception!'
+            );
         } catch (CryptoException\InvalidMessage $e) {
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
+            \unlink(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png');
+            \unlink(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png');
         }
     }
     
@@ -96,6 +102,9 @@ class FileTest extends PHPUnit_Framework_TestCase
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
         );
+        
+        \unlink(__DIR__.'/tmp/paragon_avatar.sealed.png');
+        \unlink(__DIR__.'/tmp/paragon_avatar.opened.png');
     }
     
     public function testSealFail()
@@ -122,12 +131,16 @@ class FileTest extends PHPUnit_Framework_TestCase
         try {
             File::unsealFile(
                 __DIR__.'/tmp/paragon_avatar.seal_fail.png',
-                __DIR__.'/tmp/paragon_avatar.opened.png',
+                __DIR__.'/tmp/paragon_avatar.open_fail.png',
                 $secretkey
             );
-            throw new \Exception('ERROR: THIS SHOULD ALWAYS FAIL');
+            $this->fail(
+                'This should have thrown an InvalidMessage exception!'
+            );
         } catch (CryptoException\InvalidMessage $e) {
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
+            \unlink(__DIR__.'/tmp/paragon_avatar.seal_fail.png');
+            \unlink(__DIR__.'/tmp/paragon_avatar.open_fail.png');
         }
     }
     
@@ -169,5 +182,6 @@ class FileTest extends PHPUnit_Framework_TestCase
             $hash,
             $file
         );
+        \unlink(__DIR__.'/tmp/garbage.dat');
     }
 }

@@ -1,8 +1,6 @@
 <?php
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\KeyPair;
 use \ParagonIE\Halite\KeyFactory;
 use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
 use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
@@ -58,7 +56,9 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
                 true
             );
             $this->assertEquals($plain, $message);
-            throw new \Exception('ERROR: THIS SHOULD ALWAYS FAIL');
+            $this->fail(
+                'This should have thrown an InvalidMessage exception!'
+            );
         } catch (CryptoException\InvalidMessage $e) {
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
         }
@@ -125,7 +125,9 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         try {
             $opened = Asymmetric::unseal($sealed, $alice->getSecretKey(), true);
             $this->assertEquals($opened, $message);
-            throw new Exception('ERROR: THIS SHOULD ALWAYS FAIL');
+            $this->fail(
+                'This should have thrown an InvalidMessage exception!'
+            );
         } catch (CryptoException\InvalidKey $e) {
             $this->assertTrue($e instanceof CryptoException\InvalidKey);
         } catch (CryptoException\InvalidMessage $e) {

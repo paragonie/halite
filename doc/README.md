@@ -3,7 +3,7 @@
 1. [Basic Halite Usage](Basic.md)
 2. [Halite Features](Features.md)
 3. [Cryptography Primitives](Primitives.md)
-4. Class Documentation
+4. [Class Documentation](Classes/)
     * [`Alerts`](Classes/Alerts) (Exceptions)
        * [`\ParagonIE\Halite\Alerts\CannotCloneKey`](Classes/Alerts/CannotCloneKey.md)
        * [`\ParagonIE\Halite\Alerts\CannotPerformOperation`](Classes/Alerts/CannotPerformOperation.md)
@@ -11,7 +11,7 @@
        * [`\ParagonIE\Halite\Alerts\ConfigDirectiveNotFound`](Classes/Alerts/ConfigDirectiveNotFound.md)
        * [`\ParagonIE\Halite\Alerts\FileAccessDenied`](Classes/Alerts/FileAccessDenied.md)
        * [`\ParagonIE\Halite\Alerts\FileModified`](Classes/Alerts/FileModified.md)
-       * [`\ParagonIE\Halite\Alerts\HaliteAlert`](Classes/Alerts/HaliteAlert.md) (Classes/base Exception for all Alerts)
+       * [`\ParagonIE\Halite\Alerts\HaliteAlert`](Classes/Alerts/HaliteAlert.md) (Base Exception for all Alerts)
        * [`\ParagonIE\Halite\Alerts\InvalidDigestLength`](Classes/Alerts/InvalidDigestLength.md)
        * [`\ParagonIE\Halite\Alerts\InvalidFlags`](Classes/Alerts/InvalidFlags.md)
        * [`\ParagonIE\Halite\Alerts\InvalidKey`](Classes/Alerts/InvalidKey.md)

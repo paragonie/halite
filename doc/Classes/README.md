@@ -7,7 +7,7 @@
     * [`\ParagonIE\Halite\Alerts\ConfigDirectiveNotFound`](Alerts/ConfigDirectiveNotFound.md)
     * [`\ParagonIE\Halite\Alerts\FileAccessDenied`](Alerts/FileAccessDenied.md)
     * [`\ParagonIE\Halite\Alerts\FileModified`](Alerts/FileModified.md)
-    * [`\ParagonIE\Halite\Alerts\HaliteAlert`](Alerts/HaliteAlert.md) (base Exception for all Alerts)
+    * [`\ParagonIE\Halite\Alerts\HaliteAlert`](Alerts/HaliteAlert.md) (Base Exception for all Alerts)
     * [`\ParagonIE\Halite\Alerts\InvalidDigestLength`](Alerts/InvalidDigestLength.md)
     * [`\ParagonIE\Halite\Alerts\InvalidFlags`](Alerts/InvalidFlags.md)
     * [`\ParagonIE\Halite\Alerts\InvalidKey`](Alerts/InvalidKey.md)

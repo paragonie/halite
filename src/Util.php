@@ -80,6 +80,7 @@ abstract class Util
      * @staticvar boolean $exists
      * @param string $str
      * @return int
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      */
     public static function safeStrlen($str)
     {
@@ -94,11 +95,16 @@ abstract class Util
                     'mb_strlen() failed unexpectedly'
                 );
             }
-            return $length;
         } else {
             // If we reached here, we can rely on strlen to count bytes:
-            return \strlen($str);
+            $length = \strlen($str);
+            if ($length === false) {
+                throw new Alerts\CannotPerformOperation(
+                    'strlen() failed unexpectedly'
+                );
+            }
         }
+        return $length;
     }
     
     /**

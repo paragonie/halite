@@ -20,11 +20,11 @@ class UtilTest extends PHPUnit_Framework_TestCase
      */
     public function testSafeStrlen()
     {
-        $this->setExpectedException('ParagonIE\Halite\Alerts\CannotPerformOperation');
+        $this->setExpectedException('\ParagonIE\Halite\Alerts\HaliteAlert');
 
         $teststring = []; // is not a string, will provoke a warning
 
         //suppress php warning
-        @Util::safeStrlen($teststring);
+        Util::safeStrlen($teststring);
     }
 }

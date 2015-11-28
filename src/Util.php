@@ -88,6 +88,11 @@ abstract class Util
         if ($exists === null) {
             $exists = \function_exists('mb_strlen');
         }
+        if (!\is_string($str)) {
+            throw new Alerts\InvalidType(
+                'A string was expected.'
+            );
+        }
         if ($exists) {
             $length = \mb_strlen($str, '8bit');
             if ($length === false) {

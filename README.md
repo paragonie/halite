@@ -18,6 +18,8 @@ without making your source code available under a GPL-compatible license.
 1. [Install Libsodium and the PHP Extension](https://paragonie.com/book/pecl-libsodium/read/00-intro.md#installing-libsodium)
 2. `composer require paragonie/halite`
 
+**Halite Version 2 requires PHP 7.0.0 or newer!**
+
 ## Using Halite in Your Project
 
 Check out the [documentation](doc). The basic Halite API is designed for simplicity:

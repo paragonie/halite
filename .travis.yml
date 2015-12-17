@@ -2,7 +2,6 @@ language: php
 
 php:
 
-- 5.6
 - 7.0
 
 before_install:
@@ -10,7 +9,7 @@ before_install:
 - sudo apt-get install make build-essential automake php5-dev php-pear
 - git clone git://github.com/jedisct1/libsodium.git
 - cd libsodium
-- git checkout 1.0.4
+- git checkout 1.0.7
 - ./autogen.sh
 - ./configure && make check
 - sudo make install

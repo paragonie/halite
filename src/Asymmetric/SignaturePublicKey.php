@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Asymmetric;
 
-class SignaturePublicKey extends PublicKey
+final class SignaturePublicKey extends PublicKey
 {
     /**
      * @param string $keyMaterial - The actual key data

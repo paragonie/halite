@@ -4,7 +4,7 @@ namespace ParagonIE\Halite\Symmetric;
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Config as BaseConfig;
 
-class Config extends BaseConfig
+final class Config extends BaseConfig
 {
     /**
      * Get the configuration
@@ -24,11 +24,11 @@ class Config extends BaseConfig
         $major = \ord($header[2]);
         $minor = \ord($header[3]);
         if ($mode === 'encrypt') {
-            return new BaseConfig(
+            return new Config(
                 self::getConfigEncrypt($major, $minor)
             );
         } elseif ($mode === 'auth') {
-            return new BaseConfig(
+            return new Config(
                 self::getConfigAuth($major, $minor)
             );
         }

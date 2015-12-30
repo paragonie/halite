@@ -1,15 +1,6 @@
 <?php
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Asymmetric\SecretKey as AsymmetricSecretKey;
-use ParagonIE\Halite\Asymmetric\PublicKey as AsymmetricPublicKey;
-use ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
-use ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
-use ParagonIE\Halite\Asymmetric\SignaturePublicKey;
-use ParagonIE\Halite\Asymmetric\SignatureSecretKey;
-use ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
-use ParagonIE\Halite\Symmetric\AuthenticationKey;
-use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Contract;
 

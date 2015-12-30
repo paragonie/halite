@@ -29,16 +29,6 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
                 'Expected an instnace of AuthenticationKey'
             );
         }
-        if ($secretKey->isAsymmetricKey()) {
-            throw new CryptoException\InvalidKey(
-                'Expected a symmetric key, not an asymmetric key'
-            );
-        }
-        if (!$secretKey->isSigningKey()) {
-            throw new CryptoException\InvalidKey(
-                'Authentication key expected'
-            );
-        }
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'auth');
         $mac = self::calculateMAC($message, $secretKey->get(), $config);
         if ($raw) {
@@ -68,6 +58,122 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
             // We were given hex data:
             $ciphertext = \Sodium\hex2bin($ciphertext);
         }
+        list($version, $config, $salt, $nonce, $xored, $auth) = 
+            self::unpackMessageForDecryption($ciphertext);
+        
+        // Split our keys
+        list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
+        
+        // Check the MAC first
+        if (!self::verifyMAC(
+            $auth, 
+            $version . $salt . $nonce . $xored,
+            $aKey
+        )) {
+            throw new CryptoException\InvalidMessage(
+                'Invalid message authenticaiton code'
+            );
+        }
+        
+        // Down the road, do whatever logic around $version here, in case we
+        // need to upgrade our protocol.
+        
+        // Add version logic above
+        $plaintext = \Sodium\crypto_stream_xor($xored, $nonce, $eKey);
+        if ($plaintext === false) {
+            throw new CryptoException\InvalidMessage(
+                'Invalid message authenticaiton code'
+            );
+        }
+        return $plaintext;
+    }
+    
+    /**
+     * Encrypt a message using the Halite encryption protocol
+     * (Encrypt then MAC -- Xsalsa20 then HMAC-SHA-512/256)
+     * 
+     * @param string $plaintext
+     * @param EncryptionKey $secretKey
+     * @param boolean $raw Don't hex encode the output?
+     * @return string
+     */
+    public static function encrypt(
+        $plaintext,
+        Contract\KeyInterface $secretKey,
+        $raw = false
+    ) {
+        if (!$secretKey instanceof EncryptionKey) {
+            throw new CryptoException\InvalidKey(
+                'Expected an instance of EncryptionKey'
+            );
+        }
+        $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
+        
+        // Generate a nonce and HKDF salt:
+        $nonce = \Sodium\randombytes_buf(\Sodium\CRYPTO_SECRETBOX_NONCEBYTES);
+        $salt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
+        
+        // Split our keys according to the HKDF salt:
+        list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
+        
+        // Encrypt our message with the encryption key:
+        $xored = \Sodium\crypto_stream_xor($plaintext, $nonce, $eKey);
+        
+        // Calculate an authentication tag:
+        $auth = self::calculateMAC(
+            Halite::HALITE_VERSION . $salt . $nonce . $xored,
+            $aKey
+        );
+        
+        \Sodium\memzero($eKey);
+        \Sodium\memzero($aKey);
+        if (!$raw) {
+            return \Sodium\bin2hex(
+                Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth
+            );
+        }
+        return Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth;
+    }
+    
+    /**
+     * Split a key using a variant of HKDF that used a keyed BLAKE2b hash rather
+     * than an HMAC construct
+     * 
+     * @param EncryptionKey $master
+     * @param string $salt
+     * @param Config $config
+     * @return array
+     */
+    public static function splitKeys(
+        Contract\KeyInterface $master,
+        $salt = null,
+        Config $config = null
+    ) {
+        $binary = $master->get();
+        return [
+            CryptoUtil::hkdfBlake2b(
+                $binary,
+                \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
+                $config->HKDF_SBOX,
+                $salt
+            ),
+            CryptoUtil::hkdfBlake2b(
+                $binary,
+                \Sodium\CRYPTO_AUTH_KEYBYTES,
+                $config->HKDF_AUTH, 
+                $salt
+            )
+        ];
+    }
+    
+    /**
+     * Unpack a message string into an array.
+     * 
+     * @param string $ciphertext
+     * @return array
+     */
+    public static function unpackMessageForDecryption($ciphertext)
+    {
         $length = CryptoUtil::safeStrlen($ciphertext);
         
         // The first 4 bytes are reserved for the version size
@@ -109,98 +215,9 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
         // $auth is the last 32 bytes
         $auth = CryptoUtil::safeSubstr($ciphertext, $length - \Sodium\CRYPTO_AUTH_BYTES);
         
-        // Split our keys
-        list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
-        
-        // Check the MAC first
-        if (!self::verifyMAC(
-            $auth, 
-            $version . $salt . $nonce . $xored,
-            $aKey
-        )) {
-            throw new CryptoException\InvalidMessage(
-                'Invalid message authenticaiton code'
-            );
-        }
-        // Down the road, do whatever logic around $version here, in case we
-        // need to upgrade our protocol.
-        
-        
-        // Add version logic above
-        $plaintext = \Sodium\crypto_stream_xor($xored, $nonce, $eKey);
-        if ($plaintext === false) {
-            throw new CryptoException\InvalidMessage(
-                'Invalid message authenticaiton code'
-            );
-        }
-        return $plaintext;
-    }
-    
-    /**
-     * Encrypt a message using the Halite encryption protocol
-     * 
-     * @param string $plaintext
-     * @param EncryptionKey $secretKey
-     * @param boolean $raw Don't hex encode the output?
-     * @return string
-     */
-    public static function encrypt(
-        $plaintext,
-        Contract\KeyInterface $secretKey,
-        $raw = false
-    ) {
-        if (!$secretKey instanceof EncryptionKey) {
-            throw new CryptoException\InvalidKey(
-                'Expected an instance of EncryptionKey'
-            );
-        }
-        $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
-        $nonce = \Sodium\randombytes_buf(\Sodium\CRYPTO_SECRETBOX_NONCEBYTES);
-        $salt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
-        list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
-        $xored = \Sodium\crypto_stream_xor($plaintext, $nonce, $eKey);
-        $auth = self::calculateMAC(
-            Halite::HALITE_VERSION . $salt . $nonce . $xored,
-            $aKey
-        );
-        
-        \Sodium\memzero($eKey);
-        \Sodium\memzero($aKey);
-        if (!$raw) {
-            return \Sodium\bin2hex(Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth);
-        }
-        return Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth;
-    }
-    
-    /**
-     * Split a key using a variant of HKDF that used a keyed BLAKE2b hash rather
-     * than an HMAC construct
-     * 
-     * @param EncryptionKey $master
-     * @param string $salt
-     * @param Config $config
-     * @return array
-     */
-    public static function splitKeys(
-        Contract\KeyInterface $master,
-        $salt = null,
-        Config $config = null
-    ) {
-        $binary = $master->get();
-        return [
-            CryptoUtil::hkdfBlake2b(
-                $binary,
-                \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
-                $config->HKDF_SBOX,
-                $salt
-            ),
-            CryptoUtil::hkdfBlake2b(
-                $binary,
-                \Sodium\CRYPTO_AUTH_KEYBYTES,
-                $config->HKDF_AUTH, 
-                $salt
-            )
-        ];
+        // We don't need this anymore.
+        \Sodium\memzero($ciphertext);
+        return [$version, $config, $salt, $nonce, $xored, $auth];
     }
     
     /**

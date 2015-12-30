@@ -8,7 +8,7 @@ use ParagonIE\Halite\Alerts as CryptoException;
 /**
  * Describes a pair of secret and public keys
  */
-class EncryptionKeyPair extends KeyPair
+final class EncryptionKeyPair extends KeyPair
 {
     /**
      * 

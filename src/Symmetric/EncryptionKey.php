@@ -1,7 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Symmetric;
 
-class EncryptionKey extends SecretKey
+final class EncryptionKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data

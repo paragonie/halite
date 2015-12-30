@@ -180,17 +180,6 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
                 'Argument 2: Expected an instance of SignatureSecretKey'
             );
         }
-        if (!$privateKey->isSigningKey()) {
-            throw new CryptoException\InvalidKey(
-                'Expected a signing key'
-            );
-        }
-        if ($privateKey->isEncryptionKey()) {
-            throw new CryptoException\InvalidKey(
-                'Unexpected encryption key'
-            );
-        }
-        
         $signed = \Sodium\crypto_sign_detached(
             $message,
             $privateKey->get()
@@ -228,7 +217,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         }
         if (!function_exists('\\Sodium\\crypto_box_seal_open')) {
             throw new CryptoException\CannotPerformOperation(
-                'crypto_box_seal_open is not available'
+                'crypto_box_seal_open is not available, please update/reinstall libsodium'
             );
         }
 
@@ -239,17 +228,19 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
             $secret_key,
             $public_key
         );
-
+        
+        // Wipe these immediately:
+        \Sodium\memzero($secret_key);
+        \Sodium\memzero($public_key);
+        
         // Now let's open that sealed box
         $message = \Sodium\crypto_box_seal_open($source, $kp);
 
         // Always memzero after retrieving a value
-        \Sodium\memzero($secret_key);
-        \Sodium\memzero($public_key);
         \Sodium\memzero($kp);
         if ($message === false) {
             throw new CryptoException\InvalidKey(
-                'Incorrect secret key'
+                'Incorrect secret key for this sealed message'
             );
         }
 

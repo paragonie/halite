@@ -17,7 +17,7 @@ use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
 use \ParagonIE\Halite\Symmetric\AuthenticationKey;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 
-class File implements \ParagonIE\Halite\Contract\FileInterface
+final class File implements \ParagonIE\Halite\Contract\FileInterface
 {
     /**
      * Lazy fallthrough method for checksumFile() and checksumResource()

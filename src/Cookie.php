@@ -6,7 +6,7 @@ use \ParagonIE\Halite\Symmetric\EncryptionKey;
 use \ParagonIE\Halite\Symmetric\Crypto;
 use \ParagonIE\Halite\Alerts\InvalidMessage;
 
-class Cookie 
+final class Cookie 
 {
     protected $key;
     

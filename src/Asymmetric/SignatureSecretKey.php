@@ -11,4 +11,17 @@ final class SignatureSecretKey extends SecretKey
     {
         parent::__construct($keyMaterial, true);
     }
+    
+    /**
+     * See the appropriate derived class.
+     * 
+     * @return SignaturePublicKey
+     */
+    public function derivePublicKey()
+    {
+        $publicKey = \Sodium\crypto_sign_publickey_from_secretkey(
+            $this->get()
+        );
+        return new SignaturePublicKey($publicKey);
+    }
 }

@@ -1,7 +1,5 @@
 <?php
 use \ParagonIE\Halite\KeyFactory;
-use \ParagonIE\Halite\KeyPair;
-use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Asymmetric\SecretKey as ASecretKey;
 use \ParagonIE\Halite\Asymmetric\PublicKey as APublicKey;
@@ -55,5 +53,29 @@ class KeyPairTest extends PHPUnit_Framework_TestCase
             $copy->getPublicKey()->get()
         );
         \unlink($filename);
+    }
+    
+    /**
+     * @covers \ParagonIE\Halite\Asymmetric\EncryptionSecretKey::derivePublicKey()
+     * @covers \ParagonIE\Halite\Asymmetric\SignatureSecretKey::derivePublicKey()
+     */
+    public function testPublicDerivation()
+    {
+        $enc_kp = KeyFactory::generateEncryptionKeyPair();
+        $enc_secret = $enc_kp->getSecretKey();
+        $enc_public = $enc_kp->getPublicKey();
+        
+        $this->assertEquals(
+            $enc_secret->derivePublicKey()->get(),
+            $enc_public->get()
+        );
+        
+        $sign_kp = KeyFactory::generateSignatureKeyPair();
+        $sign_secret = $sign_kp->getSecretKey();
+        $sign_public = $sign_kp->getPublicKey();
+        $this->assertEquals(
+            $sign_secret->derivePublicKey()->get(),
+            $sign_public->get()
+        );
     }
 }

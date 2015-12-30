@@ -3,6 +3,7 @@ namespace ParagonIE\Halite\Asymmetric;
 
 use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\Alerts\CannotPerformOperation;
 
 class SecretKey extends Key implements Contract\KeyInterface
 {
@@ -16,5 +17,15 @@ class SecretKey extends Key implements Contract\KeyInterface
             ? $args[0]
             : false;
         parent::__construct($keyMaterial, false, $signing, true);
+    }
+    
+    /**
+     * See the appropriate derived class.
+     */
+    public function derivePublicKey()
+    {
+        throw new CannotPerformOperation(
+            'This is not implemented in the base class'
+        );
     }
 }

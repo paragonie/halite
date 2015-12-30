@@ -11,4 +11,17 @@ final class EncryptionSecretKey extends SecretKey
     {
         parent::__construct($keyMaterial, false);
     }
+    
+    /**
+     * See the appropriate derived class.
+     * 
+     * @return SignaturePublicKey
+     */
+    public function derivePublicKey()
+    {
+        $publicKey = \Sodium\crypto_box_publickey_from_secretkey(
+            $this->get()
+        );
+        return new EncryptionPublicKey($publicKey);
+    }
 }

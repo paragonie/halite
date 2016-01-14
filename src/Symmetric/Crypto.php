@@ -26,7 +26,17 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
     ) {
         if (!$secretKey instanceof AuthenticationKey) {
             throw new CryptoException\InvalidKey(
-                'Expected an instnace of AuthenticationKey'
+                'Expected an instance of AuthenticationKey'
+            );
+        }
+        if ($secretKey->isAsymmetricKey()) {
+            throw new CryptoException\InvalidKey(
+                'Expected a symmetric key, not an asymmetric key'
+            );
+        }
+        if (!$secretKey->isSigningKey()) {
+            throw new CryptoException\InvalidKey(
+                'Authentication key expected'
             );
         }
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'auth');
@@ -71,7 +81,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
             $aKey
         )) {
             throw new CryptoException\InvalidMessage(
-                'Invalid message authenticaiton code'
+                'Invalid message authentication code'
             );
         }
         
@@ -82,7 +92,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
         $plaintext = \Sodium\crypto_stream_xor($xored, $nonce, $eKey);
         if ($plaintext === false) {
             throw new CryptoException\InvalidMessage(
-                'Invalid message authenticaiton code'
+                'Invalid message authentication code'
             );
         }
         return $plaintext;

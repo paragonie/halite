@@ -29,6 +29,16 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
                 'Expected an instance of AuthenticationKey'
             );
         }
+        if ($secretKey->isAsymmetricKey()) {
+            throw new CryptoException\InvalidKey(
+                'Expected a symmetric key, not an asymmetric key'
+            );
+        }
+        if (!$secretKey->isSigningKey()) {
+            throw new CryptoException\InvalidKey(
+                'Authentication key expected'
+            );
+        }
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'auth');
         $mac = self::calculateMAC($message, $secretKey->get(), $config);
         if ($raw) {

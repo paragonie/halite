@@ -4,7 +4,7 @@
     "type": "library",
     "require": {
         "php": "^7.0.0",
-        "ext-libsodium": "^1.0.2"
+        "ext-libsodium": "^1.0.3"
     },
     "autoload": {
         "psr-4": {

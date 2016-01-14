@@ -1,6 +1,7 @@
 <?php
 namespace ParagonIE\Halite;
 
+use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
 use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
 use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
@@ -10,6 +11,7 @@ use \ParagonIE\Halite\Symmetric\EncryptionKey;
 use \ParagonIE\Halite\Halite;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyPair;
+use \ParagonIE\Halite\Util as CryptoUtil;
 
 /**
  * Class for generating specific key types
@@ -39,7 +41,7 @@ abstract class KeyFactory
     public static function generateEncryptionKey(&$secret_key = null)
     {
         $secret_key = \Sodium\randombytes_buf(
-            \Sodium\CRYPTO_SECRETBOX_KEYBYTES
+            \Sodium\CRYPTO_STREAM_KEYBYTES
         );
         return new EncryptionKey($secret_key);
     }
@@ -88,19 +90,42 @@ abstract class KeyFactory
      * 
      * @param string $password
      * @param string $salt
+     * @param bool $legacy Use scrypt?
+     * 
      * @return AuthenticationKey
      */
     public static function deriveAuthenticationKey(
         $password,
-        $salt
+        $salt,
+        $legacy = false
     ) {
-        $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-            \Sodium\CRYPTO_AUTH_KEYBYTES,
-            $password,
-            $salt,
-            \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-            \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
-        );
+        if ($legacy) {
+            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
+                throw new CryptoException\InvalidSalt(
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                );
+            }
+            $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                \Sodium\CRYPTO_AUTH_KEYBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+            );
+        } else {
+            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+                throw new CryptoException\InvalidSalt(
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                );
+            }
+            $secret_key = \Sodium\crypto_pwhash(
+                \Sodium\CRYPTO_AUTH_KEYBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+            );
+        }
         return new AuthenticationKey($secret_key);
     }
     
@@ -108,41 +133,90 @@ abstract class KeyFactory
      * Derive an encryption key (symmetric-key cryptography) from a password
      * and salt
      * 
-     * @param &string $secret_key
+     * @param string $password
+     * @param string $salt
+     * @param bool $legacy Use scrypt?
+     * 
      * @return EncryptionKey
      */
     public static function deriveEncryptionKey(
         $password,
-        $salt
+        $salt,
+        $legacy = false
     ) {
-        $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-            \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
-            $password,
-            $salt,
-            \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-            \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
-        );
+        if ($legacy) {
+            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
+                throw new CryptoException\InvalidSalt(
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                );
+            }
+            $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                \Sodium\CRYPTO_STREAM_KEYBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+            );
+        } else {
+            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+                throw new CryptoException\InvalidSalt(
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                );
+            }
+            $secret_key = \Sodium\crypto_pwhash(
+                \Sodium\CRYPTO_STREAM_KEYBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+            );
+        }
         return new EncryptionKey($secret_key);
     }
     
     /**
      * Derive a key pair for public key encryption from a password and salt
      * 
-     * @param string $secret_key
+     * @param string $password
+     * @param string $salt
+     * @param bool $legacy Use scrypt?
+     * 
      * @return EncryptionKeyPair
      */
     public static function deriveEncryptionKeyPair(
         $password,
-        $salt
+        $salt,
+        $legacy = false
     ) {
-        // Digital signature keypair
-        $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-            \Sodium\CRYPTO_SIGN_SEEDBYTES,
-            $password,
-            $salt,
-            \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-            \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
-        );
+        if ($legacy) {
+            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
+                throw new CryptoException\InvalidSalt(
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                );
+            }
+            // Diffie Hellman key exchange key pair
+            $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                \Sodium\CRYPTO_BOX_SEEDBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+            );
+        } else {
+            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+                throw new CryptoException\InvalidSalt(
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                );
+            }
+            // Diffie Hellman key exchange key pair
+            $seed = \Sodium\crypto_pwhash(
+                \Sodium\CRYPTO_BOX_SEEDBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+            );
+        }
         $keypair = \Sodium\crypto_box_seed_keypair($seed);
         $secret_key = \Sodium\crypto_box_secretkey($keypair);
         
@@ -156,21 +230,46 @@ abstract class KeyFactory
     /**
      * Derive a key pair for public key signatures from a password and salt
      * 
-     * @param type $secret_key
+     * @param string $password
+     * @param string $salt
+     * @param bool $legacy Use scrypt?
+     * 
      * @return \ParagonIE\Halite\EncryptionKeyPair
      */
     public static function deriveSignatureKeyPair(
         $password,
-        $salt
+        $salt,
+        $legacy = false
     ) {
-        // Digital signature keypair
-        $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-            \Sodium\CRYPTO_SIGN_SEEDBYTES,
-            $password,
-            $salt,
-            \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-            \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
-        );
+        if ($legacy) {
+            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
+                throw new CryptoException\InvalidSalt(
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                );
+            }
+            // Digital signature keypair
+            $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
+                \Sodium\CRYPTO_SIGN_SEEDBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+            );
+        } else {
+            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+                throw new CryptoException\InvalidSalt(
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                );
+            }
+            // Digital signature keypair
+            $seed = \Sodium\crypto_pwhash(
+                \Sodium\CRYPTO_SIGN_SEEDBYTES,
+                $password,
+                $salt,
+                \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+                \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+            );
+        }
         $keypair = \Sodium\crypto_sign_seed_keypair($seed);
         $secret_key = \Sodium\crypto_sign_secretkey($keypair);
         

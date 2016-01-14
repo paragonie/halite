@@ -13,11 +13,11 @@ namespace ParagonIE\Halite;
  */
 abstract class Halite
 {
-    const VERSION             = '1.0.0';
+    const VERSION             = '2.0.0';
 
-    const HALITE_VERSION_KEYS = "\x31\x40\x01\x00";
-    const HALITE_VERSION_FILE = "\x31\x41\x01\x00";
-    const HALITE_VERSION      = "\x31\x42\x01\x00";
+    const HALITE_VERSION_KEYS = "\x31\x40\x02\x00";
+    const HALITE_VERSION_FILE = "\x31\x41\x02\x00";
+    const HALITE_VERSION      = "\x31\x42\x02\x00";
     
     const VERSION_TAG_LEN = 4;
 }

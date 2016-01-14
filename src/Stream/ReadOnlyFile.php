@@ -1,7 +1,10 @@
 <?php
 namespace ParagonIE\Halite\Stream;
 
-use \ParagonIE\Halite\Contract\StreamInterface;
+use \ParagonIE\Halite\Contract\{
+    StreamInterface,
+    KeyInterface
+};
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Util;
 
@@ -12,9 +15,10 @@ class ReadOnlyFile implements StreamInterface
     private $fp;
     private $hash;
     private $pos;
+    private $hashKey = null;
     private $stat = [];
     
-    public function __construct($file)
+    public function __construct($file, KeyInterface $key = null)
     {
         if (is_string($file)) {
             $this->fp = \fopen($file, 'rb');
@@ -29,6 +33,9 @@ class ReadOnlyFile implements StreamInterface
                 'Argument 1: Expected a filename or resource'
             );
         }
+        $this->hashKey = !empty($key) 
+            ? $key->get()
+            : null;
         $this->hash = $this->getHash();
     }
     
@@ -153,7 +160,7 @@ class ReadOnlyFile implements StreamInterface
         
         // Create a hash context:
         $h = \Sodium\crypto_generichash_init(
-            null,
+            $this->hashKey,
             \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
         );
         for ($i = 0; $i < $this->stat['size']; $i += self::CHUNK) {

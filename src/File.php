@@ -297,13 +297,15 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
         $raw = false
     ) {
         $config = self::getConfig(Halite::HALITE_VERSION_FILE, 'checksum');
-        if ($key) {
-            if (!($key instanceof AuthenticationKey)) {
-                throw new \ParagonIE\Halite\Alerts\InvalidKey(
-                    'Argument 2: Expected an instance of AuthenticationKey'
-                );
-            }
+        if ($key instanceof AuthenticationKey) {
             $state = \Sodium\crypto_generichash_init($key->get(), $config->HASH_LEN);
+        } elseif($config->CHECKSUM_PUBKEY && $key instanceof SignaturePublicKey) {
+            // In version 2, we use the public key as a hash key
+            $state = \Sodium\crypto_generichash_init($key->get(), $config->HASH_LEN);
+        } elseif (isset($key)) {
+            throw new \ParagonIE\Halite\Alerts\InvalidKey(
+                'Argument 2: Expected an instance of AuthenticationKey'
+            );
         } else {
             $state = \Sodium\crypto_generichash_init(null, $config->HASH_LEN);
         }
@@ -1036,7 +1038,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
                 'Argument 1: Expected an instance of SignatureSecretKey'
             );
         }
-        $csum = self::checksumStream($input, null, true);
+        $csum = self::checksumStream($input, $secretkey->derivePublicKey(), true);
         return AsymmetricCrypto::sign($csum, $secretkey, $raw_binary);
     }
     
@@ -1086,7 +1088,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
                 'Argument 2: Expected an instance of SignaturePublicKey'
             );
         }
-        $csum = self::checksumStream($input, null, true);
+        $csum = self::checksumStream($input, $publickey, true);
         return AsymmetricCrypto::verify(
             $csum,
             $publickey,
@@ -1105,9 +1107,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      */
     protected static function getConfig($header, $mode = 'encrypt')
     {
-        if ($header === "\x31\x42\x00\x01") {
-            // Original version, remove before 1.0.0
-        } elseif (\ord($header[0]) !== 49 || \ord($header[1]) !== 65) {
+        if (\ord($header[0]) !== 49 || \ord($header[1]) !== 65) {
             throw new CryptoException\InvalidMessage(
                 'Invalid version tag'
             );
@@ -1151,6 +1151,18 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
             }
+        } elseif ($major === 2) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'BUFFER' => 1048576,
+                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                        'HKDF_SALT_LEN' => 32,
+                        'MAC_SIZE' => 32,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
         }
         throw new CryptoException\InvalidMessage(
             'Invalid version tag'
@@ -1168,6 +1180,18 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
     protected static function getConfigSeal($major, $minor)
     {
         if ($major === 1) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'BUFFER' => 1048576,
+                        'HKDF_SALT_LEN' => 32,
+                        'MAC_SIZE' => 32,
+                        'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
+        } elseif ($major === 2) {
             switch ($minor) {
                 case 0:
                     return [
@@ -1199,6 +1223,16 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
             switch ($minor) {
                 case 0:
                     return [
+                        'CHECKSUM_PUBKEY' => false,
+                        'BUFFER' => 1048576,
+                        'HASH_LEN' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                    ];
+            }
+        } elseif ($major === 2) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'CHECKSUM_PUBKEY' => true,
                         'BUFFER' => 1048576,
                         'HASH_LEN' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
                     ];

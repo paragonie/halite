@@ -58,6 +58,17 @@ final class Config extends BaseConfig
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
             }
+        } elseif ($major === 2) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                        'HKDF_SALT_LEN' => 32,
+                        'MAC_SIZE' => 32,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
         }
         throw new CryptoException\InvalidMessage(
             'Invalid version tag'
@@ -75,6 +86,17 @@ final class Config extends BaseConfig
     public static function getConfigAuth($major, $minor)
     {
         if ($major === 1) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'HKDF_SALT_LEN' => 32,
+                        'MAC_SIZE' => 32,
+                        'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
+        } elseif ($major === 2) {
             switch ($minor) {
                 case 0:
                     return [

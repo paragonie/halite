@@ -280,6 +280,11 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
         $message,
         $aKey
     ) {
+        if (CryptoUtil::safeStrlen($mac) !== \Sodium\CRYPTO_AUTH_BYTES) {
+            throw new CryptoException\InvalidSignature(
+                'Message Authentication Code is not the correct length; is it encoded?'
+            );
+        }
         return \Sodium\crypto_auth_verify(
             $mac, 
             $message,

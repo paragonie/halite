@@ -2,6 +2,7 @@
 namespace ParagonIE\Halite\Asymmetric;
 
 use \ParagonIE\Halite\Alerts as CryptoException;
+use \ParagonIE\Halite\Util as CryptoUtil;
 use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
@@ -274,6 +275,11 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         }
         if (!$raw) {
             $signature = \Sodium\hex2bin($signature);
+        }
+        if (CryptoUtil::safeStrlen($signature) !== \Sodium\CRYPTO_SIGN_BYTES) {
+            throw new CryptoException\InvalidSignature(
+                'Signature is not the correct length; is it encoded?'
+            );
         }
         
         return \Sodium\crypto_sign_verify_detached(

@@ -1,6 +1,9 @@
 <?php
 namespace ParagonIE\Halite\Asymmetric;
 
+use \ParagonIE\Halite\Util as CryptoUtil;
+use \ParagonIE\Halite\Alerts as CryptoException;
+
 final class EncryptionSecretKey extends SecretKey
 {
     /**
@@ -9,6 +12,11 @@ final class EncryptionSecretKey extends SecretKey
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
+        if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_BOX_SECRETKEYBYTES) {
+            throw new CryptoException\InvalidKey(
+                'Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES bytes long'
+            );
+        }
         parent::__construct($keyMaterial, false);
     }
     

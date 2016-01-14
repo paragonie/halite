@@ -1,14 +1,17 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
 use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Contract;
-use \ParagonIE\Halite\Util as CryptoUtil;
-use \ParagonIE\Halite\Halite;
-use \ParagonIE\Halite\Config;
-use \ParagonIE\Halite\Symmetric\Config as SymmetricConfig;
+use \ParagonIE\Halite\{
+    Contract\SymmetricKeyCryptoInterface,
+    Config,
+    Halite,
+    Symmetric\Config as SymmetricConfig,
+    Util as CryptoUtil
+};
 
-abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
+abstract class Crypto implements SymmetricKeyCryptoInterface
 {
     /**
      * Authenticate a string
@@ -20,25 +23,10 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @return string
      */
     public static function authenticate(
-        $message,
-        Contract\KeyInterface $secretKey,
-        $raw = false
-    ) {
-        if (!$secretKey instanceof AuthenticationKey) {
-            throw new CryptoException\InvalidKey(
-                'Expected an instance of AuthenticationKey'
-            );
-        }
-        if ($secretKey->isAsymmetricKey()) {
-            throw new CryptoException\InvalidKey(
-                'Expected a symmetric key, not an asymmetric key'
-            );
-        }
-        if (!$secretKey->isSigningKey()) {
-            throw new CryptoException\InvalidKey(
-                'Authentication key expected'
-            );
-        }
+        string $message,
+        AuthenticationKey $secretKey,
+        bool $raw = false
+    ): string {
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'auth');
         $mac = self::calculateMAC($message, $secretKey->get(), $config);
         if ($raw) {
@@ -53,17 +41,14 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
      * @param boolean $raw Don't hex decode the input?
+     * @return string
+     * @throws CryptoException\InvalidMessage
      */
     public static function decrypt(
-        $ciphertext,
-        Contract\KeyInterface $secretKey,
-        $raw = false
-    ) {
-        if (!$secretKey instanceof EncryptionKey) {
-            throw new CryptoException\InvalidKey(
-                'Expected an instance of EncryptionKey'
-            );
-        }
+        string $ciphertext,
+        EncryptionKey $secretKey,
+        bool $raw = false
+    ): string {
         if (!$raw) {
             // We were given hex data:
             $ciphertext = \Sodium\hex2bin($ciphertext);
@@ -108,15 +93,10 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @return string
      */
     public static function encrypt(
-        $plaintext,
-        Contract\KeyInterface $secretKey,
-        $raw = false
-    ) {
-        if (!$secretKey instanceof EncryptionKey) {
-            throw new CryptoException\InvalidKey(
-                'Expected an instance of EncryptionKey'
-            );
-        }
+        string $plaintext,
+        EncryptionKey $secretKey,
+        bool $raw = false
+    ): string {
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
         // Generate a nonce and HKDF salt:
@@ -155,8 +135,8 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @return array
      */
     public static function splitKeys(
-        Contract\KeyInterface $master,
-        $salt = null,
+        EncryptionKey $master,
+        string $salt = '',
         Config $config = null
     ) {
         $binary = $master->get();
@@ -182,7 +162,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param string $ciphertext
      * @return array
      */
-    public static function unpackMessageForDecryption($ciphertext)
+    public static function unpackMessageForDecryption(string $ciphertext): array
     {
         $length = CryptoUtil::safeStrlen($ciphertext);
         
@@ -240,16 +220,11 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @return boolean
      */
     public static function verify(
-        $message,
-        Contract\KeyInterface $secretKey,
-        $mac,
-        $raw = false
-    ) {
-        if (!$secretKey instanceof AuthenticationKey) {
-            throw new CryptoException\InvalidKey(
-                'Expected an instance of AuthenticationKey'
-            );
-        }
+        string $message,
+        AuthenticationKey $secretKey,
+        string $mac,
+        bool $raw = false
+    ): bool {
         if (!$raw) {
             $mac = \Sodium\hex2bin($mac);
         }
@@ -268,9 +243,9 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @return string
      */
     protected static function calculateMAC(
-        $message,
-        $authKey
-    ) {
+        string $message,
+        string $authKey
+    ): string {
         return \Sodium\crypto_auth(
             $message,
             $authKey
@@ -286,10 +261,10 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @return bool
      */
     protected static function verifyMAC(
-        $mac,
-        $message,
-        $aKey
-    ) {
+        string $mac,
+        string $message,
+        string $aKey
+    ): bool {
         if (CryptoUtil::safeStrlen($mac) !== \Sodium\CRYPTO_AUTH_BYTES) {
             throw new CryptoException\InvalidSignature(
                 'Message Authentication Code is not the correct length; is it encoded?'

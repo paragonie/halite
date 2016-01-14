@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
 class BlockChain
@@ -12,7 +13,7 @@ class BlockChain
      * @param string $startHash The hash from which we begin loading trees
      * @param MerkleTree $trees
      */
-    public function __construct($startHash = null, MerkleTree ...$trees)
+    public function __construct(string $startHash = null, MerkleTree ...$trees)
     {
         
     }

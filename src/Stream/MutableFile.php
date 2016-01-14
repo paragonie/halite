@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
 use \ParagonIE\Halite\Contract\StreamInterface;
 use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Util;
+use \ParagonIE\Halite\Util as CryptoUtil;
 
 /**
  * Contrast with ReadOnlyFile: does not prevent race conditions by itself
@@ -38,15 +39,16 @@ class MutableFile implements StreamInterface
      * 
      * @param int $num
      * @return string
-     * @throws FileAlert\AccessDenied
+     * @throws CryptoException\AccessDenied
+     * @throws CryptoException\CannotPerformOperation
      */
-    public function readBytes($num)
+    public function readBytes(int $num, bool $skipTests = false): string
     {
         if ($num <= 0) {
             throw new \Exception('num < 0');
         }
         if (($this->pos + $num) > $this->stat['size']) {
-            throw new \Exception('Out-of-bounds read');
+            throw new CryptoException\CannotPerformOperation('Out-of-bounds read');
         }
         $buf = '';
         $remaining = $num;
@@ -61,7 +63,7 @@ class MutableFile implements StreamInterface
                 );
             }
             $buf .= $read;
-            $readSize = Util::safeStrlen($read);
+            $readSize = CryptoUtil::safeStrlen($read);
             $this->pos += $readSize;
             $remaining -= $readSize;
         } while ($remaining > 0);
@@ -70,20 +72,21 @@ class MutableFile implements StreamInterface
     
     /**
      * Write to a stream; prevent partial writes
-     * 
-     * @param resource $stream
+     *
      * @param string $buf
      * @param int $num (number of bytes)
-     * @throws FileAlert\AccessDenied
+     * @return int
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\CannotPerformOperation
      */
-    public function writeBytes($buf, $num = null)
+    public function writeBytes(string $buf, int $num = null): int
     {
-        $bufSize = Util::safeStrlen($buf);
+        $bufSize = CryptoUtil::safeStrlen($buf);
         if ($num === null || $num > $bufSize) {
             $num = $bufSize;
         }
         if ($num < 0) {
-            throw new \Exception('num < 0');
+            throw new CryptoException\CannotPerformOperation('num < 0');
         }
         $remaining = $num;
         do {
@@ -96,7 +99,7 @@ class MutableFile implements StreamInterface
                     'Could not write to the file'
                 );
             }
-            $buf = Util::safeSubstr($buf, $written, null);
+            $buf = CryptoUtil::safeSubstr($buf, $written, null);
             $this->pos += $written;
             $this->stat = \fstat($this->fp);
             $remaining -= $written;
@@ -108,12 +111,10 @@ class MutableFile implements StreamInterface
      * Set the current cursor position to the desired location
      * 
      * @param int $i
-     * 
      * @return boolean
-     * 
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws CryptoException\CannotPerformOperation
      */
-    public function reset($i = 0)
+    public function reset(int $i = 0): bool
     {
         $this->pos = $i;
         if (\fseek($this->fp, $i, SEEK_SET) === 0) {

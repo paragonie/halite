@@ -1,5 +1,10 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Contract;
+use ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
+use ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
+use ParagonIE\Halite\Asymmetric\SignaturePublicKey;
+use ParagonIE\Halite\Asymmetric\SignatureSecretKey;
 
 /**
  * An interface fundamental to all cryptography implementations
@@ -20,7 +25,8 @@ interface AsymmetricKeyCryptoInterface
      */
     public static function getSharedSecret(
         KeyInterface $privateKey,
-        KeyInterface $publicKey
+        KeyInterface $publicKey,
+        bool $get_as_object = false
     );
     
     /**
@@ -28,66 +34,66 @@ interface AsymmetricKeyCryptoInterface
      * Seal then sign
      * 
      * @param string $source Plaintext
-     * @param SecretKey $privatekey Our private key
-     * @param PublicKey $publickey Their public key
+     * @param EncryptionSecretKey $privatekey Our private key
+     * @param EncryptionPublicKey $publickey Their public key
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
      */
     public static function encrypt(
-        $source,
-        KeyInterface $privateKey,
-        KeyInterface $publicKey,
-        $raw = false
-    );
+        string $source,
+        EncryptionSecretKey $privateKey,
+        EncryptionPublicKey $publicKey,
+        bool $raw = false
+    ): string;
     
     /**
      * Decrypt a string using asymmetric cryptography
      * Verify then unseal
      * 
      * @param string $source Ciphertext
-     * @param SecretKey $privatekey Our private key
-     * @param PublicKey $publickey Their public key
+     * @param EncryptionSecretKey $privatekey Our private key
+     * @param EncryptionPublicKey $publickey Their public key
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
      */
     public static function decrypt(
-        $source,
-        KeyInterface $privateKey,
-        KeyInterface $publicKey,
-        $raw = false
-    );
+        string $source,
+        EncryptionSecretKey $privateKey,
+        EncryptionPublicKey $publicKey,
+        bool $raw = false
+    ): string;
     
     /**
      * Encrypt a message with a target users' public key
      * 
      * @param string $source Message to encrypt
-     * @param PublicKey $publicKey
+     * @param EncryptionPublicKey $publicKey
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
      */
     public static function seal(
-        $source,
-        KeyInterface $publicKey,
-        $raw = false
-    );
+        string $source,
+        EncryptionPublicKey $publicKey,
+        bool $raw = false
+    ): string;
     
     /**
      * Decrypt a sealed message with our private key
      * 
      * @param string $source Encrypted message (string or resource for a file)
-     * @param SecretKey $privateKey
+     * @param EncryptionSecretKey $privateKey
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return string
      */
     public static function unseal(
-        $source,
-        KeyInterface $privateKey,
-        $raw = false
-    );
+        string $source,
+        EncryptionSecretKey $privateKey,
+        bool $raw = false
+    ): string;
     
     /**
      * Sign a message with our private key
@@ -99,10 +105,10 @@ interface AsymmetricKeyCryptoInterface
      * @return string Signature (detached)
      */
     public static function sign(
-        $message,
-        KeyInterface $privateKey,
-        $raw = false
-    );
+        string $message,
+        SignatureSecretKey $privateKey,
+        bool $raw = false
+    ): string;
     
     /**
      * Verify a signed message with the correct public key
@@ -115,9 +121,9 @@ interface AsymmetricKeyCryptoInterface
      * @return boolean
      */
     public static function verify(
-        $message,
-        KeyInterface $publicKey,
-        $signature,
-        $raw = false
-    );
+        string $message,
+        SignaturePublicKey $publicKey,
+        string $signature,
+        bool $raw = false
+    ): bool;
 }

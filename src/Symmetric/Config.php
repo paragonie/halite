@@ -1,8 +1,11 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
-use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Config as BaseConfig;
+use \ParagonIE\Halite\{
+    Alerts as CryptoException,
+    Config as BaseConfig
+};
 
 final class Config extends BaseConfig
 {
@@ -14,8 +17,10 @@ final class Config extends BaseConfig
      * @return \ParagonIE\Halite\Config
      * @throws CryptoException\InvalidMessage
      */
-    public static function getConfig($header, $mode = 'encrypt')
-    {
+    public static function getConfig(
+        string $header,
+        string $mode = 'encrypt'
+    ) {
         if (\ord($header[0]) !== 49 || \ord($header[1]) !== 66) {
             throw new CryptoException\InvalidMessage(
                 'Invalid version tag'
@@ -45,7 +50,7 @@ final class Config extends BaseConfig
      * @return array
      * @throws CryptoException\InvalidMessage
      */
-    public static function getConfigEncrypt($major, $minor)
+    public static function getConfigEncrypt(int $major, int $minor): array
     {
         if ($major === 1) {
             switch ($minor) {
@@ -83,7 +88,7 @@ final class Config extends BaseConfig
      * @return array
      * @throws CryptoException\InvalidMessage
      */
-    public static function getConfigAuth($major, $minor)
+    public static function getConfigAuth(int $major, int $minor): array
     {
         if ($major === 1) {
             switch ($minor) {

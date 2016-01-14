@@ -1,18 +1,19 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
+use \ParagonIE\Halite\Alerts\InvalidKey;
 use \ParagonIE\Halite\Util as CryptoUtil;
-use \ParagonIE\Halite\Alerts as CryptoException;
 
 final class EncryptionKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
      */
-    public function __construct($keyMaterial = '', ...$args)
+    public function __construct(string $keyMaterial = '', ...$args)
     {
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_STREAM_KEYBYTES) {
-            throw new CryptoException\InvalidKey(
+            throw new InvalidKey(
                 'Encryption key must be CRYPTO_STREAM_KEYBYTES bytes long'
             );
         }

@@ -1,18 +1,19 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
+use \ParagonIE\Halite\Alerts\InvalidKey;
 use \ParagonIE\Halite\Util as CryptoUtil;
-use \ParagonIE\Halite\Alerts as CryptoException;
 
 final class AuthenticationKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
      */
-    public function __construct($keyMaterial = '', ...$args)
+    public function __construct(string $keyMaterial = '', ...$args)
     {
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_AUTH_KEYBYTES) {
-            throw new CryptoException\InvalidKey(
+            throw new InvalidKey(
                 'Authentication key must be CRYPTO_AUTH_KEYBYTES bytes long'
             );
         }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 abstract class Util
@@ -21,8 +22,12 @@ abstract class Util
      * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      */
-    public static function hkdfBlake2b($ikm, $length, $info = '', $salt = null)
-    {
+    public static function hkdfBlake2b(
+        string $ikm,
+        int $length,
+        string $info = '',
+        string $salt = ''
+    ): string {
         // Sanity-check the desired output length.
         if (empty($length)
             || !\is_int($length)
@@ -34,7 +39,7 @@ abstract class Util
             );
         }
         // "If [salt] not provided, is set to a string of HashLen zeroes."
-        if (\is_null($salt)) {
+        if (empty($salt)) {
             $salt = \str_repeat("\x00", \Sodium\CRYPTO_GENERICHASH_KEYBYTES);
         }
 

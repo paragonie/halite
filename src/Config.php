@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Alerts as CryptoException;
@@ -22,7 +23,7 @@ class Config
      * @return mixed
      * @throws CryptoException\ConfigDirectiveNotFound
      */
-    public function __get($key)
+    public function __get(string $key)
     {
         if (\array_key_exists($key, $this->config)) {
             return $this->config[$key];
@@ -36,7 +37,7 @@ class Config
      * @param mixed $key
      * @param mixed $value
      */
-    public function __set($key, $value = null)
+    public function __set(string $key, $value = null)
     {
         return false;
     }

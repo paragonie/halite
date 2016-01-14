@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Contract;
 /**
  * An inferface for cryptographic secrets -- They should be protected!
@@ -15,7 +16,7 @@ interface KeyInterface
      * 
      * Plus optional arguments
      */
-    public function __construct($keyMaterial = '', ...$args);
+    public function __construct(string $keyMaterial = '', ...$args);
     
     /**
      * Make sure you wipe the key from memory on destruction

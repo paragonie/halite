@@ -1,8 +1,11 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Contract;
 
-use \ParagonIE\Halite\Symmetric\AuthenticationKey;
-use \ParagonIE\Halite\Symmetric\EncryptionKey;
+use \ParagonIE\Halite\Symmetric\{
+    AuthenticationKey,
+    EncryptionKey
+};
 
 /**
  * An interface fundamental to all cryptography implementations
@@ -17,10 +20,10 @@ interface SymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex encode the output?
      */
     public static function encrypt(
-        $plaintext,
-        KeyInterface $secretKey,
-        $raw = false
-    );
+        string $plaintext,
+        EncryptionKey $secretKey,
+        bool $raw = false
+    ): string;
     
     /**
      * Decrypt a message with a Key
@@ -30,10 +33,10 @@ interface SymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex decode the input?
      */
     public static function decrypt(
-        $ciphertext,
-        KeyInterface $secretKey,
-        $raw = false
-    );
+        string $ciphertext,
+        EncryptionKey $secretKey,
+        bool $raw = false
+    ): string;
     
     /**
      * Authenticate a message, get a message authentication code
@@ -43,10 +46,10 @@ interface SymmetricKeyCryptoInterface
      * @param boolean $raw
      */
     public static function authenticate(
-        $message,
-        KeyInterface $secretKey,
-        $raw = false
-    );
+        string $message,
+        AuthenticationKey $secretKey,
+        bool $raw = false
+    ): string;
     
     /**
      * Verify the message authentication code
@@ -57,10 +60,9 @@ interface SymmetricKeyCryptoInterface
      * @param boolean $raw
      */
     public static function verify(
-        $message,
-        KeyInterface $secretKey,
-        $mac,
-        $raw = false
-    );
-    
+        string $message,
+        AuthenticationKey $secretKey,
+        string $mac,
+        bool $raw = false
+    ): bool;
 }

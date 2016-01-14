@@ -1,22 +1,19 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Contract\KeyInterface;
-use \ParagonIE\Halite\Symmetric\EncryptionKey;
-use \ParagonIE\Halite\Symmetric\Crypto;
-use \ParagonIE\Halite\Alerts\InvalidMessage;
+use \ParagonIE\Halite\{
+    Alerts\InvalidMessage,
+    Symmetric\EncryptionKey,
+    Symmetric\Crypto
+};
 
 final class Cookie 
 {
     protected $key;
     
-    public function __construct(KeyInterface $key)
+    public function __construct(EncryptionKey $key)
     {
-        if (!($key instanceof EncryptionKey)) {
-            throw new \ParagonIE\Halite\Alerts\InvalidKey(
-                'Argument 1: Expected an instance of EncryptionKey'
-            );
-        }
         $this->key = $key;
     }
     /**
@@ -37,7 +34,7 @@ final class Cookie
      * @param string $name
      * @return mixed (typically an array)
      */
-    public function fetch($name)
+    public function fetch(string $name)
     {
         if (!isset($_COOKIE[$name])) {
             return null;
@@ -49,7 +46,7 @@ final class Cookie
             }
             return \json_decode($decrypted, true);
         } catch (InvalidMessage $e) {
-            return;
+            return null;
         }
     }
     
@@ -66,14 +63,14 @@ final class Cookie
      * @return bool
      */
     public function store(
-        $name,
+        string $name,
         $value,
-        $expire = 0,
-        $path = '/',
+        int $expire = 0,
+        string $path = '/',
         $domain = null,
-        $secure = true,
-        $httponly = true
-    ) {
+        bool $secure = true,
+        bool $httponly = true
+    ): bool {
         return \setcookie(
             $name,
             Crypto::encrypt(

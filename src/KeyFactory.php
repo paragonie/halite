@@ -1,17 +1,20 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
-use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
-use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
-use \ParagonIE\Halite\Asymmetric\SignatureSecretKey;
-use \ParagonIE\Halite\Symmetric\AuthenticationKey;
-use \ParagonIE\Halite\Symmetric\EncryptionKey;
-use \ParagonIE\Halite\Halite;
-use \ParagonIE\Halite\Key;
-use \ParagonIE\Halite\KeyPair;
-use \ParagonIE\Halite\Util as CryptoUtil;
+use \ParagonIE\Halite\{
+    Asymmetric\EncryptionPublicKey,
+    Asymmetric\EncryptionSecretKey,
+    Asymmetric\SignaturePublicKey,
+    Asymmetric\SignatureSecretKey,
+    Symmetric\AuthenticationKey,
+    Symmetric\EncryptionKey,
+    Halite,
+    Key,
+    KeyPair,
+    Util as CryptoUtil
+};
 
 /**
  * Class for generating specific key types
@@ -24,7 +27,7 @@ abstract class KeyFactory
      * @param &string $secret_key
      * @return AuthenticationKey
      */
-    public static function generateAuthenticationKey(&$secret_key = null)
+    public static function generateAuthenticationKey(string &$secret_key = ''): AuthenticationKey
     {
         $secret_key = \Sodium\randombytes_buf(
             \Sodium\CRYPTO_AUTH_KEYBYTES
@@ -38,7 +41,7 @@ abstract class KeyFactory
      * @param &string $secret_key
      * @return EncryptionKey
      */
-    public static function generateEncryptionKey(&$secret_key = null)
+    public static function generateEncryptionKey(string &$secret_key = ''): EncryptionKey
     {
         $secret_key = \Sodium\randombytes_buf(
             \Sodium\CRYPTO_STREAM_KEYBYTES
@@ -52,7 +55,7 @@ abstract class KeyFactory
      * @param type $secret_key
      * @return \ParagonIE\Halite\EncryptionKeyPair
      */
-    public static function generateEncryptionKeyPair(&$secret_key = null)
+    public static function generateEncryptionKeyPair(string &$secret_key = ''): EncryptionKeyPair
     {
         // Encryption keypair
         $kp = \Sodium\crypto_box_keypair();
@@ -68,10 +71,10 @@ abstract class KeyFactory
     /**
      * Generate a key pair for public key digital signatures
      * 
-     * @param type $secret_key
-     * @return \ParagonIE\Halite\EncryptionKeyPair
+     * @param string $secret_key
+     * @return SignatureKeyPair
      */
-    public static function generateSignatureKeyPair(&$secret_key = null)
+    public static function generateSignatureKeyPair(string &$secret_key = ''): SignatureKeyPair
     {
         // Encryption keypair
         $kp = \Sodium\crypto_sign_keypair();
@@ -93,12 +96,13 @@ abstract class KeyFactory
      * @param bool $legacy Use scrypt?
      * 
      * @return AuthenticationKey
+     * @throws CryptoException\InvalidSalt
      */
     public static function deriveAuthenticationKey(
-        $password,
-        $salt,
-        $legacy = false
-    ) {
+        string $password,
+        string $salt,
+        bool $legacy = false
+    ): AuthenticationKey {
         if ($legacy) {
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
@@ -138,12 +142,13 @@ abstract class KeyFactory
      * @param bool $legacy Use scrypt?
      * 
      * @return EncryptionKey
+     * @throws CryptoException\InvalidSalt
      */
     public static function deriveEncryptionKey(
-        $password,
-        $salt,
-        $legacy = false
-    ) {
+        string $password,
+        string $salt,
+        bool $legacy = false
+    ): EncryptionKey {
         if ($legacy) {
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
@@ -182,12 +187,13 @@ abstract class KeyFactory
      * @param bool $legacy Use scrypt?
      * 
      * @return EncryptionKeyPair
+     * @throws CryptoException\InvalidSalt
      */
     public static function deriveEncryptionKeyPair(
-        $password,
-        $salt,
-        $legacy = false
-    ) {
+        string $password,
+        string $salt,
+        bool $legacy = false
+    ): EncryptionKeyPair {
         if ($legacy) {
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
@@ -233,14 +239,15 @@ abstract class KeyFactory
      * @param string $password
      * @param string $salt
      * @param bool $legacy Use scrypt?
-     * 
-     * @return \ParagonIE\Halite\EncryptionKeyPair
+     *
+     * @return SignatureKeyPair
+     * @throws CryptoException\InvalidSalt
      */
     public static function deriveSignatureKeyPair(
-        $password,
-        $salt,
-        $legacy = false
-    ) {
+        string $password,
+        string $salt,
+        bool $legacy = false
+    ): SignatureKeyPair {
         if ($legacy) {
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
@@ -285,8 +292,10 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return EncryptionKey
+     *
+     * @throws Alerts\CannotPerformOperation
      */
-    public static function loadAuthenticationKey($filePath)
+    public static function loadAuthenticationKey(string $filePath): AuthenticationKey
     {
         if (!\is_readable($filePath)) {
             throw new Alerts\CannotPerformOperation(
@@ -303,8 +312,10 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return EncryptionKey
+     *
+     * @throws Alerts\CannotPerformOperation
      */
-    public static function loadEncryptionKey($filePath)
+    public static function loadEncryptionKey(string $filePath): EncryptionKey
     {
         if (!\is_readable($filePath)) {
             throw new Alerts\CannotPerformOperation(
@@ -321,8 +332,10 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return EncryptionPublicKey
+     *
+     * @throws Alerts\CannotPerformOperation
      */
-    public static function loadEncryptionPublicKey($filePath)
+    public static function loadEncryptionPublicKey(string $filePath): EncryptionPublicKey
     {
         if (!\is_readable($filePath)) {
             throw new Alerts\CannotPerformOperation(
@@ -339,8 +352,10 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return EncryptionSecretKey
+     *
+     * @throws Alerts\CannotPerformOperation
      */
-    public static function loadEncryptionSecretKey($filePath)
+    public static function loadEncryptionSecretKey(string $filePath): EncryptionSecretKey
     {
         if (!\is_readable($filePath)) {
             throw new Alerts\CannotPerformOperation(
@@ -357,8 +372,10 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return SignaturePublicKey
+     *
+     * @throws Alerts\CannotPerformOperation
      */
-    public static function loadSignaturePublicKey($filePath)
+    public static function loadSignaturePublicKey(string $filePath): SignaturePublicKey
     {
         if (!\is_readable($filePath)) {
             throw new Alerts\CannotPerformOperation(
@@ -375,8 +392,10 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return SignatureSecretKey
+     *
+     * @throws Alerts\CannotPerformOperation
      */
-    public static function loadSignatureSecretKey($filePath)
+    public static function loadSignatureSecretKey(string $filePath): SignatureSecretKey
     {
         if (!\is_readable($filePath)) {
             throw new Alerts\CannotPerformOperation(
@@ -393,8 +412,10 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return EncryptionKeyPair
+     *
+     * @throws Alerts\CannotPerformOperation
      */
-    public static function loadEncryptionKeyPair($filePath)
+    public static function loadEncryptionKeyPair(string $filePath): EncryptionKeyPair
     {
         if (!\is_readable($filePath)) {
             throw new Alerts\CannotPerformOperation(
@@ -413,8 +434,10 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return SignatureKeyPair
+     *
+     * @throws Alerts\CannotPerformOperation
      */
-    public static function loadSignatureKeyPair($filePath)
+    public static function loadSignatureKeyPair(string $filePath): SignatureKeyPair
     {
         if (!\is_readable($filePath)) {
             throw new Alerts\CannotPerformOperation(
@@ -433,9 +456,9 @@ abstract class KeyFactory
      * 
      * @param Key|KeyPair $key
      * @param string $filename
-     * @return int|boolean
+     * @return bool
      */
-    public static function save($key, $filename = '')
+    public static function save($key, string $filename = ''): bool
     {
         if ($key instanceof KeyPair) {
             return self::saveKeyFile($filename, $key->getSecretKey()->get());
@@ -450,7 +473,7 @@ abstract class KeyFactory
      * @return string
      * @throws Alerts\CannotPerformOperation
      */
-    protected static function loadKeyFile($filePath)
+    protected static function loadKeyFile(string $filePath): string
     {
         $filedata = \file_get_contents($filePath);
         if ($filedata === false) {
@@ -471,7 +494,7 @@ abstract class KeyFactory
      * @return string
      * @throws Alerts\InvalidKey
      */
-    public static function getKeyDataFromString($data)
+    public static function getKeyDataFromString(string $data): string
     {
         $vtag = Util::safeSubstr($data, 0, Halite::VERSION_TAG_LEN);
         $kdat = Util::safeSubstr(
@@ -486,7 +509,7 @@ abstract class KeyFactory
         );
         $calc = \Sodium\crypto_generichash(
             $vtag . $kdat, 
-            null,
+            '',
             \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
         );
         if (!\hash_equals($calc, $csum)) {
@@ -508,16 +531,20 @@ abstract class KeyFactory
      * @param string $keyData
      * @return int|bool
      */
-    protected static function saveKeyFile($filePath, $keyData)
-    {
-        return \file_put_contents(
-            $filePath,
-            \Sodium\bin2hex(
-                Halite::HALITE_VERSION_KEYS . $keyData . 
-                \Sodium\crypto_generichash(
-                    Halite::HALITE_VERSION_KEYS . $keyData, 
-                    null,
-                    \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+    protected static function saveKeyFile(
+        string $filePath,
+        string $keyData
+    ): bool {
+        return (
+            false !== \file_put_contents(
+                $filePath,
+                \Sodium\bin2hex(
+                    Halite::HALITE_VERSION_KEYS . $keyData .
+                    \Sodium\crypto_generichash(
+                        Halite::HALITE_VERSION_KEYS . $keyData,
+                        '',
+                        \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                    )
                 )
             )
         );

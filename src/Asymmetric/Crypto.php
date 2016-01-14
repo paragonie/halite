@@ -1,13 +1,17 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
-use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Util as CryptoUtil;
-use \ParagonIE\Halite\Contract;
-use \ParagonIE\Halite\Symmetric\Crypto as SymmetricCrypto;
-use \ParagonIE\Halite\Symmetric\EncryptionKey;
+use \ParagonIE\Halite\{
+    Contract\AsymmetricKeyCryptoInterface,
+    Contract\KeyInterface,
+    Alerts as CryptoException,
+    Util as CryptoUtil,
+    Symmetric\Crypto as SymmetricCrypto,
+    Symmetric\EncryptionKey
+};
 
-abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
+abstract class Crypto implements AsymmetricKeyCryptoInterface
 {
     /**
      * Encrypt a string using asymmetric cryptography
@@ -19,25 +23,13 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
-     * 
-     * @throws CryptoException\InvalidKey
      */
     public static function encrypt(
-        $source,
-        Contract\KeyInterface $ourPrivateKey,
-        Contract\KeyInterface $theirPublicKey,
-        $raw = false
-    ) {
-        if (!$ourPrivateKey instanceof EncryptionSecretKey) {
-            throw new CryptoException\InvalidKey(
-                'Argument 2: Expected an instance of EncryptionSecretKey'
-            );
-        }
-        if (!$theirPublicKey instanceof EncryptionPublicKey) {
-            throw new CryptoException\InvalidKey(
-                'Argument 3: Expected an instance of EncryptionPublicKey'
-            );
-        }
+        string $source,
+        EncryptionSecretKey $ourPrivateKey,
+        EncryptionPublicKey $theirPublicKey,
+        bool $raw = false
+    ): string {
         $ecdh = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
@@ -54,27 +46,14 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param EncryptionSecretKey $ourPrivateKey Our private key
      * @param EncryptionPublicKey $theirPublicKey Their public key
      * @param boolean $raw Don't hex decode the input?
-     * 
      * @return string
-     * 
-     * @throws CryptoException\InvalidKey
      */
     public static function decrypt(
-        $source,
-        Contract\KeyInterface $ourPrivateKey,
-        Contract\KeyInterface $theirPublicKey,
-        $raw = false
-    ) {
-        if (!$ourPrivateKey instanceof EncryptionSecretKey) {
-            throw new CryptoException\InvalidKey(
-                'Argument 2: Expected an instance of EncryptionSecretKey'
-            );
-        }
-        if (!$theirPublicKey instanceof EncryptionPublicKey) {
-            throw new CryptoException\InvalidKey(
-                'Argument 3: Expected an instance of EncryptionPublicKey'
-            );
-        }
+        string $source,
+        EncryptionSecretKey $ourPrivateKey,
+        EncryptionPublicKey $theirPublicKey,
+        bool $raw = false
+    ): string {
         $ecdh = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
@@ -92,26 +71,13 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param EncryptionSecretKey $privateKey
      * @param EncryptionPublicKey $publicKey
      * @param bool $get_as_object Get as a Key object?
-     * 
      * @return string
-     * 
-     * @throws CryptoException\InvalidKey
      */
     public static function getSharedSecret(
-        Contract\KeyInterface $privateKey,
-        Contract\KeyInterface $publicKey,
-        $get_as_object = false
+        KeyInterface $privateKey,
+        KeyInterface $publicKey,
+        bool $get_as_object = false
     ) {
-        if (!$privateKey instanceof EncryptionSecretKey) {
-            throw new CryptoException\InvalidKey(
-                'Argument 1: Expected an instance of EncryptionSecretKey'
-            );
-        }
-        if (!$publicKey instanceof EncryptionPublicKey) {
-            throw new CryptoException\InvalidKey(
-                'Argument 2: Expected an instance of EncryptionPublicKey'
-            );
-        }
         if ($get_as_object) {
             return new EncryptionKey(
                 \Sodium\crypto_scalarmult(
@@ -132,16 +98,14 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param string $source Message to encrypt
      * @param EncryptionPublicKey $publicKey
      * @param boolean $raw Don't hex encode the output?
-     * 
      * @return string
-     * 
      * @throws CryptoException\CannotPerformOperation
      */
     public static function seal(
-        $source,
-        Contract\KeyInterface $publicKey,
-        $raw = false
-    ) {
+        string $source,
+        EncryptionPublicKey $publicKey,
+        bool $raw = false
+    ): string {
         if (!$publicKey instanceof EncryptionPublicKey) {
             throw new CryptoException\InvalidKey(
                 'Argument 2: Expected an instance of EncryptionPublicKey'
@@ -166,21 +130,13 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param string $message Message to sign
      * @param SignatureSecretKey $privateKey
      * @param boolean $raw Don't hex encode the output?
-     * 
      * @return string Signature (detached)
-     * 
-     * @throws CryptoException\InvalidKey
      */
     public static function sign(
-        $message,
-        Contract\KeyInterface $privateKey,
-        $raw = false
-    ) {
-        if (!$privateKey instanceof SignatureSecretKey) {
-            throw new CryptoException\InvalidKey(
-                'Argument 2: Expected an instance of SignatureSecretKey'
-            );
-        }
+        string $message,
+        SignatureSecretKey $privateKey,
+        bool $raw = false
+    ): string {
         $signed = \Sodium\crypto_sign_detached(
             $message,
             $privateKey->get()
@@ -197,29 +153,16 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param string $source Encrypted message (string or resource for a file)
      * @param EncryptionSecretKey $privateKey
      * @param boolean $raw Don't hex decode the input?
-     * 
      * @return string
-     * 
      * @throws CryptoException\InvalidKey
-     * @throws CryptoException\CannotPerformOperation
      */
     public static function unseal(
-        $source,
-        Contract\KeyInterface $privateKey,
-        $raw = false
-    ) {
-        if (!$privateKey instanceof EncryptionSecretKey) {
-            throw new CryptoException\InvalidKey(
-                'Argument 2: Expected an instance of EncryptionSecretKey'
-            );
-        }
+        string $source,
+        EncryptionSecretKey $privateKey,
+        bool $raw = false
+    ): string {
         if (!$raw) {
             $source = \Sodium\hex2bin($source);
-        }
-        if (!function_exists('\\Sodium\\crypto_box_seal_open')) {
-            throw new CryptoException\CannotPerformOperation(
-                'crypto_box_seal_open is not available, please update/reinstall libsodium'
-            );
         }
 
         // Get a box keypair (needed by crypto_box_seal_open)
@@ -256,23 +199,15 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param SignaturePublicKey $publicKey
      * @param string $signature
      * @param boolean $raw Don't hex decode the input?
-     * 
-     * @return boolean
-     * 
-     * @throws CryptoException\InvalidKey
-     * @throws CryptoException\CannotPerformOperation
+     * @return bool
+     * @throws CryptoException\InvalidSignature
      */
     public static function verify(
-        $message,
-        Contract\KeyInterface $publicKey,
-        $signature,
-        $raw = false
-    ) {
-        if (!$publicKey instanceof SignaturePublicKey) {
-            throw new CryptoException\InvalidKey(
-                'Argument 2: Expected an instance of SignaturePublicKey'
-            );
-        }
+        string $message,
+        SignaturePublicKey $publicKey,
+        string $signature,
+        bool $raw = false
+    ): bool {
         if (!$raw) {
             $signature = \Sodium\hex2bin($signature);
         }

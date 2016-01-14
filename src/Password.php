@@ -1,15 +1,19 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Contract\KeyInterface;
-use \ParagonIE\Halite\Symmetric\Crypto;
-use \ParagonIE\Halite\Symmetric\EncryptionKey;
-use \ParagonIE\Halite\Util as CryptoUtil;
+use \ParagonIE\Halite\{
+    Contract\PasswordInterface,
+    Contract\KeyInterface,
+    Symmetric\Crypto,
+    Symmetric\EncryptionKey,
+    Util as CryptoUtil
+};
 
 /**
  * Secure password storage and secure password verification
  */
-abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
+abstract class Password implements PasswordInterface
 {
     /**
      * Hash then encrypt a password
@@ -18,7 +22,7 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * @param EncryptionKey $secret_key - The master key for all passwords
      * @return string
      */
-    public static function hash($password, KeyInterface $secret_key)
+    public static function hash(string $password, KeyInterface $secret_key): string
     {
         if (!($secret_key instanceof EncryptionKey)) {
             throw new \ParagonIE\Halite\Alerts\InvalidKey(
@@ -44,8 +48,11 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * @param EncryptionKey $secret_key  - The master key for all passwords
      * @return boolean
      */
-    public static function verify($password, $stored, KeyInterface $secret_key)
-    {
+    public static function verify(
+        string $password,
+        string $stored,
+        KeyInterface $secret_key
+    ): bool {
         if (!($secret_key instanceof EncryptionKey)) {
             throw new \ParagonIE\Halite\Alerts\InvalidKey(
                 'Argument 3: Expected an instance of EncryptionKey'

@@ -1,9 +1,12 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
-use ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
-use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\{
+    Alerts as CryptoException,
+    Asymmetric\EncryptionPublicKey,
+    Asymmetric\EncryptionSecretKey
+};
 
 /**
  * Describes a pair of secret and public keys
@@ -11,9 +14,9 @@ use ParagonIE\Halite\Alerts as CryptoException;
 final class EncryptionKeyPair extends KeyPair
 {
     /**
-     * 
+     *
      * Pass it a secret key, it will automatically generate a public key
-     * 
+     *
      * @param ...Key $keys
      */
     public function __construct(Key ...$keys)
@@ -35,47 +38,17 @@ final class EncryptionKeyPair extends KeyPair
                             'Both keys cannot be public keys'
                         );
                     }
-                    // $keys[0] is public, $keys[1] is secret
-                    $this->secret_key = $keys[1] instanceof EncryptionSecretKey
-                        ? $keys[1]
-                        : new EncryptionSecretKey($keys[1]->get());
-                    /**
-                     * Let's use the secret key to calculate the *correct* 
-                     * public key. We're effectively discarding $keys[0] but
-                     * this ensures correct usage down the line.
-                     */
-                    if (!$this->secret_key->isEncryptionKey()) {
-                        throw new CryptoException\InvalidKey(
-                            'Must be an encryption key pair'
-                        );
-                    }
-                    // crypto_box - Curve25519
-                    $pub = \Sodium\crypto_box_publickey_from_secretkey(
-                        $keys[1]->get()
+                    $this->setupKeyPair(
+                        $keys[1] instanceof EncryptionSecretKey
+                            ? $keys[1]
+                            : new EncryptionSecretKey($keys[1]->get())
                     );
-                    $this->public_key = new EncryptionPublicKey($pub, true);
-                    \Sodium\memzero($pub);
                 } elseif ($keys[1]->isPublicKey()) {
-                    // We can deduce that $keys[0] is a secret key
-                    $this->secret_key = $keys[0] instanceof EncryptionSecretKey
-                        ? $keys[0]
-                        : new EncryptionSecretKey($keys[0]->get());
-                    /**
-                     * Let's use the secret key to calculate the *correct* 
-                     * public key. We're effectively discarding $keys[0] but
-                     * this ensures correct usage down the line.
-                     */
-                    if (!$this->secret_key->isEncryptionKey()) {
-                        throw new CryptoException\InvalidKey(
-                            'Must be an encryption key pair'
-                        );
-                    }
-                    // crypto_box - Curve25519
-                    $pub = \Sodium\crypto_box_publickey_from_secretkey(
-                        $keys[0]->get()
+                    $this->setupKeyPair(
+                        $keys[0] instanceof EncryptionSecretKey
+                            ? $keys[0]
+                            : new EncryptionSecretKey($keys[0]->get())
                     );
-                    $this->public_key = new EncryptionPublicKey($pub, true);
-                    \Sodium\memzero($pub);
                 } else {
                     throw new CryptoException\InvalidKey(
                         'Both keys cannot be secret keys'
@@ -92,28 +65,16 @@ final class EncryptionKeyPair extends KeyPair
                     );
                 }
                 if ($keys[0]->isPublicKey()) {
+                    // Ever heard of the Elliptic Curve Discrete Logarithm Problem?
                     throw new CryptoException\InvalidKey(
                         'We cannot generate a valid keypair given only a public key; we can given only a secret key, however.'
                     );
                 }
-                $this->secret_key = $keys[0] instanceof EncryptionSecretKey
-                    ? $keys[0]
-                    : new EncryptionSecretKey(
-                        $keys[0]->get(),
-                        $keys[0]->isEncryptionKey()
-                    );
-                
-                if (!$this->secret_key->isEncryptionKey()) {
-                    throw new CryptoException\InvalidKey(
-                        'Must be a signing key pair'
-                    );
-                }
-                // We need to calculate the public key from the secret key
-                $pub = \Sodium\crypto_box_publickey_from_secretkey(
-                    $keys[0]->get()
+                $this->setupKeyPair(
+                    $keys[0] instanceof EncryptionSecretKey
+                        ? $keys[0]
+                        : new EncryptionSecretKey($keys[0]->get())
                 );
-                $this->public_key = new EncryptionPublicKey($pub, true);
-                \Sodium\memzero($pub);
                 break;
             default:
                 throw new \InvalidArgumentException(
@@ -121,126 +82,15 @@ final class EncryptionKeyPair extends KeyPair
                 );
         }
     }
-    
+
     /**
-     * Hide this from var_dump(), etc.
-     * 
-     * @return array
-     */
-    public function __debugInfo()
-    {
-        return [
-            'privateKey' => '**protected**',
-            'publicKey' => '**protected**'
-        ];
-    }
-    
-    /**
-     * Derive an encryption key from a password and a salt
-     * 
-     * @param string $password
-     * @param string $salt
-     * @param int $type
-     * @return array|\ParagonIE\Halite\Key
-     * @throws CryptoException\InvalidFlags
-     */
-    public static function deriveFromPassword(
-        $password,
-        $salt,
-        $type = self::CRYPTO_BOX
-    ) { 
-        if (Key::doesNotHaveFlag($type, Key::ASYMMETRIC)) {
-            throw new CryptoException\InvalidKey(
-                'An asymmetric key type must be passed to KeyPair::generate()'
-            );
-        }
-        if (Key::hasFlag($type, Key::ENCRYPTION)) {
-            $key = EncryptionSecretKey::deriveFromPassword(
-                $password,
-                $salt,
-                Key::CRYPTO_BOX
-            );
-            $keypair = new KeyPair($key[0]);
-            return $keypair;
-        }
-        throw new CryptoException\InvalidKey(
-            'You must specify encryption or authentication flags.'
-        );
-    }
-    
-    /**
-     * Generate a new keypair
-     * 
-     * @param int $type Key flags
-     * @param &string $secret_key - Reference to optional variable to store secret key in
-     * @return KeyPair
-     * @throws CryptoException\InvalidKey
-     */
-    public static function generate($type = Key::CRYPTO_BOX, &$secret_key = null)
-    {
-        if (Key::doesNotHaveFlag($type, Key::ASYMMETRIC)) {
-            throw new CryptoException\InvalidKey(
-                'An asymmetric key type must be passed to KeyPair::generate()'
-            );
-        }
-        if (Key::hasFlag($type, Key::ENCRYPTION)) {
-            $key = EncryptionSecretKey::generate(Key::CRYPTO_BOX, $secret_key);
-            $keypair = new EncryptionKeyPair(...$key);
-            return $keypair;
-        }
-        throw new CryptoException\InvalidKey(
-            'Only encryption keys can be generated.'
-        );
-    }
-    
-    /**
-     * Get a Key object for the public key
-     * 
-     * @return Key
-     */
-    public function getPublicKey()
-    {
-       return $this->public_key;
-    }
-    
-    /**
-     * Get a Key object for the secret key
-     * 
-     * @return Key
-     */
-    public function getSecretKey()
-    {
-       return $this->secret_key;
-    }
-    
-    /**
-     * Load a keypair from a file
-     * 
-     * @param string $filePath
-     * @param int $type
-     * @return KeyPair
-     * 
-     * @throws CryptoException\InvalidFlags
-     */
-    public static function fromFile(
-        $filePath,
-        $type = Key::CRYPTO_BOX
-    ) {
-        $keys = Key::fromFile(
-            $filePath,
-            ($type | Key::ASYMMETRIC | Key::ENCRYPTION)
-        );
-        return new KeyPair(...$keys);
-    }
-    
-    /**
-     * Save a copy of the secret key to a file
+     * Set up our key pair
      *
-     * @param string $filePath
-     * @return bool|int
+     * @param EncryptionSecretKey $secret
      */
-    public function saveToFile($filePath)
+    protected function setupKeyPair(EncryptionSecretKey $secret)
     {
-        return $this->secret_key->saveToFile($filePath);
+        $this->secret_key = $secret;
+        $this->public_key = $this->secret_key->derivePublicKey();
     }
 }

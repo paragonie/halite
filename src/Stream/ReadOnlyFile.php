@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
 use \ParagonIE\Halite\Contract\{
@@ -6,7 +7,7 @@ use \ParagonIE\Halite\Contract\{
     KeyInterface
 };
 use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Util;
+use \ParagonIE\Halite\Util as CryptoUtil;
 
 class ReadOnlyFile implements StreamInterface
 {
@@ -35,7 +36,7 @@ class ReadOnlyFile implements StreamInterface
         }
         $this->hashKey = !empty($key) 
             ? $key->get()
-            : null;
+            : '';
         $this->hash = $this->getHash();
     }
     
@@ -65,13 +66,13 @@ class ReadOnlyFile implements StreamInterface
      * decision to make lightly!)
      * 
      * @param int $num
-     * @param boolean $skipTests Only set this to TRUE if you're absolutely sure
+     * @param bool $skipTests Only set this to TRUE if you're absolutely sure
      *                           that you don't want to defend against TOCTOU /
      *                           race condition attacks on the filesystem!
      * @return string
-     * @throws FileAlert\AccessDenied
+     * @throws CryptoException\AccessDenied
      */
-    public function readBytes($num, $skipTests = false)
+    public function readBytes(int $num, bool $skipTests = false): string
     {
         if ($num <= 0) {
             throw new \Exception('num < 0');
@@ -95,7 +96,7 @@ class ReadOnlyFile implements StreamInterface
                 );
             }
             $buf .= $read;
-            $readSize = Util::safeStrlen($read);
+            $readSize = CryptoUtil::safeStrlen($read);
             $this->pos += $readSize;
             $remaining -= $readSize;
         } while ($remaining > 0);
@@ -107,7 +108,7 @@ class ReadOnlyFile implements StreamInterface
      * 
      * @return int
      */
-    public function remainingBytes()
+    public function remainingBytes(): int
     {
         return (PHP_INT_MAX & ($this->stat['size'] - $this->pos));
     }
@@ -117,9 +118,9 @@ class ReadOnlyFile implements StreamInterface
      * 
      * @param string $buf
      * @param int $num (number of bytes)
-     * @throws FileAlert\AccessDenied
+     * @throws CryptoException\AccessDenied
      */
-    public function writeBytes($buf, $num = null)
+    public function writeBytes(string $buf, int $num = null): int
     {
         unset($buf);
         unset($num);
@@ -132,12 +133,10 @@ class ReadOnlyFile implements StreamInterface
      * Set the current cursor position to the desired location
      * 
      * @param int $i
-     * 
      * @return boolean
-     * 
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws CryptoException\CannotPerformOperation
      */
-    public function reset($i = 0)
+    public function reset(int $i = 0): bool
     {
         $this->pos = $i;
         if (\fseek($this->fp, $i, SEEK_SET) === 0) {
@@ -153,7 +152,7 @@ class ReadOnlyFile implements StreamInterface
      * 
      * @return string
      */
-    public function getHash()
+    public function getHash(): string
     {
         $init = $this->pos;
         \fseek($this->fp, 0, SEEK_SET);

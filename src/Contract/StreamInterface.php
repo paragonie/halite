@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite\Contract;
 
 /**
@@ -13,7 +14,7 @@ interface StreamInterface
      * @return string
      * @throws FileAlert\AccessDenied
      */
-    public function readBytes($num);
+    public function readBytes(int $num, bool $skipTests = false): string;
     
     /**
      * Write to a stream; prevent partial writes
@@ -22,5 +23,5 @@ interface StreamInterface
      * @param int $num (number of bytes)
      * @throws FileAlert\AccessDenied
      */
-    public function writeBytes($buf, $num = null);
+    public function writeBytes(string $buf, int $num = null): int;
 }

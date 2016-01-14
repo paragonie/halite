@@ -11,7 +11,7 @@ class SecretKey extends Key implements Contract\KeyInterface
      * @param string $keyMaterial - The actual key data
      * @param bool $signing - Is this a signing key?
      */
-    public function __construct($keyMaterial = '', ...$args) 
+    public function __construct(string $keyMaterial = '', ...$args)
     {
         $signing = \count($args) >= 1
             ? $args[0]

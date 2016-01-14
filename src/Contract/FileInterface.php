@@ -1,9 +1,17 @@
 <?php
 namespace ParagonIE\Halite\Contract;
 
-use \ParagonIE\Halite\Asymmetric\PublicKey;
-use \ParagonIE\Halite\Asymmetric\SecretKey;
-use \ParagonIE\Halite\Symmetric\SecretKey as SymmetricKey;
+use \ParagonIE\Halite\Key;
+use \ParagonIE\Halite\Asymmetric\{
+    EncryptionPublicKey,
+    EncryptionSecretKey,
+    SignaturePublicKey,
+    SignatureSecretKey
+};
+use \ParagonIE\Halite\Symmetric\{
+    AuthenticationKey,
+    EncryptionKey
+};
 
 /**
  * An interface for encrypting/decrypting files
@@ -18,10 +26,10 @@ interface FileInterface
      * @param SymmetricKey $key
      */
     public static function encryptFile(
-        $inputFile,
-        $outputFile,
-        KeyInterface $key
-    );
+        string $inputFile,
+        string $outputFile,
+        EncryptionKey $key
+    ): int;
     
     /**
      * Decrypt a file with a symmetric key
@@ -31,10 +39,10 @@ interface FileInterface
      * @param SymmetricKey $key
      */
     public static function decryptFile(
-        $inputFile,
-        $outputFile,
-        KeyInterface $key
-    );
+        string $inputFile,
+        string $outputFile,
+        EncryptionKey $key
+    ): bool;
     
     /**
      * Encrypt a file with a public key
@@ -44,10 +52,10 @@ interface FileInterface
      * @param PublicKey $publickey
      */
     public static function sealFile(
-        $inputFile,
-        $outputFile,
-        KeyInterface $publickey
-    );
+        string $inputFile,
+        string $outputFile,
+        EncryptionPublicKey $publickey
+    ): int;
     
     /**
      * Decrypt a file with a private key
@@ -57,11 +65,40 @@ interface FileInterface
      * @param SecretKey $secretkey
      */
     public static function unsealFile(
-        $inputFile,
-        $outputFile,
-        KeyInterface $secretkey
-    );
-    
+        string $inputFile,
+        string $outputFile,
+        EncryptionSecretKey $secretkey
+    ): bool;
+
+    /**
+     * Signs a file
+     *
+     * @param string $filename
+     * @param SignatureSecretKey $secretkey
+     * @param bool $raw_binary
+     *
+     * @return string
+     */
+    public static function signFile(
+        string $filename,
+        SignatureSecretKey $secretkey,
+        bool $raw_binary = false
+    ): string;
+
+    /**
+     * Verifies a file
+     *
+     * @param string $filename
+     * @param SignaturePublicKey $publickey
+     * @param string $signature
+     */
+    public static function verifyFile(
+        string $filename,
+        SignaturePublicKey $publickey,
+        string $signature,
+        bool $raw_binary = false
+    ): bool;
+
     /**
      * Encrypt a (file handle)
      * 
@@ -72,8 +109,8 @@ interface FileInterface
     public static function encryptResource(
         $input,
         $output,
-        KeyInterface $key
-    );
+        EncryptionKey $key
+    ): int;
     
     /**
      * Decrypt a (file handle)
@@ -85,8 +122,8 @@ interface FileInterface
     public static function decryptResource(
         $input,
         $output,
-        KeyInterface $key
-    );
+        EncryptionKey $key
+    ): bool;
     
     /**
      * Seal a (file handle)
@@ -98,8 +135,8 @@ interface FileInterface
     public static function sealResource(
         $input,
         $output,
-        KeyInterface $publickey
-    );
+        EncryptionPublicKey $publickey
+    ): int;
     
     /**
      * Unseal a (file handle)
@@ -111,9 +148,39 @@ interface FileInterface
     public static function unsealResource(
         $input,
         $output,
-        KeyInterface $secretkey
-    );
-    
+        EncryptionSecretKey $secretkey
+    ): bool;
+
+    /**
+     * Signs a file
+     *
+     * @param string $input
+     * @param SignatureSecretKey $secretkey
+     * @param bool $raw_binary
+     *
+     * @return string
+     */
+    public static function signResource(
+        $input,
+        SignatureSecretKey $secretkey,
+        bool $raw_binary = false
+    ): string;
+
+    /**
+     * Verifies a file
+     *
+     * @param string $input
+     * @param SignaturePublicKey $publickey
+     * @param string $signature
+     *
+     * @return bool
+     */
+    public static function verifyResource(
+        $input,
+        SignaturePublicKey $publickey,
+        string $signature,
+        bool $raw_binary = false
+    ): bool;
     
     /**
      * Calculate a checksum (derived from BLAKE2b) of a file
@@ -125,10 +192,10 @@ interface FileInterface
      * @return string
      */
     public static function checksumFile(
-        $filepath,
-        KeyInterface $key = null,
-        $raw = false
-    );
+        string $filepath,
+        Key $key = null,
+        bool $raw = false
+    ): string;
     
     
     /**
@@ -142,7 +209,7 @@ interface FileInterface
      */
     public static function checksumResource(
         $fileHandle,
-        KeyInterface $key = null,
-        $raw = false
-    );
+        Key $key = null,
+        bool $raw = false
+    ): string;
 }

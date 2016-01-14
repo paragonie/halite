@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Alerts as CryptoException;
@@ -48,7 +49,7 @@ abstract class Key implements Contract\KeyInterface
      * @param bool $asymmetric - Is this being used in asymmetric cryptography?
      */
     public function __construct(
-        $keyMaterial = '',
+        string $keyMaterial = '',
         ...$args
     ) {
         // Workaround: Inherited classes have simpler constructors:
@@ -181,7 +182,7 @@ abstract class Key implements Contract\KeyInterface
      * @param int $flag
      * @return bool
      */
-    public static function hasFlag($int, $flag)
+    public static function hasFlag(int $int, int $flag): bool
     {
         return ($int & $flag) !== 0;
     }
@@ -193,7 +194,7 @@ abstract class Key implements Contract\KeyInterface
      * @param int $flag
      * @return bool
      */
-    public static function doesNotHaveFlag($int, $flag)
+    public static function doesNotHaveFlag(int $int, int $flag): bool
     {
         return ($int & $flag) === 0;
     }

@@ -21,4 +21,27 @@ abstract class Halite
     const HALITE_VERSION      = "\x31\x42\x02\x00";
     
     const VERSION_TAG_LEN = 4;
+
+    public static function isLibsodiumSetupCorrectly(bool $echo = false): bool
+    {
+        // Require libsodium 1.0.9
+        $major = \Sodium\library_version_major();
+        $minor = \Sodium\library_version_minor();
+        if ($major < 9 || ($major === 9 && $minor < 2)) {
+            if ($echo) {
+                echo 'Halite needs libsodium 1.0.9 or higher. You have: ', \Sodium\version_string(), "\n";
+            }
+            return false;
+        }
+
+        // Added in version 1.0.3 of the PHP extension
+        if (!\function_exists('\\Sodium\\crypto_pwhash_str')) {
+            if ($echo) {
+                echo 'Halite needs version 1.0.3 or higher of the PHP extension installed.', "\n";
+            }
+            return false;
+        }
+
+        return true;
+    }
 }

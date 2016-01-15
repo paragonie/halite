@@ -12,7 +12,8 @@ use \ParagonIE\Halite\Util as CryptoUtil;
 class ReadOnlyFile implements StreamInterface
 {
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
-    
+
+    private $closeAfter = false;
     private $fp;
     private $hash;
     private $pos;
@@ -23,6 +24,7 @@ class ReadOnlyFile implements StreamInterface
     {
         if (is_string($file)) {
             $this->fp = \fopen($file, 'rb');
+            $this->closeAfter = true;
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
         } elseif (is_resource($file)) {
@@ -39,7 +41,21 @@ class ReadOnlyFile implements StreamInterface
             : '';
         $this->hash = $this->getHash();
     }
-    
+
+    public function close()
+    {
+        if ($this->closeAfter) {
+            $this->closeAfter = false;
+            \fclose($this->fp);
+            \clearstatcache();
+        }
+    }
+
+    public function __destruct()
+    {
+        $this->close();
+    }
+
     /**
      * Where are we in the buffer?
      * 

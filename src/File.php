@@ -17,6 +17,7 @@ use \ParagonIE\Halite\{
     Symmetric\AuthenticationKey,
     Symmetric\EncryptionKey
 };
+use ParagonIE\Halite\Asymmetric\Crypto;
 
 final class File implements FileInterface
 {
@@ -52,14 +53,14 @@ final class File implements FileInterface
      * @param string|resource $input
      * @param string|resource $output
      * @param EncryptionKey $key
-     * @return string
+     * @return int
      * @throws CryptoException\InvalidType
      */
     public static function encrypt(
         $input,
         $output,
         EncryptionKey $key
-    ) {
+    ): int {
         if (
             \is_resource($input) ||
             \is_resource($output) ||
@@ -83,25 +84,33 @@ final class File implements FileInterface
      * @param string|resource $input
      * @param string|resource $output
      * @param EncryptionKey $key
-     * @return string
+     * @return bool
      * @throws CryptoException\InvalidType
      */
     public static function decrypt(
         $input,
         $output,
         EncryptionKey $key
-    ) {
+    ): bool {
         if (
             \is_resource($input) ||
             \is_resource($output) ||
             \is_string($input) ||
             \is_string($output)
         ) {
-            return self::decryptStream(
-                new ReadOnlyFile($input),
-                new MutableFile($output),
-                $key
-            );
+            try {
+                $readOnly = new ReadOnlyFile($input);
+                $mutable = new MutableFile($output);
+                return self::decryptStream(
+                    $readOnly,
+                    $mutable,
+                    $key
+                );
+            } catch (CryptoException\HaliteAlert $ex) {
+                $readOnly->close();
+                $mutable->close();
+                throw $ex;
+            }
         }
         throw new CryptoException\InvalidType(
             'Strings or file handles expected'
@@ -159,11 +168,19 @@ final class File implements FileInterface
             \is_string($input) ||
             \is_string($output)
         ) {
-            return self::unsealStream(
-                new ReadOnlyFile($input),
-                new MutableFile($output),
-                $secretkey
-            );
+            try {
+                $readOnly = new ReadOnlyFile($input);
+                $mutable = new MutableFile($output);
+                return self::unsealStream(
+                    $readOnly,
+                    $mutable,
+                    $secretkey
+                );
+            } catch (CryptoException\HaliteAlert $ex) {
+                $readOnly->close();
+                $mutable->close();
+                throw $ex;
+            }
         }
         throw new CryptoException\InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -241,7 +258,7 @@ final class File implements FileInterface
      * @return string
      * @throws Alerts\FileAccessDenied
      */
-    public static function checksumFile(
+    protected static function checksumFile(
         string $filepath,
         Key $key = null,
         bool $raw = false
@@ -278,7 +295,7 @@ final class File implements FileInterface
      * @return string
      * @throws Alerts\InvalidType
      */
-    public static function checksumResource(
+    protected static function checksumResource(
         $fileHandle,
         Key $key = null,
         bool $raw = false
@@ -305,7 +322,7 @@ final class File implements FileInterface
      * @return string
      * @throws CryptoException\InvalidKey
      */
-    public static function checksumStream(
+    protected static function checksumStream(
         StreamInterface $fileStream,
         Key $key = null,
         bool $raw = false
@@ -363,7 +380,7 @@ final class File implements FileInterface
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\HaliteAlert
      */
-    public static function encryptFile(
+    protected static function encryptFile(
         string $inputFile,
         string $outputFile,
         EncryptionKey $key
@@ -421,7 +438,7 @@ final class File implements FileInterface
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\HaliteAlert
      */
-    public static function decryptFile(
+    protected static function decryptFile(
         string $inputFile,
         string $outputFile,
         EncryptionKey $key
@@ -475,11 +492,11 @@ final class File implements FileInterface
      * @param string $inputFile
      * @param string $outputFile
      * @param EncryptionPublicKey $publickey
-     *
+     * @return int
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\HaliteAlert
      */
-    public static function sealFile(
+    protected static function sealFile(
         string $inputFile,
         string $outputFile,
         EncryptionPublicKey $publickey
@@ -533,8 +550,11 @@ final class File implements FileInterface
      * @param string $inputFile
      * @param string $outputFile
      * @param EncryptionSecretKey $secretkey
+     * @return bool
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\HaliteAlert
      */
-    public static function unsealFile(
+    protected static function unsealFile(
         string $inputFile,
         string $outputFile,
         EncryptionSecretKey $secretkey
@@ -592,7 +612,7 @@ final class File implements FileInterface
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\HaliteAlert
      */
-    public static function signFile(
+    protected static function signFile(
         string $filename,
         SignatureSecretKey $secretkey,
         bool $raw_binary = false
@@ -636,7 +656,7 @@ final class File implements FileInterface
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\HaliteAlert
      */
-    public static function verifyFile(
+    protected static function verifyFile(
         string $filename,
         SignaturePublicKey $publickey,
         string $signature,
@@ -681,7 +701,7 @@ final class File implements FileInterface
      * @return int
      * @throws CryptoException\InvalidType
      */
-    public static function encryptResource(
+    protected static function encryptResource(
         $input,
         $output,
         EncryptionKey $key
@@ -711,7 +731,7 @@ final class File implements FileInterface
      * @param $output
      * @param EncryptionKey $key
      */
-    public static function encryptStream(
+    protected static function encryptStream(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionKey $key
@@ -756,7 +776,7 @@ final class File implements FileInterface
      * @return bool
      * @throws CryptoException\InvalidType
      */
-    public static function decryptResource(
+    protected static function decryptResource(
         $input,
         $output,
         EncryptionKey $key
@@ -787,7 +807,7 @@ final class File implements FileInterface
      * @param EncryptionKey $key
      * @return bool
      */
-    public static function decryptStream(
+    protected static function decryptStream(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionKey $key
@@ -842,7 +862,7 @@ final class File implements FileInterface
      * @return int
      * @throws CryptoException\InvalidType
      */
-    public static function sealResource(
+    protected static function sealResource(
         $input,
         $output,
         EncryptionPublicKey $publickey
@@ -873,7 +893,7 @@ final class File implements FileInterface
      * @param EncryptionPublicKey $publickey
      * @return int
      */
-    public static function sealStream(
+    protected static function sealStream(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionPublicKey $publickey
@@ -940,7 +960,7 @@ final class File implements FileInterface
      * @return bool
      * @throws CryptoException\InvalidType
      */
-    public static function unsealResource(
+    protected static function unsealResource(
         $input,
         $output,
         EncryptionSecretKey $secretkey
@@ -973,7 +993,7 @@ final class File implements FileInterface
      * @return bool
      * @throws CryptoException\InvalidKey
      */
-    public static function unsealStream(
+    protected static function unsealStream(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionSecretKey $secretkey
@@ -1041,7 +1061,7 @@ final class File implements FileInterface
      * @param SignatureSecretKey $secretkey
      * @param bool $raw_binary Don't hex encode?
      */
-    public static function signResource(
+    protected static function signResource(
         $input,
         SignatureSecretKey $secretkey,
         bool $raw_binary = false
@@ -1062,7 +1082,7 @@ final class File implements FileInterface
      * @return string
      * @throws CryptoException\InvalidKey
      */
-    public static function signStream(
+    protected static function signStream(
         ReadOnlyFile $input,
         SignatureSecretKey $secretkey,
         bool $raw_binary = false
@@ -1090,7 +1110,7 @@ final class File implements FileInterface
      * 
      * @return bool
      */
-    public static function verifyResource(
+    protected static function verifyResource(
         $input,
         SignaturePublicKey $publickey,
         string $signature,
@@ -1114,7 +1134,7 @@ final class File implements FileInterface
      * 
      * @return bool
      */
-    public static function verifyStream(
+    protected static function verifyStream(
         ReadOnlyFile $input,
         SignaturePublicKey $publickey,
         string $signature,

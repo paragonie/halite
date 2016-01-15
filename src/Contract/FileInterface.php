@@ -1,6 +1,7 @@
 <?php
 namespace ParagonIE\Halite\Contract;
 
+use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Asymmetric\{
     EncryptionPublicKey,
@@ -19,197 +20,113 @@ use \ParagonIE\Halite\Symmetric\{
 interface FileInterface 
 {
     /**
-     * Encrypt a file with a symmetric key
-     * 
-     * @param string $inputFile
-     * @param string $outputFile
-     * @param SymmetricKey $key
-     */
-    public static function encryptFile(
-        string $inputFile,
-        string $outputFile,
-        EncryptionKey $key
-    ): int;
-    
-    /**
-     * Decrypt a file with a symmetric key
-     * 
-     * @param string $inputFile
-     * @param string $outputFile
-     * @param SymmetricKey $key
-     */
-    public static function decryptFile(
-        string $inputFile,
-        string $outputFile,
-        EncryptionKey $key
-    ): bool;
-    
-    /**
-     * Encrypt a file with a public key
-     * 
-     * @param string $inputFile
-     * @param string $outputFile
-     * @param PublicKey $publickey
-     */
-    public static function sealFile(
-        string $inputFile,
-        string $outputFile,
-        EncryptionPublicKey $publickey
-    ): int;
-    
-    /**
-     * Decrypt a file with a private key
-     * 
-     * @param string $inputFile
-     * @param string $outputFile
-     * @param SecretKey $secretkey
-     */
-    public static function unsealFile(
-        string $inputFile,
-        string $outputFile,
-        EncryptionSecretKey $secretkey
-    ): bool;
-
-    /**
-     * Signs a file
+     * Lazy fallthrough method for checksumFile() and checksumResource()
      *
-     * @param string $filename
-     * @param SignatureSecretKey $secretkey
-     * @param bool $raw_binary
-     *
+     * @param string|resource $filepath
+     * @param AuthenticationKey $key
+     * @param bool $raw
      * @return string
+     * @throws CryptoException\InvalidType
      */
-    public static function signFile(
-        string $filename,
-        SignatureSecretKey $secretkey,
-        bool $raw_binary = false
+    public static function checksum(
+        $filepath,
+        KeyInterface $key = null,
+        $raw = false
     ): string;
 
     /**
-     * Verifies a file
+     * Lazy fallthrough method for encryptFile() and encryptResource()
      *
-     * @param string $filename
-     * @param SignaturePublicKey $publickey
-     * @param string $signature
-     */
-    public static function verifyFile(
-        string $filename,
-        SignaturePublicKey $publickey,
-        string $signature,
-        bool $raw_binary = false
-    ): bool;
-
-    /**
-     * Encrypt a (file handle)
-     * 
-     * @param $input
-     * @param $output
-     * @param SymmetricKey $key
-     */
-    public static function encryptResource(
-        $input,
-        $output,
-        EncryptionKey $key
-    ): int;
-    
-    /**
-     * Decrypt a (file handle)
-     * 
-     * @param $input
-     * @param $output
-     * @param SymmetricKey $key
-     */
-    public static function decryptResource(
-        $input,
-        $output,
-        EncryptionKey $key
-    ): bool;
-    
-    /**
-     * Seal a (file handle)
-     * 
-     * @param $input
-     * @param $output
-     * @param PublicKey $publickey
-     */
-    public static function sealResource(
-        $input,
-        $output,
-        EncryptionPublicKey $publickey
-    ): int;
-    
-    /**
-     * Unseal a (file handle)
-     * 
-     * @param $input
-     * @param $output
-     * @param SecretKey $secretkey
-     */
-    public static function unsealResource(
-        $input,
-        $output,
-        EncryptionSecretKey $secretkey
-    ): bool;
-
-    /**
-     * Signs a file
-     *
-     * @param string $input
-     * @param SignatureSecretKey $secretkey
-     * @param bool $raw_binary
-     *
+     * @param string|resource $input
+     * @param string|resource $output
+     * @param EncryptionKey $key
      * @return string
+     * @throws CryptoException\InvalidType
      */
-    public static function signResource(
+    public static function encrypt(
         $input,
-        SignatureSecretKey $secretkey,
-        bool $raw_binary = false
-    ): string;
+        $output,
+        EncryptionKey $key
+    ): int;
 
     /**
-     * Verifies a file
+     * Lazy fallthrough method for decryptFile() and decryptResource()
      *
-     * @param string $input
-     * @param SignaturePublicKey $publickey
-     * @param string $signature
-     *
+     * @param string|resource $input
+     * @param string|resource $output
+     * @param EncryptionKey $key
      * @return bool
+     * @throws CryptoException\InvalidType
      */
-    public static function verifyResource(
+    public static function decrypt(
         $input,
+        $output,
+        EncryptionKey $key
+    ): bool;
+
+
+    /**
+     * Lazy fallthrough method for sealFile() and sealResource()
+     *
+     * @param string|resource $input
+     * @param string|resource $output
+     * @param EncryptionPublicKey $publickey
+     * @return int Number of bytes written
+     * @throws Alerts\InvalidType
+     */
+    public static function seal(
+        $input,
+        $output,
+        EncryptionPublicKey $publickey
+    ): int;
+
+
+    /**
+     * Lazy fallthrough method for sealFile() and sealResource()
+     *
+     * @param string|resource $input
+     * @param string|resource $output
+     * @param EncryptionSecretKey $secretkey
+     * @return bool TRUE on success
+     * @throws CryptoException\InvalidType
+     */
+    public static function unseal(
+        $input,
+        $output,
+        EncryptionSecretKey $secretkey
+    ): bool;
+
+
+    /**
+     * Lazy fallthrough method for signFile() and signResource()
+     *
+     * @param string|resource $filename
+     * @param SignatureSecretKey $secretkey
+     * @param bool $raw_binary
+     * @return string
+     * @throws Alerts\InvalidType
+     */
+    public static function sign(
+        $filename,
+        SignatureSecretKey $secretkey,
+        bool $raw_binary = false
+    ): string;
+
+    /**
+     * Lazy fallthrough method for verifyFile() and verifyResource()
+     *
+     * @param string|resource $filename
+     * @param SignaturePublicKey $publickey
+     * @param string $signature
+     * @param bool $raw_binary
+     *
+     * @return string
+     * @throws Alerts\InvalidType
+     */
+    public static function verify(
+        $filename,
         SignaturePublicKey $publickey,
         string $signature,
         bool $raw_binary = false
     ): bool;
-    
-    /**
-     * Calculate a checksum (derived from BLAKE2b) of a file
-     * 
-     * @param string $filepath The file you'd like to checksum
-     * @param SymmetricKey $key An optional BLAKE2b key
-     * @param bool $raw Set to true if you don't want hex
-     * 
-     * @return string
-     */
-    public static function checksumFile(
-        string $filepath,
-        Key $key = null,
-        bool $raw = false
-    ): string;
-    
-    
-    /**
-     * Calculate a BLAHE2b checksum of a file
-     * 
-     * @param string $fileHandle The file you'd like to checksum
-     * @param SymmetricKey $key An optional BLAKE2b key
-     * @param bool $raw Set to true if you don't want hex
-     * 
-     * @return string
-     */
-    public static function checksumResource(
-        $fileHandle,
-        Key $key = null,
-        bool $raw = false
-    ): string;
 }

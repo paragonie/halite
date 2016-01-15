@@ -12,7 +12,8 @@ use \ParagonIE\Halite\Util as CryptoUtil;
 class MutableFile implements StreamInterface
 {
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
-    
+
+    private $closeAfter = false;
     private $fp;
     private $pos;
     private $stat = [];
@@ -21,6 +22,7 @@ class MutableFile implements StreamInterface
     {
         if (is_string($file)) {
             $this->fp = \fopen($file, 'wb');
+            $this->closeAfter = true;
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
         } elseif (is_resource($file)) {
@@ -33,7 +35,21 @@ class MutableFile implements StreamInterface
             );
         }
     }
-    
+
+    public function close()
+    {
+        if ($this->closeAfter) {
+            $this->closeAfter = false;
+            \fclose($this->fp);
+            \clearstatcache();
+        }
+    }
+
+    public function __destruct()
+    {
+        $this->close();
+    }
+
     /**
      * Read from a stream; prevent partial reads
      * 

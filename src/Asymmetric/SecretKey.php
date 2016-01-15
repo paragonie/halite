@@ -5,7 +5,7 @@ use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Alerts\CannotPerformOperation;
 
-class SecretKey extends Key implements Contract\KeyInterface
+class SecretKey extends Key
 {
     /**
      * @param string $keyMaterial - The actual key data

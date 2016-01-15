@@ -5,7 +5,7 @@ namespace ParagonIE\Halite\Asymmetric;
 use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Key;
 
-class PublicKey extends Key implements Contract\KeyInterface
+class PublicKey extends Key
 {
     /**
      * @param string $keyMaterial - The actual key data

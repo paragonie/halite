@@ -4,14 +4,13 @@ namespace ParagonIE\Halite\Symmetric;
 
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\{
-    Contract\SymmetricKeyCryptoInterface,
     Config,
     Halite,
     Symmetric\Config as SymmetricConfig,
     Util as CryptoUtil
 };
 
-abstract class Crypto implements SymmetricKeyCryptoInterface
+abstract class Crypto
 {
     /**
      * Authenticate a string

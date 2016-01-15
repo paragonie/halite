@@ -3,15 +3,13 @@ declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
 use \ParagonIE\Halite\{
-    Contract\AsymmetricKeyCryptoInterface,
-    Contract\KeyInterface,
     Alerts as CryptoException,
     Util as CryptoUtil,
     Symmetric\Crypto as SymmetricCrypto,
     Symmetric\EncryptionKey
 };
 
-abstract class Crypto implements AsymmetricKeyCryptoInterface
+abstract class Crypto
 {
     /**
      * Encrypt a string using asymmetric cryptography
@@ -74,8 +72,8 @@ abstract class Crypto implements AsymmetricKeyCryptoInterface
      * @return string
      */
     public static function getSharedSecret(
-        KeyInterface $privateKey,
-        KeyInterface $publicKey,
+        Key $privateKey,
+        Key $publicKey,
         bool $get_as_object = false
     ) {
         if ($get_as_object) {

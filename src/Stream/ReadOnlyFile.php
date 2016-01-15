@@ -2,11 +2,9 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
-use \ParagonIE\Halite\Contract\{
-    StreamInterface,
-    KeyInterface
-};
+use \ParagonIE\Halite\Contract\StreamInterface;
 use \ParagonIE\Halite\Alerts as CryptoException;
+use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Util as CryptoUtil;
 
 class ReadOnlyFile implements StreamInterface
@@ -20,7 +18,7 @@ class ReadOnlyFile implements StreamInterface
     private $hashKey = null;
     private $stat = [];
     
-    public function __construct($file, KeyInterface $key = null)
+    public function __construct($file, Key $key = null)
     {
         if (is_string($file)) {
             $this->fp = \fopen($file, 'rb');

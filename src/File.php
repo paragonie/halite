@@ -10,7 +10,6 @@ use \ParagonIE\Halite\{
     Asymmetric\SignaturePublicKey,
     Asymmetric\SignatureSecretKey,
     Contract\FileInterface,
-    Contract\KeyInterface,
     Contract\StreamInterface,
     Stream\MutableFile,
     Stream\ReadOnlyFile,
@@ -19,7 +18,7 @@ use \ParagonIE\Halite\{
 };
 use ParagonIE\Halite\Asymmetric\Crypto;
 
-final class File implements FileInterface
+final class File
 {
     /**
      * Lazy fallthrough method for checksumFile() and checksumResource()
@@ -32,7 +31,7 @@ final class File implements FileInterface
      */
     public static function checksum(
         $filepath,
-        KeyInterface $key = null,
+        Key $key = null,
         $raw = false
     ): string {
         if (\is_resource($filepath) || \is_string($filepath)) {
@@ -1300,13 +1299,13 @@ final class File implements FileInterface
     /**
      * Split a key using HKDF
      * 
-     * @param KeyInterface $master
+     * @param Key $master
      * @param string $salt
      * @param Config $config
      * @return string[]
      */
     protected static function splitKeys(
-        KeyInterface $master,
+        Key $master,
         string $salt = '',
         Config $config = null
     ): array {

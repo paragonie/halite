@@ -6,6 +6,8 @@ namespace Sodium;
  * To silence the phpstorm "unknown namespace" errors.
  *
  * This does nothing if the libsodium extension is loaded, so it's harmless.
+ * 
+ * This file alone is released under CC0 and WTFPL dual licensing.
  */
 if (!\extension_loaded('libsodium')) {
     /**

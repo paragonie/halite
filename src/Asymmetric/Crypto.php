@@ -5,6 +5,7 @@ namespace ParagonIE\Halite\Asymmetric;
 use \ParagonIE\Halite\{
     Alerts as CryptoException,
     Util as CryptoUtil,
+    Key,
     Symmetric\Crypto as SymmetricCrypto,
     Symmetric\EncryptionKey
 };

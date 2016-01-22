@@ -35,7 +35,7 @@ final class File
         $raw = false
     ): string {
         if (\is_resource($filepath) || \is_string($filepath)) {
-            return self::checksumStream(
+            return self::checksumData(
                 new ReadOnlyFile($filepath),
                 $key,
                 $raw
@@ -66,7 +66,7 @@ final class File
             \is_string($input) ||
             \is_string($output)
         ) {
-            return self::encryptStream(
+            return self::encryptData(
                 new ReadOnlyFile($input),
                 new MutableFile($output),
                 $key
@@ -100,7 +100,7 @@ final class File
             try {
                 $readOnly = new ReadOnlyFile($input);
                 $mutable = new MutableFile($output);
-                return self::decryptStream(
+                return self::decryptData(
                     $readOnly,
                     $mutable,
                     $key
@@ -136,7 +136,7 @@ final class File
             \is_string($input) ||
             \is_string($output)
         ) {
-            return self::sealStream(
+            return self::sealData(
                 new ReadOnlyFile($input),
                 new MutableFile($output),
                 $publickey
@@ -170,7 +170,7 @@ final class File
             try {
                 $readOnly = new ReadOnlyFile($input);
                 $mutable = new MutableFile($output);
-                return self::unsealStream(
+                return self::unsealData(
                     $readOnly,
                     $mutable,
                     $secretkey
@@ -204,7 +204,7 @@ final class File
             \is_resource($filename) ||
             \is_string($filename)
         ) {
-            return self::signStream(
+            return self::signData(
                 new ReadOnlyFile($filename),
                 $secretkey,
                 $raw_binary
@@ -236,7 +236,7 @@ final class File
             \is_resource($filename) ||
             \is_string($filename)
         ) {
-            return self::verifyStream(
+            return self::verifyData(
                 new ReadOnlyFile($filename),
                 $publickey,
                 $signature,
@@ -257,7 +257,7 @@ final class File
      * @return string
      * @throws CryptoException\InvalidKey
      */
-    protected static function checksumStream(
+    protected static function checksumData(
         StreamInterface $fileStream,
         Key $key = null,
         bool $raw = false
@@ -312,7 +312,7 @@ final class File
      * @param $output
      * @param EncryptionKey $key
      */
-    protected static function encryptStream(
+    protected static function encryptData(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionKey $key
@@ -356,7 +356,7 @@ final class File
      * @param EncryptionKey $key
      * @return bool
      */
-    protected static function decryptStream(
+    protected static function decryptData(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionKey $key
@@ -410,7 +410,7 @@ final class File
      * @param EncryptionPublicKey $publickey
      * @return int
      */
-    protected static function sealStream(
+    protected static function sealData(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionPublicKey $publickey
@@ -478,7 +478,7 @@ final class File
      * @return bool
      * @throws CryptoException\InvalidKey
      */
-    protected static function unsealStream(
+    protected static function unsealData(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionSecretKey $secretkey
@@ -548,7 +548,7 @@ final class File
      * @return string
      * @throws CryptoException\InvalidKey
      */
-    protected static function signStream(
+    protected static function signData(
         ReadOnlyFile $input,
         SignatureSecretKey $secretkey,
         bool $raw_binary = false
@@ -558,7 +558,7 @@ final class File
                 'Argument 1: Expected an instance of SignatureSecretKey'
             );
         }
-        $csum = self::checksumStream(
+        $csum = self::checksumData(
             $input,
             $secretkey->derivePublicKey(),
             true
@@ -576,13 +576,13 @@ final class File
      * 
      * @return bool
      */
-    protected static function verifyStream(
+    protected static function verifyData(
         ReadOnlyFile $input,
         SignaturePublicKey $publickey,
         string $signature,
         bool $raw_binary = false
     ): bool {
-        $csum = self::checksumStream($input, $publickey, true);
+        $csum = self::checksumData($input, $publickey, true);
         return AsymmetricCrypto::verify(
             $csum,
             $publickey,

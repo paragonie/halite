@@ -733,7 +733,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
-                        'USE_BLAKE2B' => true,
+                        'USE_BLAKE2B' => false,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'BUFFER' => 1048576,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
@@ -778,7 +778,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
-                        'USE_BLAKE2B' => true,
+                        'USE_BLAKE2B' => false,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 100,
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,

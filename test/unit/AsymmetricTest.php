@@ -114,8 +114,8 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         $enc_public = $alice->getPublicKey();
         
         $this->assertEquals(
-            \Sodium\crypto_box_publickey_from_secretkey($enc_secret->get()),
-            $enc_public->get()
+            \Sodium\crypto_box_publickey_from_secretkey($enc_secret->getRawKeyMaterial()),
+            $enc_public->getRawKeyMaterial()
         );
         
         $message = 'This is for your eyes only';

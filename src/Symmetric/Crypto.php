@@ -32,7 +32,7 @@ abstract class Crypto
         );
         $mac = self::calculateMAC(
             $message,
-            $secretKey->get(),
+            $secretKey->getRawKeyMaterial(),
             $config
         );
         if ($raw) {
@@ -141,7 +141,7 @@ abstract class Crypto
         string $salt = '',
         Config $config = null
     ): array {
-        $binary = $master->get();
+        $binary = $master->getRawKeyMaterial();
         return [
             CryptoUtil::hkdfBlake2b(
                 $binary,
@@ -243,7 +243,7 @@ abstract class Crypto
         return self::verifyMAC(
             $mac,
             $message,
-            $secretKey->get()
+            $secretKey->getRawKeyMaterial()
         );
     }
     

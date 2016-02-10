@@ -120,7 +120,7 @@ abstract class Key
      * 
      * @return string
      */
-    public function get()
+    public function getRawKeyMaterial()
     {
         return ''.$this->key_material;
     }

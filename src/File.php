@@ -270,13 +270,13 @@ final class File
         );
         if ($key instanceof AuthenticationKey) {
             $state = \Sodium\crypto_generichash_init(
-                $key->get(),
+                $key->getRawKeyMaterial(),
                 $config->HASH_LEN
             );
         } elseif($config->CHECKSUM_PUBKEY && $key instanceof SignaturePublicKey) {
             // In version 2, we use the public key as a hash key
             $state = \Sodium\crypto_generichash_init(
-                $key->get(),
+                $key->getRawKeyMaterial(),
                 $config->HASH_LEN
             );
         } elseif (isset($key)) {
@@ -454,7 +454,7 @@ final class File
         
         // Generate a nonce as per crypto_box_seal
         $nonce = \Sodium\crypto_generichash(
-            $eph_public->get().$publickey->get(),
+            $eph_public->getRawKeyMaterial().$publickey->getRawKeyMaterial(),
             '',
             \Sodium\CRYPTO_STREAM_NONCEBYTES
         );
@@ -473,11 +473,11 @@ final class File
         unset($authKey);
         
         $output->writeBytes(Halite::HALITE_VERSION_FILE, Halite::VERSION_TAG_LEN);
-        $output->writeBytes($eph_public->get(), \Sodium\CRYPTO_BOX_PUBLICKEYBYTES);
+        $output->writeBytes($eph_public->getRawKeyMaterial(), \Sodium\CRYPTO_BOX_PUBLICKEYBYTES);
         $output->writeBytes($hkdfsalt, $config->HKDF_SALT_LEN);
         
         \hash_update($mac, Halite::HALITE_VERSION_FILE);
-        \hash_update($mac, $eph_public->get());
+        \hash_update($mac, $eph_public->getRawKeyMaterial());
         \hash_update($mac, $hkdfsalt);
         
         unset($eph_public);
@@ -507,7 +507,7 @@ final class File
         MutableFile $output,
         EncryptionSecretKey $secretkey
     ): bool {
-        $secret_key = $secretkey->get();
+        $secret_key = $secretkey->getRawKeyMaterial();
         $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
 
         if ($input->getSize() < Halite::VERSION_TAG_LEN) {
@@ -793,7 +793,7 @@ final class File
         string $salt = '',
         Config $config = null
     ): array {
-        $binary = $master->get();
+        $binary = $master->getRawKeyMaterial();
         return [
             Util::hkdfBlake2b(
                 $binary,
@@ -845,7 +845,7 @@ final class File
             $encrypted = \Sodium\crypto_stream_xor(
                 $read,
                 $nonce,
-                $encKey->get()
+                $encKey->getRawKeyMaterial()
             );
             \hash_update($mac, $encrypted);
             $output->writeBytes($encrypted);
@@ -926,7 +926,7 @@ final class File
             $decrypted = \Sodium\crypto_stream_xor(
                 $read,
                 $nonce,
-                $encKey->get()
+                $encKey->getRawKeyMaterial()
             );
             $output->writeBytes($decrypted);
             \Sodium\increment($nonce);

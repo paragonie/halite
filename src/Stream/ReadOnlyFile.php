@@ -35,7 +35,7 @@ class ReadOnlyFile implements StreamInterface
             );
         }
         $this->hashKey = !empty($key) 
-            ? $key->get()
+            ? $key->getRawKeyMaterial()
             : '';
         $this->hash = $this->getHash();
     }

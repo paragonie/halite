@@ -80,14 +80,14 @@ abstract class Crypto
         if ($get_as_object) {
             return new EncryptionKey(
                 \Sodium\crypto_scalarmult(
-                    $privateKey->get(),
-                    $publicKey->get()
+                    $privateKey->getRawKeyMaterial(),
+                    $publicKey->getRawKeyMaterial()
                 )
             );
         }
         return \Sodium\crypto_scalarmult(
-            $privateKey->get(),
-            $publicKey->get()
+            $privateKey->getRawKeyMaterial(),
+            $publicKey->getRawKeyMaterial()
         );
     }
     
@@ -116,7 +116,7 @@ abstract class Crypto
             );
         }
         
-        $sealed = \Sodium\crypto_box_seal($source, $publicKey->get());
+        $sealed = \Sodium\crypto_box_seal($source, $publicKey->getRawKeyMaterial());
         if ($raw) {
             return $sealed;
         }
@@ -138,7 +138,7 @@ abstract class Crypto
     ): string {
         $signed = \Sodium\crypto_sign_detached(
             $message,
-            $privateKey->get()
+            $privateKey->getRawKeyMaterial()
         );
         if ($raw) {
             return $signed;
@@ -165,7 +165,7 @@ abstract class Crypto
         }
 
         // Get a box keypair (needed by crypto_box_seal_open)
-        $secret_key = $privateKey->get();
+        $secret_key = $privateKey->getRawKeyMaterial();
         $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
         $kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
             $secret_key,
@@ -219,7 +219,7 @@ abstract class Crypto
         return \Sodium\crypto_sign_verify_detached(
             $signature,
             $message,
-            $publicKey->get()
+            $publicKey->getRawKeyMaterial()
         );
     }
 }

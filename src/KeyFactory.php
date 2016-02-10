@@ -461,9 +461,9 @@ abstract class KeyFactory
     public static function save($key, string $filename = ''): bool
     {
         if ($key instanceof KeyPair) {
-            return self::saveKeyFile($filename, $key->getSecretKey()->get());
+            return self::saveKeyFile($filename, $key->getSecretKey()->getRawKeyMaterial());
         }
-        return self::saveKeyFile($filename, $key->get());
+        return self::saveKeyFile($filename, $key->getRawKeyMaterial());
     }
     
     /**

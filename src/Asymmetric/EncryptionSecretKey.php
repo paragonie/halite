@@ -29,7 +29,7 @@ final class EncryptionSecretKey extends SecretKey
     public function derivePublicKey()
     {
         $publicKey = \Sodium\crypto_box_publickey_from_secretkey(
-            $this->get()
+            $this->getRawKeyMaterial()
         );
         return new EncryptionPublicKey($publicKey);
     }

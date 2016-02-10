@@ -22,7 +22,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
         );
         $this->assertEquals(
-            $key->get(),
+            $key->getRawKeyMaterial(),
             "\xa5\x20\x6e\x14\xb7\x58\x90\x4b\x1c\xe4\x69\xef\x3d\x72\x9a\xae".
             "\xbd\xa7\x70\x7d\x00\x59\xf4\xd6\xe3\x71\x28\x3b\x66\xd5\x91\x8c"
         );
@@ -50,7 +50,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
             true
         );
         $this->assertEquals(
-            $key->get(),
+            $key->getRawKeyMaterial(),
             "\x36\xa6\xc2\xb9\x6a\x65\x0d\x80\xbf\x7e\x02\x5e\x0f\x58\xf3\xd6".
             "\x36\x33\x95\x75\xde\xfb\x37\x08\x01\xa5\x42\x13\xbd\x54\x58\x2d",
             true
@@ -93,7 +93,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
         );
         
         $this->assertEquals(
-            $sign_public->get(),
+            $sign_public->getRawKeyMaterial(),
             "\x18\x2e\xc0\x3e\xb8\x74\x0c\xff\xb3\x8e\xea\xdf\xfe\x8c\xe9\x39".
             "\x37\x7d\xfd\xee\xa4\x6d\x06\xc9\x4b\x83\xeb\x54\x20\x73\x4f\xba"
         );
@@ -124,7 +124,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
         );
         
         $this->assertEquals(
-            $sign_public->get(),
+            $sign_public->getRawKeyMaterial(),
             "\xfe\x1b\x09\x86\x45\xb7\x04\xf5\xc2\x7f\x62\xc8\x61\x67\xd6\x09".
             "\x03\x1d\x95\xa7\x94\x5c\xe6\xd5\x55\x96\xe3\x75\x03\x17\x88\x34"
         );
@@ -201,7 +201,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
             $load_public instanceof EncryptionPublicKey
         );
         $this->assertTrue(
-            \hash_equals($enc_public->get(), $load_public->get())
+            \hash_equals($enc_public->getRawKeyMaterial(), $load_public->getRawKeyMaterial())
         );
         
         \unlink($file_secret);
@@ -234,7 +234,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
             $load_public instanceof EncryptionPublicKey
         );
         $this->assertTrue(
-            \hash_equals($enc_public->get(), $load_public->get())
+            \hash_equals($enc_public->getRawKeyMaterial(), $load_public->getRawKeyMaterial())
         );
         
         \unlink($file_secret);
@@ -265,7 +265,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
             $load_public instanceof SignaturePublicKey
         );
         $this->assertTrue(
-            \hash_equals($sign_public->get(), $load_public->get())
+            \hash_equals($sign_public->getRawKeyMaterial(), $load_public->getRawKeyMaterial())
         );
         
         \unlink($file_secret);
@@ -298,7 +298,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
             $load_public instanceof SignaturePublicKey
         );
         $this->assertTrue(
-            \hash_equals($sign_public->get(), $load_public->get())
+            \hash_equals($sign_public->getRawKeyMaterial(), $load_public->getRawKeyMaterial())
         );
         
         \unlink($file_secret);

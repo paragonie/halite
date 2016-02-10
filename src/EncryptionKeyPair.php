@@ -41,13 +41,13 @@ final class EncryptionKeyPair extends KeyPair
                     $this->setupKeyPair(
                         $keys[1] instanceof EncryptionSecretKey
                             ? $keys[1]
-                            : new EncryptionSecretKey($keys[1]->get())
+                            : new EncryptionSecretKey($keys[1]->getRawKeyMaterial())
                     );
                 } elseif ($keys[1]->isPublicKey()) {
                     $this->setupKeyPair(
                         $keys[0] instanceof EncryptionSecretKey
                             ? $keys[0]
-                            : new EncryptionSecretKey($keys[0]->get())
+                            : new EncryptionSecretKey($keys[0]->getRawKeyMaterial())
                     );
                 } else {
                     throw new CryptoException\InvalidKey(
@@ -73,7 +73,7 @@ final class EncryptionKeyPair extends KeyPair
                 $this->setupKeyPair(
                     $keys[0] instanceof EncryptionSecretKey
                         ? $keys[0]
-                        : new EncryptionSecretKey($keys[0]->get())
+                        : new EncryptionSecretKey($keys[0]->getRawKeyMaterial())
                 );
                 break;
             default:

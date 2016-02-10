@@ -104,7 +104,7 @@ person, Bob, will do the same on his end.)
 $alice_keypair = \ParagonIE\Halite\KeyFactory::generateEncryptionKeyPair();
 $alice_secret = $alice_keypair->getSecretKey();
 $alice_public = $alice_keypair->getPublicKey();
-$send_to_bob = \Sodium\bin2hex($alice_public->get());
+$send_to_bob = \Sodium\bin2hex($alice_public->getRawKeyMaterial());
 ```
 
 Alice will then load Bob's public key into the appropriate object like so:

@@ -29,7 +29,7 @@ final class SignatureSecretKey extends SecretKey
     public function derivePublicKey()
     {
         $publicKey = \Sodium\crypto_sign_publickey_from_secretkey(
-            $this->get()
+            $this->getRawKeyMaterial()
         );
         return new SignaturePublicKey($publicKey);
     }

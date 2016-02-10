@@ -2,8 +2,8 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
-use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\{
+    Alerts as CryptoException,
     Config,
     Halite,
     Symmetric\Config as SymmetricConfig,
@@ -26,8 +26,15 @@ abstract class Crypto
         AuthenticationKey $secretKey,
         bool $raw = false
     ): string {
-        $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'auth');
-        $mac = self::calculateMAC($message, $secretKey->get(), $config);
+        $config = SymmetricConfig::getConfig(
+            Halite::HALITE_VERSION,
+            'auth'
+        );
+        $mac = self::calculateMAC(
+            $message,
+            $secretKey->get(),
+            $config
+        );
         if ($raw) {
             return $mac;
         }
@@ -68,11 +75,7 @@ abstract class Crypto
                 'Invalid message authentication code'
             );
         }
-        
-        // Down the road, do whatever logic around $version here, in case we
-        // need to upgrade our protocol.
-        
-        // Add version logic above
+
         $plaintext = \Sodium\crypto_stream_xor($xored, $nonce, $eKey);
         if ($plaintext === false) {
             throw new CryptoException\InvalidMessage(
@@ -107,15 +110,15 @@ abstract class Crypto
         
         // Encrypt our message with the encryption key:
         $xored = \Sodium\crypto_stream_xor($plaintext, $nonce, $eKey);
+        \Sodium\memzero($eKey);
         
         // Calculate an authentication tag:
         $auth = self::calculateMAC(
             Halite::HALITE_VERSION . $salt . $nonce . $xored,
             $aKey
         );
-        
-        \Sodium\memzero($eKey);
         \Sodium\memzero($aKey);
+
         if (!$raw) {
             return \Sodium\bin2hex(
                 Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth
@@ -131,13 +134,13 @@ abstract class Crypto
      * @param EncryptionKey $master
      * @param string $salt
      * @param Config $config
-     * @return array
+     * @return string[]
      */
     public static function splitKeys(
         EncryptionKey $master,
         string $salt = '',
         Config $config = null
-    ) {
+    ): array {
         $binary = $master->get();
         return [
             CryptoUtil::hkdfBlake2b(
@@ -160,6 +163,7 @@ abstract class Crypto
      * 
      * @param string $ciphertext
      * @return array
+     * @throws CryptoException\InvalidMessage
      */
     public static function unpackMessageForDecryption(string $ciphertext): array
     {
@@ -168,6 +172,12 @@ abstract class Crypto
         // The first 4 bytes are reserved for the version size
         $version = CryptoUtil::safeSubstr($ciphertext, 0, Halite::VERSION_TAG_LEN);
         $config = SymmetricConfig::getConfig($version, 'encrypt');
+
+        if ($length < $config->SHORTEST_CIPHERTEXT_LENGTH) {
+            throw new CryptoException\InvalidMessage(
+                'Message is too short'
+            );
+        }
         
         // The HKDF is used for key splitting
         $salt = CryptoUtil::safeSubstr(
@@ -202,7 +212,10 @@ abstract class Crypto
         );
         
         // $auth is the last 32 bytes
-        $auth = CryptoUtil::safeSubstr($ciphertext, $length - \Sodium\CRYPTO_AUTH_BYTES);
+        $auth = CryptoUtil::safeSubstr(
+            $ciphertext,
+            $length - \Sodium\CRYPTO_AUTH_BYTES
+        );
         
         // We don't need this anymore.
         \Sodium\memzero($ciphertext);
@@ -258,6 +271,7 @@ abstract class Crypto
      * @param string $message
      * @param string $aKey
      * @return bool
+     * @throws CryptoException\InvalidSignature
      */
     protected static function verifyMAC(
         string $mac,

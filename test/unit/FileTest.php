@@ -13,26 +13,30 @@ use \ParagonIE\Halite\Alerts as CryptoException;
  */
 class FileTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @covers File::encrypt()
+     * @covers File::decrypt()
+     */
     public function testEncrypt()
     {
         \touch(__DIR__.'/tmp/paragon_avatar.encrypted.png');
         \chmod(__DIR__.'/tmp/paragon_avatar.encrypted.png', 0777);
         \touch(__DIR__.'/tmp/paragon_avatar.decrypted.png');
         \chmod(__DIR__.'/tmp/paragon_avatar.decrypted.png', 0777);
-        
+
         $key = new EncryptionKey(\str_repeat('B', 32));
         File::encrypt(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.encrypted.png',
             $key
         );
-        
+
         File::decrypt(
             __DIR__.'/tmp/paragon_avatar.encrypted.png',
             __DIR__.'/tmp/paragon_avatar.decrypted.png',
             $key
         );
-        
+
         $this->assertEquals(
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted.png')
@@ -40,7 +44,42 @@ class FileTest extends PHPUnit_Framework_TestCase
         \unlink(__DIR__.'/tmp/paragon_avatar.encrypted.png');
         \unlink(__DIR__.'/tmp/paragon_avatar.decrypted.png');
     }
-    
+
+    /**
+     * @covers File::encrypt()
+     * @covers File::decrypt()
+     */
+    public function testEncryptEmpty()
+    {
+        \file_put_contents(__DIR__.'/tmp/empty.txt', '');
+        \chmod(__DIR__.'/tmp/empty.txt', 0777);
+
+        $key = new EncryptionKey(\str_repeat('B', 32));
+        File::encrypt(
+            __DIR__.'/tmp/empty.txt',
+            __DIR__.'/tmp/empty.encrypted.txt',
+            $key
+        );
+
+        File::decrypt(
+            __DIR__.'/tmp/empty.encrypted.txt',
+            __DIR__.'/tmp/empty.decrypted.txt',
+            $key
+        );
+
+        $this->assertEquals(
+            \hash_file('sha256', __DIR__.'/tmp/empty.txt'),
+            \hash_file('sha256', __DIR__.'/tmp/empty.decrypted.txt')
+        );
+        \unlink(__DIR__.'/tmp/empty.txt');
+        \unlink(__DIR__.'/tmp/empty.encrypted.txt');
+        \unlink(__DIR__.'/tmp/empty.decrypted.txt');
+    }
+
+    /**
+     * @covers File::encrypt()
+     * @covers File::decrypt()
+     */
     public function testEncryptFail()
     {
         \touch(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png');
@@ -74,7 +113,70 @@ class FileTest extends PHPUnit_Framework_TestCase
             \unlink(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png');
         }
     }
-    
+
+    /**
+     * @covers File::encrypt()
+     * @covers File::decrypt()
+     */
+    public function testEncryptSmallFail()
+    {
+        $msg = 'File is too small to have been encrypted by Halite.';
+        $key = new EncryptionKey(\str_repeat('B', 32));
+
+        \file_put_contents(
+            __DIR__.'/tmp/empty.encrypted.txt',
+            ''
+        );
+        try {
+            File::decrypt(
+                __DIR__ . '/tmp/empty.encrypted.txt',
+                __DIR__ . '/tmp/empty.decrypted.txt',
+                $key
+            );
+            $this->fail("This should scream bloody murder");
+        } catch (CryptoException\InvalidMessage $e) {
+            $this->assertEquals($e->getMessage(), $msg);
+        }
+
+        \file_put_contents(
+            __DIR__.'/tmp/empty.encrypted.txt',
+            "\x31\x41\x02\x00\x01"
+        );
+        try {
+            File::decrypt(
+                __DIR__ . '/tmp/empty.encrypted.txt',
+                __DIR__ . '/tmp/empty.decrypted.txt',
+                $key
+            );
+            $this->fail("This should scream bloody murder");
+        } catch (CryptoException\InvalidMessage $e) {
+            $this->assertEquals($e->getMessage(), $msg);
+        }
+
+
+        \file_put_contents(
+            __DIR__.'/tmp/empty.encrypted.txt',
+            "\x31\x41\x02\x00" . \str_repeat("\x00", 87)
+        );
+        try {
+            File::decrypt(
+                __DIR__ . '/tmp/empty.encrypted.txt',
+                __DIR__ . '/tmp/empty.decrypted.txt',
+                $key
+            );
+            $this->fail("This should scream bloody murder");
+        } catch (CryptoException\InvalidMessage $e) {
+            $this->assertEquals($e->getMessage(), $msg);
+        }
+
+        \unlink(__DIR__.'/tmp/empty.encrypted.txt');
+        \unlink(__DIR__.'/tmp/empty.decrypted.txt');
+    }
+
+    /**
+     * @covers File::seal()
+     * @covers File::unseal()
+     */
     public function testSeal()
     {
         \touch(__DIR__.'/tmp/paragon_avatar.sealed.png');
@@ -106,7 +208,46 @@ class FileTest extends PHPUnit_Framework_TestCase
         \unlink(__DIR__.'/tmp/paragon_avatar.sealed.png');
         \unlink(__DIR__.'/tmp/paragon_avatar.opened.png');
     }
-    
+
+    /**
+     * @covers File::seal()
+     * @covers File::unseal()
+     */
+    public function testSealEmpty()
+    {
+        \file_put_contents(__DIR__.'/tmp/empty.txt', '');
+        \chmod(__DIR__.'/tmp/empty.txt', 0777);
+
+        $keypair = KeyFactory::generateEncryptionKeyPair();
+            $secretkey = $keypair->getSecretKey();
+            $publickey = $keypair->getPublicKey();
+
+        File::seal(
+            __DIR__.'/tmp/empty.txt',
+            __DIR__.'/tmp/empty.sealed.txt',
+            $publickey
+        );
+
+        File::unseal(
+            __DIR__.'/tmp/empty.sealed.txt',
+            __DIR__.'/tmp/empty.unsealed.txt',
+            $secretkey
+        );
+
+        $this->assertEquals(
+            \hash_file('sha256', __DIR__.'/tmp/empty.txt'),
+            \hash_file('sha256', __DIR__.'/tmp/empty.unsealed.txt')
+        );
+
+        \unlink(__DIR__.'/tmp/empty.txt');
+        \unlink(__DIR__.'/tmp/empty.sealed.txt');
+        \unlink(__DIR__.'/tmp/empty.unsealed.txt');
+    }
+
+    /**
+     * @covers File::seal()
+     * @covers File::unseal()
+     */
     public function testSealFail()
     {
         \touch(__DIR__.'/tmp/paragon_avatar.seal_fail.png');
@@ -143,7 +284,53 @@ class FileTest extends PHPUnit_Framework_TestCase
             \unlink(__DIR__.'/tmp/paragon_avatar.open_fail.png');
         }
     }
-    
+
+    /**
+     * @covers File::seal()
+     * @covers File::unseal()
+     */
+    public function testSealSmallFail()
+    {
+        $msg = 'File is too small to have been encrypted by Halite.';
+        $keypair = KeyFactory::generateEncryptionKeyPair();
+        $secretkey = $keypair->getSecretKey();
+
+        \file_put_contents(__DIR__.'/tmp/empty.sealed.txt', '');
+
+        try {
+            File::unseal(
+                __DIR__.'/tmp/empty.sealed.txt',
+                __DIR__.'/tmp/empty.unsealed.txt',
+                $secretkey
+            );
+            $this->fail("This should scream bloody murder");
+        } catch (CryptoException\InvalidMessage $e) {
+            $this->assertEquals($e->getMessage(), $msg);
+        }
+
+        \file_put_contents(
+            __DIR__.'/tmp/empty.sealed.txt',
+            "\x31\x41\x02\x00" . \str_repeat("\x00", 95)
+        );
+        try {
+            File::unseal(
+                __DIR__.'/tmp/empty.sealed.txt',
+                __DIR__.'/tmp/empty.unsealed.txt',
+                $secretkey
+            );
+            $this->fail("This should scream bloody murder");
+        } catch (CryptoException\InvalidMessage $e) {
+            $this->assertEquals($e->getMessage(), $msg);
+        }
+
+        \unlink(__DIR__.'/tmp/empty.sealed.txt');
+        \unlink(__DIR__.'/tmp/empty.unsealed.txt');
+    }
+
+    /**
+     * @covers File::sign()
+     * @covers File::verify()
+     */
     public function testSign()
     {
         $keypair = KeyFactory::generateSignatureKeyPair();
@@ -163,7 +350,10 @@ class FileTest extends PHPUnit_Framework_TestCase
             )
         );
     }
-    
+
+    /**
+     * @covers File::checksum()
+     */
     public function testChecksum()
     {
         $csum = File::checksum(__DIR__.'/tmp/paragon_avatar.png');

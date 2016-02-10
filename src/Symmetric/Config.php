@@ -56,6 +56,7 @@ final class Config extends BaseConfig
             switch ($minor) {
                 case 0:
                     return [
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,
@@ -67,6 +68,7 @@ final class Config extends BaseConfig
             switch ($minor) {
                 case 0:
                     return [
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,

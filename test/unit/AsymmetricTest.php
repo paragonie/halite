@@ -11,6 +11,9 @@ use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
  */
 class AsymmetricTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @covers Asymmetric::encrypt()
+     */
     public function testEncrypt()
     {
         $alice = KeyFactory::generateEncryptionKeyPair();
@@ -32,7 +35,37 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         
         $this->assertEquals($plain, 'test message');
     }
-    
+
+    /**
+     * @covers Asymmetric::encrypt()
+     * @covers Asymmetric::decrypt()
+     */
+    public function testEncryptEmpty()
+    {
+        $alice = KeyFactory::generateEncryptionKeyPair();
+        $bob = KeyFactory::generateEncryptionKeyPair();
+
+        $message = Asymmetric::encrypt(
+            '',
+            $alice->getSecretKey(),
+            $bob->getPublicKey()
+        );
+
+        $this->assertTrue(strpos($message, '31420200') === 0);
+
+        $plain = Asymmetric::decrypt(
+            $message,
+            $alice->getSecretKey(),
+            $bob->getPublicKey()
+        );
+
+        $this->assertEquals('', $plain);
+    }
+
+    /**
+     * @covers Asymmetric::encrypt()
+     * @covers Asymmetric::decrypt()
+     */
     public function testEncryptFail()
     {
         $alice = KeyFactory::generateEncryptionKeyPair();
@@ -63,7 +96,11 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
         }
     }
-    
+
+    /**
+     * @covers Asymmetric::seal()
+     * @covers Asymmetric::unseal()
+     */
     public function testSeal()
     {
         if (
@@ -101,7 +138,11 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         
         $this->assertEquals($opened_raw, $message);
     }
-    
+
+    /**
+     * @covers Asymmetric::seal()
+     * @covers Asymmetric::unseal()
+     */
     public function testSealFail()
     {
         if (
@@ -134,7 +175,11 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
         }
     }
-    
+
+    /**
+     * @covers Asymmetric::sign()
+     * @covers Asymmetric::verify()
+     */
     public function testSign()
     {
         $alice = KeyFactory::generateSignatureKeyPair();
@@ -148,7 +193,11 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             Asymmetric::verify($message, $alice->getPublicKey(), $signature)
         );
     }
-    
+
+    /**
+     * @covers Asymmetric::sign()
+     * @covers Asymmetric::verify()
+     */
     public function testSignFail()
     {
         $alice = KeyFactory::generateSignatureKeyPair();

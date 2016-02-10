@@ -2,8 +2,8 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\{
+    Alerts as CryptoException,
     Asymmetric\Crypto as AsymmetricCrypto,
     Asymmetric\EncryptionPublicKey,
     Asymmetric\EncryptionSecretKey,
@@ -85,6 +85,7 @@ final class File
      * @param EncryptionKey $key
      * @return bool
      * @throws CryptoException\InvalidType
+     * @throws CryptoException\HaliteAlert (re-throws)
      */
     public static function decrypt(
         $input,
@@ -155,6 +156,7 @@ final class File
      * @param EncryptionSecretKey $secretkey
      * @return bool TRUE on success
      * @throws CryptoException\InvalidType
+     * @throws CryptoException\HaliteAlert (re-throws)
      */
     public static function unseal(
         $input,
@@ -297,6 +299,8 @@ final class File
             );
             \Sodium\crypto_generichash_update($state, $read);
         }
+
+        // Do we want a raw checksum?
         if ($raw) {
             return \Sodium\crypto_generichash_final($state, $config->HASH_LEN);
         }
@@ -304,13 +308,14 @@ final class File
             \Sodium\crypto_generichash_final($state, $config->HASH_LEN)
         );
     }
-    
+
     /**
      * Encrypt a (file handle)
-     * 
+     *
      * @param $input
      * @param $output
      * @param EncryptionKey $key
+     * @return int
      */
     protected static function encryptData(
         ReadOnlyFile $input,
@@ -330,9 +335,17 @@ final class File
         unset($authKey);
         
         // Write the header
-        $output->writeBytes(Halite::HALITE_VERSION_FILE, Halite::VERSION_TAG_LEN);
-        $output->writeBytes($firstnonce, \Sodium\CRYPTO_STREAM_NONCEBYTES);
-        $output->writeBytes($hkdfsalt, $config->HKDF_SALT_LEN);
+        $output->writeBytes(
+            Halite::HALITE_VERSION_FILE,
+            Halite::VERSION_TAG_LEN
+        );
+        $output->writeBytes(
+            $firstnonce,
+            \Sodium\CRYPTO_STREAM_NONCEBYTES);
+        $output->writeBytes(
+            $hkdfsalt,
+            $config->HKDF_SALT_LEN
+        );
         
         \hash_update($mac, Halite::HALITE_VERSION_FILE);
         \hash_update($mac, $firstnonce);
@@ -362,11 +375,22 @@ final class File
         EncryptionKey $key
     ): bool {
         $input->reset(0);
+        if ($input->getSize() < Halite::VERSION_TAG_LEN) {
+            throw new CryptoException\InvalidMessage(
+                "File is too small to have been encrypted by Halite."
+            );
+        }
         // Parse the header, ensuring we get 4 bytes
         $header = $input->readBytes(Halite::VERSION_TAG_LEN);
         
         // Load the config
         $config = self::getConfig($header, 'encrypt');
+
+        if ($input->getSize() < $config->SHORTEST_CIPHERTEXT_LENGTH) {
+            throw new CryptoException\InvalidMessage(
+                "File is too small to have been encrypted by Halite."
+            );
+        }
         
         // Let's grab the first nonce and salt
         $firstnonce = $input->readBytes($config->NONCE_BYTES);
@@ -485,11 +509,23 @@ final class File
     ): bool {
         $secret_key = $secretkey->get();
         $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
+
+        if ($input->getSize() < Halite::VERSION_TAG_LEN) {
+            throw new CryptoException\InvalidMessage(
+                "File is too small to have been encrypted by Halite."
+            );
+        }
         
         // Parse the header, ensuring we get 4 bytes
         $header = $input->readBytes(Halite::VERSION_TAG_LEN);
         // Load the config
         $config = self::getConfig($header, 'seal');
+
+        if ($input->getSize() < $config->SHORTEST_CIPHERTEXT_LENGTH) {
+            throw new CryptoException\InvalidMessage(
+                "File is too small to have been encrypted by Halite."
+            );
+        }
         // Let's grab the public key and salt
         $eph_public = $input->readBytes($config->PUBLICKEY_BYTES);
         $hkdfsalt = $input->readBytes($config->HKDF_SALT_LEN);
@@ -639,6 +675,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'BUFFER' => 1048576,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
@@ -651,6 +688,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'BUFFER' => 1048576,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
@@ -660,6 +698,7 @@ final class File
                     ];
             }
         }
+        // If we reach here, we've got an invalid version tag:
         throw new CryptoException\InvalidMessage(
             'Invalid version tag'
         );
@@ -679,6 +718,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 100,
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,
@@ -691,6 +731,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 100,
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,

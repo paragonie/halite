@@ -55,7 +55,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
             Symmetric::verify($message, $key, $_mac, true)
         );
     }
-    
+
     /**
      * @covers Symmetric::encrypt()
      */
@@ -64,9 +64,22 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         $key = new EncryptionKey(\str_repeat('A', 32));
         $message = Symmetric::encrypt('test message', $key);
         $this->assertTrue(strpos($message, '31420200') === 0);
-        
+
         $plain = Symmetric::decrypt($message, $key);
         $this->assertEquals($plain, 'test message');
+    }
+
+    /**
+     * @covers Symmetric::encrypt()
+     */
+    public function testEncryptEmpty()
+    {
+        $key = new EncryptionKey(\str_repeat('A', 32));
+        $message = Symmetric::encrypt('', $key);
+        $this->assertTrue(strpos($message, '31420200') === 0);
+
+        $plain = Symmetric::decrypt($message, $key);
+        $this->assertEquals($plain, '');
     }
     
     /**

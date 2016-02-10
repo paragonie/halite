@@ -351,9 +351,6 @@ final class File
 
         // Let's split our key
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfsalt, $config);
-        $mac = \hash_init('sha256', HASH_HMAC, $authKey);
-        // We no longer need $authKey after we set up the hash context
-        unset($authKey);
 
         // Write the header
         $output->writeBytes(
@@ -368,9 +365,21 @@ final class File
             $config->HKDF_SALT_LEN
         );
 
-        \hash_update($mac, Halite::HALITE_VERSION_FILE);
-        \hash_update($mac, $firstnonce);
-        \hash_update($mac, $hkdfsalt);
+        if ($config->USE_BLAKE2B) {
+            $mac = \Sodium\crypto_generichash_init($authKey);
+            \Sodium\crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            \Sodium\crypto_generichash_update($mac, $firstnonce);
+            \Sodium\crypto_generichash_update($mac, $hkdfsalt);
+        } else {
+            $mac = \hash_init('sha256', HASH_HMAC, $authKey);
+            // We no longer need $authKey after we set up the hash context
+            unset($authKey);
+
+            \hash_update($mac, Halite::HALITE_VERSION_FILE);
+            \hash_update($mac, $firstnonce);
+            \hash_update($mac, $hkdfsalt);
+        }
+        \Sodium\memzero($authKey);
 
         return self::streamEncrypt(
             $input,
@@ -420,14 +429,24 @@ final class File
 
         // Split our keys, begin the HMAC instance
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfsalt, $config);
-        $mac = \hash_init('sha256', HASH_HMAC, $authKey);
 
-        \hash_update($mac, $header);
-        \hash_update($mac, $firstnonce);
-        \hash_update($mac, $hkdfsalt);
+        if ($config->USE_BLAKE2B) {
+            $mac = \Sodium\crypto_generichash_init($authKey);
+            \Sodium\crypto_generichash_update($mac, $header);
+            \Sodium\crypto_generichash_update($mac, $firstnonce);
+            \Sodium\crypto_generichash_update($mac, $hkdfsalt);
 
-        // This will throw an exception if it fails.
-        $old_macs = self::streamVerify($input, \hash_copy($mac), $config);
+            $old_macs = self::streamVerify($input, ''.$mac, $config);
+        } else {
+            $mac = \hash_init('sha256', HASH_HMAC, $authKey);
+            \hash_update($mac, $header);
+            \hash_update($mac, $firstnonce);
+            \hash_update($mac, $hkdfsalt);
+
+            // This will throw an exception if it fails.
+            $old_macs = self::streamVerify($input, \hash_copy($mac), $config);
+        }
+        \Sodium\memzero($authKey);
 
         $ret = self::streamDecrypt(
             $input,
@@ -490,17 +509,25 @@ final class File
         // We no longer need the original key after we split it
         unset($key);
 
-        $mac = \hash_init('sha256', HASH_HMAC, $authKey);
-        // We no longer need to retain this after we've set up the hash context
-        unset($authKey);
-
         $output->writeBytes(Halite::HALITE_VERSION_FILE, Halite::VERSION_TAG_LEN);
         $output->writeBytes($eph_public->getRawKeyMaterial(), \Sodium\CRYPTO_BOX_PUBLICKEYBYTES);
         $output->writeBytes($hkdfsalt, $config->HKDF_SALT_LEN);
 
-        \hash_update($mac, Halite::HALITE_VERSION_FILE);
-        \hash_update($mac, $eph_public->getRawKeyMaterial());
-        \hash_update($mac, $hkdfsalt);
+        if ($config->USE_BLAKE2B) {
+            $mac = \Sodium\crypto_generichash_init($authKey);
+            \Sodium\crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            \Sodium\crypto_generichash_update($mac, $eph_public->getRawKeyMaterial());
+            \Sodium\crypto_generichash_update($mac, $hkdfsalt);
+        } else {
+            $mac = \hash_init('sha256', HASH_HMAC, $authKey);
+            // We no longer need $authKey after we set up the hash context
+            unset($authKey);
+
+            \hash_update($mac, Halite::HALITE_VERSION_FILE);
+            \hash_update($mac, $eph_public->getRawKeyMaterial());
+            \hash_update($mac, $hkdfsalt);
+        }
+        \Sodium\memzero($authKey);
 
         unset($eph_public);
 
@@ -570,14 +597,22 @@ final class File
         // We no longer need the original key after we split it
         unset($key);
 
-        $mac = \hash_init('sha256', HASH_HMAC, $authKey);
+        if ($config->USE_BLAKE2B) {
+            $mac = \Sodium\crypto_generichash_init($authKey);
+            \Sodium\crypto_generichash_update($mac, $header);
+            \Sodium\crypto_generichash_update($mac, $eph_public);
+            \Sodium\crypto_generichash_update($mac, $hkdfsalt);
 
-        \hash_update($mac, $header);
-        \hash_update($mac, $eph_public);
-        \hash_update($mac, $hkdfsalt);
+            $old_macs = self::streamVerify($input, ''.$mac, $config);
+        } else {
+            $mac = \hash_init('sha256', HASH_HMAC, $authKey);
+            \hash_update($mac, $header);
+            \hash_update($mac, $eph_public);
+            \hash_update($mac, $hkdfsalt);
 
-        // This will throw an exception if it fails.
-        $old_macs = self::streamVerify($input, \hash_copy($mac), $config);
+            // This will throw an exception if it fails.
+            $old_macs = self::streamVerify($input, \hash_copy($mac), $config);
+        }
 
         $ret = self::streamDecrypt(
             $input,
@@ -698,6 +733,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
+                        'USE_BLAKE2B' => true,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'BUFFER' => 1048576,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
@@ -711,6 +747,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
+                        'USE_BLAKE2B' => true,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'BUFFER' => 1048576,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
@@ -741,6 +778,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
+                        'USE_BLAKE2B' => true,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 100,
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
@@ -754,6 +792,7 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
+                        'USE_BLAKE2B' => true,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 100,
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
@@ -870,7 +909,11 @@ final class File
                 $nonce,
                 $encKey->getRawKeyMaterial()
             );
-            \hash_update($mac, $encrypted);
+            if ($config->USE_BLAKE2B) {
+                \Sodium\crypto_generichash_update($mac, $encrypted);
+            } else {
+                \hash_update($mac, $encrypted);
+            }
             $output->writeBytes($encrypted);
             \Sodium\increment($nonce);
         }
@@ -879,6 +922,12 @@ final class File
         if (!\hash_equals($input->gethash(), $initHash)) {
             throw new CryptoException\FileModified(
                 'Read-only file has been modified since it was opened for reading'
+            );
+        }
+        if ($config->USE_BLAKE2B) {
+            return $output->writeBytes(
+                \Sodium\crypto_generichash_final($mac, $config->MAC_SIZE),
+                $config->MAC_SIZE
             );
         }
         return $output->writeBytes(
@@ -928,14 +977,21 @@ final class File
             } else {
                 $read = $input->readBytes($config->BUFFER);
             }
-            \hash_update($mac, $read);
-            $calcMAC = \hash_copy($mac);
-            if ($calcMAC === false) {
-                throw new CryptoException\CannotPerformOperation(
-                    'An unknown error has occurred'
-                );
+
+            if ($config->USE_BLAKE2B) {
+                \Sodium\crypto_generichash_update($mac, $read);
+                $calcMAC = ''.$mac;
+                $calc = \Sodium\crypto_generichash_final($calcMAC, $config->MAC_SIZE);
+            } else {
+                \hash_update($mac, $read);
+                $calcMAC = \hash_copy($mac);
+                if ($calcMAC === false) {
+                    throw new CryptoException\CannotPerformOperation(
+                        'An unknown error has occurred'
+                    );
+                }
+                $calc = \hash_final($calcMAC, true);
             }
-            $calc = \hash_final($calcMAC, true);
 
             if (empty($chunk_macs)) {
                 throw new CryptoException\InvalidMessage(
@@ -966,7 +1022,7 @@ final class File
      * Recalculate and verify the HMAC of the input file
      *
      * @param resource $input
-     * @param resource $mac (hash context)
+     * @param resource|string $mac (hash context)
      * @param Config $config
      *
      * @return array Hashes of various chunks
@@ -1003,24 +1059,33 @@ final class File
             /**
              * We're updating our HMAC and nothing else
              */
-            \hash_update($mac, $read);
-
-            /**
-             * Store a MAC of each chunk
-             */
-            $chunkMAC = \hash_copy($mac);
-            if ($chunkMAC === false) {
-                throw new CryptoException\CannotPerformOperation(
-                    'An unknown error has occurred'
-                );
+            if ($config->USE_BLAKE2B) {
+                \Sodium\crypto_generichash_update($mac, $read);
+                $chunkMAC = '' . $mac;
+                $chunk_macs []= \Sodium\crypto_generichash_final($chunkMAC, $config->MAC_SIZE);
+            } else {
+                \hash_update($mac, $read);
+                /**
+                 * Store a MAC of each chunk
+                 */
+                $chunkMAC = \hash_copy($mac);
+                if ($chunkMAC === false) {
+                    throw new CryptoException\CannotPerformOperation(
+                        'An unknown error has occurred'
+                    );
+                }
+                $chunk_macs []= \hash_final($chunkMAC, true);
             }
-            $chunk_macs []= \hash_final($chunkMAC, true);
         }
 
         /**
          * We should now have enough data to generate an identical HMAC
          */
-        $finalHMAC = \hash_final($mac, true);
+        if ($config->USE_BLAKE2B) {
+            $finalHMAC = \Sodium\crypto_generichash_final($mac, $config->MAC_SIZE);
+        } else {
+            $finalHMAC = \hash_final($mac, true);
+        }
 
         /**
          * Use hash_equals() to be timing-invariant

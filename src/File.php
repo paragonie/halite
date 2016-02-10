@@ -111,13 +111,12 @@ final class File
                     $mutable,
                     $key
                 );
-                $readOnly->close();
-                $mutable->close();
                 return $data;
             } catch (CryptoException\HaliteAlert $ex) {
+                throw $ex;
+            } finally {
                 $readOnly->close();
                 $mutable->close();
-                throw $ex;
             }
         }
         throw new CryptoException\InvalidType(
@@ -188,13 +187,12 @@ final class File
                     $mutable,
                     $secretkey
                 );
-                $readOnly->close();
-                $mutable->close();
                 return $data;
             } catch (CryptoException\HaliteAlert $ex) {
+                throw $ex;
+            } finally {
                 $readOnly->close();
                 $mutable->close();
-                throw $ex;
             }
         }
         throw new CryptoException\InvalidType(

@@ -8,7 +8,7 @@
 
 > `public static` hkdfBlake2b(`string $ikm`, `int $length`, `string $info = ''`, `string $salt = null`): `int`
 
-This is a variant of HKDF (RFC 5869). Instead of HMAC, it uses a keyed hash
+This is a variant of HKDF-HMAC (RFC 5869). Instead of HMAC, it uses a keyed hash
 function (BLAKE2b) for key splitting.
 
 ### `safeStrlen()`

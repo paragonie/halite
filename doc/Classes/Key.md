@@ -33,6 +33,8 @@ Shortcut flags:
 
 ### Constructor
 
+**Warning**: You should almost never use `Key` directly. Instead, use one of the child classes.
+
 Arguments:
 
  * `$keyMaterial` - Raw binary string represetning the cryptographic key

@@ -9,7 +9,7 @@
 > `public` getSharedSecret([`EncryptionSecretKey`](EncryptionSecretKey.md) `$privateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `$get_as_object = false`) : [`EncryptionKey`](../Symmetric/EncryptionKey.md)
 
 This method calculates a shared [`EncryptionKey`](../Symmetric/EncryptionKey.md)
-using Elliptic Curve Diffie Hellman key agreement over Curve25519.
+using X25519 (Elliptic Curve Diffie Hellman key agreement over Curve25519).
 
 ### `encrypt()`
 

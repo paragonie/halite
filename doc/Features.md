@@ -180,7 +180,7 @@ on separate hardware, and would like to prevent a database compromise from
 leaking the actual password hashes.
 
 If your webserver and database server are the same machine, there is no
-advantage to using this feature over [libsodium's scrypt implementation](https://paragonie.com/book/pecl-libsodium/read/07-password-hashing.md#crypto-pwhash-scryptsalsa208sha256-str).
+advantage to using this feature over [libsodium's Argon2 implementation](https://paragonie.com/book/pecl-libsodium/read/07-password-hashing.md#crypto-pwhash-str).
 
 **Hashing then Encrypting** a password:
 

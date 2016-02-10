@@ -76,9 +76,9 @@ $sign_secret = new Key(
 );
 ```
 
-### `get()`
+### `getRawKeyMaterial()`
 
-> `public` get()
+> `public` getRawKeyMaterial()
 
 Simply returns the raw binary key data.
 

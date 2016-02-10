@@ -2,14 +2,13 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\{
-    Alerts as CryptoException,
     Asymmetric\Crypto as AsymmetricCrypto,
     Asymmetric\EncryptionPublicKey,
     Asymmetric\EncryptionSecretKey,
     Asymmetric\SignaturePublicKey,
     Asymmetric\SignatureSecretKey,
-    Contract\FileInterface,
     Contract\StreamInterface,
     Stream\MutableFile,
     Stream\ReadOnlyFile,
@@ -35,11 +34,14 @@ final class File
         $raw = false
     ): string {
         if (\is_resource($filepath) || \is_string($filepath)) {
-            return self::checksumData(
-                new ReadOnlyFile($filepath),
+            $readOnly = new ReadOnlyFile($filepath);
+            $csum = self::checksumData(
+                $readOnly,
                 $key,
                 $raw
             );
+            $readOnly->close();
+            return $csum;
         }
         throw new CryptoException\InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -65,11 +67,16 @@ final class File
                 &&
             (\is_resource($output) || \is_string($output))
         ) {
-            return self::encryptData(
-                new ReadOnlyFile($input),
-                new MutableFile($output),
+            $readOnly = new ReadOnlyFile($input);
+            $mutable = new MutableFile($output);
+            $data = self::encryptData(
+                $readOnly,
+                $mutable,
                 $key
             );
+            $readOnly->close();
+            $mutable->close();
+            return $data;
         }
         throw new CryptoException\InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -99,11 +106,14 @@ final class File
             try {
                 $readOnly = new ReadOnlyFile($input);
                 $mutable = new MutableFile($output);
-                return self::decryptData(
+                $data = self::decryptData(
                     $readOnly,
                     $mutable,
                     $key
                 );
+                $readOnly->close();
+                $mutable->close();
+                return $data;
             } catch (CryptoException\HaliteAlert $ex) {
                 $readOnly->close();
                 $mutable->close();
@@ -134,11 +144,16 @@ final class File
                 &&
             (\is_resource($output) || \is_string($output))
         ) {
-            return self::sealData(
-                new ReadOnlyFile($input),
-                new MutableFile($output),
+            $readOnly = new ReadOnlyFile($input);
+            $mutable = new MutableFile($output);
+            $data = self::sealData(
+                $readOnly,
+                $mutable,
                 $publickey
             );
+            $readOnly->close();
+            $mutable->close();
+            return $data;
         }
         throw new CryptoException\InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -165,14 +180,17 @@ final class File
                 &&
             (\is_resource($output) || \is_string($output))
         ) {
+            $readOnly = new ReadOnlyFile($input);
+            $mutable = new MutableFile($output);
             try {
-                $readOnly = new ReadOnlyFile($input);
-                $mutable = new MutableFile($output);
-                return self::unsealData(
+                $data = self::unsealData(
                     $readOnly,
                     $mutable,
                     $secretkey
                 );
+                $readOnly->close();
+                $mutable->close();
+                return $data;
             } catch (CryptoException\HaliteAlert $ex) {
                 $readOnly->close();
                 $mutable->close();
@@ -183,15 +201,16 @@ final class File
             'Argument 1: Expected a filename or resource'
         );
     }
-    
+
     /**
      * Lazy fallthrough method for signFile() and signResource()
-     * 
+     *
      * @param string|resource $filename
      * @param SignatureSecretKey $secretkey
      * @param bool $raw_binary
      * @return string
-     * @throws Alerts\InvalidType
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      */
     public static function sign(
         $filename,
@@ -202,11 +221,13 @@ final class File
             \is_resource($filename) ||
             \is_string($filename)
         ) {
+            $readOnly = new ReadOnlyFile($filename);
             return self::signData(
-                new ReadOnlyFile($filename),
+                $readOnly,
                 $secretkey,
                 $raw_binary
             );
+            $readOnly->close();
         }
         throw new CryptoException\InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -222,7 +243,8 @@ final class File
      * @param bool $raw_binary
      * 
      * @return string
-     * @throws Alerts\InvalidType
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      */
     public static function verify(
         $filename,
@@ -234,12 +256,15 @@ final class File
             \is_resource($filename) ||
             \is_string($filename)
         ) {
-            return self::verifyData(
-                new ReadOnlyFile($filename),
+            $readOnly = new ReadOnlyFile($filename);
+            $verified = self::verifyData(
+                $readOnly,
                 $publickey,
                 $signature,
                 $raw_binary
             );
+            $readOnly->close();
+            return $verified;
         }
         throw new CryptoException\InvalidType(
             'Argument 1: Expected a filename or resource'

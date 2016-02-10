@@ -61,10 +61,9 @@ final class File
         EncryptionKey $key
     ): int {
         if (
-            \is_resource($input) ||
-            \is_resource($output) ||
-            \is_string($input) ||
-            \is_string($output)
+            (\is_resource($input) || \is_string($input))
+                &&
+            (\is_resource($output) || \is_string($output))
         ) {
             return self::encryptData(
                 new ReadOnlyFile($input),
@@ -93,10 +92,9 @@ final class File
         EncryptionKey $key
     ): bool {
         if (
-            \is_resource($input) ||
-            \is_resource($output) ||
-            \is_string($input) ||
-            \is_string($output)
+            (\is_resource($input) || \is_string($input))
+                &&
+            (\is_resource($output) || \is_string($output))
         ) {
             try {
                 $readOnly = new ReadOnlyFile($input);
@@ -132,10 +130,9 @@ final class File
         EncryptionPublicKey $publickey
     ): int {
         if (
-            \is_resource($input) ||
-            \is_resource($output) ||
-            \is_string($input) ||
-            \is_string($output)
+            (\is_resource($input) || \is_string($input))
+                &&
+            (\is_resource($output) || \is_string($output))
         ) {
             return self::sealData(
                 new ReadOnlyFile($input),
@@ -164,10 +161,9 @@ final class File
         EncryptionSecretKey $secretkey
     ): bool {
         if (
-            \is_resource($input) ||
-            \is_resource($output) ||
-            \is_string($input) ||
-            \is_string($output)
+            (\is_resource($input) || \is_string($input))
+                &&
+            (\is_resource($output) || \is_string($output))
         ) {
             try {
                 $readOnly = new ReadOnlyFile($input);

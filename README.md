@@ -1,6 +1,6 @@
 # Halite
 
-[![Build Status](https://travis-ci.org/paragonie/halite.svg?branch=master)](https://travis-ci.org/paragonie/halite)
+[![Build Status](https://travis-ci.org/paragonie/halite.svg?branch=stable)](https://travis-ci.org/paragonie/halite)
 
 Halite is a high-level cryptography interface that relies on [libsodium](https://pecl.php.net/package/libsodium)
 for all of its underlying cryptography operations.

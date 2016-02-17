@@ -120,7 +120,7 @@ class FileTest extends PHPUnit_Framework_TestCase
      */
     public function testEncryptSmallFail()
     {
-        $msg = 'File is too small to have been encrypted by Halite.';
+        $msg = 'Input file is too small to have been encrypted by Halite.';
         $key = new EncryptionKey(\str_repeat('B', 32));
 
         \file_put_contents(
@@ -291,7 +291,7 @@ class FileTest extends PHPUnit_Framework_TestCase
      */
     public function testSealSmallFail()
     {
-        $msg = 'File is too small to have been encrypted by Halite.';
+        $msg = 'Input file is too small to have been encrypted by Halite.';
         $keypair = KeyFactory::generateEncryptionKeyPair();
         $secretkey = $keypair->getSecretKey();
 

@@ -53,9 +53,9 @@ abstract class Key
         ...$args
     ) {
         // Workaround: Inherited classes have simpler constructors:
-        $public = \count($args) >= 1 ? $args[0] : false;
-        $signing = \count($args) >= 2 ? $args[1] : false;
-        $asymmetric = \count($args) >= 3 ? $args[2] : false;
+        $public = $args[0] ?? false;
+        $signing = $args[1] ?? false;
+        $asymmetric = $args[2] ?? false;
         
         // String concatenation used to undo a PHP 7 optimization that causes
         // the wrong memory to get overwritten by \Sodium\memzero:

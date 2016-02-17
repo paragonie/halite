@@ -3,7 +3,6 @@ declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 use \ParagonIE\Halite\{
-    Contract\PasswordInterface,
     Symmetric\Crypto,
     Symmetric\EncryptionKey,
     Util as CryptoUtil

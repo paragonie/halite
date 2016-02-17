@@ -104,6 +104,7 @@ abstract class KeyFactory
         bool $legacy = false
     ): AuthenticationKey {
         if ($legacy) {
+            // VERSION 1 (scrypt)
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
                     'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
@@ -117,6 +118,7 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
             );
         } else {
+            // VERSION 2+ (argon2)
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
                     'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
@@ -150,6 +152,7 @@ abstract class KeyFactory
         bool $legacy = false
     ): EncryptionKey {
         if ($legacy) {
+            // VERSION 1 (scrypt)
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
                     'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
@@ -163,6 +166,7 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
             );
         } else {
+            // VERSION 2+ (argon2)
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
                     'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
@@ -195,6 +199,7 @@ abstract class KeyFactory
         bool $legacy = false
     ): EncryptionKeyPair {
         if ($legacy) {
+            // VERSION 1 (scrypt)
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
                     'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
@@ -209,6 +214,7 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
             );
         } else {
+            // VERSION 2+ (argon2)
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
                     'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
@@ -249,6 +255,7 @@ abstract class KeyFactory
         bool $legacy = false
     ): SignatureKeyPair {
         if ($legacy) {
+            // VERSION 1 (scrypt)
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
                     'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
@@ -263,6 +270,7 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
             );
         } else {
+            // VERSION 2+ (argon2)
             if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
                     'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
@@ -461,7 +469,10 @@ abstract class KeyFactory
     public static function save($key, string $filename = ''): bool
     {
         if ($key instanceof KeyPair) {
-            return self::saveKeyFile($filename, $key->getSecretKey()->getRawKeyMaterial());
+            return self::saveKeyFile(
+                $filename,
+                $key->getSecretKey()->getRawKeyMaterial()
+            );
         }
         return self::saveKeyFile($filename, $key->getRawKeyMaterial());
     }
@@ -535,18 +546,17 @@ abstract class KeyFactory
         string $filePath,
         string $keyData
     ): bool {
-        return (
-            false !== \file_put_contents(
-                $filePath,
-                \Sodium\bin2hex(
-                    Halite::HALITE_VERSION_KEYS . $keyData .
-                    \Sodium\crypto_generichash(
-                        Halite::HALITE_VERSION_KEYS . $keyData,
-                        '',
-                        \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
-                    )
+        $saved = \file_put_contents(
+            $filePath,
+            \Sodium\bin2hex(
+                Halite::HALITE_VERSION_KEYS . $keyData .
+                \Sodium\crypto_generichash(
+                    Halite::HALITE_VERSION_KEYS . $keyData,
+                    '',
+                    \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
                 )
             )
         );
+        return $saved !== false;
     }
 }

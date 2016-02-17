@@ -2,6 +2,12 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use \ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidDigestLength,
+    InvalidType
+};
+
 abstract class Util
 {
     /**
@@ -19,8 +25,8 @@ abstract class Util
      * @param string $info What sort of key are we deriving?
      * @param string $salt
      * @return string
-     * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
      */
     public static function hkdfBlake2b(
         string $ikm,
@@ -29,13 +35,9 @@ abstract class Util
         string $salt = ''
     ): string {
         // Sanity-check the desired output length.
-        if (empty($length)
-            || !\is_int($length)
-            || $length < 0
-            || $length > 255 * \Sodium\CRYPTO_GENERICHASH_KEYBYTES
-        ) {
-            throw new \ParagonIE\Halite\Alerts\InvalidDigestLength(
-                'Bad HKDF Digest Length'
+        if ($length < 0 || $length > (255 * \Sodium\CRYPTO_GENERICHASH_KEYBYTES)) {
+            throw new InvalidDigestLength(
+                'Argument 2: Bad HKDF Digest Length'
             );
         }
         // "If [salt] not provided, is set to a string of HashLen zeroes."
@@ -51,7 +53,7 @@ abstract class Util
         // HKDF-Expand:
         // This check is useless, but it serves as a reminder to the spec.
         if (self::safeStrlen($prk) < \Sodium\CRYPTO_GENERICHASH_KEYBYTES) {
-            throw new \ParagonIE\Halite\Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'An unknown error has occurred'
             );
         }
@@ -70,7 +72,7 @@ abstract class Util
         // ORM = first L octets of T
         $orm = self::safeSubstr($t, 0, $length);
         if ($orm === false) {
-            throw new \ParagonIE\Halite\Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'An unknown error has occurred'
             );
         }
@@ -85,23 +87,19 @@ abstract class Util
      * @staticvar boolean $exists
      * @param string $str
      * @return int
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
      */
-    public static function safeStrlen($str)
+    public static function safeStrlen(string $str): int
     {
         static $exists = null;
         if ($exists === null) {
             $exists = \function_exists('mb_strlen');
         }
-        if (!\is_string($str)) {
-            throw new Alerts\InvalidType(
-                'A string was expected.'
-            );
-        }
+
         if ($exists) {
             $length = \mb_strlen($str, '8bit');
             if ($length === false) {
-                throw new Alerts\CannotPerformOperation(
+                throw new CannotPerformOperation(
                     'mb_strlen() failed unexpectedly'
                 );
             }
@@ -109,7 +107,7 @@ abstract class Util
             // If we reached here, we can rely on strlen to count bytes:
             $length = \strlen($str);
             if ($length === false) {
-                throw new Alerts\CannotPerformOperation(
+                throw new CannotPerformOperation(
                     'strlen() failed unexpectedly'
                 );
             }
@@ -120,14 +118,20 @@ abstract class Util
     /**
      * Safe substring
      *
+     * @ref mbstring.func_overload
+     *
      * @staticvar boolean $exists
      * @param string $str
      * @param int $start
      * @param int $length
      * @return string
+     * @throws InvalidType
      */
-    public static function safeSubstr($str, $start, $length = null)
-    {
+    public static function safeSubstr(
+        string $str,
+        int $start = 0,
+        $length = null
+    ): string {
         static $exists = null;
         if ($exists === null) {
             $exists = \function_exists('mb_substr');
@@ -141,8 +145,19 @@ abstract class Util
                 } else {
                     $length = -$start;
                 }
+            } elseif (!\is_int($length)) {
+                throw new InvalidType(
+                    'Argument 3: integer expected'
+                );
+            }
+            // $length calculation above might result in a 0-length string
+            if ($length === 0) {
+                return '';
             }
             return \mb_substr($str, $start, $length, '8bit');
+        }
+        if ($length === 0) {
+            return '';
         }
         // Unlike mb_substr(), substr() doesn't accept NULL for length
         if ($length !== null) {

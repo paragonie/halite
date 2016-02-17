@@ -18,6 +18,8 @@ final class SignatureKeyPair extends KeyPair
      * Pass it a secret key, it will automatically generate a public key
      * 
      * @param ...Key $keys
+     * @throws CryptoException\InvalidKey
+     * @throws \InvalidArgumentException
      */
     public function __construct(Key ...$keys)
     {

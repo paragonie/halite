@@ -17,7 +17,12 @@ class MutableFile implements StreamInterface
     private $fp;
     private $pos;
     private $stat = [];
-    
+
+    /**
+     * MutableFile constructor.
+     * @param $file
+     * @throws CryptoException\InvalidType
+     */
     public function __construct($file)
     {
         if (is_string($file)) {
@@ -30,12 +35,15 @@ class MutableFile implements StreamInterface
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
         } else {
-            throw new \ParagonIE\Halite\Alerts\InvalidType(
+            throw new CryptoException\InvalidType(
                 'Argument 1: Expected a filename or resource'
             );
         }
     }
 
+    /**
+     * Close the file handle.
+     */
     public function close()
     {
         if ($this->closeAfter) {
@@ -52,16 +60,19 @@ class MutableFile implements StreamInterface
 
     /**
      * Read from a stream; prevent partial reads
-     * 
+     *
      * @param int $num
+     * @param bool $skipTests
      * @return string
-     * @throws CryptoException\AccessDenied
      * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
      */
     public function readBytes(int $num, bool $skipTests = false): string
     {
-        if ($num <= 0) {
-            throw new \Exception('num < 0');
+        if ($num < 0) {
+            throw new CryptoException\CannotPerformOperation('num < 0');
+        } elseif ($num === 0) {
+            return '';
         }
         if (($this->pos + $num) > $this->stat['size']) {
             throw new CryptoException\CannotPerformOperation('Out-of-bounds read');

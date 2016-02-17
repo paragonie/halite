@@ -60,13 +60,12 @@ class UtilTest extends PHPUnit_Framework_TestCase
      * test safeStrlen() with illegal parameter. We expect to see an exception
      * @return void
      * @throws CannotPerformOperation
+     * @expectedException \TypeError
      * 
      * @covers Util::safeStrlen()
      */
     public function testSafeStrlenFail()
     {
-        $this->setExpectedException('\ParagonIE\Halite\Alerts\HaliteAlert');
-
         $teststring = []; // is not a string, will provoke a warning
 
         Util::safeStrlen($teststring);

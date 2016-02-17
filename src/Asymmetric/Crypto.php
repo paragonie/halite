@@ -99,6 +99,7 @@ abstract class Crypto
      * @param boolean $raw Don't hex encode the output?
      * @return string
      * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
      */
     public static function seal(
         string $source,

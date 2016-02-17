@@ -67,7 +67,7 @@ abstract class Crypto
         
         // Check the MAC first
         if (!self::verifyMAC(
-            $auth, 
+            $auth,
             $version . $salt . $nonce . $xored,
             $aKey
         )) {
@@ -280,7 +280,7 @@ abstract class Crypto
     ): bool {
         if (CryptoUtil::safeStrlen($mac) !== \Sodium\CRYPTO_AUTH_BYTES) {
             throw new CryptoException\InvalidSignature(
-                'Message Authentication Code is not the correct length; is it encoded?'
+                'Argument 1: Message Authentication Code is not the correct length; is it encoded?'
             );
         }
         return \Sodium\crypto_auth_verify(

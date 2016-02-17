@@ -17,7 +17,14 @@ class ReadOnlyFile implements StreamInterface
     private $pos;
     private $hashKey = null;
     private $stat = [];
-    
+
+    /**
+     * ReadOnlyFile constructor
+     *
+     * @param $file
+     * @param Key|null $key
+     * @throws CryptoException\InvalidType
+     */
     public function __construct($file, Key $key = null)
     {
         if (is_string($file)) {
@@ -30,7 +37,7 @@ class ReadOnlyFile implements StreamInterface
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
         } else {
-            throw new \ParagonIE\Halite\Alerts\InvalidType(
+            throw new CryptoException\InvalidType(
                 'Argument 1: Expected a filename or resource'
             );
         }
@@ -40,6 +47,9 @@ class ReadOnlyFile implements StreamInterface
         $this->hash = $this->getHash();
     }
 
+    /**
+     * Close the file handle.
+     */
     public function close()
     {
         if ($this->closeAfter) {
@@ -84,15 +94,18 @@ class ReadOnlyFile implements StreamInterface
      *                           that you don't want to defend against TOCTOU /
      *                           race condition attacks on the filesystem!
      * @return string
-     * @throws CryptoException\AccessDenied
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\CannotPerformOperation
      */
     public function readBytes(int $num, bool $skipTests = false): string
     {
-        if ($num <= 0) {
-            throw new \Exception('num < 0');
+        if ($num < 0) {
+            throw new CryptoException\CannotPerformOperation('num < 0');
+        } elseif ($num === 0) {
+            return '';
         }
         if (($this->pos + $num) > $this->stat['size']) {
-            throw new \Exception('Out-of-bounds read');
+            throw new CryptoException\CannotPerformOperation('Out-of-bounds read');
         }
         $buf = '';
         $remaining = $num;
@@ -132,7 +145,8 @@ class ReadOnlyFile implements StreamInterface
      * 
      * @param string $buf
      * @param int $num (number of bytes)
-     * @throws CryptoException\AccessDenied
+     * @return int
+     * @throws CryptoException\FileAccessDenied
      */
     public function writeBytes(string $buf, int $num = null): int
     {

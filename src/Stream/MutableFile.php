@@ -38,15 +38,18 @@ class MutableFile implements StreamInterface
      * 
      * @param int $num
      * @return string
-     * @throws FileAlert\AccessDenied
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\CannotPerformOperation
      */
     public function readBytes($num)
     {
-        if ($num <= 0) {
-            throw new \Exception('num < 0');
+        if ($num < 0) {
+            throw new CryptoException\CannotPerformOperation('num < 0');
+        } elseif ($num === 0) {
+            return '';
         }
         if (($this->pos + $num) > $this->stat['size']) {
-            throw new \Exception('Out-of-bounds read');
+            throw new CryptoException\CannotPerformOperation('Out-of-bounds read');
         }
         $buf = '';
         $remaining = $num;
@@ -74,7 +77,9 @@ class MutableFile implements StreamInterface
      * @param resource $stream
      * @param string $buf
      * @param int $num (number of bytes)
-     * @throws FileAlert\AccessDenied
+     * @return int
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\CannotPerformOperation
      */
     public function writeBytes($buf, $num = null)
     {
@@ -83,7 +88,7 @@ class MutableFile implements StreamInterface
             $num = $bufSize;
         }
         if ($num < 0) {
-            throw new \Exception('num < 0');
+            throw new CryptoException\CannotPerformOperation('num < 0');
         }
         $remaining = $num;
         do {
@@ -109,9 +114,8 @@ class MutableFile implements StreamInterface
      * 
      * @param int $i
      * 
-     * @return boolean
-     * 
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @return bool
+     * @throws CryptoException\CannotPerformOperation
      */
     public function reset($i = 0)
     {

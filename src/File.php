@@ -3,11 +3,8 @@ namespace ParagonIE\Halite;
 
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\Asymmetric\Crypto as AsymmetricCrypto;
-use \ParagonIE\Halite\Config;
 use \ParagonIE\Halite\Contract\KeyInterface;
 use \ParagonIE\Halite\Contract\StreamInterface;
-use \ParagonIE\Halite\Halite;
-use \ParagonIE\Halite\Util;
 use \ParagonIE\Halite\Stream\MutableFile;
 use \ParagonIE\Halite\Stream\ReadOnlyFile;
 use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
@@ -25,6 +22,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param string|resource $filepath
      * @param AuthenticationKey $key
      * @param bool $raw
+     * @return string
+     * @throws CryptoException\InvalidType
      */
     public static function checksum(
         $filepath,
@@ -42,13 +41,15 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
             'Argument 1: Expected a filename or resource'
         );
     }
-    
+
     /**
      * Lazy fallthrough method for encryptFile() and encryptResource()
-     * 
+     *
      * @param string|resource $input
      * @param string|resource $output
      * @param EncryptionKey $key
+     * @return int|null
+     * @throws CryptoException\InvalidType
      */
     public static function encrypt(
         $input,
@@ -56,10 +57,9 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
         KeyInterface $key
     ) {
         if (
-            \is_resource($input) ||
-            \is_resource($output) ||
-            \is_string($input) ||
-            \is_string($output)
+            (\is_resource($input) || \is_string($input))
+                &&
+            ( \is_resource($output) || \is_string($output))
         ) {
             return self::encryptStream(
                 new ReadOnlyFile($input),
@@ -68,7 +68,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
             );
         }
         throw new \ParagonIE\Halite\Alerts\InvalidType(
-            'Argument 1: Expected a filename or resource'
+            'Arguments 1 and 2 expect a filename or open file handle'
         );
     }
     
@@ -78,6 +78,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param string|resource $input
      * @param string|resource $output
      * @param EncryptionKey $key
+     * @return bool
+     * @throws CryptoException\InvalidType
      */
     public static function decrypt(
         $input,
@@ -85,10 +87,9 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
         KeyInterface $key
     ) {
         if (
-            \is_resource($input) ||
-            \is_resource($output) ||
-            \is_string($input) ||
-            \is_string($output)
+            (\is_resource($input) || \is_string($input))
+                &&
+            ( \is_resource($output) || \is_string($output))
         ) {
             return self::decryptStream(
                 new ReadOnlyFile($input),
@@ -97,7 +98,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
             );
         }
         throw new \InvalidArgumentException(
-            'Strings or file handles expected'
+            'Arguments 1 and 2 expect a filename or open file handle'
         );
     }
     
@@ -107,6 +108,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param string|resource $input
      * @param string|resource $output
      * @param EncryptionPublicKey $publickey
+     * @return bool
+     * @throws CryptoException\InvalidType
      */
     public static function seal(
         $input,
@@ -114,10 +117,9 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
         KeyInterface $publickey
     ) {
         if (
-            \is_resource($input) ||
-            \is_resource($output) ||
-            \is_string($input) ||
-            \is_string($output)
+            (\is_resource($input) || \is_string($input))
+                &&
+            ( \is_resource($output) || \is_string($output))
         ) {
             return self::sealStream(
                 new ReadOnlyFile($input),
@@ -126,16 +128,18 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
             );
         }
         throw new \ParagonIE\Halite\Alerts\InvalidType(
-            'Argument 1: Expected a filename or resource'
+            'Arguments 1 and 2 expect a filename or open file handle'
         );
     }
-    
+
     /**
      * Lazy fallthrough method for sealFile() and sealResource()
-     * 
+     *
      * @param string|resource $input
      * @param string|resource $output
      * @param EncryptionSecretKey $secretkey
+     * @return bool
+     * @throws CryptoException\InvalidType
      */
     public static function unseal(
         $input,
@@ -143,10 +147,9 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
         KeyInterface $secretkey
     ) {
         if (
-            \is_resource($input) ||
-            \is_resource($output) ||
-            \is_string($input) ||
-            \is_string($output)
+            (\is_resource($input) || \is_string($input))
+                &&
+            ( \is_resource($output) || \is_string($output))
         ) {
             return self::unsealStream(
                 new ReadOnlyFile($input),
@@ -155,7 +158,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
             );
         }
         throw new \ParagonIE\Halite\Alerts\InvalidType(
-            'Argument 1: Expected a filename or resource'
+            'Arguments 1 and 2 expect a filename or open file handle'
         );
     }
     
@@ -167,13 +170,13 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param bool $raw_binary
      * 
      * @return string
+     * @throws CryptoException\InvalidType
      */
     public static function sign(
         $filename,
         KeyInterface $secretkey,
         $raw_binary = false
     ) {
-        
         if (
             \is_resource($filename) ||
             \is_string($filename)
@@ -198,6 +201,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param bool $raw_binary
      * 
      * @return string
+     * @throws CryptoException\InvalidType
      */
     public static function verify(
         $filename,
@@ -229,6 +233,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param bool $raw Set to true if you don't want hex
      * 
      * @return string
+     * @throws CryptoException\FileAccessDenied
      */
     public static function checksumFile(
         $filepath,
@@ -248,11 +253,9 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
         }
         try {
             $checksum = self::checksumResource($fp, $key, $raw);
-        } catch (CryptoException\HaliteAlert $e) {
+        } finally {
             \fclose($fp);
-            throw $e;
         }
-        \fclose($fp);
         return $checksum;
     }
     
@@ -265,6 +268,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param bool $raw Set to true if you don't want hex
      * 
      * @return string
+     * @throws CryptoException\InvalidType
      */
     public static function checksumResource(
         $fileHandle,
@@ -288,8 +292,10 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * 
      * @param \ParagonIE\Halite\Contract\StreamInterface $fileStream
      * @param AuthenticationKey $key
-     * @param type $raw
-     * @return type
+     * @param bool $raw
+     * @return string
+     *
+     * @throws CryptoException\InvalidKey
      */
     public static function checksumStream(
         StreamInterface $fileStream,
@@ -305,7 +311,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
             }
             $state = \Sodium\crypto_generichash_init($key->get(), $config->HASH_LEN);
         } else {
-            $state = \Sodium\crypto_generichash_init(null, $config->HASH_LEN);
+            $state = \Sodium\crypto_generichash_init('', $config->HASH_LEN);
         }
         $size = $fileStream->getSize();
         while ($fileStream->remainingBytes() > 0) {
@@ -326,10 +332,12 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
 
     /**
      * Encrypt a file with a symmetric key
-     * 
+     *
      * @param string $inputFile
      * @param string $outputFile
      * @param EncryptionKey $key
+     * @return int|null
+     * @throws CryptoException\FileAccessDenied
      */
     public static function encryptFile(
         $inputFile,
@@ -366,16 +374,10 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
                 $outputHandle,
                 $key
             );
-
-            \fclose($inputHandle);
-            \fclose($outputHandle);
             return $result;
-        } catch (CryptoException\HaliteAlert $e) {
+        } finally {
             \fclose($inputHandle);
             \fclose($outputHandle);
-            
-            // Rethrow the exception:
-            throw $e;
         }
     }
     
@@ -385,6 +387,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param string $inputFile
      * @param string $outputFile
      * @param EncryptionKey $key
+     * @throws CryptoException\FileAccessDenied
      */
     public static function decryptFile(
         $inputFile,
@@ -421,16 +424,10 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
                 $outputHandle,
                 $key
             );
-
-            \fclose($inputHandle);
-            \fclose($outputHandle);
             return $result;
-        } catch (CryptoException\HaliteAlert $e) {
+        } finally {
             \fclose($inputHandle);
             \fclose($outputHandle);
-            
-            // Rethrow the exception:
-            throw $e;
         }
     }
     
@@ -440,6 +437,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param string $inputFile
      * @param string $outputFile
      * @param EncryptionPublicKey $publickey
+     * @return int|null
+     * @throws CryptoException\FileAccessDenied
      */
     public static function sealFile(
         $inputFile,
@@ -477,25 +476,21 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
                 $outputHandle,
                 $publickey
             );
-
-            \fclose($inputHandle);
-            \fclose($outputHandle);
             return $return;
-        } catch (CryptoException\HaliteAlert $e) {
+        } finally {
             \fclose($inputHandle);
             \fclose($outputHandle);
-            
-            // Rethrow the exception:
-            throw $e;
         }
     }
-    
+
     /**
      * Decrypt a file with a private key
-     * 
+     *
      * @param string $inputFile
      * @param string $outputFile
      * @param EncryptionSecretKey $secretkey
+     * @return bool
+     * @throws CryptoException\FileAccessDenied
      */
     public static function unsealFile(
         $inputFile,
@@ -532,16 +527,10 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
                 $outputHandle,
                 $secretkey
             );
-            
-            \fclose($inputHandle);
-            \fclose($outputHandle);
             return $return;
-        } catch (CryptoException\HaliteAlert $e) {
+        } finally {
             \fclose($inputHandle);
             \fclose($outputHandle);
-            
-            // Rethrow the exception:
-            throw $e;
         }
     }
     
@@ -553,6 +542,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param bool $raw_binary
      * 
      * @return string
+     * @throws CryptoException\FileAccessDenied
      */
     public static function signFile(
         $filename,
@@ -578,13 +568,9 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
                 $secretkey,
                 $raw_binary
             );
-
-            \fclose($inputHandle);
             return $return;
-        } catch (CryptoException\HaliteAlert $e) {
+        } finally {
             \fclose($inputHandle);
-            // Rethrow the exception:
-            throw $e;
         }
     }
     
@@ -594,6 +580,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param string $filename
      * @param SignaturePublicKey $publickey
      * @param string $signature
+     * @return bool
+     * @throws CryptoException\FileAccessDenied
      */
     public static function verifyFile(
         $filename,
@@ -621,22 +609,20 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
                 $signature,
                 $raw_binary
             );
-
-            \fclose($inputHandle);
             return $return;
-        } catch (CryptoException\HaliteAlert $e) {
+        } finally {
             \fclose($inputHandle);
-            // Rethrow the exception:
-            throw $e;
         }
     }
-    
+
     /**
      * Encrypt a (file handle)
-     * 
+     *
      * @param $input
      * @param $output
      * @param EncryptionKey $key
+     * @return int|null
+     * @throws CryptoException\InvalidType
      */
     public static function encryptResource(
         $input,
@@ -667,6 +653,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param $input
      * @param $output
      * @param EncryptionKey $key
+     * @return bool
+     * @throws CryptoException\InvalidKey
      */
     public static function encryptStream(
         ReadOnlyFile $input,
@@ -708,13 +696,15 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
             $config
         );
     }
-    
+
     /**
      * Decrypt a (file handle)
-     * 
+     *
      * @param $input
      * @param $output
      * @param EncryptionKey $key
+     * @return bool
+     * @throws CryptoException\InvalidType
      */
     public static function decryptResource(
         $input,
@@ -738,13 +728,15 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
             $key
         );
     }
-    
+
     /**
      * Decrypt a (file handle)
-     * 
+     *
      * @param $input
      * @param $output
      * @param EncryptionKey $key
+     * @return bool
+     * @throws CryptoException\InvalidKey
      */
     public static function decryptStream(
         ReadOnlyFile $input,
@@ -803,6 +795,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param $input
      * @param $output
      * @param EncryptionPublicKey $publickey
+     * @return bool
+     * @throws CryptoException\InvalidType
      */
     public static function sealResource(
         $input,
@@ -833,6 +827,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param ReadOnlyFile $input
      * @param MutableFile $output
      * @param EncryptionPublicKey $publickey
+     * @return bool
+     * @throws CryptoException\InvalidKey
      */
     public static function sealStream(
         ReadOnlyFile $input,
@@ -840,7 +836,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
         KeyInterface $publickey
     ) {
         if (!($publickey instanceof EncryptionPublicKey)) {
-            throw new \ParagonIE\Halite\Alerts\InvalidKey(
+            throw new CryptoException\InvalidKey(
                 'Argument 3: Expected an instance of EncryptionPublicKey'
             );
         }
@@ -903,6 +899,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param $input
      * @param $output
      * @param EncryptionSecretKey $secretkey
+     * @return bool
+     * @throws CryptoException\InvalidType
      */
     public static function unsealResource(
         $input,
@@ -911,12 +909,12 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
     ) {
         // Input validation
         if (!\is_resource($input)) {
-            throw new \ParagonIE\Halite\Alerts\InvalidType(
+            throw new CryptoException\InvalidType(
                 'Expected input handle to be a resource'
             );
         }
         if (!\is_resource($output)) {
-            throw new \ParagonIE\Halite\Alerts\InvalidType(
+            throw new CryptoException\InvalidType(
                 'Expected output handle to be a resource'
             );
         }
@@ -933,6 +931,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param ReadOnlyFile $input
      * @param MutableFile $output
      * @param EncryptionSecretKey $secretkey
+     * @return bool
+     * @throws CryptoException\InvalidKey
      */
     public static function unsealStream(
         ReadOnlyFile $input,
@@ -1006,6 +1006,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param $input (file handle)
      * @param SignatureSecretKey $secretkey
      * @param bool $raw_binary Don't hex encode?
+     * @return string
      */
     public static function signResource(
         $input,
@@ -1025,6 +1026,8 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param ReadOnlyFile $input
      * @param SignatureSecretKey $secretkey
      * @param bool $raw_binary Don't hex encode?
+     * @return string
+     * @throws CryptoException\InvalidKey
      */
     public static function signStream(
         ReadOnlyFile $input,
@@ -1074,6 +1077,7 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param bool $raw_binary Don't hex encode?
      * 
      * @return bool
+     * @throws CryptoException\InvalidKey
      */
     public static function verifyStream(
         ReadOnlyFile $input,
@@ -1248,7 +1252,9 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param string $nonce
      * @param resource $mac (hash context)
      * @param Config $config
-     * @throws FileAlert\AccessDenied
+     * @return int
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidKey
      */
     final private static function streamEncrypt(
         ReadOnlyFile $input,
@@ -1303,7 +1309,10 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
      * @param string $nonce
      * @param resource $mac (hash context)
      * @param Config $config
-     * @throws FileAlert\AccessDenied
+     * @return bool
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
      */
     final private static function streamDecrypt(
         ReadOnlyFile $input,
@@ -1369,12 +1378,13 @@ final class File implements \ParagonIE\Halite\Contract\FileInterface
     /**
      * Recalculate and verify the HMAC of the input file
      * 
-     * @param resource $input
+     * @param ReadOnlyFile $input
      * @param resource $mac (hash context)
      * @param Config $config
      * 
-     * @return Hashes of various chunks
-     * @throws FileAlert\AccessDenied
+     * @return array Hashes of various chunks
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidMessage
      */
     final private static function streamVerify(
         ReadOnlyFile $input,

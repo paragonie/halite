@@ -4,6 +4,7 @@ namespace ParagonIE\Halite;
 use \ParagonIE\Halite\Contract\KeyInterface;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 use \ParagonIE\Halite\Symmetric\Crypto;
+use \ParagonIE\Halite\Alerts\InvalidType;
 use \ParagonIE\Halite\Alerts\InvalidMessage;
 
 final class Cookie 
@@ -36,9 +37,15 @@ final class Cookie
      * 
      * @param string $name
      * @return mixed (typically an array)
+     * @throws InvalidType
      */
     public function fetch($name)
     {
+        if (!\is_string($name)) {
+            throw new InvalidType(
+                'Argument 1: Expected a string'
+            );
+        }
         if (!isset($_COOKIE[$name])) {
             return null;
         }
@@ -64,6 +71,7 @@ final class Cookie
      * @param bool $secure   (defaults to TRUE)
      * @param bool $httponly (defaults to TRUE)
      * @return bool
+     * @throws InvalidType
      */
     public function store(
         $name,
@@ -74,6 +82,11 @@ final class Cookie
         $secure = true,
         $httponly = true
     ) {
+        if (!\is_string($name)) {
+            throw new InvalidType(
+                'Argument 1: Expected a string'
+            );
+        }
         return \setcookie(
             $name,
             Crypto::encrypt(

@@ -1,6 +1,8 @@
 <?php
 namespace ParagonIE\Halite;
 
+use \ParagonIE\Halite\Alerts\InvalidKey;
+use \ParagonIE\Halite\Alerts\InvalidType;
 use \ParagonIE\Halite\Contract\KeyInterface;
 use \ParagonIE\Halite\Symmetric\Crypto;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
@@ -16,11 +18,18 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * @param string $password         - The user's password
      * @param EncryptionKey $secret_key - The master key for all passwords
      * @return string
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function hash($password, KeyInterface $secret_key)
     {
+        if (!\is_string($password)) {
+            throw new InvalidType(
+                'Argument 1: Expected a string'
+            );
+        }
         if (!($secret_key instanceof EncryptionKey)) {
-            throw new \ParagonIE\Halite\Alerts\InvalidKey(
+            throw new InvalidKey(
                 'Argument 2: Expected an instance of EncryptionKey'
             );
         }
@@ -41,12 +50,24 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
      * @param string $password          - The user-provided password
      * @param string $stored            - The encrypted password hash
      * @param EncryptionKey $secret_key  - The master key for all passwords
-     * @return boolean
+     * @return bool
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function verify($password, $stored, KeyInterface $secret_key)
     {
+        if (!\is_string($password)) {
+            throw new InvalidType(
+                'Argument 1: Expected a string'
+            );
+        }
+        if (!\is_string($stored)) {
+            throw new InvalidType(
+                'Argument 2: Expected a string'
+            );
+        }
         if (!($secret_key instanceof EncryptionKey)) {
-            throw new \ParagonIE\Halite\Alerts\InvalidKey(
+            throw new InvalidKey(
                 'Argument 3: Expected an instance of EncryptionKey'
             );
         }

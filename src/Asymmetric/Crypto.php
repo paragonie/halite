@@ -21,6 +21,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @return string
      * 
      * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      */
     public static function encrypt(
         $source,
@@ -28,6 +29,11 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         Contract\KeyInterface $theirPublicKey,
         $raw = false
     ) {
+        if (!\is_string($source)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the plaintext as a string'
+            );
+        }
         if (!$ourPrivateKey instanceof EncryptionSecretKey) {
             throw new CryptoException\InvalidKey(
                 'Argument 2: Expected an instance of EncryptionSecretKey'
@@ -58,6 +64,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @return string
      * 
      * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      */
     public static function decrypt(
         $source,
@@ -65,6 +72,11 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         Contract\KeyInterface $theirPublicKey,
         $raw = false
     ) {
+        if (!\is_string($source)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the ciphertext as a string'
+            );
+        }
         if (!$ourPrivateKey instanceof EncryptionSecretKey) {
             throw new CryptoException\InvalidKey(
                 'Argument 2: Expected an instance of EncryptionSecretKey'
@@ -134,7 +146,9 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string
-     * 
+     *
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      * @throws CryptoException\CannotPerformOperation
      */
     public static function seal(
@@ -142,6 +156,11 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         Contract\KeyInterface $publicKey,
         $raw = false
     ) {
+        if (!\is_string($source)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the plaintext as a string'
+            );
+        }
         if (!$publicKey instanceof EncryptionPublicKey) {
             throw new CryptoException\InvalidKey(
                 'Argument 2: Expected an instance of EncryptionPublicKey'
@@ -168,14 +187,20 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex encode the output?
      * 
      * @return string Signature (detached)
-     * 
+     *
      * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      */
     public static function sign(
         $message,
         Contract\KeyInterface $privateKey,
         $raw = false
     ) {
+        if (!\is_string($message)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the message as a string'
+            );
+        }
         if (!$privateKey instanceof SignatureSecretKey) {
             throw new CryptoException\InvalidKey(
                 'Argument 2: Expected an instance of SignatureSecretKey'
@@ -201,6 +226,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @return string
      * 
      * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      * @throws CryptoException\CannotPerformOperation
      */
     public static function unseal(
@@ -208,6 +234,11 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         Contract\KeyInterface $privateKey,
         $raw = false
     ) {
+        if (!\is_string($source)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the ciphertext as a string'
+            );
+        }
         if (!$privateKey instanceof EncryptionSecretKey) {
             throw new CryptoException\InvalidKey(
                 'Argument 2: Expected an instance of EncryptionSecretKey'
@@ -258,8 +289,10 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param boolean $raw Don't hex decode the input?
      * 
      * @return boolean
-     * 
+     *
      * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
+     * @throws CryptoException\InvalidSignature
      * @throws CryptoException\CannotPerformOperation
      */
     public static function verify(
@@ -268,9 +301,19 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         $signature,
         $raw = false
     ) {
+        if (!\is_string($message)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the message as a string'
+            );
+        }
         if (!$publicKey instanceof SignaturePublicKey) {
             throw new CryptoException\InvalidKey(
                 'Argument 2: Expected an instance of SignaturePublicKey'
+            );
+        }
+        if (!\is_string($signature)) {
+            throw new CryptoException\InvalidType(
+                'Argument 3: Expected the signature as a string'
             );
         }
         if (!$raw) {

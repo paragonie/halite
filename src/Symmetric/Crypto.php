@@ -16,17 +16,23 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param boolean $raw
-     * @throws CryptoException\InvalidKey
      * @return string
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      */
     public static function authenticate(
         $message,
         Contract\KeyInterface $secretKey,
         $raw = false
     ) {
+        if (!\is_string($message)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the message as a string'
+            );
+        }
         if (!$secretKey instanceof AuthenticationKey) {
             throw new CryptoException\InvalidKey(
-                'Expected an instnace of AuthenticationKey'
+                'Argument 2: Expected an instnace of AuthenticationKey'
             );
         }
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'auth');
@@ -43,15 +49,23 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
      * @param boolean $raw Don't hex decode the input?
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
      */
     public static function decrypt(
         $ciphertext,
         Contract\KeyInterface $secretKey,
         $raw = false
     ) {
+        if (!\is_string($ciphertext)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the ciphertext as a string'
+            );
+        }
         if (!$secretKey instanceof EncryptionKey) {
             throw new CryptoException\InvalidKey(
-                'Expected an instance of EncryptionKey'
+                'Argument 2: Expected an instance of EncryptionKey'
             );
         }
         if (!$raw) {
@@ -96,15 +110,22 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param EncryptionKey $secretKey
      * @param boolean $raw Don't hex encode the output?
      * @return string
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      */
     public static function encrypt(
         $plaintext,
         Contract\KeyInterface $secretKey,
         $raw = false
     ) {
+        if (!\is_string($plaintext)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the plaintext as a string'
+            );
+        }
         if (!$secretKey instanceof EncryptionKey) {
             throw new CryptoException\InvalidKey(
-                'Expected an instance of EncryptionKey'
+                'Argument 2: Expected an instance of EncryptionKey'
             );
         }
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
@@ -143,12 +164,18 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param string $salt
      * @param Config $config
      * @return array
+     * @throws CryptoException\InvalidType
      */
     public static function splitKeys(
         Contract\KeyInterface $master,
         $salt = null,
         Config $config = null
     ) {
+        if (!empty($salt) && !is_string($salt)) {
+            throw new CryptoException\InvalidType(
+                'Argument 2: Expected the salt as a string'
+            );
+        }
         $binary = $master->get();
         return [
             CryptoUtil::hkdfBlake2b(
@@ -228,6 +255,8 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param string $mac
      * @param boolean $raw
      * @return boolean
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
      */
     public static function verify(
         $message,
@@ -235,9 +264,19 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
         $mac,
         $raw = false
     ) {
+        if (!\is_string($message)) {
+            throw new CryptoException\InvalidType(
+                'Argument 1: Expected the message as a string'
+            );
+        }
+        if (!\is_string($mac)) {
+            throw new CryptoException\InvalidType(
+                'Argument 2: Expected the MAC as a string'
+            );
+        }
         if (!$secretKey instanceof AuthenticationKey) {
             throw new CryptoException\InvalidKey(
-                'Expected an instance of AuthenticationKey'
+                'Argument 3: Expected an instance of AuthenticationKey'
             );
         }
         if (!$raw) {
@@ -274,6 +313,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param string $message
      * @param string $aKey
      * @return bool
+     * @throws CryptoException\InvalidSignature
      */
     protected static function verifyMAC(
         $mac,

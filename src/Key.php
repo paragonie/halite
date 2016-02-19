@@ -114,12 +114,21 @@ abstract class Key implements Contract\KeyInterface
         }
         return '';
     }
+    
+    /**
+     * We rename this in version 2. Keep this for now.
+     */
+    public function get()
+    {
+        return $this->getRawKeyMaterial();
+    }
+    
     /**
      * Get the actual key material
      * 
      * @return string
      */
-    public function get()
+    public function getRawKeyMaterial()
     {
         return ''.$this->key_material;
     }

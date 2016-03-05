@@ -11,6 +11,32 @@ use \ParagonIE\Halite\Alerts\{
 abstract class Util
 {
     /**
+     * Wrapper around \Sodium\crypto_generichash()
+     *
+     * @param string $input
+     * @param int $length
+     * @return string
+     */
+    public static function hash(string $input, int $length = \Sodium\CRYPTO_GENERICHASH_BYTES): string
+    {
+        return \Sodium\bin2hex(
+            self::raw_keyed_hash($input, '', $length)
+        );
+    }
+
+    /**
+     * Wrapper around \Sodium\crypto_generichash()
+     *
+     * @param string $input
+     * @param int $length
+     * @return string
+     */
+    public static function raw_hash(string $input, int $length = \Sodium\CRYPTO_GENERICHASH_BYTES): string
+    {
+        return self::raw_keyed_hash($input, '', $length);
+    }
+
+    /**
      * Use a derivative of HKDF to derive multiple keys from one.
      * http://tools.ietf.org/html/rfc5869
      * 
@@ -48,7 +74,7 @@ abstract class Util
         // HKDF-Extract:
         // PRK = HMAC-Hash(salt, IKM)
         // The salt is the HMAC key.
-        $prk = \Sodium\crypto_generichash($ikm, $salt);
+        $prk = self::raw_keyed_hash($ikm, $salt);
 
         // HKDF-Expand:
         // This check is useless, but it serves as a reminder to the spec.
@@ -62,7 +88,7 @@ abstract class Util
         $last_block = '';
         for ($block_index = 1; self::safeStrlen($t) < $length; ++$block_index) {
             // T(i) = HMAC-Hash(PRK, T(i-1) | info | 0x??)
-            $last_block = \Sodium\crypto_generichash(
+            $last_block = self::raw_keyed_hash(
                 $last_block . $info . \chr($block_index),
                 $prk
             );
@@ -77,6 +103,48 @@ abstract class Util
             );
         }
         return $orm;
+    }
+
+    /**
+     * Wrapper around \Sodium\crypto_generichash()
+     *
+     * @param string $input
+     * @param string $key
+     * @param int $length
+     * @return string
+     */
+    public static function keyed_hash(string $input, string $key, int $length = \Sodium\CRYPTO_GENERICHASH_BYTES): string
+    {
+        return \Sodium\bin2hex(
+            self::raw_keyed_hash($input, $key, $length)
+        );
+    }
+
+    /**
+     * Wrapper around \Sodium\crypto_generichash()
+     *
+     * @param string $input
+     * @param string $key
+     * @param int $length
+     * @return string
+     * @throws CannotPerformOperation
+     */
+    public static function raw_keyed_hash(
+        string $input,
+        string $key,
+        int $length = \Sodium\CRYPTO_GENERICHASH_BYTES
+    ): string {
+        if ($length < \Sodium\CRYPTO_GENERICHASH_BYTES_MIN) {
+            throw new CannotPerformOperation(
+                'Output length must be at least '.\Sodium\CRYPTO_GENERICHASH_BYTES_MIN.' bytes.'
+            );
+        }
+        if ($length > \Sodium\CRYPTO_GENERICHASH_BYTES_MAX) {
+            throw new CannotPerformOperation(
+                'Output length must be at most '.\Sodium\CRYPTO_GENERICHASH_BYTES_MAX.' bytes.'
+            );
+        }
+        return \Sodium\crypto_generichash($input, $key, $length);
     }
     
     /**

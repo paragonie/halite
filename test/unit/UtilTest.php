@@ -13,6 +13,46 @@ use ParagonIE\Halite\Util;
  */
 class UtilTest extends PHPUnit_Framework_TestCase
 {
+
+    /**
+     * BLAKE2b hash
+     *
+     * @covers Util::hash()
+     */
+    public function testHash()
+    {
+        $this->assertEquals(
+            Util::raw_hash(''),
+            "\x0e\x57\x51\xc0\x26\xe5\x43\xb2\xe8\xab\x2e\xb0\x60\x99\xda\xa1".
+            "\xd1\xe5\xdf\x47\x77\x8f\x77\x87\xfa\xab\x45\xcd\xf1\x2f\xe3\xa8"
+        );
+
+        $this->assertEquals(
+            Util::hash('Large Hashron Collider'),
+            '6c9a1f2b06d1f13ae845873ad470ea5eb78866c60b3f1f46733e89aee898fa46'
+        );
+    }
+
+    /**
+     * BLAKE2b hash
+     *
+     * @covers Util::keyed_hash()
+     */
+    public function testKeyedHash()
+    {
+        $key = Util::raw_hash('');
+        $this->assertEquals(
+            Util::raw_keyed_hash('', $key),
+            "\x0a\x28\xe9\x66\xfb\x7a\x7d\x39\xfd\x0a\x4d\x12\xd6\xfb\x14\x62".
+            "\x5b\x94\xb1\x73\x89\x43\x33\x8d\x2b\x3d\xf4\xcc\x81\xcb\x4e\xf0"
+        );
+
+        $this->assertEquals(
+            Util::keyed_hash('Large Hashron Collider', $key),
+            '4cca9839943964a68a64535ea22f1cc796df6da130619a69d1022b84ef881881'
+        );
+    }
+
     /**
      * Test our HKDF-esque construct built atop BLAKE2b
      * 

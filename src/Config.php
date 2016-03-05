@@ -36,6 +36,7 @@ class Config
      * 
      * @param mixed $key
      * @param mixed $value
+     * @return bool
      */
     public function __set(string $key, $value = null)
     {

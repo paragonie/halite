@@ -67,7 +67,7 @@ final class Cookie
         $value,
         int $expire = 0,
         string $path = '/',
-        $domain = null,
+        string $domain = '',
         bool $secure = true,
         bool $httponly = true
     ): bool {

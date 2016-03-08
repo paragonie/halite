@@ -11,6 +11,7 @@ final class AuthenticationKey extends SecretKey
      */
     public function __construct($keyMaterial = '', ...$args)
     {
+        // HMAC-SHA512/256 keys are a fixed size
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_AUTH_KEYBYTES) {
             throw new CryptoException\InvalidKey(
                 'Authentication key must be CRYPTO_AUTH_KEYBYTES bytes long'

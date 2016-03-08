@@ -11,9 +11,11 @@ final class EncryptionKey extends SecretKey
      */
     public function __construct($keyMaterial = '', ...$args)
     {
-        if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_STREAM_KEYBYTES) {
+        // Longer keys are OK here; it gets blended through HKDF anyway.
+        // We're only blocking weak keys here.
+        if (CryptoUtil::safeStrlen($keyMaterial) < \Sodium\CRYPTO_STREAM_KEYBYTES) {
             throw new CryptoException\InvalidKey(
-                'Encryption key must be CRYPTO_STREAM_KEYBYTES bytes long'
+                'Encryption key must be at least CRYPTO_STREAM_KEYBYTES bytes long'
             );
         }
         parent::__construct($keyMaterial, false);

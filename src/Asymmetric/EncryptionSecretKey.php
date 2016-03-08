@@ -12,6 +12,7 @@ final class EncryptionSecretKey extends SecretKey
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
+        // X25519 keys are a fixed size
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_BOX_SECRETKEYBYTES) {
             throw new CryptoException\InvalidKey(
                 'Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES bytes long'

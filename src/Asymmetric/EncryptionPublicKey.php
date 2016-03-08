@@ -12,6 +12,7 @@ final class EncryptionPublicKey extends PublicKey
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
+        // X25519 keys are a fixed size
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_BOX_PUBLICKEYBYTES) {
             throw new CryptoException\InvalidKey(
                 'Encryption public key must be CRYPTO_BOX_PUBLICKEYBYTES bytes long'

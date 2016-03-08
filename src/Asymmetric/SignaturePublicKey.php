@@ -12,6 +12,7 @@ final class SignaturePublicKey extends PublicKey
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
+        // Ed25519 keys are a fixed size
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_SIGN_PUBLICKEYBYTES) {
             throw new CryptoException\InvalidKey(
                 'Signature public key must be CRYPTO_SIGN_PUBLICKEYBYTES bytes long'

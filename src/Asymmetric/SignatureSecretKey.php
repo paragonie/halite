@@ -12,6 +12,7 @@ final class SignatureSecretKey extends SecretKey
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
+        // Ed25519 keys are a fixed size
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_SIGN_SECRETKEYBYTES) {
             throw new CryptoException\InvalidKey(
                 'Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES bytes long'

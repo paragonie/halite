@@ -58,7 +58,8 @@ final class Config extends BaseConfig
                     return [
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
-                        'HKDF_SALT_LEN' => 32,
+                        'MAC_SIZE' => \Sodium\CRYPTO_AUTH_BYTES,
+                        'MAC_ALGO' => 'HMAC-SHA512/256',
                         'MAC_SIZE' => 32,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
@@ -68,10 +69,11 @@ final class Config extends BaseConfig
             switch ($minor) {
                 case 0:
                     return [
-                        'SHORTEST_CIPHERTEXT_LENGTH' => 92,
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 124,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
-                        'MAC_SIZE' => 32,
+                        'MAC_ALGO' => 'BLAKE2b',
+                        'MAC_SIZE' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
@@ -97,7 +99,8 @@ final class Config extends BaseConfig
                 case 0:
                     return [
                         'HKDF_SALT_LEN' => 32,
-                        'MAC_SIZE' => 32,
+                        'MAC_ALGO' => 'HMAC-SHA512/256',
+                        'MAC_SIZE' => \Sodium\CRYPTO_AUTH_BYTES,
                         'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
@@ -108,7 +111,8 @@ final class Config extends BaseConfig
                 case 0:
                     return [
                         'HKDF_SALT_LEN' => 32,
-                        'MAC_SIZE' => 32,
+                        'MAC_ALGO' => 'BLAKE2b',
+                        'MAC_SIZE' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
                         'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'

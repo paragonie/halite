@@ -147,10 +147,10 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
                     Halite::VERSION_TAG_LEN +
                     $config->HKDF_SALT_LEN +
                     \Sodium\CRYPTO_STREAM_NONCEBYTES +
-                    \Sodium\CRYPTO_AUTH_BYTES
+                    $config->MAC_SIZE
                 )
             );
-            $this->assertEquals(Util::safeStrlen($unpacked[5]), \Sodium\CRYPTO_AUTH_BYTES);
+            $this->assertEquals(Util::safeStrlen($unpacked[5]), $config->MAC_SIZE);
         } else {
             $this->fail('Cannot continue');
         }

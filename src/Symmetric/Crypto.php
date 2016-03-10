@@ -69,7 +69,8 @@ abstract class Crypto
         if (!self::verifyMAC(
             $auth,
             $version . $salt . $nonce . $xored,
-            $aKey
+            $aKey,
+            $config
         )) {
             throw new CryptoException\InvalidMessage(
                 'Invalid message authentication code'
@@ -115,7 +116,8 @@ abstract class Crypto
         // Calculate an authentication tag:
         $auth = self::calculateMAC(
             Halite::HALITE_VERSION . $salt . $nonce . $xored,
-            $aKey
+            $aKey,
+            $config
         );
         \Sodium\memzero($aKey);
 
@@ -202,19 +204,19 @@ abstract class Crypto
                 Halite::VERSION_TAG_LEN +
                 $config->HKDF_SALT_LEN +
                 \Sodium\CRYPTO_STREAM_NONCEBYTES,
-            // $length - 92:
+            // v1: $length - 92, v2: $length - 124
             $length - (
                 Halite::VERSION_TAG_LEN +
                 $config->HKDF_SALT_LEN +
                 \Sodium\CRYPTO_STREAM_NONCEBYTES +
-                \Sodium\CRYPTO_AUTH_BYTES
+                $config->MAC_SIZE
             )
         );
         
         // $auth is the last 32 bytes
         $auth = CryptoUtil::safeSubstr(
             $ciphertext,
-            $length - \Sodium\CRYPTO_AUTH_BYTES
+            $length - $config->MAC_SIZE
         );
         
         // We don't need this anymore.
@@ -229,21 +231,31 @@ abstract class Crypto
      * @param AuthenticationKey $secretKey
      * @param string $mac
      * @param boolean $raw
+     * @param SymmetricConfig $config
      * @return boolean
      */
     public static function verify(
         string $message,
         AuthenticationKey $secretKey,
         string $mac,
-        bool $raw = false
+        bool $raw = false,
+        SymmetricConfig $config = null
     ): bool {
         if (!$raw) {
             $mac = \Sodium\hex2bin($mac);
         }
+        if ($config === null) {
+            // Default to the current version
+            $config = SymmetricConfig::getConfig(
+                Halite::HALITE_VERSION,
+                'auth'
+            );
+        }
         return self::verifyMAC(
             $mac,
             $message,
-            $secretKey->getRawKeyMaterial()
+            $secretKey->getRawKeyMaterial(),
+            $config
         );
     }
     
@@ -252,15 +264,29 @@ abstract class Crypto
      * 
      * @param string $message
      * @param string $authKey
+     * @param SymmetricConfig $config
      * @return string
+     * @throws CryptoException\InvalidMessage
      */
     protected static function calculateMAC(
         string $message,
-        string $authKey
+        string $authKey,
+        SymmetricConfig $config
     ): string {
-        return \Sodium\crypto_auth(
-            $message,
-            $authKey
+        if ($config->MAC_ALGO === 'BLAKE2b') {
+            return \Sodium\crypto_generichash(
+                $message,
+                $authKey,
+                $config->MAC_SIZE
+            );
+        } elseif ($config->MAC_ALGO === 'HMAC-SHA512/256') {
+            return \Sodium\crypto_auth(
+                $message,
+                $authKey
+            );
+        }
+        throw new CryptoException\InvalidMessage(
+            'Invalid Halite version'
         );
     }
     
@@ -270,23 +296,40 @@ abstract class Crypto
      * @param string $mac
      * @param string $message
      * @param string $aKey
+     * @param SymmetricConfig $config
      * @return bool
+     * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidSignature
      */
     protected static function verifyMAC(
         string $mac,
         string $message,
-        string $aKey
+        string $aKey,
+        SymmetricConfig $config
     ): bool {
-        if (CryptoUtil::safeStrlen($mac) !== \Sodium\CRYPTO_AUTH_BYTES) {
+        if (CryptoUtil::safeStrlen($mac) !== $config->MAC_SIZE) {
             throw new CryptoException\InvalidSignature(
                 'Argument 1: Message Authentication Code is not the correct length; is it encoded?'
             );
         }
-        return \Sodium\crypto_auth_verify(
-            $mac, 
-            $message,
-            $aKey
+        if ($config->MAC_ALGO === 'BLAKE2b') {
+            $calc = \Sodium\crypto_generichash(
+                $message,
+                $aKey,
+                $config->MAC_SIZE
+            );
+            $res = \hash_equals($mac, $calc);
+            \Sodium\memzero($calc);
+            return $res;
+        } elseif ($config->MAC_ALGO === 'HMAC-SHA512/256') {
+            return \Sodium\crypto_auth_verify(
+                $mac,
+                $message,
+                $aKey
+            );
+        }
+        throw new CryptoException\InvalidMessage(
+            'Invalid Halite version'
         );
     }
 }

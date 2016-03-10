@@ -1,8 +1,8 @@
 # Cryptography Primitives used in Halite
 
-* Symmetric-key encryption: [**Xsalsa20**](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-stream) (note: only [authenticated encryption](https://tonyarcieri.com/all-the-crypto-code-youve-ever-written-is-probably-broken) is available through Halite)
+* Symmetric-key encryption: [**XSalsa20**](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-stream) (note: only [authenticated encryption](https://tonyarcieri.com/all-the-crypto-code-youve-ever-written-is-probably-broken) is available through Halite)
 * Symmetric-key authentication:
-   * Version 2: **[BLAKE2b](https://download.libsodium.org/doc/hashing/generic_hashing.html#singlepart-example-with-a-key)**
+   * Version 2: **[BLAKE2b](https://download.libsodium.org/doc/hashing/generic_hashing.html#singlepart-example-with-a-key)** (keyed)
    * Version 1: **[HMAC-SHA512/256](https://paragonie.com/book/pecl-libsodium/read/04-secretkey-crypto.md#crypto-auth)**
 * Asymmetric-key encryption: [**X25519**](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-scalarmult) followed by [symmetric-key authenticated encryption](https://paragonie.com/book/pecl-libsodium/read/04-secretkey-crypto.md#crypto-secretbox)
 * Asymmetric-key digital signatures: [**Ed25519**](https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md#crypto-sign)

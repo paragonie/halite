@@ -4,7 +4,7 @@
 * Symmetric-key authentication:
    * Version 2: **[BLAKE2b](https://download.libsodium.org/doc/hashing/generic_hashing.html#singlepart-example-with-a-key)** (keyed)
    * Version 1: **[HMAC-SHA512/256](https://paragonie.com/book/pecl-libsodium/read/04-secretkey-crypto.md#crypto-auth)**
-* Asymmetric-key encryption: [**X25519**](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-scalarmult) followed by [symmetric-key authenticated encryption](https://paragonie.com/book/pecl-libsodium/read/04-secretkey-crypto.md#crypto-secretbox)
+* Asymmetric-key encryption: [**X25519**](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-scalarmult) followed by symmetric-key authenticated encryption
 * Asymmetric-key digital signatures: [**Ed25519**](https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md#crypto-sign)
 * Checksums: [**BLAKE2b**](https://paragonie.com/book/pecl-libsodium/read/06-hashing.md#crypto-generichash)
 * Key splitting: [**HKDF-BLAKE2b**](Classes/Util.md)

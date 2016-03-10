@@ -1,6 +1,6 @@
 # Cryptography Primitives used in Halite
 
-* Symmetric-key encryption: [**Xsalsa20**](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-stream)
+* Symmetric-key encryption: [**Xsalsa20**](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-stream) (note: only authenticated encryption is available through Halite)
 * Symmetric-key authentication:
    * Version 2: **[BLAKE2b](https://download.libsodium.org/doc/hashing/generic_hashing.html#singlepart-example-with-a-key)**
    * Version 1: **[HMAC-SHA512/256](https://paragonie.com/book/pecl-libsodium/read/04-secretkey-crypto.md#crypto-auth)**

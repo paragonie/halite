@@ -56,6 +56,7 @@ final class Config extends BaseConfig
             switch ($minor) {
                 case 0:
                     return [
+                        'HKDF_SALT_LEN' => 32,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'MAC_SIZE' => \Sodium\CRYPTO_AUTH_BYTES,

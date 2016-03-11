@@ -69,6 +69,20 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($plain, 'test message');
     }
 
+    public function testLegacyDecrypt()
+    {
+        $message = "31420100ddad7a2dbbc9a3bb7d693a1c09e807da8c087b41b3e8d3d4" .
+            "1b5e489b2c5ba35bd01ca1129a9c3d1f3ffbe5e8602d61384d669ef6f939edc" .
+            "f4379ff898cb4ca301b01c3651a0ce94cee29da249a2b29297b872a3d8e516c" .
+            "2cab551a8e02e0f5302729450b";
+        $key = new EncryptionKey(\str_repeat('A', 32));
+        $plain = Symmetric::decrypt($message, $key);
+        $this->assertEquals(
+            $plain,
+            'test message'
+        );
+    }
+
     /**
      * @covers Symmetric::encrypt()
      */

@@ -48,6 +48,14 @@ class ReadOnlyFile implements StreamInterface
     }
 
     /**
+     * Make sure we invoke $this->close()
+     */
+    public function __destruct()
+    {
+        $this->close();
+    }
+
+    /**
      * Close the file handle.
      */
     public function close()
@@ -59,9 +67,32 @@ class ReadOnlyFile implements StreamInterface
         }
     }
 
-    public function __destruct()
+    /**
+     * Calculate a BLAKE2b hash of a file
+     *
+     * @return string
+     */
+    public function getHash(): string
     {
-        $this->close();
+        $init = $this->pos;
+        \fseek($this->fp, 0, SEEK_SET);
+
+        // Create a hash context:
+        $h = \Sodium\crypto_generichash_init(
+            $this->hashKey,
+            \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+        );
+        for ($i = 0; $i < $this->stat['size']; $i += self::CHUNK) {
+            if (($i + self::CHUNK) > $this->stat['size']) {
+                $c = \fread($this->fp, ($this->stat['size'] - $i));
+            } else {
+                $c = \fread($this->fp, self::CHUNK);
+            }
+            \Sodium\crypto_generichash_update($h, $c);
+        }
+        // Reset the file pointer's internal cursor to where it was:
+        \fseek($this->fp, $init, SEEK_SET);
+        return \Sodium\crypto_generichash_final($h);
     }
 
     /**
@@ -73,6 +104,7 @@ class ReadOnlyFile implements StreamInterface
     {
         return $this->pos;
     }
+
     /**
      * How big is this buffer?
      * 
@@ -139,75 +171,30 @@ class ReadOnlyFile implements StreamInterface
     {
         return (PHP_INT_MAX & ($this->stat['size'] - $this->pos));
     }
-    
-    /**
-     * This is a meaningless operation for a Read-Only File!
-     * 
-     * @param string $buf
-     * @param int $num (number of bytes)
-     * @return int
-     * @throws CryptoException\FileAccessDenied
-     */
-    public function writeBytes(string $buf, int $num = null): int
-    {
-        unset($buf);
-        unset($num);
-        throw new CryptoException\FileAccessDenied(
-            'This is a read-only file handle.'
-        );
-    }
-    
+
     /**
      * Set the current cursor position to the desired location
-     * 
-     * @param int $i
+     *
+     * @param int $position
      * @return boolean
      * @throws CryptoException\CannotPerformOperation
      */
-    public function reset(int $i = 0): bool
+    public function reset(int $position = 0): bool
     {
-        $this->pos = $i;
-        if (\fseek($this->fp, $i, SEEK_SET) === 0) {
+        $this->pos = $position;
+        if (\fseek($this->fp, $position, SEEK_SET) === 0) {
             return true;
         }
         throw new CryptoException\CannotPerformOperation(
             'fseek() failed'
         );
     }
-    
-    /**
-     * Calculate a BLAKE2b hash of a file
-     * 
-     * @return string
-     */
-    public function getHash(): string
-    {
-        $init = $this->pos;
-        \fseek($this->fp, 0, SEEK_SET);
-        
-        // Create a hash context:
-        $h = \Sodium\crypto_generichash_init(
-            $this->hashKey,
-            \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
-        );
-        for ($i = 0; $i < $this->stat['size']; $i += self::CHUNK) {
-            if (($i + self::CHUNK) > $this->stat['size']) {
-                $c = \fread($this->fp, ($this->stat['size'] - $i));
-            } else {
-                $c = \fread($this->fp, self::CHUNK);
-            }
-            \Sodium\crypto_generichash_update($h, $c);
-        }
-        // Reset the file pointer's internal cursor to where it was:
-        \fseek($this->fp, $init, SEEK_SET);
-        return \Sodium\crypto_generichash_final($h);
-    }
-    
+
     /**
      * Run-time test to prevent TOCTOU attacks (race conditions) through
      * verifying that the hash matches and the current cursor position/file
      * size matches their values when the file was first opened.
-     * 
+     *
      * @throws CryptoException\FileModified
      * @return true
      */
@@ -224,5 +211,22 @@ class ReadOnlyFile implements StreamInterface
                 'Read-only file has been modified since it was opened for reading'
             );
         }
+    }
+    
+    /**
+     * This is a meaningless operation for a Read-Only File!
+     * 
+     * @param string $buf
+     * @param int $num (number of bytes)
+     * @return int
+     * @throws CryptoException\FileAccessDenied
+     */
+    public function writeBytes(string $buf, int $num = null): int
+    {
+        unset($buf);
+        unset($num);
+        throw new CryptoException\FileAccessDenied(
+            'This is a read-only file handle.'
+        );
     }
 }

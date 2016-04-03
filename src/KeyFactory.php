@@ -67,7 +67,7 @@ abstract class KeyFactory
     /**
      * Generate a key pair for public key digital signatures
      * 
-     * @param string $secret_key
+     * @param string &$secret_key
      * @return SignatureKeyPair
      */
     public static function generateSignatureKeyPair(string &$secret_key = ''): SignatureKeyPair
@@ -225,11 +225,11 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
             );
         }
-        $keypair = \Sodium\crypto_box_seed_keypair($seed);
-        $secret_key = \Sodium\crypto_box_secretkey($keypair);
+        $keyPair = \Sodium\crypto_box_seed_keypair($seed);
+        $secret_key = \Sodium\crypto_box_secretkey($keyPair);
         
         // Let's wipe our $kp variable
-        \Sodium\memzero($keypair);
+        \Sodium\memzero($keyPair);
         return new EncryptionKeyPair(
             new EncryptionSecretKey($secret_key)
         );
@@ -281,11 +281,11 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
             );
         }
-        $keypair = \Sodium\crypto_sign_seed_keypair($seed);
-        $secret_key = \Sodium\crypto_sign_secretkey($keypair);
+        $keyPair = \Sodium\crypto_sign_seed_keypair($seed);
+        $secret_key = \Sodium\crypto_sign_secretkey($keyPair);
         
         // Let's wipe our $kp variable
-        \Sodium\memzero($keypair);
+        \Sodium\memzero($keyPair);
         return new SignatureKeyPair(
             new SignatureSecretKey($secret_key)
         );
@@ -482,14 +482,14 @@ abstract class KeyFactory
      */
     protected static function loadKeyFile(string $filePath): string
     {
-        $filedata = \file_get_contents($filePath);
-        if ($filedata === false) {
+        $fileData = \file_get_contents($filePath);
+        if ($fileData === false) {
             throw new Alerts\CannotPerformOperation(
                 'Cannot load key from file: '. $filePath
             );
         }
-        $data = \Sodium\hex2bin($filedata);
-        \Sodium\memzero($filedata);
+        $data = \Sodium\hex2bin($fileData);
+        \Sodium\memzero($fileData);
         return self::getKeyDataFromString($data);
     }
     
@@ -503,32 +503,32 @@ abstract class KeyFactory
      */
     public static function getKeyDataFromString(string $data): string
     {
-        $vtag = Util::safeSubstr($data, 0, Halite::VERSION_TAG_LEN);
-        $kdat = Util::safeSubstr(
+        $versionTag = Util::safeSubstr($data, 0, Halite::VERSION_TAG_LEN);
+        $keyData = Util::safeSubstr(
             $data,
             Halite::VERSION_TAG_LEN,
             -\Sodium\CRYPTO_GENERICHASH_BYTES_MAX
         );
-        $csum = Util::safeSubstr(
+        $checksum = Util::safeSubstr(
             $data,
             -\Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
             \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
         );
         $calc = \Sodium\crypto_generichash(
-            $vtag . $kdat, 
+            $versionTag . $keyData,
             '',
             \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
         );
-        if (!\hash_equals($calc, $csum)) {
+        if (!\hash_equals($calc, $checksum)) {
             throw new Alerts\InvalidKey(
                 'Checksum validation fail'
             );
         }
         \Sodium\memzero($data);
-        \Sodium\memzero($vtag);
+        \Sodium\memzero($versionTag);
         \Sodium\memzero($calc);
-        \Sodium\memzero($csum);
-        return $kdat;
+        \Sodium\memzero($checksum);
+        return $keyData;
     }
     
     /**

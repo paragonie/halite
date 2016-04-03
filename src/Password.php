@@ -18,7 +18,7 @@ abstract class Password
     /**
      * Hash then encrypt a password
      * 
-     * @param string $password         - The user's password
+     * @param string $password          - The user's password
      * @param EncryptionKey $secret_key - The master key for all passwords
      * @return string
      */
@@ -38,8 +38,8 @@ abstract class Password
     /**
      * Is this password hash stale?
      *
-     * @param string $stored
-     * @param EncryptionKey $secret_key
+     * @param string $stored            - A stored password hash
+     * @param EncryptionKey $secret_key - The master key for all passwords
      * @return bool
      * @throws InvalidMessage
      */
@@ -68,7 +68,7 @@ abstract class Password
     /**
      * Get the configuration for this version of halite
      *
-     * @param string $stored
+     * @param string $stored   - A stored password hash
      * @return SymmetricConfig
      * @throws InvalidMessage
      */
@@ -86,8 +86,8 @@ abstract class Password
     /**
      * Decrypt then verify a password
      * 
-     * @param string $password          - The user-provided password
-     * @param string $stored            - The encrypted password hash
+     * @param string $password           - The user-provided password
+     * @param string $stored             - The encrypted password hash
      * @param EncryptionKey $secret_key  - The master key for all passwords
      * @return boolean
      * @throws InvalidMessage

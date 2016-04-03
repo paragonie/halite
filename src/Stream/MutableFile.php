@@ -53,9 +53,33 @@ class MutableFile implements StreamInterface
         }
     }
 
+    /**
+     * Make sure we invoke $this->close()
+     */
     public function __destruct()
     {
         $this->close();
+    }
+
+    /**
+     * Where are we in the buffer?
+     *
+     * @return int
+     */
+    public function getPos(): int
+    {
+        return \ftell($this->fp);
+    }
+
+    /**
+     * How big is this buffer?
+     *
+     * @return int
+     */
+    public function getSize(): int
+    {
+        $stat = \fstat($this->fp);
+        return $stat['size'];
     }
 
     /**
@@ -96,7 +120,37 @@ class MutableFile implements StreamInterface
         } while ($remaining > 0);
         return $buf;
     }
+
+    /**
+     * Get number of bytes remaining
+     *
+     * @return int
+     */
+    public function remainingBytes(): int
+    {
+        $stat = \fstat($this->fp);
+        $pos = \ftell($this->fp);
+        return (PHP_INT_MAX & ($stat['size'] - $pos));
+    }
     
+    /**
+     * Set the current cursor position to the desired location
+     * 
+     * @param int $i
+     * @return boolean
+     * @throws CryptoException\CannotPerformOperation
+     */
+    public function reset(int $i = 0): bool
+    {
+        $this->pos = $i;
+        if (\fseek($this->fp, $i, SEEK_SET) === 0) {
+            return true;
+        }
+        throw new CryptoException\CannotPerformOperation(
+            'fseek() failed'
+        );
+    }
+
     /**
      * Write to a stream; prevent partial writes
      *
@@ -132,56 +186,5 @@ class MutableFile implements StreamInterface
             $remaining -= $written;
         } while ($remaining > 0);
         return $num;
-    }
-    
-    /**
-     * Set the current cursor position to the desired location
-     * 
-     * @param int $i
-     * @return boolean
-     * @throws CryptoException\CannotPerformOperation
-     */
-    public function reset(int $i = 0): bool
-    {
-        $this->pos = $i;
-        if (\fseek($this->fp, $i, SEEK_SET) === 0) {
-            return true;
-        }
-        throw new CryptoException\CannotPerformOperation(
-            'fseek() failed'
-        );
-    }
-
-    /**
-     * Where are we in the buffer?
-     *
-     * @return int
-     */
-    public function getPos(): int
-    {
-        return \ftell($this->fp);
-    }
-
-    /**
-     * Get number of bytes remaining
-     *
-     * @return int
-     */
-    public function remainingBytes(): int
-    {
-        $stat = \fstat($this->fp);
-        $pos = \ftell($this->fp);
-        return (PHP_INT_MAX & ($stat['size'] - $pos));
-    }
-
-    /**
-     * How big is this buffer?
-     *
-     * @return int
-     */
-    public function getSize(): int
-    {
-        $stat = \fstat($this->fp);
-        return $stat['size'];
     }
 }

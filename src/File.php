@@ -21,19 +21,19 @@ final class File
     /**
      * Lazy fallthrough method for checksumFile() and checksumResource()
      *
-     * @param string|resource $filepath
+     * @param string|resource $filePath
      * @param Key $key (optional; expects SignaturePublicKey or AuthenticationKey)
      * @param bool $raw
      * @return string
      * @throws CryptoException\InvalidType
      */
     public static function checksum(
-        $filepath,
+        $filePath,
         Key $key = null,
         $raw = false
     ): string {
-        if (\is_resource($filepath) || \is_string($filepath)) {
-            $readOnly = new ReadOnlyFile($filepath);
+        if (\is_resource($filePath) || \is_string($filePath)) {
+            $readOnly = new ReadOnlyFile($filePath);
             $csum = self::checksumData(
                 $readOnly,
                 $key,
@@ -125,14 +125,14 @@ final class File
      *
      * @param string|resource $input
      * @param string|resource $output
-     * @param EncryptionPublicKey $publickey
+     * @param EncryptionPublicKey $publicKey
      * @return int Number of bytes written
      * @throws Alerts\InvalidType
      */
     public static function seal(
         $input,
         $output,
-        EncryptionPublicKey $publickey
+        EncryptionPublicKey $publicKey
     ): int {
         if (
             (\is_resource($input) || \is_string($input))
@@ -144,7 +144,7 @@ final class File
             $data = self::sealData(
                 $readOnly,
                 $mutable,
-                $publickey
+                $publicKey
             );
             $readOnly->close();
             $mutable->close();
@@ -160,14 +160,14 @@ final class File
      *
      * @param string|resource $input
      * @param string|resource $output
-     * @param EncryptionSecretKey $secretkey
+     * @param EncryptionSecretKey $secretKey
      * @return bool TRUE on success
      * @throws CryptoException\InvalidType
      */
     public static function unseal(
         $input,
         $output,
-        EncryptionSecretKey $secretkey
+        EncryptionSecretKey $secretKey
     ): bool {
         if (
             (\is_resource($input) || \is_string($input))
@@ -180,7 +180,7 @@ final class File
                 $data = self::unsealData(
                     $readOnly,
                     $mutable,
-                    $secretkey
+                    $secretKey
                 );
                 return $data;
             } finally {
@@ -197,7 +197,7 @@ final class File
      * Lazy fallthrough method for signFile() and signResource()
      *
      * @param string|resource $filename
-     * @param SignatureSecretKey $secretkey
+     * @param SignatureSecretKey $secretKey
      * @param bool $raw_binary
      * @return string
      * @throws CryptoException\InvalidKey
@@ -205,7 +205,7 @@ final class File
      */
     public static function sign(
         $filename,
-        SignatureSecretKey $secretkey,
+        SignatureSecretKey $secretKey,
         bool $raw_binary = false
     ): string {
         if (
@@ -215,7 +215,7 @@ final class File
             $readOnly = new ReadOnlyFile($filename);
             $signature = self::signData(
                 $readOnly,
-                $secretkey,
+                $secretKey,
                 $raw_binary
             );
             $readOnly->close();
@@ -230,7 +230,7 @@ final class File
      * Lazy fallthrough method for verifyFile() and verifyResource()
      *
      * @param string|resource $filename
-     * @param SignaturePublicKey $publickey
+     * @param SignaturePublicKey $publicKey
      * @param string $signature
      * @param bool $raw_binary
      *
@@ -239,7 +239,7 @@ final class File
      */
     public static function verify(
         $filename,
-        SignaturePublicKey $publickey,
+        SignaturePublicKey $publicKey,
         string $signature,
         bool $raw_binary = false
     ): bool {
@@ -250,7 +250,7 @@ final class File
             $readOnly = new ReadOnlyFile($filename);
             $verified = self::verifyData(
                 $readOnly,
-                $publickey,
+                $publicKey,
                 $signature,
                 $raw_binary
             );
@@ -349,11 +349,11 @@ final class File
         $config = self::getConfig(Halite::HALITE_VERSION_FILE, 'encrypt');
 
         // Generate a nonce and HKDF salt
-        $firstnonce = \Sodium\randombytes_buf($config->NONCE_BYTES);
-        $hkdfsalt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
+        $firstNonce = \Sodium\randombytes_buf($config->NONCE_BYTES);
+        $hkdfSalt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
 
         // Let's split our key
-        list ($encKey, $authKey) = self::splitKeys($key, $hkdfsalt, $config);
+        list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
 
         // Write the header
         $output->writeBytes(
@@ -361,11 +361,11 @@ final class File
             Halite::VERSION_TAG_LEN
         );
         $output->writeBytes(
-            $firstnonce,
+            $firstNonce,
             \Sodium\CRYPTO_STREAM_NONCEBYTES
         );
         $output->writeBytes(
-            $hkdfsalt,
+            $hkdfSalt,
             $config->HKDF_SALT_LEN
         );
 
@@ -373,8 +373,8 @@ final class File
             // VERSION 2+
             $mac = \Sodium\crypto_generichash_init($authKey);
             \Sodium\crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
-            \Sodium\crypto_generichash_update($mac, $firstnonce);
-            \Sodium\crypto_generichash_update($mac, $hkdfsalt);
+            \Sodium\crypto_generichash_update($mac, $firstNonce);
+            \Sodium\crypto_generichash_update($mac, $hkdfSalt);
         } else {
             // VERSION 1
             $mac = \hash_init('sha256', HASH_HMAC, $authKey);
@@ -382,16 +382,17 @@ final class File
             unset($authKey);
 
             \hash_update($mac, Halite::HALITE_VERSION_FILE);
-            \hash_update($mac, $firstnonce);
-            \hash_update($mac, $hkdfsalt);
+            \hash_update($mac, $firstNonce);
+            \hash_update($mac, $hkdfSalt);
         }
         \Sodium\memzero($authKey);
+        \Sodium\memzero($hkdfSalt);
 
         return self::streamEncrypt(
             $input,
             $output,
             new EncryptionKey($encKey),
-            $firstnonce,
+            $firstNonce,
             $mac,
             $config
         );
@@ -411,7 +412,10 @@ final class File
         MutableFile $output,
         EncryptionKey $key
     ): bool {
+        // Rewind
         $input->reset(0);
+
+        // Make sure it's large enough to even read a version tag
         if ($input->getSize() < Halite::VERSION_TAG_LEN) {
             throw new CryptoException\InvalidMessage(
                 "Input file is too small to have been encrypted by Halite."
@@ -423,6 +427,7 @@ final class File
         // Load the config
         $config = self::getConfig($header, 'encrypt');
 
+        // Is this shorter than an encrypted empty string?
         if ($input->getSize() < $config->SHORTEST_CIPHERTEXT_LENGTH) {
             throw new CryptoException\InvalidMessage(
                 "Input file is too small to have been encrypted by Halite."
@@ -430,37 +435,38 @@ final class File
         }
 
         // Let's grab the first nonce and salt
-        $firstnonce = $input->readBytes($config->NONCE_BYTES);
-        $hkdfsalt = $input->readBytes($config->HKDF_SALT_LEN);
+        $firstNonce = $input->readBytes($config->NONCE_BYTES);
+        $hkdfSalt = $input->readBytes($config->HKDF_SALT_LEN);
 
         // Split our keys, begin the HMAC instance
-        list ($encKey, $authKey) = self::splitKeys($key, $hkdfsalt, $config);
+        list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
 
         if ($config->USE_BLAKE2B) {
             // VERSION 2+
             $mac = \Sodium\crypto_generichash_init($authKey);
             \Sodium\crypto_generichash_update($mac, $header);
-            \Sodium\crypto_generichash_update($mac, $firstnonce);
-            \Sodium\crypto_generichash_update($mac, $hkdfsalt);
+            \Sodium\crypto_generichash_update($mac, $firstNonce);
+            \Sodium\crypto_generichash_update($mac, $hkdfSalt);
 
             $old_macs = self::streamVerify($input, ''.$mac, $config);
         } else {
             // VERSION 1
             $mac = \hash_init('sha256', HASH_HMAC, $authKey);
             \hash_update($mac, $header);
-            \hash_update($mac, $firstnonce);
-            \hash_update($mac, $hkdfsalt);
+            \hash_update($mac, $firstNonce);
+            \hash_update($mac, $hkdfSalt);
 
             // This will throw an exception if it fails.
             $old_macs = self::streamVerify($input, \hash_copy($mac), $config);
         }
         \Sodium\memzero($authKey);
+        \Sodium\memzero($hkdfSalt);
 
         $ret = self::streamDecrypt(
             $input,
             $output,
             new EncryptionKey($encKey),
-            $firstnonce,
+            $firstNonce,
             $mac,
             $config,
             $old_macs
@@ -468,7 +474,7 @@ final class File
 
         unset($encKey);
         unset($authKey);
-        unset($firstnonce);
+        unset($firstNonce);
         unset($mac);
         unset($config);
         unset($old_macs);
@@ -480,39 +486,41 @@ final class File
      *
      * @param ReadOnlyFile $input
      * @param MutableFile $output
-     * @param EncryptionPublicKey $publickey
+     * @param EncryptionPublicKey $publicKey
      * @return int
      */
     protected static function sealData(
         ReadOnlyFile $input,
         MutableFile $output,
-        EncryptionPublicKey $publickey
+        EncryptionPublicKey $publicKey
     ): int {
         // Generate a new keypair for this encryption
-        $eph_kp = KeyFactory::generateEncryptionKeyPair();
-        $eph_secret = $eph_kp->getSecretKey();
-        $eph_public = $eph_kp->getPublicKey();
-        unset($eph_kp);
+        $ephemeralKeyPair = KeyFactory::generateEncryptionKeyPair();
+        $ephSecret = $ephemeralKeyPair->getSecretKey();
+        $ephPublic = $ephemeralKeyPair->getPublicKey();
+        unset($ephemeralKeyPair);
 
         // Calculate the shared secret key
-        $key = AsymmetricCrypto::getSharedSecret($eph_secret, $publickey, true);
+        $sharedSecretKey = AsymmetricCrypto::getSharedSecret($ephSecret, $publicKey, true);
 
         // Destroy the secre tkey after we have the shared secret
-        unset($eph_secret);
+        unset($ephSecret);
+
+        // Load the configuration
         $config = self::getConfig(Halite::HALITE_VERSION_FILE, 'seal');
 
         // Generate a nonce as per crypto_box_seal
         $nonce = \Sodium\crypto_generichash(
-            $eph_public->getRawKeyMaterial().$publickey->getRawKeyMaterial(),
+            $ephPublic->getRawKeyMaterial().$publicKey->getRawKeyMaterial(),
             '',
             \Sodium\CRYPTO_STREAM_NONCEBYTES
         );
 
         // Generate a random HKDF salt
-        $hkdfsalt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
+        $hkdfSalt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
 
         // Split the keys
-        list ($encKey, $authKey) = self::splitKeys($key, $hkdfsalt, $config);
+        list ($encKey, $authKey) = self::splitKeys($sharedSecretKey, $hkdfSalt, $config);
 
         // We no longer need the original key after we split it
         unset($key);
@@ -523,11 +531,11 @@ final class File
             Halite::VERSION_TAG_LEN
         );
         $output->writeBytes(
-            $eph_public->getRawKeyMaterial(),
+            $ephPublic->getRawKeyMaterial(),
             \Sodium\CRYPTO_BOX_PUBLICKEYBYTES
         );
         $output->writeBytes(
-            $hkdfsalt,
+            $hkdfSalt,
             $config->HKDF_SALT_LEN
         );
 
@@ -538,8 +546,8 @@ final class File
             \Sodium\memzero($authKey);
 
             \Sodium\crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
-            \Sodium\crypto_generichash_update($mac, $eph_public->getRawKeyMaterial());
-            \Sodium\crypto_generichash_update($mac, $hkdfsalt);
+            \Sodium\crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
+            \Sodium\crypto_generichash_update($mac, $hkdfSalt);
         } else {
             // VERSION 1
             $mac = \hash_init('sha256', HASH_HMAC, $authKey);
@@ -547,11 +555,12 @@ final class File
             \Sodium\memzero($authKey);
 
             \hash_update($mac, Halite::HALITE_VERSION_FILE);
-            \hash_update($mac, $eph_public->getRawKeyMaterial());
-            \hash_update($mac, $hkdfsalt);
+            \hash_update($mac, $ephPublic->getRawKeyMaterial());
+            \hash_update($mac, $hkdfSalt);
         }
 
-        unset($eph_public);
+        unset($ephPublic);
+        \Sodium\memzero($hkdfSalt);
 
         return self::streamEncrypt(
             $input,
@@ -568,7 +577,7 @@ final class File
      *
      * @param ReadOnlyFile $input
      * @param MutableFile $output
-     * @param EncryptionSecretKey $secretkey
+     * @param EncryptionSecretKey $secretKey
      *
      * @return bool
      * @throws CryptoException\CannotPerformOperation
@@ -577,11 +586,12 @@ final class File
     protected static function unsealData(
         ReadOnlyFile $input,
         MutableFile $output,
-        EncryptionSecretKey $secretkey
+        EncryptionSecretKey $secretKey
     ): bool {
-        $secret_key = $secretkey->getRawKeyMaterial();
-        $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
+        $publicKey = $secretKey
+            ->derivePublicKey();
 
+        // Is the file at least as long as a header?
         if ($input->getSize() < Halite::VERSION_TAG_LEN) {
             throw new CryptoException\InvalidMessage(
                 "Input file is too small to have been encrypted by Halite."
@@ -590,6 +600,7 @@ final class File
 
         // Parse the header, ensuring we get 4 bytes
         $header = $input->readBytes(Halite::VERSION_TAG_LEN);
+
         // Load the config
         $config = self::getConfig($header, 'seal');
 
@@ -599,45 +610,48 @@ final class File
             );
         }
         // Let's grab the public key and salt
-        $eph_public = $input->readBytes($config->PUBLICKEY_BYTES);
-        $hkdfsalt = $input->readBytes($config->HKDF_SALT_LEN);
+        $ephPublic = $input->readBytes($config->PUBLICKEY_BYTES);
+        $hkdfSalt = $input->readBytes($config->HKDF_SALT_LEN);
 
         // Generate the same nonce, as per sealData()
         $nonce = \Sodium\crypto_generichash(
-            $eph_public . $public_key,
+            $ephPublic . $publicKey->getRawKeyMaterial(),
             '',
             \Sodium\CRYPTO_STREAM_NONCEBYTES
         );
 
-        $ephemeral = new EncryptionPublicKey($eph_public);
+        // Create a key object out of the public key:
+        $ephemeral = new EncryptionPublicKey($ephPublic);
 
         $key = AsymmetricCrypto::getSharedSecret(
-            $secretkey,
+            $secretKey,
             $ephemeral,
             true
         );
         unset($ephemeral);
 
-        list ($encKey, $authKey) = self::splitKeys($key, $hkdfsalt, $config);
+        list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
         // We no longer need the original key after we split it
         unset($key);
 
         if ($config->USE_BLAKE2B) {
             $mac = \Sodium\crypto_generichash_init($authKey);
             \Sodium\crypto_generichash_update($mac, $header);
-            \Sodium\crypto_generichash_update($mac, $eph_public);
-            \Sodium\crypto_generichash_update($mac, $hkdfsalt);
+            \Sodium\crypto_generichash_update($mac, $ephPublic);
+            \Sodium\crypto_generichash_update($mac, $hkdfSalt);
 
-            $old_macs = self::streamVerify($input, ''.$mac, $config);
+            $oldMACs = self::streamVerify($input, ''.$mac, $config);
         } else {
             $mac = \hash_init('sha256', HASH_HMAC, $authKey);
             \hash_update($mac, $header);
-            \hash_update($mac, $eph_public);
-            \hash_update($mac, $hkdfsalt);
+            \hash_update($mac, $ephPublic);
+            \hash_update($mac, $hkdfSalt);
 
             // This will throw an exception if it fails.
-            $old_macs = self::streamVerify($input, \hash_copy($mac), $config);
+            $oldMACs = self::streamVerify($input, \hash_copy($mac), $config);
         }
+        // We no longer need this:
+        \Sodium\memzero($hkdfSalt);
 
         $ret = self::streamDecrypt(
             $input,
@@ -646,7 +660,7 @@ final class File
             $nonce,
             $mac,
             $config,
-            $old_macs
+            $oldMACs
         );
 
         unset($encKey);
@@ -654,7 +668,7 @@ final class File
         unset($nonce);
         unset($mac);
         unset($config);
-        unset($old_macs);
+        unset($oldMACs);
         return $ret;
     }
 
@@ -662,28 +676,28 @@ final class File
      * Sign the contents of a file
      *
      * @param ReadOnlyFile $input
-     * @param SignatureSecretKey $secretkey
+     * @param SignatureSecretKey $secretKey
      * @param bool $raw_binary Don't hex encode?
      * @return string
      */
     protected static function signData(
         ReadOnlyFile $input,
-        SignatureSecretKey $secretkey,
+        SignatureSecretKey $secretKey,
         bool $raw_binary = false
     ): string {
-        $csum = self::checksumData(
+        $checksum = self::checksumData(
             $input,
-            $secretkey->derivePublicKey(),
+            $secretKey->derivePublicKey(),
             true
         );
-        return AsymmetricCrypto::sign($csum, $secretkey, $raw_binary);
+        return AsymmetricCrypto::sign($checksum, $secretKey, $raw_binary);
     }
 
     /**
      * Verify the contents of a file
      *
      * @param $input (file handle)
-     * @param SignaturePublicKey $publickey
+     * @param SignaturePublicKey $publicKey
      * @param string $signature
      * @param bool $raw_binary Don't hex encode?
      *
@@ -691,14 +705,14 @@ final class File
      */
     protected static function verifyData(
         ReadOnlyFile $input,
-        SignaturePublicKey $publickey,
+        SignaturePublicKey $publicKey,
         string $signature,
         bool $raw_binary = false
     ): bool {
-        $csum = self::checksumData($input, $publickey, true);
+        $checksum = self::checksumData($input, $publicKey, true);
         return AsymmetricCrypto::verify(
-            $csum,
-            $publickey,
+            $checksum,
+            $publicKey,
             $signature,
             $raw_binary
         );
@@ -1010,6 +1024,7 @@ final class File
                 $read = $input->readBytes($config->BUFFER);
             }
 
+            // Version 2+ uses a keyed BLAKE2b hash instead of HMAC
             if ($config->USE_BLAKE2B) {
                 \Sodium\crypto_generichash_update($mac, $read);
                 $calcMAC = ''.$mac;
@@ -1026,18 +1041,21 @@ final class File
             }
 
             if (empty($chunk_macs)) {
+                // Someone attempted to add a chunk at the end.
                 throw new CryptoException\InvalidMessage(
                     'Invalid message authentication code'
                 );
             } else {
-                $chkmac = \array_shift($chunk_macs);
-                if (!\hash_equals($chkmac, $calc)) {
+                $chunkMAC = \array_shift($chunk_macs);
+                if (!\hash_equals($chunkMAC, $calc)) {
+                    // This chunk was altered after the original MAC was verified
                     throw new CryptoException\InvalidMessage(
                         'Invalid message authentication code'
                     );
                 }
             }
 
+            // This is where the decryption actually occurs:
             $decrypted = \Sodium\crypto_stream_xor(
                 $read,
                 $nonce,
@@ -1068,12 +1086,13 @@ final class File
     ): array {
         $start = $input->getPos();
 
+        // Grab the stored MAC:
         $cipher_end = $input->getSize() - $config->MAC_SIZE;
         $input->reset($cipher_end);
         $stored_mac = $input->readBytes($config->MAC_SIZE);
         $input->reset($start);
 
-        $chunk_macs = [];
+        $chunkMACs = [];
 
         $break = false;
         while (!$break && $input->getPos() < $cipher_end) {
@@ -1095,7 +1114,7 @@ final class File
                 // VERSION 2+
                 \Sodium\crypto_generichash_update($mac, $read);
                 $chunkMAC = '' . $mac;
-                $chunk_macs []= \Sodium\crypto_generichash_final($chunkMAC, $config->MAC_SIZE);
+                $chunkMACs []= \Sodium\crypto_generichash_final($chunkMAC, $config->MAC_SIZE);
             } else {
                 // VERSION 1
                 \hash_update($mac, $read);
@@ -1108,7 +1127,7 @@ final class File
                         'An unknown error has occurred'
                     );
                 }
-                $chunk_macs []= \hash_final($chunkMAC, true);
+                $chunkMACs []= \hash_final($chunkMAC, true);
             }
         }
 
@@ -1132,6 +1151,6 @@ final class File
             );
         }
         $input->reset($start);
-        return $chunk_macs;
+        return $chunkMACs;
     }
 }

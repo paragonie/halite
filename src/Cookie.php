@@ -59,7 +59,7 @@ final class Cookie
      * @param string $path   (defaults to '/')
      * @param string $domain (defaults to NULL)
      * @param bool $secure   (defaults to TRUE)
-     * @param bool $httponly (defaults to TRUE)
+     * @param bool $httpOnly (defaults to TRUE)
      * @return bool
      */
     public function store(
@@ -69,7 +69,7 @@ final class Cookie
         string $path = '/',
         string $domain = '',
         bool $secure = true,
-        bool $httponly = true
+        bool $httpOnly = true
     ): bool {
         return \setcookie(
             $name,
@@ -81,7 +81,7 @@ final class Cookie
             $path,
             $domain,
             $secure,
-            $httponly
+            $httpOnly
         );
     }
 }

@@ -6,7 +6,7 @@ use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Contract;
 
 /**
- * Symmetric Key Crypography uses one secret key, while Asymmetric Key Cryptography
+ * Symmetric Key Cryptography uses one secret key, while Asymmetric Key Cryptography
  * uses a secret key and public key pair
  */
 abstract class Key

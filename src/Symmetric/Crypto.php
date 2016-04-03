@@ -59,36 +59,47 @@ abstract class Crypto
             // We were given hex data:
             $ciphertext = \Sodium\hex2bin($ciphertext);
         }
-        list($version, $config, $salt, $nonce, $xored, $auth) = 
+        list($version, $config, $salt, $nonce, $encrypted, $auth) =
             self::unpackMessageForDecryption($ciphertext);
         
         // Split our keys
-        list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
+        list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
         
         // Check the MAC first
         if (!self::verifyMAC(
             $auth,
-            $version . $salt . $nonce . $xored,
-            $aKey,
+            $version . $salt . $nonce . $encrypted,
+            $authKey,
             $config
         )) {
             throw new CryptoException\InvalidMessage(
                 'Invalid message authentication code'
             );
         }
+        \Sodium\memzero($salt);
+        \Sodium\memzero($authKey);
 
-        $plaintext = \Sodium\crypto_stream_xor($xored, $nonce, $eKey);
+        // crypto_stream_xor() can be used to encrypt and decrypt
+        $plaintext = \Sodium\crypto_stream_xor($encrypted, $nonce, $encKey);
         if ($plaintext === false) {
             throw new CryptoException\InvalidMessage(
                 'Invalid message authentication code'
             );
         }
+        \Sodium\memzero($encrypted);
+        \Sodium\memzero($nonce);
+        \Sodium\memzero($encKey);
         return $plaintext;
     }
     
     /**
      * Encrypt a message using the Halite encryption protocol
-     * (Encrypt then MAC -- Xsalsa20 then HMAC-SHA-512/256)
+     *
+     * Version 2:
+     * (Encrypt then MAC -- xsalsa20 then keyed-Blake2b)
+     *
+     * Version 1:
+     * (Encrypt then MAC -- xsalsa20 then HMAC-SHA-512/256)
      * 
      * @param string $plaintext
      * @param EncryptionKey $secretKey
@@ -103,30 +114,38 @@ abstract class Crypto
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
         // Generate a nonce and HKDF salt:
-        $nonce = \Sodium\randombytes_buf(\Sodium\CRYPTO_SECRETBOX_NONCEBYTES);
+        $nonce = \Sodium\randombytes_buf(
+            \Sodium\CRYPTO_SECRETBOX_NONCEBYTES
+        );
         $salt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
         
         // Split our keys according to the HKDF salt:
-        list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
+        list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
         
         // Encrypt our message with the encryption key:
-        $xored = \Sodium\crypto_stream_xor($plaintext, $nonce, $eKey);
-        \Sodium\memzero($eKey);
+        $encrypted = \Sodium\crypto_stream_xor($plaintext, $nonce, $encKey);
+        \Sodium\memzero($encKey);
         
         // Calculate an authentication tag:
         $auth = self::calculateMAC(
-            Halite::HALITE_VERSION . $salt . $nonce . $xored,
-            $aKey,
+            Halite::HALITE_VERSION . $salt . $nonce . $encrypted,
+            $authKey,
             $config
         );
-        \Sodium\memzero($aKey);
+        \Sodium\memzero($authKey);
+
+        $message = Halite::HALITE_VERSION . $salt . $nonce . $encrypted . $auth;
+
+        // Wipe every superfluous piece of data from memory
+        \Sodium\memzero($nonce);
+        \Sodium\memzero($salt);
+        \Sodium\memzero($encrypted);
+        \Sodium\memzero($auth);
 
         if (!$raw) {
-            return \Sodium\bin2hex(
-                Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth
-            );
+            return \Sodium\bin2hex($message);
         }
-        return Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth;
+        return $message;
     }
     
     /**
@@ -170,6 +189,13 @@ abstract class Crypto
     public static function unpackMessageForDecryption(string $ciphertext): array
     {
         $length = CryptoUtil::safeStrlen($ciphertext);
+
+        // Fail fast on invalid messages
+        if ($length < Halite::VERSION_TAG_LEN) {
+            throw new CryptoException\InvalidMessage(
+                'Message is too short'
+            );
+        }
         
         // The first 4 bytes are reserved for the version size
         $version = CryptoUtil::safeSubstr($ciphertext, 0, Halite::VERSION_TAG_LEN);
@@ -198,7 +224,7 @@ abstract class Crypto
         );
         
         // This is the crypto_stream_xor()ed ciphertext
-        $xored = CryptoUtil::safeSubstr(
+        $encrypted = CryptoUtil::safeSubstr(
             $ciphertext, 
             // 60:
                 Halite::VERSION_TAG_LEN +
@@ -221,7 +247,7 @@ abstract class Crypto
         
         // We don't need this anymore.
         \Sodium\memzero($ciphertext);
-        return [$version, $config, $salt, $nonce, $xored, $auth];
+        return [$version, $config, $salt, $nonce, $encrypted, $auth];
     }
     
     /**
@@ -293,10 +319,10 @@ abstract class Crypto
     /**
      * Verify a MAC
      * 
-     * @param string $mac
-     * @param string $message
-     * @param string $aKey
-     * @param SymmetricConfig $config
+     * @param string $mac             - Message Authentication Code
+     * @param string $message         - The message
+     * @param string $authKey         - Authentication key (symmetric)
+     * @param SymmetricConfig $config - Configuration object
      * @return bool
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidSignature
@@ -304,7 +330,7 @@ abstract class Crypto
     protected static function verifyMAC(
         string $mac,
         string $message,
-        string $aKey,
+        string $authKey,
         SymmetricConfig $config
     ): bool {
         if (CryptoUtil::safeStrlen($mac) !== $config->MAC_SIZE) {
@@ -315,7 +341,7 @@ abstract class Crypto
         if ($config->MAC_ALGO === 'BLAKE2b') {
             $calc = \Sodium\crypto_generichash(
                 $message,
-                $aKey,
+                $authKey,
                 $config->MAC_SIZE
             );
             $res = \hash_equals($mac, $calc);
@@ -325,7 +351,7 @@ abstract class Crypto
             return \Sodium\crypto_auth_verify(
                 $mac,
                 $message,
-                $aKey
+                $authKey
             );
         }
         throw new CryptoException\InvalidMessage(

@@ -16,7 +16,7 @@ abstract class Crypto
      * Encrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::encrypt()
      * 
-     * @param string $source Plaintext
+     * @param string $plaintext
      * @param EncryptionSecretKey $ourPrivateKey Our private key
      * @param EncryptionPublicKey $theirPublicKey  Their public key
      * @param boolean $raw Don't hex encode the output?
@@ -24,16 +24,16 @@ abstract class Crypto
      * @return string
      */
     public static function encrypt(
-        string $source,
+        string $plaintext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
         bool $raw = false
     ): string {
-        $ecdh = new EncryptionKey(
+        $sharedSecretKey = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
-        $ciphertext = SymmetricCrypto::encrypt($source, $ecdh, $raw);
-        unset($ecdh);
+        $ciphertext = SymmetricCrypto::encrypt($plaintext, $sharedSecretKey, $raw);
+        unset($sharedSecretKey);
         return $ciphertext;
     }
     
@@ -41,24 +41,24 @@ abstract class Crypto
      * Decrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::decrypt()
      * 
-     * @param string $source Ciphertext
+     * @param string $ciphertext
      * @param EncryptionSecretKey $ourPrivateKey Our private key
      * @param EncryptionPublicKey $theirPublicKey Their public key
      * @param boolean $raw Don't hex decode the input?
      * @return string
      */
     public static function decrypt(
-        string $source,
+        string $ciphertext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
         bool $raw = false
     ): string {
-        $ecdh = new EncryptionKey(
+        $sharedSecretKey = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
-        $ciphertext = SymmetricCrypto::decrypt($source, $ecdh, $raw);
-        unset($ecdh);
-        return $ciphertext;
+        $plaintext = SymmetricCrypto::decrypt($ciphertext, $sharedSecretKey, $raw);
+        unset($sharedSecretKey);
+        return $plaintext;
     }
     
     /**
@@ -94,7 +94,7 @@ abstract class Crypto
     /**
      * Encrypt a message with a target users' public key
      * 
-     * @param string $source Message to encrypt
+     * @param string $plaintext Message to encrypt
      * @param EncryptionPublicKey $publicKey
      * @param boolean $raw Don't hex encode the output?
      * @return string
@@ -102,7 +102,7 @@ abstract class Crypto
      * @throws CryptoException\InvalidKey
      */
     public static function seal(
-        string $source,
+        string $plaintext,
         EncryptionPublicKey $publicKey,
         bool $raw = false
     ): string {
@@ -117,7 +117,7 @@ abstract class Crypto
             );
         }
         
-        $sealed = \Sodium\crypto_box_seal($source, $publicKey->getRawKeyMaterial());
+        $sealed = \Sodium\crypto_box_seal($plaintext, $publicKey->getRawKeyMaterial());
         if ($raw) {
             return $sealed;
         }
@@ -150,19 +150,19 @@ abstract class Crypto
     /**
      * Decrypt a sealed message with our private key
      * 
-     * @param string $source Encrypted message (string or resource for a file)
+     * @param string $ciphertext Encrypted message
      * @param EncryptionSecretKey $privateKey
      * @param boolean $raw Don't hex decode the input?
      * @return string
      * @throws CryptoException\InvalidKey
      */
     public static function unseal(
-        string $source,
+        string $ciphertext,
         EncryptionSecretKey $privateKey,
         bool $raw = false
     ): string {
         if (!$raw) {
-            $source = \Sodium\hex2bin($source);
+            $ciphertext = \Sodium\hex2bin($ciphertext);
         }
 
         // Get a box keypair (needed by crypto_box_seal_open)
@@ -178,7 +178,7 @@ abstract class Crypto
         \Sodium\memzero($public_key);
         
         // Now let's open that sealed box
-        $message = \Sodium\crypto_box_seal_open($source, $kp);
+        $message = \Sodium\crypto_box_seal_open($ciphertext, $kp);
 
         // Always memzero after retrieving a value
         \Sodium\memzero($kp);

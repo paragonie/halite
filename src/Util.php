@@ -219,7 +219,7 @@ abstract class Util
                 );
             }
             // $length calculation above might result in a 0-length string
-            if ($length === 0) {
+            if ($length === 0 || $start > self::safeStrlen($str)) {
                 return '';
             }
             return \mb_substr($str, $start, $length, '8bit');

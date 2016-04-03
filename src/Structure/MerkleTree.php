@@ -41,6 +41,7 @@ class MerkleTree
     /**
      * Merkle Trees are immutable. Return a replacement with extra nodes.
      *
+     * @param Node[] $nodes
      * @return MerkleTree
      */
     public function getExpandedTree(Node ...$nodes)
@@ -97,6 +98,7 @@ class MerkleTree
     /**
      * Let's go ahead and round up to the nearest mutliple of 2
      *
+     * @param int $inputSize
      * @return int
      */
     public static function getSizeRoundedUp(int $inputSize): int

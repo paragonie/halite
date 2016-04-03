@@ -9,6 +9,8 @@ final class AuthenticationKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
+     * @param bool[] $args
+     * @throws InvalidKey
      */
     public function __construct(string $keyMaterial = '', ...$args)
     {

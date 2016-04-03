@@ -151,4 +151,37 @@ class MutableFile implements StreamInterface
             'fseek() failed'
         );
     }
+
+    /**
+     * Where are we in the buffer?
+     *
+     * @return int
+     */
+    public function getPos(): int
+    {
+        return \ftell($this->fp);
+    }
+
+    /**
+     * Get number of bytes remaining
+     *
+     * @return int
+     */
+    public function remainingBytes(): int
+    {
+        $stat = \fstat($this->fp);
+        $pos = \ftell($this->fp);
+        return (PHP_INT_MAX & ($stat['size'] - $pos));
+    }
+
+    /**
+     * How big is this buffer?
+     *
+     * @return int
+     */
+    public function getSize(): int
+    {
+        $stat = \fstat($this->fp);
+        return $stat['size'];
+    }
 }

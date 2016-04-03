@@ -2,8 +2,8 @@
 
 origdir=`pwd`
 cdir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd $origdir
-parentdir="$(dirname $cdir)"
+cd ${origdir}
+parentdir="$(dirname ${cdir})"
 
 clean=0 # Clean up?
 gpg --fingerprint D8406D0D82947747293778314AA394086372C20A
@@ -63,7 +63,7 @@ if [ $? -eq 0 ]; then
         rm -f phpunit.phar
         rm -f phpunit.phar.asc
     fi
-    exit $EXITCODE
+    exit ${EXITCODE}
 else
     echo
     chmod -x phpunit.phar

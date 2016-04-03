@@ -69,7 +69,7 @@ class ReadOnlyFile implements StreamInterface
      * 
      * @return int
      */
-    public function getPos()
+    public function getPos(): int
     {
         return $this->pos;
     }
@@ -78,7 +78,7 @@ class ReadOnlyFile implements StreamInterface
      * 
      * @return int
      */
-    public function getSize()
+    public function getSize(): int
     {
         return $this->stat['size'];
     }

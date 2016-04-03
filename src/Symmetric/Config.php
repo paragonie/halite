@@ -14,13 +14,13 @@ final class Config extends BaseConfig
      * 
      * @param string $header
      * @param string $mode
-     * @return \ParagonIE\Halite\Config
+     * @return Config
      * @throws CryptoException\InvalidMessage
      */
     public static function getConfig(
         string $header,
         string $mode = 'encrypt'
-    ) {
+    ): self {
         if (\ord($header[0]) !== 49 || \ord($header[1]) !== 66) {
             throw new CryptoException\InvalidMessage(
                 'Invalid version tag'
@@ -61,7 +61,6 @@ final class Config extends BaseConfig
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'MAC_SIZE' => \Sodium\CRYPTO_AUTH_BYTES,
                         'MAC_ALGO' => 'HMAC-SHA512/256',
-                        'MAC_SIZE' => 32,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];

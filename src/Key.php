@@ -43,10 +43,10 @@ abstract class Key
     }
     
     /**
+     * You probably should not be using this directly.
+     *
      * @param string $keyMaterial - The actual key data
-     * @param bool $public - Is this a public key?
-     * @param bool $signing - Is this a signing key?
-     * @param bool $asymmetric - Is this being used in asymmetric cryptography?
+     * @param bool[] $args
      */
     public function __construct(
         string $keyMaterial = '',

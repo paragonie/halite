@@ -2,6 +2,59 @@
 declare(strict_types=1);
 namespace Sodium;
 
+const CRYPTO_AEAD_AES256GCM_KEYBYTES  =  32;
+const CRYPTO_AEAD_AES256GCM_NSECBYTES  =  0;
+const CRYPTO_AEAD_AES256GCM_NPUBBYTES  =  12;
+const CRYPTO_AEAD_AES256GCM_ABYTES  =  16;
+const CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES  =  32;
+const CRYPTO_AEAD_CHACHA20POLY1305_NSECBYTES  =  0;
+const CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES  =  8;
+const CRYPTO_AEAD_CHACHA20POLY1305_ABYTES  =  16;
+const CRYPTO_AUTH_BYTES  =  32;
+const CRYPTO_AUTH_KEYBYTES  =  32;
+const CRYPTO_BOX_SEALBYTES  =  16;
+const CRYPTO_BOX_SECRETKEYBYTES  =  32;
+const CRYPTO_BOX_PUBLICKEYBYTES  =  32;
+const CRYPTO_BOX_KEYPAIRBYTES  =  64;
+const CRYPTO_BOX_MACBYTES  =  16;
+const CRYPTO_BOX_NONCEBYTES  =  24;
+const CRYPTO_BOX_SEEDBYTES  =  32;
+const CRYPTO_KX_BYTES  =  32;
+const CRYPTO_KX_PUBLICKEYBYTES  =  32;
+const CRYPTO_KX_SECRETKEYBYTES  =  32;
+const CRYPTO_GENERICHASH_BYTES  =  32;
+const CRYPTO_GENERICHASH_BYTES_MIN  =  16;
+const CRYPTO_GENERICHASH_BYTES_MAX  =  64;
+const CRYPTO_GENERICHASH_KEYBYTES  =  32;
+const CRYPTO_GENERICHASH_KEYBYTES_MIN  =  16;
+const CRYPTO_GENERICHASH_KEYBYTES_MAX  =  64;
+const CRYPTO_PWHASH_SALTBYTES  =  16;
+const CRYPTO_PWHASH_STRPREFIX  =  '$argon2i$';
+const CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE  =  4;
+const CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE  =  33554432;
+const CRYPTO_PWHASH_OPSLIMIT_SENSITIVE  =  8;
+const CRYPTO_PWHASH_MEMLIMIT_SENSITIVE  =  134217728;
+const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES  =  32;
+const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX  =  '$7$';
+const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE  =  534288;
+const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE  =  16777216;
+const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE  =  33554432;
+const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE  =  1073741824;
+const CRYPTO_SCALARMULT_BYTES  =  32;
+const CRYPTO_SCALARMULT_SCALARBYTES  =  32;
+const CRYPTO_SHORTHASH_BYTES  =  8;
+const CRYPTO_SHORTHASH_KEYBYTES  =  16;
+const CRYPTO_SECRETBOX_KEYBYTES  =  32;
+const CRYPTO_SECRETBOX_MACBYTES  =  16;
+const CRYPTO_SECRETBOX_NONCEBYTES  =  24;
+const CRYPTO_SIGN_BYTES  =  64;
+const CRYPTO_SIGN_SEEDBYTES  =  32;
+const CRYPTO_SIGN_PUBLICKEYBYTES  =  32;
+const CRYPTO_SIGN_SECRETKEYBYTES  =  64;
+const CRYPTO_SIGN_KEYPAIRBYTES = 96;
+const CRYPTO_STREAM_KEYBYTES = 32;
+const CRYPTO_STREAM_NONCEBYTES  = 24;
+
 /**
  * To silence the phpstorm "unknown namespace" errors.
  *
@@ -228,6 +281,7 @@ if (!\extension_loaded('libsodium')) {
      * 
      * @param string $message
      * @param string $publickey
+     * @return string
      */
     function crypto_box_seal(
         string $message,
@@ -242,6 +296,7 @@ if (!\extension_loaded('libsodium')) {
      * 
      * @param string $encrypted
      * @param string $keypair
+     * @return string
      */
     function crypto_box_seal_open(
         string $encrypted,
@@ -350,7 +405,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $salt
      * @param int $opslimit
      * @param int $memlimit
-     * @return $string
+     * @return string
      */
     function crypto_pwhash(
         int $out_len,
@@ -369,7 +424,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $passwd
      * @param int $opslimit
      * @param int $memlimit
-     * @return $string
+     * @return string
      */
     function crypto_pwhash_str(
         string $passwd,
@@ -403,7 +458,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $salt
      * @param int $opslimit
      * @param int $memlimit
-     * @return $string
+     * @return string
      */
     function crypto_pwhash_scryptsalsa208sha256(
         int $out_len,
@@ -422,7 +477,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $passwd
      * @param int $opslimit
      * @param int $memlimit
-     * @return $string
+     * @return string
      */
     function crypto_pwhash_scryptsalsa208sha256_str(
         string $passwd,
@@ -608,6 +663,7 @@ if (!\extension_loaded('libsodium')) {
      * Get the public key from an Ed25519 keypair
      * 
      * @param string $keypair
+     * @return string
      */
     function crypto_sign_publickey(
         string $keypair
@@ -619,6 +675,7 @@ if (!\extension_loaded('libsodium')) {
      * Get the secret key from an Ed25519 keypair
      * 
      * @param string $keypair
+     * @return string
      */
     function crypto_sign_secretkey(
         string $keypair
@@ -769,7 +826,7 @@ if (!\extension_loaded('libsodium')) {
      * @return string
      */
     function hex2bin(
-        string $hex
+        string $binary
     ): string {
         return '';
     }
@@ -778,6 +835,7 @@ if (!\extension_loaded('libsodium')) {
      * Increment a string in little-endian
      * 
      * @param &string $nonce
+     * @return string
      */
     function increment(
         string &$nonce
@@ -788,8 +846,9 @@ if (!\extension_loaded('libsodium')) {
     /**
      * Add the right operand to the left
      * 
-     * @param &string $left
+     * @param string &$left
      * @param string $right
+     * @return string
      */
     function add(
         string &$left,

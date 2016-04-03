@@ -2,12 +2,6 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Asymmetric\{
-    EncryptionPublicKey,
-    EncryptionSecretKey,
-    SignaturePublicKey,
-    SignatureSecretKey
-};
 use \ParagonIE\Halite\Alerts as CryptoException;
 
 /**
@@ -30,7 +24,7 @@ class KeyPair
             'publicKey' => '**protected**'
         ];
     }
-        
+
     /**
      * Get a Key object for the public key
      * 
@@ -40,7 +34,7 @@ class KeyPair
     {
        return $this->public_key;
     }
-    
+
     /**
      * Get a Key object for the secret key
      * 

@@ -1,9 +1,6 @@
 <?php
 use \ParagonIE\Halite\File;
-use \ParagonIE\Halite\Util;
 use \ParagonIE\Halite\KeyFactory;
-use \ParagonIE\Halite\EncryptionKeyPair;
-use \ParagonIE\Halite\SignatureKeyPair;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
 use \ParagonIE\Halite\Alerts as CryptoException;
 

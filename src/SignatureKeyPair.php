@@ -17,7 +17,7 @@ final class SignatureKeyPair extends KeyPair
      * 
      * Pass it a secret key, it will automatically generate a public key
      * 
-     * @param ...Key $keys
+     * @param Key[] $keys
      * @throws CryptoException\InvalidKey
      * @throws \InvalidArgumentException
      */
@@ -94,5 +94,24 @@ final class SignatureKeyPair extends KeyPair
     {
         $this->secret_key = $secret;
         $this->public_key = $this->secret_key->derivePublicKey();
+    }
+
+    /**
+     * Get a Key object for the public key
+     *
+     * @return SignaturePublicKey
+     */
+    public function getPublicKey()
+    {
+        return parent::getPublicKey();
+    }
+    /**
+     * Get a Key object for the public key
+     *
+     * @return SignatureSecretKey
+     */
+    public function getSecretKey()
+    {
+        return parent::getSecretKey();
     }
 }

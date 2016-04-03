@@ -70,11 +70,11 @@ abstract class Crypto
      * @param EncryptionSecretKey $privateKey
      * @param EncryptionPublicKey $publicKey
      * @param bool $get_as_object Get as a Key object?
-     * @return string
+     * @return string|Key
      */
     public static function getSharedSecret(
-        Key $privateKey,
-        Key $publicKey,
+        EncryptionSecretKey $privateKey,
+        EncryptionPublicKey $publicKey,
         bool $get_as_object = false
     ) {
         if ($get_as_object) {

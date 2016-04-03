@@ -50,8 +50,7 @@ class MerkleTreeTest extends PHPUnit_Framework_TestCase
             $treeA->getRoot(),
             $treeB->getRoot()
         );
-        return;
-
+        
         $treeC = $treeA->getExpandedTree(
             new Node('e'),
             new Node('e'),

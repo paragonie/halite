@@ -9,7 +9,7 @@ class SecretKey extends Key
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool $signing - Is this a signing key?
+     * @param bool[] $args
      */
     public function __construct(string $keyMaterial = '', ...$args)
     {

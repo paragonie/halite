@@ -9,7 +9,8 @@ final class SignaturePublicKey extends PublicKey
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool $signing - Is this a signing key?
+     * @param bool[] $args
+     * @throws InvalidKey
      */
     public function __construct(string $keyMaterial = '', ...$args)
     {

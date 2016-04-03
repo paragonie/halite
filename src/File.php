@@ -15,7 +15,6 @@ use \ParagonIE\Halite\{
     Symmetric\AuthenticationKey,
     Symmetric\EncryptionKey
 };
-use ParagonIE\Halite\Asymmetric\Crypto;
 
 final class File
 {
@@ -23,7 +22,7 @@ final class File
      * Lazy fallthrough method for checksumFile() and checksumResource()
      *
      * @param string|resource $filepath
-     * @param AuthenticationKey $key
+     * @param Key $key (optional; expects SignaturePublicKey or AuthenticationKey)
      * @param bool $raw
      * @return string
      * @throws CryptoException\InvalidType
@@ -214,12 +213,13 @@ final class File
             \is_string($filename)
         ) {
             $readOnly = new ReadOnlyFile($filename);
-            return self::signData(
+            $signature = self::signData(
                 $readOnly,
                 $secretkey,
                 $raw_binary
             );
             $readOnly->close();
+            return $signature;
         }
         throw new CryptoException\InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -711,6 +711,7 @@ final class File
      * @param string $mode
      * @return Config
      * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
      */
     protected static function getConfig(
         string $header,
@@ -736,6 +737,9 @@ final class File
                 self::getConfigChecksum($major, $minor)
             );
         }
+        throw new CryptoException\InvalidType(
+            'Invalid configuration mode'
+        );
     }
 
     /**
@@ -901,7 +905,7 @@ final class File
      * @param resource $mac (hash context)
      * @param Config $config
      * @return int (number of bytes)
-     * @throws CryptoException\AccessDenied
+     * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\FileModified
      * @throws CryptoException\InvalidKey
      */
@@ -942,7 +946,7 @@ final class File
         \Sodium\memzero($nonce);
 
         // Check that our input file was not modified before we MAC it
-        if (!\hash_equals($input->gethash(), $initHash)) {
+        if (!\hash_equals($input->getHash(), $initHash)) {
             throw new CryptoException\FileModified(
                 'Read-only file has been modified since it was opened for reading'
             );
@@ -967,12 +971,13 @@ final class File
      *
      * @param ReadOnlyFile $input
      * @param MutableFile $output
-     * @param Key $encKey
+     * @param EncryptionKey $encKey
      * @param string $nonce
      * @param resource $mac (hash context)
      * @param Config $config
+     * @param array &$chunk_macs
      * @return bool
-     * @throws CryptoException\AccessDenied
+     * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\FileModified
      * @throws CryptoException\InvalidKey
@@ -1048,7 +1053,7 @@ final class File
     /**
      * Recalculate and verify the HMAC of the input file
      *
-     * @param resource $input
+     * @param ReadOnlyFile $input
      * @param resource|string $mac (hash context)
      * @param Config $config
      *

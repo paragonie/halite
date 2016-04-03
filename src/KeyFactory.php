@@ -9,11 +9,7 @@ use \ParagonIE\Halite\{
     Asymmetric\SignaturePublicKey,
     Asymmetric\SignatureSecretKey,
     Symmetric\AuthenticationKey,
-    Symmetric\EncryptionKey,
-    Halite,
-    Key,
-    KeyPair,
-    Util as CryptoUtil
+    Symmetric\EncryptionKey
 };
 
 /**
@@ -24,7 +20,7 @@ abstract class KeyFactory
     /**
      * Generate an an authentication key (symmetric-key cryptography)
      * 
-     * @param &string $secret_key
+     * @param string &$secret_key
      * @return AuthenticationKey
      */
     public static function generateAuthenticationKey(string &$secret_key = ''): AuthenticationKey
@@ -38,7 +34,7 @@ abstract class KeyFactory
     /**
      * Generate an an encryption key (symmetric-key cryptography)
      * 
-     * @param &string $secret_key
+     * @param string &$secret_key
      * @return EncryptionKey
      */
     public static function generateEncryptionKey(string &$secret_key = ''): EncryptionKey
@@ -52,7 +48,7 @@ abstract class KeyFactory
     /**
      * Generate a key pair for public key encryption
      * 
-     * @param type $secret_key
+     * @param string &$secret_key
      * @return \ParagonIE\Halite\EncryptionKeyPair
      */
     public static function generateEncryptionKeyPair(string &$secret_key = ''): EncryptionKeyPair
@@ -105,9 +101,9 @@ abstract class KeyFactory
     ): AuthenticationKey {
         if ($legacy) {
             // VERSION 1 (scrypt)
-            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
+            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
                 );
             }
             $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
@@ -119,9 +115,9 @@ abstract class KeyFactory
             );
         } else {
             // VERSION 2+ (argon2)
-            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
                 );
             }
             $secret_key = \Sodium\crypto_pwhash(
@@ -153,9 +149,9 @@ abstract class KeyFactory
     ): EncryptionKey {
         if ($legacy) {
             // VERSION 1 (scrypt)
-            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
+            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
                 );
             }
             $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
@@ -167,9 +163,9 @@ abstract class KeyFactory
             );
         } else {
             // VERSION 2+ (argon2)
-            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
                 );
             }
             $secret_key = \Sodium\crypto_pwhash(
@@ -200,9 +196,9 @@ abstract class KeyFactory
     ): EncryptionKeyPair {
         if ($legacy) {
             // VERSION 1 (scrypt)
-            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
+            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
                 );
             }
             // Diffie Hellman key exchange key pair
@@ -215,9 +211,9 @@ abstract class KeyFactory
             );
         } else {
             // VERSION 2+ (argon2)
-            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
                 );
             }
             // Diffie Hellman key exchange key pair
@@ -256,9 +252,9 @@ abstract class KeyFactory
     ): SignatureKeyPair {
         if ($legacy) {
             // VERSION 1 (scrypt)
-            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
+            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
                 );
             }
             // Digital signature keypair
@@ -271,9 +267,9 @@ abstract class KeyFactory
             );
         } else {
             // VERSION 2+ (argon2)
-            if (CryptoUtil::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
                 throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . CryptoUtil::safeStrlen($salt)
+                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
                 );
             }
             // Digital signature keypair
@@ -299,7 +295,7 @@ abstract class KeyFactory
      * Load a symmetric authentication key from a file
      * 
      * @param string $filePath
-     * @return EncryptionKey
+     * @return AuthenticationKey
      *
      * @throws Alerts\CannotPerformOperation
      */

@@ -49,7 +49,7 @@ class StreamTest extends PHPUnit_Framework_TestCase
         );
         
         try {
-            $x = $fStream->readBytes(65537);
+            $fStream->readBytes(65537);
             throw new \Exception('fail');
         } catch (CryptoException\FileModified $ex) {
             $this->assertTrue(

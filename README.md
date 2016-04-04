@@ -13,9 +13,7 @@ It's released under the GPLv3 license. [Commercial licenses are available](https
 Paragon Initiative Enterprises if you wish to implement Halite in an application
 without making your source code available under a GPL-compatible license.
 
-### Attention: `master` is the Development Branch (Version 2)
-
-See [stable](https://github.com/paragonie/halite/tree/stable) for version 1.x.
+For PHP 5.x compatibility, see [stable](https://github.com/paragonie/halite/tree/stable) for version 1.x.
 
 ## Using Halite in Your Applications
 

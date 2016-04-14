@@ -45,7 +45,7 @@
   * [`\ParagonIE\Halite\Symmetric\Crypto`](Classes/Symmetric/Crypto.md)
   * [`\ParagonIE\Halite\Symmetric\EncryptionKey`](Classes/Symmetric/EncryptionKey.md)
   * [`\ParagonIE\Halite\Symmetric\SecretKey`](Classes/Symmetric/SecretKey.md)
-* [`\ParagonIE\Halite\Password`](Classes/Asymmetric.md)
+* [`\ParagonIE\Halite\Config`](Config.md)
 * [`\ParagonIE\Halite\Cookie`](Classes/Cookie.md)
 * [`\ParagonIE\Halite\EncryptionKeyPair`](Classes/EncryptionKeyPair.md)
 * [`\ParagonIE\Halite\File`](Classes/File.md)

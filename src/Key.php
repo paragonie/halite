@@ -59,7 +59,7 @@ abstract class Key
         
         // String concatenation used to undo a PHP 7 optimization that causes
         // the wrong memory to get overwritten by \Sodium\memzero:
-        $this->key_material .= $keyMaterial;
+        $this->key_material = Util::safeStrcpy($keyMaterial);
         $this->is_public_key = $public;
         $this->is_signing_key = $signing;
         if ($public && !$asymmetric) {
@@ -122,7 +122,7 @@ abstract class Key
      */
     public function getRawKeyMaterial()
     {
-        return ''.$this->key_material;
+        return Util::safeStrcpy($this->key_material);
     }
     
     /**

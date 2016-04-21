@@ -448,7 +448,7 @@ final class File
             \Sodium\crypto_generichash_update($mac, $firstNonce);
             \Sodium\crypto_generichash_update($mac, $hkdfSalt);
 
-            $old_macs = self::streamVerify($input, ''.$mac, $config);
+            $old_macs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
         } else {
             // VERSION 1
             $mac = \hash_init('sha256', HASH_HMAC, $authKey);
@@ -640,7 +640,7 @@ final class File
             \Sodium\crypto_generichash_update($mac, $ephPublic);
             \Sodium\crypto_generichash_update($mac, $hkdfSalt);
 
-            $oldMACs = self::streamVerify($input, ''.$mac, $config);
+            $oldMACs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
         } else {
             $mac = \hash_init('sha256', HASH_HMAC, $authKey);
             \hash_update($mac, $header);
@@ -1027,7 +1027,7 @@ final class File
             // Version 2+ uses a keyed BLAKE2b hash instead of HMAC
             if ($config->USE_BLAKE2B) {
                 \Sodium\crypto_generichash_update($mac, $read);
-                $calcMAC = ''.$mac;
+                $calcMAC = Util::safeStrcpy($mac);
                 $calc = \Sodium\crypto_generichash_final($calcMAC, $config->MAC_SIZE);
             } else {
                 \hash_update($mac, $read);
@@ -1113,13 +1113,7 @@ final class File
             if ($config->USE_BLAKE2B) {
                 // VERSION 2+
                 \Sodium\crypto_generichash_update($mac, $read);
-                $length = Util::safeStrlen($mac);
-
-                // Do this byte at a time to outsmart PHP7-FPM:
-                $chunkMAC = '';
-                for ($i = 0; $i < $length; ++$i) {
-                    $chunkMAC = $mac[$i];
-                }
+                $chunkMAC = Util::safeStrcpy($mac);
                 $chunkMACs []= \Sodium\crypto_generichash_final($chunkMAC, $config->MAC_SIZE);
             } else {
                 // VERSION 1

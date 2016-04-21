@@ -234,4 +234,21 @@ abstract class Util
             return \substr($str, $start);
         }
     }
+
+    /**
+     * PHP 7 uses interned strings. We don't want altering this one to alter the original.
+     *
+     * @param string $string
+     * @return string
+     * @throws CannotPerformOperation
+     */
+    public static function safeStrcpy(string $string): string
+    {
+        $length = self::safeStrlen($string);
+        $return = '';
+        for ($i = 0; $i < $length; ++$i) {
+            $return .= $string[$i];
+        }
+        return $return;
+    }
 }

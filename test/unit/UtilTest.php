@@ -126,4 +126,18 @@ class UtilTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(Util::safeSubstr($string, 0, 2), "\xF0\x9D");
         $this->assertEquals(Util::safeSubstr($string, 2, 2), "\x92\xB3");
     }
+
+    /**
+     * Verify that safeStrcpy() doesn't fall prey to interned strings.
+     *
+     * @covers Util::safeStrcpy()
+     */
+    public function testSafeStrcpy()
+    {
+        $unique = \Sodium\randombytes_buf(128);
+        $clone = Util::safeStrcpy($unique);
+        $this->assertSame($unique, $clone);
+        \Sodium\memzero($unique);
+        $this->assertNotSame($unique, $clone);
+    }
 }

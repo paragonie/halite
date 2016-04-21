@@ -32,7 +32,11 @@ abstract class Crypto
         $sharedSecretKey = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
-        $ciphertext = SymmetricCrypto::encrypt($plaintext, $sharedSecretKey, $raw);
+        $ciphertext = SymmetricCrypto::encrypt(
+            $plaintext,
+            $sharedSecretKey,
+            $raw
+        );
         unset($sharedSecretKey);
         return $ciphertext;
     }

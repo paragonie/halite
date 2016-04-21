@@ -1113,7 +1113,13 @@ final class File
             if ($config->USE_BLAKE2B) {
                 // VERSION 2+
                 \Sodium\crypto_generichash_update($mac, $read);
-                $chunkMAC = '' . $mac;
+                $length = Util::safeStrlen($mac);
+
+                // Do this byte at a time to outsmart PHP7-FPM:
+                $chunkMAC = '';
+                for ($i = 0; $i < $length; ++$i) {
+                    $chunkMAC = $mac[$i];
+                }
                 $chunkMACs []= \Sodium\crypto_generichash_final($chunkMAC, $config->MAC_SIZE);
             } else {
                 // VERSION 1

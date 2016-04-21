@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 2.0.1 (2016-04-20)
+
+* Fixed conflict with PHP 7 string optimizations that was causing `File::decrypt()` to fail in PHP-FPM.
+* Introduced a new method, `Util::safeStrcpy()`, to facilitate safe string duplication without triggering the optimizer.
+
 ## Version 2.0.0 (2016-04-04)
 
 * Halite now requires:

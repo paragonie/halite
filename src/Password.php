@@ -77,17 +77,17 @@ abstract class Password
         // Parse the cost parameters:
         switch ($level) {
             case KeyFactory::INTERACTIVE:
-                return \hash_equals(
+                return !\hash_equals(
                     '$argon2i$v=19$m=32768,t=4,p=1$',
                     Util::safeSubstr($hash_str, 0, 30)
                 );
             case KeyFactory::MODERATE:
-                return \hash_equals(
+                return !\hash_equals(
                     '$argon2i$v=19$m=131072,t=6,p=1$',
                     Util::safeSubstr($hash_str, 0, 31)
                 );
             case KeyFactory::SENSITIVE:
-                return \hash_equals(
+                return !\hash_equals(
                     '$argon2i$v=19$m=524288,t=8,p=1$',
                     Util::safeSubstr($hash_str, 0, 31)
                 );

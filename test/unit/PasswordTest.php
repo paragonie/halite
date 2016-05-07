@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 use \ParagonIE\Halite\Password;
 use \ParagonIE\Halite\Symmetric\Crypto;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;

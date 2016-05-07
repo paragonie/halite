@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 use \ParagonIE\Halite\KeyFactory;
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Asymmetric\SecretKey as ASecretKey;

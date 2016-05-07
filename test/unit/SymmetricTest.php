@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 use \ParagonIE\Halite\Symmetric\Crypto as Symmetric;
 use \ParagonIE\Halite\Symmetric\AuthenticationKey;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
@@ -63,7 +65,10 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     {
         $key = new EncryptionKey(\str_repeat('A', 32));
         $message = Symmetric::encrypt('test message', $key);
-        $this->assertTrue(strpos($message, '31420200') === 0);
+        $this->assertSame(
+            \strpos($message, \Sodium\bin2hex(Halite::HALITE_VERSION)),
+            0
+        );
 
         $plain = Symmetric::decrypt($message, $key);
         $this->assertSame($plain, 'test message');
@@ -90,7 +95,10 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     {
         $key = new EncryptionKey(\str_repeat('A', 32));
         $message = Symmetric::encrypt('', $key);
-        $this->assertTrue(strpos($message, '31420200') === 0);
+        $this->assertSame(
+            \strpos($message, \Sodium\bin2hex(Halite::HALITE_VERSION)),
+            0
+        );
 
         $plain = Symmetric::decrypt($message, $key);
         $this->assertSame($plain, '');

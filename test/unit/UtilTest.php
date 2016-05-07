@@ -1,6 +1,8 @@
 <?php
-use ParagonIE\Halite\Alerts\CannotPerformOperation;
-use ParagonIE\Halite\Util;
+declare(strict_types=1);
+
+use \ParagonIE\Halite\Alerts\CannotPerformOperation;
+use \ParagonIE\Halite\Util;
 
 /**
  * Halite Util test case

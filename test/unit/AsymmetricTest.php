@@ -1,9 +1,12 @@
 <?php
+declare(strict_types=1);
+
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Alerts as CryptoException;
 use \ParagonIE\Halite\KeyFactory;
 use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
 use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
+use \ParagonIE\Halite\Halite;
 
 /**
  * @backupGlobals disabled
@@ -24,8 +27,11 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $alice->getSecretKey(),
             $bob->getPublicKey()
         );
-        
-        $this->assertTrue(strpos($message, '31420200') === 0);
+
+        $this->assertSame(
+            \strpos($message, \Sodium\bin2hex(Halite::HALITE_VERSION)),
+            0
+        );
         
         $plain = Asymmetric::decrypt(
             $message,
@@ -51,7 +57,10 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $bob->getPublicKey()
         );
 
-        $this->assertTrue(strpos($message, '31420200') === 0);
+        $this->assertSame(
+            \strpos($message, \Sodium\bin2hex(Halite::HALITE_VERSION)),
+            0
+        );
 
         $plain = Asymmetric::decrypt(
             $message,

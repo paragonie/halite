@@ -67,6 +67,7 @@ final class Config extends BaseConfig
             }
         } elseif ($major === 2) {
             switch ($minor) {
+                case 1:
                 case 0:
                     return [
                         'SHORTEST_CIPHERTEXT_LENGTH' => 124,
@@ -108,6 +109,7 @@ final class Config extends BaseConfig
             }
         } elseif ($major === 2) {
             switch ($minor) {
+                case 1:
                 case 0:
                     return [
                         'HKDF_SALT_LEN' => 32,

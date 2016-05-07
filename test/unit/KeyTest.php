@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
+
 use \ParagonIE\Halite\Alerts\InvalidType;
-use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\KeyFactory;
 use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;

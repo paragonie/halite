@@ -14,11 +14,11 @@ namespace ParagonIE\Halite;
  */
 abstract class Halite
 {
-    const VERSION             = '2.0.0';
+    const VERSION             = '2.1.0';
 
-    const HALITE_VERSION_KEYS = "\x31\x40\x02\x00";
-    const HALITE_VERSION_FILE = "\x31\x41\x02\x00";
-    const HALITE_VERSION      = "\x31\x42\x02\x00";
+    const HALITE_VERSION_KEYS = "\x31\x40\x02\x01";
+    const HALITE_VERSION_FILE = "\x31\x41\x02\x01";
+    const HALITE_VERSION      = "\x31\x42\x02\x01";
     
     const VERSION_TAG_LEN = 4;
 
@@ -37,7 +37,7 @@ abstract class Halite
         // Added in version 1.0.3 of the PHP extension
         if (!\function_exists('\\Sodium\\crypto_pwhash_str')) {
             if ($echo) {
-                echo 'Halite needs version 1.0.3 or higher of the PHP extension installed.', "\n";
+                echo 'Halite needs version 1.0.6 or higher of the PHP extension installed.', "\n";
             }
             return false;
         }

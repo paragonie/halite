@@ -1,7 +1,10 @@
 <?php
+declare(strict_types=1);
+
 use \ParagonIE\Halite\File;
 use \ParagonIE\Halite\KeyFactory;
 use \ParagonIE\Halite\Symmetric\EncryptionKey;
+use \ParagonIE\Halite\Util;
 use \ParagonIE\Halite\Alerts as CryptoException;
 
 /**
@@ -363,7 +366,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         $data = \Sodium\randombytes_buf(32);
         \file_put_contents(__DIR__.'/tmp/garbage.dat', $data);
         
-        $hash = \Sodium\crypto_generichash($data, null, 64);
+        $hash = Util::raw_hash($data, 64);
         $file = File::checksum(__DIR__.'/tmp/garbage.dat', null, true);
         $this->assertSame(
             $hash,

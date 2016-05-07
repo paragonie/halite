@@ -782,6 +782,7 @@ final class File
             }
         } elseif ($major === 2) {
             switch ($minor) {
+                case 1:
                 case 0:
                     return [
                         'USE_BLAKE2B' => true,
@@ -827,6 +828,7 @@ final class File
             }
         } elseif ($major === 2) {
             switch ($minor) {
+                case 1:
                 case 0:
                     return [
                         'USE_BLAKE2B' => true,
@@ -866,6 +868,7 @@ final class File
             }
         } elseif ($major === 2) {
             switch ($minor) {
+                case 1:
                 case 0:
                     return [
                         'CHECKSUM_PUBKEY' => true,

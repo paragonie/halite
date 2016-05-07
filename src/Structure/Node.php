@@ -2,15 +2,15 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
+use \ParagonIE\Halite\Util;
+
 class Node
 {
     private $data;
-    private $hash;
     
     public function __construct(string $data)
     {
         $this->data = $data;
-        $this->hash = \Sodium\crypto_generichash($data);
     }
 
     /**
@@ -27,14 +27,28 @@ class Node
      * Get a hash of the data (defaults to hex encoded)
      *
      * @param bool $raw
+     *
+     * These two aren't really meant to be used externally:
+     * @param int $outputSize
+     * @param string $personalization
+     *
      * @return string
      */
-    public function getHash(bool $raw = false): string
-    {
+    public function getHash(
+        bool $raw = false,
+        int $outputSize = \Sodium\CRYPTO_GENERICHASH_BYTES,
+        string $personalization = ''
+    ): string {
         if ($raw) {
-            return $this->hash;
+            return Util::raw_hash(
+                $personalization . $this->data,
+                $outputSize
+            );
         }
-        return \Sodium\bin2hex($this->hash);
+        return Util::hash(
+            $personalization . $this->data,
+            $outputSize
+        );
     }
 
     /**

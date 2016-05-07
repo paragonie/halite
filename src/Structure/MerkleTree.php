@@ -2,6 +2,9 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
+use \ParagonIE\Halite\Util;
+use \ParagonIE\Halite\Alerts\InvalidDigestLength;
+
 /**
  * An implementation of a Merkle hash tree, built on the BLAKE2b hash function
  * (provided by libsodium)
@@ -11,8 +14,11 @@ class MerkleTree
     const MERKLE_LEAF =   "\x01";
     const MERKLE_BRANCH = "\x00";
 
+    private $rootCalculated = false;
     private $root = '';
     private $nodes = [];
+    private $personalization = '';
+    private $outputSize = \Sodium\CRYPTO_GENERICHASH_BYTES;
     
     /**
      * Instantiate a Merkle tree
@@ -22,17 +28,20 @@ class MerkleTree
     public function __construct(Node ...$nodes)
     {
         $this->nodes = $nodes;
-        $this->root = $this->calculateRoot();
     }
     
     /**
-     * 
+     * Get the root hash of this Merkle tree.
+     *
      * @param bool $raw - Do we want a raw string instead of a hex string?
      * 
      * @return string
      */
     public function getRoot(bool $raw = false): string
     {
+        if (!$this->rootCalculated) {
+            $this->root = $this->calculateRoot();
+        }
         return $raw
             ? $this->root
             : \Sodium\bin2hex($this->root);
@@ -50,7 +59,67 @@ class MerkleTree
         foreach ($nodes as $node) {
             $thisTree []= $node;
         }
-        return new MerkleTree(...$thisTree);
+        return (new MerkleTree(...$thisTree))
+            ->setHashSize($this->outputSize)
+            ->setPersonalizationString($this->personalization);
+    }
+
+    /**
+     * Set the hash output size.
+     *
+     * @param int $size
+     * @return MerkleTree
+     * @throws InvalidDigestLength
+     */
+    public function setHashSize(int $size): self
+    {
+        if ($size < \Sodium\CRYPTO_GENERICHASH_BYTES_MIN) {
+            throw new InvalidDigestLength(
+                \sprintf(
+                    'Merkle roots must be at least %d long.',
+                    \Sodium\CRYPTO_GENERICHASH_BYTES_MIN
+                )
+            );
+        }
+        if ($size > \Sodium\CRYPTO_GENERICHASH_BYTES_MAX) {
+            throw new InvalidDigestLength(
+                \sprintf(
+                    'Merkle roots must be at most %d long.',
+                    \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                )
+            );
+        }
+        if ($this->outputSize !== $size) {
+            $this->rootCalculated = false;
+        }
+        $this->outputSize = $size;
+        return $this;
+    }
+
+    /**
+     * Sets the personalization string for the Merkle root calculation
+     *
+     * @param string $str
+     * @return MerkleTree
+     */
+    public function setPersonalizationString(string $str = ''): self
+    {
+        if ($this->personalization !== $str) {
+            $this->rootCalculated = false;
+        }
+        $this->personalization = $str;
+        return $this;
+    }
+
+    /**
+     * Explicitly recalculate the Merkle root
+     *
+     * @return MerkleTree
+     */
+    public function triggerRootCalculation(): self
+    {
+        $this->root = $this->calculateRoot();
+        return $this;
     }
 
     /**
@@ -65,15 +134,20 @@ class MerkleTree
         $size = \count($this->nodes);
         $order = self::getSizeRoundedUp($size);
         $hash = [];
-        $debug = [];
         // Population (Use self::MERKLE_LEAF as a prefix)
         for ($i = 0; $i < $order; ++$i) {
             if ($i >= $size) {
-                $hash[$i] = self::MERKLE_LEAF . $this->nodes[$size - 1]->getHash(true);
-                $debug[$i] = \Sodium\bin2hex($hash[$i]);
+                $hash[$i] = self::MERKLE_LEAF . $this->personalization . $this->nodes[$size - 1]->getHash(
+                    true,
+                    $this->outputSize,
+                    $this->personalization
+                );
             } else {
-                $hash[$i] = self::MERKLE_LEAF . $this->nodes[$i]->getHash(true);
-                $debug[$i] = \Sodium\bin2hex($hash[$i]);
+                $hash[$i] = self::MERKLE_LEAF . $this->personalization . $this->nodes[$i]->getHash(
+                    true,
+                    $this->outputSize,
+                    $this->personalization
+                );
             }
         }
         // Calculation (Use self::MERKLE_BRANCH as a prefix)
@@ -82,9 +156,15 @@ class MerkleTree
             $j = 0;
             for ($i = 0; $i < $order; $i += 2) {
                 if (empty($hash[$i + 1])) {
-                    $tmp[$j] = \Sodium\crypto_generichash(self::MERKLE_BRANCH . $hash[$i] . $hash[$i]);
+                    $tmp[$j] = Util::raw_hash(
+                        self::MERKLE_BRANCH . $this->personalization . $hash[$i] . $hash[$i],
+                        $this->outputSize
+                    );
                 } else {
-                    $tmp[$j] = \Sodium\crypto_generichash(self::MERKLE_BRANCH . $hash[$i] . $hash[$i + 1]);
+                    $tmp[$j] = Util::raw_hash(
+                        self::MERKLE_BRANCH . $this->personalization . $hash[$i] . $hash[$i + 1],
+                        $this->outputSize
+                    );
                 }
                 ++$j;
             }
@@ -92,6 +172,7 @@ class MerkleTree
             $order >>= 1;
         } while ($order > 1);
         // We should only have one value left:t
+        $this->rootCalculated = true;
         return \array_shift($hash);
     }
 

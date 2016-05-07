@@ -316,7 +316,7 @@ abstract class KeyFactory
      * @return int[]
      * @throws CryptoException\InvalidType
      */
-    protected function getSecurityLevels(
+    protected static function getSecurityLevels(
         string $level = self::INTERACTIVE,
         bool $legacy = false
     ): array {

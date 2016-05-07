@@ -141,28 +141,4 @@ abstract class Key
     {
         return $this->is_signing_key;
     }
-    
-    /**
-     * Does this integer contain this flag?
-     * 
-     * @param int $int
-     * @param int $flag
-     * @return bool
-     */
-    public static function hasFlag(int $int, int $flag): bool
-    {
-        return ($int & $flag) !== 0;
-    }
-    
-    /**
-     * Opposite of hasFlag()
-     * 
-     * @param int $int
-     * @param int $flag
-     * @return bool
-     */
-    public static function doesNotHaveFlag(int $int, int $flag): bool
-    {
-        return ($int & $flag) === 0;
-    }
 }

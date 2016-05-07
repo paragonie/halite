@@ -8,11 +8,9 @@ class SecretKey extends Key
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool[] $args
      */
-    public function __construct(string $keyMaterial = '', ...$args)
+    public function __construct(string $keyMaterial = '')
     {
-        $signing = \count($args) >= 1 ? $args[0] : false;
-        parent::__construct($keyMaterial, false, $signing, false);
+        parent::__construct($keyMaterial);
     }
 }

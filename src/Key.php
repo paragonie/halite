@@ -11,25 +11,9 @@ use ParagonIE\Halite\Contract;
  */
 abstract class Key
 {
-    // FLAGS:
-    const SECRET_KEY       =   1;
-    const PUBLIC_KEY       =   2;
-    const ENCRYPTION       =   4;
-    const SIGNATURE        =   8;
-    const ASYMMETRIC       =  16;
-    
-    // ALIAS:
-    const AUTHENTICATION   =   8;
-    
-    // SHORTCUTS:
-    const CRYPTO_SECRETBOX =  5;
-    const CRYPTO_AUTH      =  9;
-    const CRYPTO_BOX       = 20;
-    const CRYPTO_SIGN      = 24;
-    
-    private $is_public_key = false;
-    private $is_signing_key = false;
-    private $is_asymmetric_key = false;
+    protected $is_public_key = false;
+    protected $is_signing_key = false;
+    protected $is_asymmetric_key = false;
     private $key_material = '';
     
     /**
@@ -46,29 +30,12 @@ abstract class Key
      * You probably should not be using this directly.
      *
      * @param string $keyMaterial - The actual key data
-     * @param bool[] $args
      */
-    public function __construct(
-        string $keyMaterial = '',
-        ...$args
-    ) {
-        // Workaround: Inherited classes have simpler constructors:
-        $public = $args[0] ?? false;
-        $signing = $args[1] ?? false;
-        $asymmetric = $args[2] ?? false;
-        
-        // String concatenation used to undo a PHP 7 optimization that causes
-        // the wrong memory to get overwritten by \Sodium\memzero:
+    public function __construct(string $keyMaterial = '')
+    {
         $this->key_material = Util::safeStrcpy($keyMaterial);
-        $this->is_public_key = $public;
-        $this->is_signing_key = $signing;
-        if ($public && !$asymmetric) {
-            // This is implied.
-            $asymmetric = true;
-        }
-        $this->is_asymmetric_key = $asymmetric;
     }
-    
+
     /**
      * Hide this from var_dump(), etc.
      * 

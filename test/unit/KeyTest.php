@@ -25,14 +25,14 @@ class KeyTest extends PHPUnit_Framework_TestCase
             "\x25\xd1\xf9\x39\xe5\xf7\x13\x30\x5c\xd8\x4c\x50\x22\xcc\x96\x6e"
         );
         $salt = \Sodium\hex2bin(
-            '762ce4cabd543065172236de1027536ad52ec4c9133ced3766ff319f10301888'
+            '762ce4cabd543065172236de1027536a'
         );
         
         // Issue #10
         $enc_secret = KeyFactory::deriveEncryptionKey(
             'correct horse battery staple',
             $salt,
-            Key::ENCRYPTION | Key::SECRET_KEY
+            false
         );
         $this->assertTrue(
             $enc_secret->isEncryptionKey()
@@ -61,7 +61,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
         $enc_secret = KeyFactory::deriveEncryptionKey(
             'correct horse battery staple',
             $salt,
-            Key::ENCRYPTION | Key::SECRET_KEY
+            true
         );
         $this->assertTrue(
             $enc_secret->isEncryptionKey()

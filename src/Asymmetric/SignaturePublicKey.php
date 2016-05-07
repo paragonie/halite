@@ -9,16 +9,16 @@ final class SignaturePublicKey extends PublicKey
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool[] $args
      * @throws InvalidKey
      */
-    public function __construct(string $keyMaterial = '', ...$args)
+    public function __construct(string $keyMaterial = '')
     {
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_SIGN_PUBLICKEYBYTES) {
             throw new InvalidKey(
                 'Signature public key must be CRYPTO_SIGN_PUBLICKEYBYTES bytes long'
             );
         }
-        parent::__construct($keyMaterial, true);
+        parent::__construct($keyMaterial);
+        $this->is_signing_key = true;
     }
 }

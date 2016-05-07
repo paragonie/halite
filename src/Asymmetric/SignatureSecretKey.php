@@ -9,17 +9,17 @@ final class SignatureSecretKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool[] $args
      * @throws InvalidKey
      */
-    public function __construct(string $keyMaterial = '', ...$args)
+    public function __construct(string $keyMaterial = '')
     {
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_SIGN_SECRETKEYBYTES) {
             throw new InvalidKey(
                 'Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES bytes long'
             );
         }
-        parent::__construct($keyMaterial, true);
+        parent::__construct($keyMaterial);
+        $this->is_signing_key = true;
     }
     
     /**

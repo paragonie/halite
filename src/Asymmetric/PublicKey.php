@@ -9,13 +9,11 @@ class PublicKey extends Key
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool[] $args
      */
-    public function __construct(string $keyMaterial = '', ...$args)
+    public function __construct(string $keyMaterial = '')
     {
-        $signing = \count($args) >= 1
-            ? $args[0]
-            : false;
-        parent::__construct($keyMaterial, true, $signing, true);
+        parent::__construct($keyMaterial);
+        $this->is_asymmetric_key = true;
+        $this->is_public_key = true;
     }
 }

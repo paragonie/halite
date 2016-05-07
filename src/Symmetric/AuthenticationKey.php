@@ -9,10 +9,9 @@ final class AuthenticationKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool[] $args
      * @throws InvalidKey
      */
-    public function __construct(string $keyMaterial = '', ...$args)
+    public function __construct(string $keyMaterial = '')
     {
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_AUTH_KEYBYTES) {
             throw new InvalidKey(
@@ -20,5 +19,6 @@ final class AuthenticationKey extends SecretKey
             );
         }
         parent::__construct($keyMaterial, true);
+        $this->is_signing_key = true;
     }
 }

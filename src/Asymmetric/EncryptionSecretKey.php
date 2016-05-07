@@ -9,17 +9,16 @@ final class EncryptionSecretKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool[] $args
      * @throws InvalidKey
      */
-    public function __construct(string $keyMaterial = '', ...$args)
+    public function __construct(string $keyMaterial = '')
     {
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_BOX_SECRETKEYBYTES) {
             throw new InvalidKey(
                 'Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES bytes long'
             );
         }
-        parent::__construct($keyMaterial, false);
+        parent::__construct($keyMaterial);
     }
     
     /**

@@ -6,8 +6,7 @@ use \ParagonIE\Halite\{
     Alerts\InvalidMessage,
     Symmetric\Config as SymmetricConfig,
     Symmetric\Crypto,
-    Symmetric\EncryptionKey,
-    Util as CryptoUtil
+    Symmetric\EncryptionKey
 };
 
 /**
@@ -20,15 +19,20 @@ abstract class Password
      * 
      * @param string $password          - The user's password
      * @param EncryptionKey $secret_key - The master key for all passwords
+     * @param string $level             - The security level for this password
      * @return string
      */
-    public static function hash(string $password, EncryptionKey $secret_key): string
-    {
+    public static function hash(
+        string $password,
+        EncryptionKey $secret_key,
+        string $level = KeyFactory::INTERACTIVE
+    ): string {
+        $kdfLimits = KeyFactory::getSecurityLevels($level);
         // First, let's calculate the hash
         $hashed = \Sodium\crypto_pwhash_str(
             $password,
-            \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-            \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+            $kdfLimits[0],
+            $kdfLimits[1]
         );
         
         // Now let's encrypt the result
@@ -40,18 +44,22 @@ abstract class Password
      *
      * @param string $stored            - A stored password hash
      * @param EncryptionKey $secret_key - The master key for all passwords
+     * @param string $level             - The security level for this password
      * @return bool
      * @throws InvalidMessage
      */
-    public static function needsRehash(string $stored, EncryptionKey $secret_key): bool
-    {
+    public static function needsRehash(
+        string $stored,
+        EncryptionKey $secret_key,
+        string $level = KeyFactory::INTERACTIVE
+    ): bool {
         $config = self::getConfig($stored);
-        $v = \Sodium\hex2bin(CryptoUtil::safeSubstr($stored, 0, 8));
+        $v = \Sodium\hex2bin(Util::safeSubstr($stored, 0, 8));
         if (!\hash_equals(Halite::HALITE_VERSION, $v)) {
             // Outdated version of the library; Always rehash without decrypting
             return true;
         }
-        if (CryptoUtil::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 2)) {
+        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 2)) {
             throw new InvalidMessage('Encrypted password hash is too short.');
         }
 
@@ -59,10 +67,33 @@ abstract class Password
         $hash_str = Crypto::decrypt($stored, $secret_key);
 
         // Upon successful decryption, verify that we're using Argon2i
-        return !\hash_equals(
-            CryptoUtil::safeSubstr($hash_str, 0, 9),
+        if (!\hash_equals(
+            Util::safeSubstr($hash_str, 0, 9),
             \Sodium\CRYPTO_PWHASH_STRPREFIX
-        );
+        )) {
+            return true;
+        }
+
+        // Parse the cost parameters:
+        switch ($level) {
+            case KeyFactory::INTERACTIVE:
+                return \hash_equals(
+                    '$argon2i$v=19$m=32768,t=4,p=1$',
+                    Util::safeSubstr($hash_str, 0, 30)
+                );
+            case KeyFactory::MODERATE:
+                return \hash_equals(
+                    '$argon2i$v=19$m=131072,t=6,p=1$',
+                    Util::safeSubstr($hash_str, 0, 31)
+                );
+            case KeyFactory::SENSITIVE:
+                return \hash_equals(
+                    '$argon2i$v=19$m=524288,t=8,p=1$',
+                    Util::safeSubstr($hash_str, 0, 31)
+                );
+            default:
+                return true;
+        }
     }
 
     /**
@@ -74,12 +105,12 @@ abstract class Password
      */
     protected static function getConfig(string $stored): SymmetricConfig
     {
-        $length = CryptoUtil::safeStrlen($stored);
+        $length = Util::safeStrlen($stored);
         // This doesn't even have a header.
         if ($length < 8) {
             throw new InvalidMessage('Encrypted password hash is way too short.');
         }
-        $v = \Sodium\hex2bin(CryptoUtil::safeSubstr($stored, 0, 8));
+        $v = \Sodium\hex2bin(Util::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
     }
 
@@ -99,18 +130,18 @@ abstract class Password
     ): bool {
         $config = self::getConfig($stored);
         // Hex-encoded, so the minimum ciphertext length is double:
-        if (CryptoUtil::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 2)) {
+        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 2)) {
             throw new InvalidMessage('Encrypted password hash is too short.');
         }
         // First let's decrypt the hash
         $hash_str = Crypto::decrypt($stored, $secret_key);
         // Upon successful decryption, verify the password is correct
         $isArgon2 = \hash_equals(
-            CryptoUtil::safeSubstr($hash_str, 0, 9),
+            Util::safeSubstr($hash_str, 0, 9),
             \Sodium\CRYPTO_PWHASH_STRPREFIX
         );
         $isScrypt = \hash_equals(
-            CryptoUtil::safeSubstr($hash_str, 0, 3),
+            Util::safeSubstr($hash_str, 0, 3),
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX
         );
         if ($isArgon2) {

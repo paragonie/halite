@@ -17,6 +17,11 @@ use \ParagonIE\Halite\{
  */
 abstract class KeyFactory
 {
+    // For key derivation security levels:
+    const INTERACTIVE = 'interactive';
+    const MODERATE = 'moderate';
+    const SENSITIVE = 'sensitive';
+
     /**
      * Generate an an authentication key (symmetric-key cryptography)
      * 
@@ -90,6 +95,7 @@ abstract class KeyFactory
      * @param string $password
      * @param string $salt
      * @param bool $legacy Use scrypt?
+     * @param string $level Security level for KDF
      * 
      * @return AuthenticationKey
      * @throws CryptoException\InvalidSalt
@@ -97,8 +103,10 @@ abstract class KeyFactory
     public static function deriveAuthenticationKey(
         string $password,
         string $salt,
-        bool $legacy = false
+        bool $legacy = false,
+        string $level = self::INTERACTIVE
     ): AuthenticationKey {
+        $kdfLimits = self::getSecurityLevels($level, $legacy);
         if ($legacy) {
             // VERSION 1 (scrypt)
             if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
@@ -110,8 +118,8 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_AUTH_KEYBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+                $kdfLimits[0],
+                $kdfLimits[1]
             );
         } else {
             // VERSION 2+ (argon2)
@@ -124,8 +132,8 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_AUTH_KEYBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+                $kdfLimits[0],
+                $kdfLimits[1]
             );
         }
         return new AuthenticationKey($secret_key);
@@ -138,6 +146,7 @@ abstract class KeyFactory
      * @param string $password
      * @param string $salt
      * @param bool $legacy Use scrypt?
+     * @param string $level Security level for KDF
      * 
      * @return EncryptionKey
      * @throws CryptoException\InvalidSalt
@@ -145,8 +154,10 @@ abstract class KeyFactory
     public static function deriveEncryptionKey(
         string $password,
         string $salt,
-        bool $legacy = false
+        bool $legacy = false,
+        string $level = self::INTERACTIVE
     ): EncryptionKey {
+        $kdfLimits = self::getSecurityLevels($level, $legacy);
         if ($legacy) {
             // VERSION 1 (scrypt)
             if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
@@ -158,8 +169,8 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_STREAM_KEYBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+                $kdfLimits[0],
+                $kdfLimits[1]
             );
         } else {
             // VERSION 2+ (argon2)
@@ -172,8 +183,8 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_STREAM_KEYBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+                $kdfLimits[0],
+                $kdfLimits[1]
             );
         }
         return new EncryptionKey($secret_key);
@@ -185,6 +196,7 @@ abstract class KeyFactory
      * @param string $password
      * @param string $salt
      * @param bool $legacy Use scrypt?
+     * @param string $level Security level for KDF
      * 
      * @return EncryptionKeyPair
      * @throws CryptoException\InvalidSalt
@@ -192,8 +204,10 @@ abstract class KeyFactory
     public static function deriveEncryptionKeyPair(
         string $password,
         string $salt,
-        bool $legacy = false
+        bool $legacy = false,
+        string $level = self::INTERACTIVE
     ): EncryptionKeyPair {
+        $kdfLimits = self::getSecurityLevels($level, $legacy);
         if ($legacy) {
             // VERSION 1 (scrypt)
             if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
@@ -206,8 +220,8 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_BOX_SEEDBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+                $kdfLimits[0],
+                $kdfLimits[1]
             );
         } else {
             // VERSION 2+ (argon2)
@@ -221,8 +235,8 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_BOX_SEEDBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+                $kdfLimits[0],
+                $kdfLimits[1]
             );
         }
         $keyPair = \Sodium\crypto_box_seed_keypair($seed);
@@ -241,6 +255,7 @@ abstract class KeyFactory
      * @param string $password
      * @param string $salt
      * @param bool $legacy Use scrypt?
+     * @param string $level Security level for KDF
      *
      * @return SignatureKeyPair
      * @throws CryptoException\InvalidSalt
@@ -248,8 +263,10 @@ abstract class KeyFactory
     public static function deriveSignatureKeyPair(
         string $password,
         string $salt,
-        bool $legacy = false
+        bool $legacy = false,
+        string $level = self::INTERACTIVE
     ): SignatureKeyPair {
+        $kdfLimits = self::getSecurityLevels($level, $legacy);
         if ($legacy) {
             // VERSION 1 (scrypt)
             if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
@@ -262,8 +279,8 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_SIGN_SEEDBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+                $kdfLimits[0],
+                $kdfLimits[1]
             );
         } else {
             // VERSION 2+ (argon2)
@@ -277,8 +294,8 @@ abstract class KeyFactory
                 \Sodium\CRYPTO_SIGN_SEEDBYTES,
                 $password,
                 $salt,
-                \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-                \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+                $kdfLimits[0],
+                $kdfLimits[1]
             );
         }
         $keyPair = \Sodium\crypto_sign_seed_keypair($seed);
@@ -289,6 +306,59 @@ abstract class KeyFactory
         return new SignatureKeyPair(
             new SignatureSecretKey($secret_key)
         );
+    }
+
+    /**
+     * Returns a 2D array [OPSLIMIT, MEMLIMIT] for the appropriate security level.
+     *
+     * @param string $level
+     * @param bool $legacy
+     * @return int[]
+     * @throws CryptoException\InvalidType
+     */
+    protected function getSecurityLevels(
+        string $level = self::INTERACTIVE,
+        bool $legacy = false
+    ): array {
+        if ($legacy) {
+            switch ($level) {
+                case self::INTERACTIVE:
+                    return [
+                        \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
+                        \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
+                    ];
+                case self::SENSITIVE:
+                    return [
+                        \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE,
+                        \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE
+                    ];
+                default:
+                    throw new CryptoException\InvalidType(
+                        'Invalid security level for scrypt'
+                    );
+            }
+        }
+        switch ($level) {
+            case self::INTERACTIVE:
+                return [
+                    \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+                    \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+                ];
+            case self::MODERATE:
+                return [
+                    \Sodium\CRYPTO_PWHASH_OPSLIMIT_MODERATE,
+                    \Sodium\CRYPTO_PWHASH_MEMLIMIT_MODERATE
+                ];
+            case self::SENSITIVE:
+                return [
+                    \Sodium\CRYPTO_PWHASH_OPSLIMIT_SENSITIVE,
+                    \Sodium\CRYPTO_PWHASH_MEMLIMIT_SENSITIVE
+                ];
+            default:
+                throw new CryptoException\InvalidType(
+                    'Invalid security level for Argon2i'
+                );
+        }
     }
     
     /**

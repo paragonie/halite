@@ -33,7 +33,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $alice->getPublicKey()
         );
         
-        $this->assertEquals($plain, 'test message');
+        $this->assertSame($plain, 'test message');
     }
 
     /**
@@ -59,7 +59,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $bob->getPublicKey()
         );
 
-        $this->assertEquals('', $plain);
+        $this->assertSame('', $plain);
     }
 
     /**
@@ -88,7 +88,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
                 $alice->getPublicKey(),
                 true
             );
-            $this->assertEquals($plain, $message);
+            $this->assertSame($plain, $message);
             $this->fail(
                 'This should have thrown an InvalidMessage exception!'
             );
@@ -113,7 +113,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         $enc_secret = $alice->getSecretKey();
         $enc_public = $alice->getPublicKey();
         
-        $this->assertEquals(
+        $this->assertSame(
             \Sodium\crypto_box_publickey_from_secretkey($enc_secret->getRawKeyMaterial()),
             $enc_public->getRawKeyMaterial()
         );
@@ -128,17 +128,17 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         $sealed = Asymmetric::seal($message, new EncryptionPublicKey(\Sodium\crypto_box_publickey($kp)));
         $opened = Asymmetric::unseal($sealed, new EncryptionSecretKey(\Sodium\crypto_box_secretkey($kp)));
         
-        $this->assertEquals($opened, $message);
+        $this->assertSame($opened, $message);
         
         $sealed = Asymmetric::seal($message, $enc_public);
         $opened = Asymmetric::unseal($sealed, $enc_secret);
         
-        $this->assertEquals($opened, $message);
+        $this->assertSame($opened, $message);
         
         $sealed_raw = Asymmetric::seal($message, $alice->getPublicKey());
         $opened_raw = Asymmetric::unseal($sealed_raw, $alice->getSecretKey());
         
-        $this->assertEquals($opened_raw, $message);
+        $this->assertSame($opened_raw, $message);
     }
 
     /**
@@ -167,7 +167,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         // This should throw an exception
         try {
             $opened = Asymmetric::unseal($sealed, $alice->getSecretKey(), true);
-            $this->assertEquals($opened, $message);
+            $this->assertSame($opened, $message);
             $this->fail(
                 'This should have thrown an InvalidMessage exception!'
             );

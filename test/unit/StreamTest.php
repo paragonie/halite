@@ -21,7 +21,7 @@ class StreamTest extends PHPUnit_Framework_TestCase
         $fp = \fopen($filename, 'rb');
         $fileTwo = new ReadOnlyFile($fp);
         
-        $this->assertEquals(
+        $this->assertSame(
             $fileOne->getHash(),
             $fileTwo->getHash()
         );
@@ -37,7 +37,7 @@ class StreamTest extends PHPUnit_Framework_TestCase
         
         $fStream = new ReadOnlyFile($filename);
         
-        $this->assertEquals(
+        $this->assertSame(
             $fStream->readBytes(65537),
             $buf
         );

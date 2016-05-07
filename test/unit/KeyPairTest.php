@@ -34,7 +34,7 @@ class KeyPairTest extends PHPUnit_Framework_TestCase
             Asymmetric::verify($message, $sign_public, $signed)
         );
         
-        $this->assertEquals(
+        $this->assertSame(
             $sign_public->getRawKeyMaterial(),
             "\xfe\x1b\x09\x86\x45\xb7\x04\xf5\xc2\x7f\x62\xc8\x61\x67\xd6\x09".
             "\x03\x1d\x95\xa7\x94\x5c\xe6\xd5\x55\x96\xe3\x75\x03\x17\x88\x34"
@@ -63,7 +63,7 @@ class KeyPairTest extends PHPUnit_Framework_TestCase
             Asymmetric::verify($message, $sign_public, $signed)
         );
         
-        $this->assertEquals(
+        $this->assertSame(
             $sign_public->getRawKeyMaterial(),
             "\x88\x9c\xc0\x7a\x90\xb8\x98\xf4\x6b\x47\xfe\xcc\x91\x42\x58\x45".
             "\x41\xcf\x4b\x5c\x6a\x82\x2d\xdc\xc6\x8b\x87\xbc\x08\x2f\xfe\x95"
@@ -78,7 +78,7 @@ class KeyPairTest extends PHPUnit_Framework_TestCase
         
         $copy = KeyFactory::loadEncryptionKeyPair($filename);
         
-        $this->assertEquals(
+        $this->assertSame(
             $key->getPublicKey()->getRawKeyMaterial(),
             $copy->getPublicKey()->getRawKeyMaterial()
         );
@@ -95,7 +95,7 @@ class KeyPairTest extends PHPUnit_Framework_TestCase
         $enc_secret = $enc_kp->getSecretKey();
         $enc_public = $enc_kp->getPublicKey();
         
-        $this->assertEquals(
+        $this->assertSame(
             $enc_secret->derivePublicKey()->getRawKeyMaterial(),
             $enc_public->getRawKeyMaterial()
         );
@@ -103,7 +103,7 @@ class KeyPairTest extends PHPUnit_Framework_TestCase
         $sign_kp = KeyFactory::generateSignatureKeyPair();
         $sign_secret = $sign_kp->getSecretKey();
         $sign_public = $sign_kp->getPublicKey();
-        $this->assertEquals(
+        $this->assertSame(
             $sign_secret->derivePublicKey()->getRawKeyMaterial(),
             $sign_public->getRawKeyMaterial()
         );

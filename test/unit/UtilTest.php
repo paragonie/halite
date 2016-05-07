@@ -21,13 +21,13 @@ class UtilTest extends PHPUnit_Framework_TestCase
      */
     public function testHash()
     {
-        $this->assertEquals(
+        $this->assertSame(
             Util::raw_hash(''),
             "\x0e\x57\x51\xc0\x26\xe5\x43\xb2\xe8\xab\x2e\xb0\x60\x99\xda\xa1".
             "\xd1\xe5\xdf\x47\x77\x8f\x77\x87\xfa\xab\x45\xcd\xf1\x2f\xe3\xa8"
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             Util::hash('Large Hashron Collider'),
             '6c9a1f2b06d1f13ae845873ad470ea5eb78866c60b3f1f46733e89aee898fa46'
         );
@@ -41,13 +41,13 @@ class UtilTest extends PHPUnit_Framework_TestCase
     public function testKeyedHash()
     {
         $key = Util::raw_hash('');
-        $this->assertEquals(
+        $this->assertSame(
             Util::raw_keyed_hash('', $key),
             "\x0a\x28\xe9\x66\xfb\x7a\x7d\x39\xfd\x0a\x4d\x12\xd6\xfb\x14\x62".
             "\x5b\x94\xb1\x73\x89\x43\x33\x8d\x2b\x3d\xf4\xcc\x81\xcb\x4e\xf0"
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             Util::keyed_hash('Large Hashron Collider', $key),
             '4cca9839943964a68a64535ea22f1cc796df6da130619a69d1022b84ef881881'
         );
@@ -66,7 +66,7 @@ class UtilTest extends PHPUnit_Framework_TestCase
         $salt = str_repeat("\x80", 32);
         
         $test = Util::hkdfBlake2b($ikm, $len, $info, $salt);
-        $this->assertEquals(
+        $this->assertSame(
             $test,
             "\x7b\xaf\xb1\x11\x1c\xda\xce\x81\xd1\xb0\x73\xff\x6e\x68\x8f\xc3".
             "\x6f\xb5\xa2\xc7\xbd\x53\xf6\xf1\xb4\x2f\x80\x71\x29\x4b\xb7\xf7"
@@ -93,7 +93,7 @@ class UtilTest extends PHPUnit_Framework_TestCase
     public function testSafeStrlen()
     {
         $valid = "\xF0\x9D\x92\xB3"; // One 4-byte UTF-8 character
-        $this->assertEquals(Util::safeStrlen($valid), 4);
+        $this->assertSame(Util::safeStrlen($valid), 4);
     }
     
     /**
@@ -119,12 +119,12 @@ class UtilTest extends PHPUnit_Framework_TestCase
     public function testSafeSubstr()
     {
         $string = \str_repeat("\xF0\x9D\x92\xB3", 4);
-        $this->assertEquals(Util::safeSubstr($string, 0, 1), "\xF0");
-        $this->assertEquals(Util::safeSubstr($string, 1, 1), "\x9D");
-        $this->assertEquals(Util::safeSubstr($string, 2, 1), "\x92");
-        $this->assertEquals(Util::safeSubstr($string, 3, 1), "\xB3");
-        $this->assertEquals(Util::safeSubstr($string, 0, 2), "\xF0\x9D");
-        $this->assertEquals(Util::safeSubstr($string, 2, 2), "\x92\xB3");
+        $this->assertSame(Util::safeSubstr($string, 0, 1), "\xF0");
+        $this->assertSame(Util::safeSubstr($string, 1, 1), "\x9D");
+        $this->assertSame(Util::safeSubstr($string, 2, 1), "\x92");
+        $this->assertSame(Util::safeSubstr($string, 3, 1), "\xB3");
+        $this->assertSame(Util::safeSubstr($string, 0, 2), "\xF0\x9D");
+        $this->assertSame(Util::safeSubstr($string, 2, 2), "\x92\xB3");
     }
 
     /**

@@ -34,7 +34,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             $key
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted.png')
         );
@@ -64,7 +64,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             $key
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             \hash_file('sha256', __DIR__.'/tmp/empty.txt'),
             \hash_file('sha256', __DIR__.'/tmp/empty.decrypted.txt')
         );
@@ -132,7 +132,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertEquals($e->getMessage(), $msg);
+            $this->assertSame($e->getMessage(), $msg);
         }
 
         \file_put_contents(
@@ -147,7 +147,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertEquals($e->getMessage(), $msg);
+            $this->assertSame($e->getMessage(), $msg);
         }
 
 
@@ -163,7 +163,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertEquals($e->getMessage(), $msg);
+            $this->assertSame($e->getMessage(), $msg);
         }
 
         \unlink(__DIR__.'/tmp/empty.encrypted.txt');
@@ -197,7 +197,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             $secretkey
         );
         
-        $this->assertEquals(
+        $this->assertSame(
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
             \hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
         );
@@ -231,7 +231,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             $secretkey
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             \hash_file('sha256', __DIR__.'/tmp/empty.txt'),
             \hash_file('sha256', __DIR__.'/tmp/empty.unsealed.txt')
         );
@@ -302,7 +302,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertEquals($e->getMessage(), $msg);
+            $this->assertSame($e->getMessage(), $msg);
         }
 
         \file_put_contents(
@@ -317,7 +317,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertEquals($e->getMessage(), $msg);
+            $this->assertSame($e->getMessage(), $msg);
         }
 
         \unlink(__DIR__.'/tmp/empty.sealed.txt');
@@ -354,7 +354,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testChecksum()
     {
         $csum = File::checksum(__DIR__.'/tmp/paragon_avatar.png');
-        $this->assertEquals(
+        $this->assertSame(
             $csum,
             "09f9f74a0e742d057ca08394db4c2e444be88c0c94fe9a914c3d3758c7eccafb".
             "8dd286e3d6bc37f353e76c0c5aa2036d978ca28ffaccfa59f5dc1f076c5517a0"
@@ -365,7 +365,7 @@ class FileTest extends PHPUnit_Framework_TestCase
         
         $hash = \Sodium\crypto_generichash($data, null, 64);
         $file = File::checksum(__DIR__.'/tmp/garbage.dat', null, true);
-        $this->assertEquals(
+        $this->assertSame(
             $hash,
             $file
         );

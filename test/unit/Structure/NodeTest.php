@@ -14,7 +14,7 @@ class NodeTest extends PHPUnit_Framework_TestCase
         $hash = \Sodium\crypto_generichash($stringData);
         $node = new Node($stringData);
 
-        $this->assertEquals($stringData, $node->getData());
-        $this->assertEquals($hash, $node->getHash(true));
+        $this->assertSame($stringData, $node->getData());
+        $this->assertSame($hash, $node->getHash(true));
     }
 }

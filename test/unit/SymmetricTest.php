@@ -66,7 +66,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(strpos($message, '31420200') === 0);
 
         $plain = Symmetric::decrypt($message, $key);
-        $this->assertEquals($plain, 'test message');
+        $this->assertSame($plain, 'test message');
     }
 
     public function testLegacyDecrypt()
@@ -77,7 +77,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
             "2cab551a8e02e0f5302729450b";
         $key = new EncryptionKey(\str_repeat('A', 32));
         $plain = Symmetric::decrypt($message, $key);
-        $this->assertEquals(
+        $this->assertSame(
             $plain,
             'test message'
         );
@@ -93,7 +93,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(strpos($message, '31420200') === 0);
 
         $plain = Symmetric::decrypt($message, $key);
-        $this->assertEquals($plain, '');
+        $this->assertSame($plain, '');
     }
     
     /**
@@ -106,7 +106,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(strpos($message, \ParagonIE\Halite\Halite::HALITE_VERSION) === 0);
         
         $plain = Symmetric::decrypt($message, $key, true);
-        $this->assertEquals($plain, 'test message');
+        $this->assertSame($plain, 'test message');
     }
     
     /**
@@ -124,7 +124,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         );
         try {
             $plain = Symmetric::decrypt($message, $key, true);
-            $this->assertEquals($plain, $message);
+            $this->assertSame($plain, $message);
             $this->fail(
                 'This should have thrown an InvalidMessage exception!'
             );
@@ -149,13 +149,13 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         $unpacked = Symmetric::unpackMessageForDecryption($message);
         
         // Now to test our expected results!
-        $this->assertEquals(Util::safeStrlen($unpacked[0]), Halite::VERSION_TAG_LEN);
+        $this->assertSame(Util::safeStrlen($unpacked[0]), Halite::VERSION_TAG_LEN);
         $this->assertTrue($unpacked[1] instanceof \ParagonIE\Halite\Symmetric\Config);
         $config = $unpacked[1];
         if ($config instanceof \ParagonIE\Halite\Symmetric\Config) {
-            $this->assertEquals(Util::safeStrlen($unpacked[2]), $config->HKDF_SALT_LEN);
-            $this->assertEquals(Util::safeStrlen($unpacked[3]), \Sodium\CRYPTO_STREAM_NONCEBYTES);
-            $this->assertEquals(
+            $this->assertSame(Util::safeStrlen($unpacked[2]), $config->HKDF_SALT_LEN);
+            $this->assertSame(Util::safeStrlen($unpacked[3]), \Sodium\CRYPTO_STREAM_NONCEBYTES);
+            $this->assertSame(
                 Util::safeStrlen($unpacked[4]),
                 Util::safeStrlen($message) - (
                     Halite::VERSION_TAG_LEN +
@@ -164,7 +164,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
                     $config->MAC_SIZE
                 )
             );
-            $this->assertEquals(Util::safeStrlen($unpacked[5]), $config->MAC_SIZE);
+            $this->assertSame(Util::safeStrlen($unpacked[5]), $config->MAC_SIZE);
         } else {
             $this->fail('Cannot continue');
         }

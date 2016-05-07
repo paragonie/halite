@@ -13,14 +13,14 @@ class MerkleTreeTest extends PHPUnit_Framework_TestCase
 {
     public function testArithmetic()
     {
-        $this->assertEquals(1, MerkleTree::getSizeRoundedUp(1));
-        $this->assertEquals(2, MerkleTree::getSizeRoundedUp(2));
-        $this->assertEquals(4, MerkleTree::getSizeRoundedUp(3));
-        $this->assertEquals(4, MerkleTree::getSizeRoundedUp(4));
-        $this->assertEquals(8, MerkleTree::getSizeRoundedUp(5));
-        $this->assertEquals(8, MerkleTree::getSizeRoundedUp(6));
-        $this->assertEquals(8, MerkleTree::getSizeRoundedUp(7));
-        $this->assertEquals(8, MerkleTree::getSizeRoundedUp(8));
+        $this->assertSame(1, MerkleTree::getSizeRoundedUp(1));
+        $this->assertSame(2, MerkleTree::getSizeRoundedUp(2));
+        $this->assertSame(4, MerkleTree::getSizeRoundedUp(3));
+        $this->assertSame(4, MerkleTree::getSizeRoundedUp(4));
+        $this->assertSame(8, MerkleTree::getSizeRoundedUp(5));
+        $this->assertSame(8, MerkleTree::getSizeRoundedUp(6));
+        $this->assertSame(8, MerkleTree::getSizeRoundedUp(7));
+        $this->assertSame(8, MerkleTree::getSizeRoundedUp(8));
     }
 
     public function testExpectedBehavior()
@@ -32,7 +32,7 @@ class MerkleTreeTest extends PHPUnit_Framework_TestCase
             new Node('d'),
             new Node('e')
         );
-        $this->assertEquals(
+        $this->assertSame(
             '6781891a87aa476454b74dc635c5cdebfc8f887438829ce2e81423f54906c058',
             $treeA->getRoot()
         );
@@ -46,7 +46,7 @@ class MerkleTreeTest extends PHPUnit_Framework_TestCase
             new Node('e'),
             new Node('e')
         );
-        $this->assertEquals(
+        $this->assertSame(
             $treeA->getRoot(),
             $treeB->getRoot()
         );
@@ -56,7 +56,7 @@ class MerkleTreeTest extends PHPUnit_Framework_TestCase
             new Node('e'),
             new Node('e')
         );
-        $this->assertEquals(
+        $this->assertSame(
             $treeA->getRoot(),
             $treeC->getRoot()
         );

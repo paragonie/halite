@@ -342,7 +342,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
 
     public function testKeyLevels()
     {
-        return $this->markTestSkipped('This is a very slow test. Feel free to enable it to verify correctness.');
+        $this->markTestSkipped('This is a very slow test. Feel free to enable it to verify correctness.');
 
         $key = KeyFactory::deriveEncryptionKey(
             'apple',

@@ -11,7 +11,7 @@
 Calculates a BLAKE2b-512 hash of the given file.
 
 * `$filepath` - Path to a file (or an open file handle)
-* `$key` (optional, should be an [`AuthenticationKey`](Symmetric/AuthenticationKey.md) or [`EncryptionPublicKey`](Asymmetric/EncryptionPublicKey.md))
+* `$key` (optional, should be an [`AuthenticationKey`](Symmetric/AuthenticationKey.md) or [`SignaturePublicKey`](Asymmetric/SignaturePublicKey.md))
 * `$raw` - Set to `TRUE` if you don't want a hexadecimal string returned
 
 ### `encrypt()`

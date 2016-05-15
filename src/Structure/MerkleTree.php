@@ -132,6 +132,9 @@ class MerkleTree
     protected function calculateRoot(): string
     {
         $size = \count($this->nodes);
+        if ($size < 1) {
+            return '';
+        }
         $order = self::getSizeRoundedUp($size);
         $hash = [];
         // Population (Use self::MERKLE_LEAF as a prefix)

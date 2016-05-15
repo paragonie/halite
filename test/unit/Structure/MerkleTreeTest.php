@@ -70,6 +70,12 @@ class MerkleTreeTest extends PHPUnit_Framework_TestCase
             $treeA->getRoot(),
             $treeD->getRoot()
         );
+
+        $emptyTree = new MerkleTree();
+        $this->assertSame(
+            '',
+            $emptyTree->getRoot()
+        );
     }
 
     public function testDifferentHashSize()

@@ -10,6 +10,13 @@ use \ParagonIE\Halite\{
     Util as CryptoUtil
 };
 
+/**
+ * Class Crypto
+ *
+ * Encapsulates symmetric-key cryptography
+ *
+ * @package ParagonIE\Halite\Symmetric
+ */
 abstract class Crypto
 {
     /**
@@ -17,7 +24,7 @@ abstract class Crypto
      * 
      * @param string $message
      * @param AuthenticationKey $secretKey
-     * @param boolean $raw
+     * @param bool $raw
      * @throws CryptoException\InvalidKey
      * @return string
      */
@@ -46,7 +53,7 @@ abstract class Crypto
      * 
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
-     * @param boolean $raw Don't hex decode the input?
+     * @param bool $raw Don't hex decode the input?
      * @return string
      * @throws CryptoException\InvalidMessage
      */
@@ -103,7 +110,7 @@ abstract class Crypto
      * 
      * @param string $plaintext
      * @param EncryptionKey $secretKey
-     * @param boolean $raw Don't hex encode the output?
+     * @param bool $raw Don't hex encode the output?
      * @return string
      */
     public static function encrypt(
@@ -256,9 +263,9 @@ abstract class Crypto
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param string $mac
-     * @param boolean $raw
+     * @param bool $raw
      * @param SymmetricConfig $config
-     * @return boolean
+     * @return bool
      */
     public static function verify(
         string $message,
@@ -319,10 +326,10 @@ abstract class Crypto
     /**
      * Verify a MAC
      * 
-     * @param string $mac             - Message Authentication Code
-     * @param string $message         - The message
-     * @param string $authKey         - Authentication key (symmetric)
-     * @param SymmetricConfig $config - Configuration object
+     * @param string $mac             Message Authentication Code
+     * @param string $message         The message to verify
+     * @param string $authKey         Authentication key (symmetric)
+     * @param SymmetricConfig $config Configuration object
      * @return bool
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidSignature

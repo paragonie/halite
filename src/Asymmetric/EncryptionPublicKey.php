@@ -5,6 +5,10 @@ namespace ParagonIE\Halite\Asymmetric;
 use \ParagonIE\Halite\Alerts\InvalidKey;
 use \ParagonIE\Halite\Util as CryptoUtil;
 
+/**
+ * Class EncryptionPublicKey
+ * @package ParagonIE\Halite\Asymmetric
+ */
 final class EncryptionPublicKey extends PublicKey
 {
     /**

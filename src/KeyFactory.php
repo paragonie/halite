@@ -13,7 +13,11 @@ use \ParagonIE\Halite\{
 };
 
 /**
+ * Class KeyFactory
+ *
  * Class for generating specific key types
+ *
+ * @package ParagonIE\Halite
  */
 abstract class KeyFactory
 {

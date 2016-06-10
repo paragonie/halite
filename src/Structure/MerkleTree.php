@@ -6,18 +6,41 @@ use \ParagonIE\Halite\Util;
 use \ParagonIE\Halite\Alerts\InvalidDigestLength;
 
 /**
+ * Class MerkleTree
+ *
  * An implementation of a Merkle hash tree, built on the BLAKE2b hash function
  * (provided by libsodium)
+ *
+ * @package ParagonIE\Halite\Structure
  */
 class MerkleTree
 {
     const MERKLE_LEAF =   "\x01";
     const MERKLE_BRANCH = "\x00";
 
+    /**
+     * @var bool
+     */
     private $rootCalculated = false;
+
+    /**
+     * @var string
+     */
     private $root = '';
+
+    /**
+     * @var Node[]
+     */
     private $nodes = [];
+
+    /**
+     * @var string
+     */
     private $personalization = '';
+    
+    /**
+     * @var int
+     */
     private $outputSize = \Sodium\CRYPTO_GENERICHASH_BYTES;
     
     /**
@@ -180,7 +203,7 @@ class MerkleTree
     }
 
     /**
-     * Let's go ahead and round up to the nearest mutliple of 2
+     * Let's go ahead and round up to the nearest multiple of 2
      *
      * @param int $inputSize
      * @return int

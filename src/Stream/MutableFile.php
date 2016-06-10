@@ -13,9 +13,24 @@ class MutableFile implements StreamInterface
 {
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
 
+    /**
+     * @var bool
+     */
     private $closeAfter = false;
+
+    /**
+     * @var resource
+     */
     private $fp;
+
+    /**
+     * @var int
+     */
     private $pos;
+
+    /**
+     * @var array
+     */
     private $stat = [];
 
     /**
@@ -137,7 +152,7 @@ class MutableFile implements StreamInterface
      * Set the current cursor position to the desired location
      * 
      * @param int $i
-     * @return boolean
+     * @return bool
      * @throws CryptoException\CannotPerformOperation
      */
     public function reset(int $i = 0): bool

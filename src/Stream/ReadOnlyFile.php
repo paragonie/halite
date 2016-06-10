@@ -176,7 +176,7 @@ class ReadOnlyFile implements StreamInterface
      * Set the current cursor position to the desired location
      *
      * @param int $position
-     * @return boolean
+     * @return bool
      * @throws CryptoException\CannotPerformOperation
      */
     public function reset(int $position = 0): bool

@@ -9,12 +9,15 @@ use ParagonIE\Halite\{
 };
 
 /**
- * Describes a pair of secret and public keys
+ * Class EncryptionKeyPair
+ *
+ * Describes a pair of secret and public keys intended for encryption
+ *
+ * @package ParagonIE\Halite
  */
 final class EncryptionKeyPair extends KeyPair
 {
     /**
-     *
      * Pass it a secret key, it will automatically generate a public key
      *
      * @param Key[] $keys
@@ -105,6 +108,7 @@ final class EncryptionKeyPair extends KeyPair
     {
         return parent::getPublicKey();
     }
+
     /**
      * Get a Key object for the public key
      *

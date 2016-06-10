@@ -16,15 +16,25 @@ use \ParagonIE\Halite\{
     Symmetric\EncryptionKey
 };
 
+/**
+ * Class File
+ *
+ * Cryptography operations for the filesystem.
+ *
+ * @package ParagonIE\Halite
+ */
 final class File
 {
     /**
-     * Lazy fallthrough method for checksumFile() and checksumResource()
+     * Calculate the BLAKE2b-512 checksum of a file. This method doesn't load
+     * the entire file into memory. You may optionally supply a key to use in
+     * the BLAKE2b hash.
      *
-     * @param string|resource $filePath
-     * @param Key $key (optional; expects SignaturePublicKey or AuthenticationKey)
-     * @param bool $raw
-     * @return string
+     * @param string|resource $filePath The file
+     * @param Key $key        (optional; expects SignaturePublicKey or
+     *                         AuthenticationKey)
+     * @param bool $raw       Defaults to returning a hexadecimal string.
+     * @return string         The checksum
      * @throws CryptoException\InvalidType
      */
     public static function checksum(
@@ -34,13 +44,13 @@ final class File
     ): string {
         if (\is_resource($filePath) || \is_string($filePath)) {
             $readOnly = new ReadOnlyFile($filePath);
-            $csum = self::checksumData(
+            $checksum = self::checksumData(
                 $readOnly,
                 $key,
                 $raw
             );
             $readOnly->close();
-            return $csum;
+            return $checksum;
         }
         throw new CryptoException\InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -48,12 +58,12 @@ final class File
     }
 
     /**
-     * Lazy fallthrough method for encryptFile() and encryptResource()
+     * Encrypt a file using symmetric authenticated encryption.
      *
-     * @param string|resource $input
-     * @param string|resource $output
-     * @param EncryptionKey $key
-     * @return int (number of bytes written)
+     * @param string|resource $input  File name or file handle
+     * @param string|resource $output File name or file handle
+     * @param EncryptionKey $key      Symmetric encryption key
+     * @return int                    Number of bytes written
      * @throws CryptoException\InvalidType
      */
     public static function encrypt(
@@ -83,12 +93,12 @@ final class File
     }
 
     /**
-     * Lazy fallthrough method for decryptFile() and decryptResource()
+     * Decrypt a file using symmetric-key authenticated encryption.
      *
-     * @param string|resource $input
-     * @param string|resource $output
-     * @param EncryptionKey $key
-     * @return bool
+     * @param string|resource $input  File name or file handle
+     * @param string|resource $output File name or file handle
+     * @param EncryptionKey $key      Symmetric encryption key
+     * @return bool                   TRUE if successful
      * @throws CryptoException\InvalidType
      */
     public static function decrypt(
@@ -121,12 +131,13 @@ final class File
     }
 
     /**
-     * Lazy fallthrough method for sealFile() and sealResource()
+     * Encrypt a file using anonymous public-key encryption (with ciphertext
+     * authentication).
      *
-     * @param string|resource $input
-     * @param string|resource $output
-     * @param EncryptionPublicKey $publicKey
-     * @return int Number of bytes written
+     * @param string|resource $input         File name or file handle
+     * @param string|resource $output        File name or file handle
+     * @param EncryptionPublicKey $publicKey Recipient's encryption public key
+     * @return int                           Number of bytes written
      * @throws Alerts\InvalidType
      */
     public static function seal(
@@ -156,12 +167,13 @@ final class File
     }
 
     /**
-     * Lazy fallthrough method for sealFile() and sealResource()
+     * Decrypt a file using anonymous public-key encryption. Ciphertext
+     * integrity is still assured thanks to the Encrypt-then-MAC construction.
      *
-     * @param string|resource $input
-     * @param string|resource $output
-     * @param EncryptionSecretKey $secretKey
-     * @return bool TRUE on success
+     * @param string|resource $input         File name or file handle
+     * @param string|resource $output        File name or file handle
+     * @param EncryptionSecretKey $secretKey Recipient's encryption secret key
+     * @return bool                          TRUE on success
      * @throws CryptoException\InvalidType
      */
     public static function unseal(
@@ -194,12 +206,17 @@ final class File
     }
 
     /**
-     * Lazy fallthrough method for signFile() and signResource()
+     * Calculate a digital signature (Ed25519) of a file
      *
-     * @param string|resource $filename
-     * @param SignatureSecretKey $secretKey
-     * @param bool $raw_binary
-     * @return string
+     * Specifically:
+     * 1. Calculate the BLAKE2b-512 checksum of the file, with the signer's
+     *    Ed25519 public key used as a BLAKE2b key.
+     * 2. Sign the checksum with Ed25519, using the corresponding public key.
+     *
+     * @param string|resource $filename     File name or file handle
+     * @param SignatureSecretKey $secretKey Secret key for digital signatures
+     * @param bool $raw_binary              Default: return hexadecimal
+     * @return string                       Detached signature for the file
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidType
      */
@@ -227,12 +244,12 @@ final class File
     }
 
     /**
-     * Lazy fallthrough method for verifyFile() and verifyResource()
+     * Verify a digital signature for a file.
      *
-     * @param string|resource $filename
-     * @param SignaturePublicKey $publicKey
-     * @param string $signature
-     * @param bool $raw_binary
+     * @param string|resource $filename     File name or file handle
+     * @param SignaturePublicKey $publicKey Other party's signature public key
+     * @param string $signature             The signature we received
+     * @param bool $raw_binary              TRUE if the signature is raw binary
      *
      * @return bool
      * @throws CryptoException\InvalidType
@@ -263,7 +280,7 @@ final class File
     }
 
     /**
-     * Calculate the BLAKE2b checksum of an entire stream
+     * Calculate the BLAKE2b checksum of the contents of a file
      *
      * @param StreamInterface $fileStream
      * @param Key $key
@@ -334,7 +351,7 @@ final class File
     }
 
     /**
-     * Encrypt a (file handle)
+     * Encrypt the contents of a file.
      *
      * @param $input
      * @param $output
@@ -399,7 +416,7 @@ final class File
     }
 
     /**
-     * Decrypt a (file handle)
+     * Decrypt the contents of a file.
      *
      * @param $input
      * @param $output
@@ -482,7 +499,7 @@ final class File
     }
 
     /**
-     * Seal a (file handle)
+     * Seal the contents of a file.
      *
      * @param ReadOnlyFile $input
      * @param MutableFile $output
@@ -503,7 +520,7 @@ final class File
         // Calculate the shared secret key
         $sharedSecretKey = AsymmetricCrypto::getSharedSecret($ephSecret, $publicKey, true);
 
-        // Destroy the secre tkey after we have the shared secret
+        // Destroy the secret key after we have the shared secret
         unset($ephSecret);
 
         // Load the configuration
@@ -573,12 +590,11 @@ final class File
     }
 
     /**
-     * Unseal a (file handle)
+     * Unseal the contents of a file.
      *
      * @param ReadOnlyFile $input
      * @param MutableFile $output
      * @param EncryptionSecretKey $secretKey
-     *
      * @return bool
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidMessage
@@ -883,7 +899,7 @@ final class File
     }
 
     /**
-     * Split a key using HKDF
+     * Split a key using HKDF-BLAKE2b
      *
      * @param Key $master
      * @param string $salt
@@ -1074,11 +1090,10 @@ final class File
     /**
      * Recalculate and verify the HMAC of the input file
      *
-     * @param ReadOnlyFile $input
+     * @param ReadOnlyFile $input  The file we are verifying
      * @param resource|string $mac (hash context)
-     * @param Config $config
-     *
-     * @return array Hashes of various chunks
+     * @param Config $config       Version-specific settings
+     * @return array               Hashes of various chunks
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidMessage
      */
@@ -1103,7 +1118,7 @@ final class File
              * Would a full BUFFER read put it past the end of the
              * ciphertext? If so, only return a portion of the file.
              */
-            if ($input->getPos() + $config->BUFFER >= $cipher_end) {
+            if (($input->getPos() + $config->BUFFER) >= $cipher_end) {
                 $break = true;
                 $read = $input->readBytes($cipher_end - $input->getPos());
             } else {
@@ -1116,8 +1131,12 @@ final class File
             if ($config->USE_BLAKE2B) {
                 // VERSION 2+
                 \Sodium\crypto_generichash_update($mac, $read);
+                // Copy the hash state then store the MAC of this chunk
                 $chunkMAC = Util::safeStrcpy($mac);
-                $chunkMACs []= \Sodium\crypto_generichash_final($chunkMAC, $config->MAC_SIZE);
+                $chunkMACs []= \Sodium\crypto_generichash_final(
+                    $chunkMAC,
+                    $config->MAC_SIZE
+                );
             } else {
                 // VERSION 1
                 \hash_update($mac, $read);
@@ -1135,11 +1154,14 @@ final class File
         }
 
         /**
-         * We should now have enough data to generate an identical HMAC
+         * We should now have enough data to generate an identical MAC
          */
         if ($config->USE_BLAKE2B) {
             // VERSION 2+
-            $finalHMAC = \Sodium\crypto_generichash_final($mac, $config->MAC_SIZE);
+            $finalHMAC = \Sodium\crypto_generichash_final(
+                $mac,
+                $config->MAC_SIZE
+            );
         } else {
             // VERSION 1
             $finalHMAC = \hash_final($mac, true);

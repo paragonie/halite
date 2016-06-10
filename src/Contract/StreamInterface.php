@@ -8,7 +8,11 @@ use \ParagonIE\Halite\Alerts\{
 };
 
 /**
+ * Interface StreamInterface
+ *
  * A stream used by Halite, internally.
+ *
+ * @package ParagonIE\Halite\Contract
  */
 interface StreamInterface
 {

@@ -5,6 +5,10 @@ namespace ParagonIE\Halite\Asymmetric;
 use \ParagonIE\Halite\Alerts\InvalidKey;
 use \ParagonIE\Halite\Util as CryptoUtil;
 
+/**
+ * Class SignatureSecretKey
+ * @package ParagonIE\Halite\Asymmetric
+ */
 final class SignatureSecretKey extends SecretKey
 {
     /**

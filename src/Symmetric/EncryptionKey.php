@@ -5,6 +5,10 @@ namespace ParagonIE\Halite\Symmetric;
 use \ParagonIE\Halite\Alerts\InvalidKey;
 use \ParagonIE\Halite\Util as CryptoUtil;
 
+/**
+ * Class EncryptionKey
+ * @package ParagonIE\Halite\Symmetric
+ */
 final class EncryptionKey extends SecretKey
 {
     /**

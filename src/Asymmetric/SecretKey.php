@@ -5,6 +5,10 @@ use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Key;
 use \ParagonIE\Halite\Alerts\CannotPerformOperation;
 
+/**
+ * Class SecretKey
+ * @package ParagonIE\Halite\Asymmetric
+ */
 class SecretKey extends Key
 {
     /**

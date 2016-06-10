@@ -10,17 +10,21 @@ use \ParagonIE\Halite\{
 };
 
 /**
+ * Class Password
+ *
  * Secure password storage and secure password verification
+ *
+ * @package ParagonIE\Halite
  */
 abstract class Password
 {
     /**
      * Hash then encrypt a password
-     * 
-     * @param string $password          - The user's password
-     * @param EncryptionKey $secret_key - The master key for all passwords
-     * @param string $level             - The security level for this password
-     * @return string
+     *
+     * @param string $password          The user's password
+     * @param EncryptionKey $secret_key The master key for all passwords
+     * @param string $level             The security level for this password
+     * @return string                   An encrypted hash to store
      */
     public static function hash(
         string $password,
@@ -42,10 +46,11 @@ abstract class Password
     /**
      * Is this password hash stale?
      *
-     * @param string $stored            - A stored password hash
-     * @param EncryptionKey $secret_key - The master key for all passwords
-     * @param string $level             - The security level for this password
-     * @return bool
+     * @param string $stored            Encrypted password hash
+     * @param EncryptionKey $secret_key The master key for all passwords
+     * @param string $level             The security level for this password
+     * @return bool                     Do we need to regenerate the hash or
+     *                                  ciphertext?
      * @throws InvalidMessage
      */
     public static function needsRehash(
@@ -99,7 +104,7 @@ abstract class Password
     /**
      * Get the configuration for this version of halite
      *
-     * @param string $stored   - A stored password hash
+     * @param string $stored   A stored password hash
      * @return SymmetricConfig
      * @throws InvalidMessage
      */
@@ -108,7 +113,9 @@ abstract class Password
         $length = Util::safeStrlen($stored);
         // This doesn't even have a header.
         if ($length < 8) {
-            throw new InvalidMessage('Encrypted password hash is way too short.');
+            throw new InvalidMessage(
+                'Encrypted password hash is way too short.'
+            );
         }
         $v = \Sodium\hex2bin(Util::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
@@ -117,10 +124,10 @@ abstract class Password
     /**
      * Decrypt then verify a password
      * 
-     * @param string $password           - The user-provided password
-     * @param string $stored             - The encrypted password hash
-     * @param EncryptionKey $secret_key  - The master key for all passwords
-     * @return boolean
+     * @param string $password          The user-provided password
+     * @param string $stored            The encrypted password hash
+     * @param EncryptionKey $secret_key The master key for all passwords
+     * @return bool                  Is this password valid?
      * @throws InvalidMessage
      */
     public static function verify(

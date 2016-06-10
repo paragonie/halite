@@ -5,6 +5,10 @@ namespace ParagonIE\Halite\Asymmetric;
 use \ParagonIE\Halite\Contract;
 use \ParagonIE\Halite\Key;
 
+/**
+ * Class PublicKey
+ * @package ParagonIE\Halite\Asymmetric
+ */
 class PublicKey extends Key
 {
     /**

@@ -3,14 +3,18 @@ declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 /**
+ * Class Halite
+ *
  * This is just an abstract class that hosts some constants
- * 
+ *
  * Version Tag Info:
- * 
+ *
  *  \x31\x41 => 3.141 (approx. pi)
  *  \x31\x42 => 3.142 (approx. pi)
  *  Because pi is the symbol we use for Paragon Initiative Enterprises
  *  \x00\x07 => version 0.07
+ *
+ * @package ParagonIE\Halite
  */
 abstract class Halite
 {
@@ -29,7 +33,8 @@ abstract class Halite
         $minor = \Sodium\library_version_minor();
         if ($major < 9 || ($major === 9 && $minor < 2)) {
             if ($echo) {
-                echo 'Halite needs libsodium 1.0.9 or higher. You have: ', \Sodium\version_string(), "\n";
+                echo 'Halite needs libsodium 1.0.9 or higher. You have: ',
+                    \Sodium\version_string(), "\n";
             }
             return false;
         }

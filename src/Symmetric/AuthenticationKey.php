@@ -5,6 +5,10 @@ namespace ParagonIE\Halite\Symmetric;
 use \ParagonIE\Halite\Alerts\InvalidKey;
 use \ParagonIE\Halite\Util as CryptoUtil;
 
+/**
+ * Class AuthenticationKey
+ * @package ParagonIE\Halite\Symmetric
+ */
 final class AuthenticationKey extends SecretKey
 {
     /**
@@ -18,7 +22,7 @@ final class AuthenticationKey extends SecretKey
                 'Authentication key must be CRYPTO_AUTH_KEYBYTES bytes long'
             );
         }
-        parent::__construct($keyMaterial, true);
+        parent::__construct($keyMaterial);
         $this->is_signing_key = true;
     }
 }

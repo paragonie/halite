@@ -8,10 +8,24 @@ use \ParagonIE\Halite\{
     Symmetric\Crypto
 };
 
+/**
+ * Class Cookie
+ *
+ * Secure encrypted cookies
+ *
+ * @package ParagonIE\Halite
+ */
 final class Cookie 
 {
+    /**
+     * @var EncryptionKey
+     */
     protected $key;
-    
+
+    /**
+     * Cookie constructor.
+     * @param EncryptionKey $key
+     */
     public function __construct(EncryptionKey $key)
     {
         $this->key = $key;

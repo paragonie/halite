@@ -9,7 +9,11 @@ use ParagonIE\Halite\{
 };
 
 /**
+ * Class SignatureKeyPair
+ *
  * Describes a pair of secret and public keys
+ *
+ * @package ParagonIE\Halite
  */
 final class SignatureKeyPair extends KeyPair
 {

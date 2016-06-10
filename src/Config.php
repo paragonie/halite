@@ -5,12 +5,23 @@ namespace ParagonIE\Halite;
 use ParagonIE\Halite\Alerts as CryptoException;
 
 /**
+ * Class Config
+ *
  * Encapsulates the configuration for a specific version of Halite
+ *
+ * @package ParagonIE\Halite
  */
 class Config
 {
+    /**
+     * @var array
+     */
     private $config;
-    
+
+    /**
+     * Config constructor.
+     * @param array $set
+     */
     public function __construct(array $set = [])
     {
         $this->config = $set;

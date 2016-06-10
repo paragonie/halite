@@ -7,6 +7,10 @@ use \ParagonIE\Halite\{
     Config as BaseConfig
 };
 
+/**
+ * Class Config
+ * @package ParagonIE\Halite\Symmetric
+ */
 final class Config extends BaseConfig
 {
     /**

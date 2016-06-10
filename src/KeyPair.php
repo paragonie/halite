@@ -3,14 +3,25 @@ declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 use \ParagonIE\Halite\Alerts as CryptoException;
+use \ParagonIE\Halite\Asymmetric\{
+    PublicKey,
+    SecretKey
+};
 
 /**
  * Describes a pair of secret and public keys
  */
 class KeyPair
 {
-    protected  $secret_key;
-    protected  $public_key;
+    /**
+     * @var SecretKey
+     */
+    protected $secret_key;
+
+    /**
+     * @var PublicKey
+     */
+    protected $public_key;
 
     /**
      * Hide this from var_dump(), etc.
@@ -28,7 +39,7 @@ class KeyPair
     /**
      * Get a Key object for the public key
      * 
-     * @return Key
+     * @return PublicKey
      */
     public function getPublicKey()
     {
@@ -38,7 +49,7 @@ class KeyPair
     /**
      * Get a Key object for the secret key
      * 
-     * @return Key
+     * @return SecretKey
      */
     public function getSecretKey()
     {

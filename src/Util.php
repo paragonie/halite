@@ -8,6 +8,13 @@ use \ParagonIE\Halite\Alerts\{
     InvalidType
 };
 
+/**
+ * Class Util
+ *
+ * Various useful utilities, used within Halite and available for general use
+ *
+ * @package ParagonIE\Halite
+ */
 abstract class Util
 {
     /**
@@ -17,8 +24,10 @@ abstract class Util
      * @param int $length
      * @return string
      */
-    public static function hash(string $input, int $length = \Sodium\CRYPTO_GENERICHASH_BYTES): string
-    {
+    public static function hash(
+        string $input,
+        int $length = \Sodium\CRYPTO_GENERICHASH_BYTES
+    ): string {
         return \Sodium\bin2hex(
             self::raw_keyed_hash($input, '', $length)
         );
@@ -31,8 +40,10 @@ abstract class Util
      * @param int $length
      * @return string
      */
-    public static function raw_hash(string $input, int $length = \Sodium\CRYPTO_GENERICHASH_BYTES): string
-    {
+    public static function raw_hash(
+        string $input,
+        int $length = \Sodium\CRYPTO_GENERICHASH_BYTES
+    ): string {
         return self::raw_keyed_hash($input, '', $length);
     }
 
@@ -113,8 +124,11 @@ abstract class Util
      * @param int $length
      * @return string
      */
-    public static function keyed_hash(string $input, string $key, int $length = \Sodium\CRYPTO_GENERICHASH_BYTES): string
-    {
+    public static function keyed_hash(
+        string $input,
+        string $key,
+        int $length = \Sodium\CRYPTO_GENERICHASH_BYTES
+    ): string {
         return \Sodium\bin2hex(
             self::raw_keyed_hash($input, $key, $length)
         );
@@ -136,12 +150,18 @@ abstract class Util
     ): string {
         if ($length < \Sodium\CRYPTO_GENERICHASH_BYTES_MIN) {
             throw new CannotPerformOperation(
-                'Output length must be at least '.\Sodium\CRYPTO_GENERICHASH_BYTES_MIN.' bytes.'
+                \sprintf(
+                    'Output length must be at least %d bytes.',
+                    \Sodium\CRYPTO_GENERICHASH_BYTES_MIN
+                )
             );
         }
         if ($length > \Sodium\CRYPTO_GENERICHASH_BYTES_MAX) {
             throw new CannotPerformOperation(
-                'Output length must be at most '.\Sodium\CRYPTO_GENERICHASH_BYTES_MAX.' bytes.'
+                \sprintf(
+                    'Output length must be at most %d bytes.',
+                    \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                )
             );
         }
         return \Sodium\crypto_generichash($input, $key, $length);
@@ -152,7 +172,7 @@ abstract class Util
      * 
      * @ref mbstring.func_overload
      *
-     * @staticvar boolean $exists
+     * @static bool $exists
      * @param string $str
      * @return int
      * @throws CannotPerformOperation
@@ -188,7 +208,7 @@ abstract class Util
      *
      * @ref mbstring.func_overload
      *
-     * @staticvar boolean $exists
+     * @static bool $exists
      * @param string $str
      * @param int $start
      * @param int $length

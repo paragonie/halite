@@ -10,18 +10,24 @@ use \ParagonIE\Halite\{
     Symmetric\EncryptionKey
 };
 
+/**
+ * Class Crypto
+ *
+ * Handles all public key cryptography
+ *
+ * @package ParagonIE\Halite\Asymmetric
+ */
 abstract class Crypto
 {
     /**
      * Encrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::encrypt()
      * 
-     * @param string $plaintext
-     * @param EncryptionSecretKey $ourPrivateKey Our private key
+     * @param string $plaintext                    The message to encrypt
+     * @param EncryptionSecretKey $ourPrivateKey   Our private key
      * @param EncryptionPublicKey $theirPublicKey  Their public key
-     * @param boolean $raw Don't hex encode the output?
-     * 
-     * @return string
+     * @param bool $raw                            Don't hex encode the output
+     * @return string                              Ciphertext
      */
     public static function encrypt(
         string $plaintext,
@@ -45,11 +51,11 @@ abstract class Crypto
      * Decrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::decrypt()
      * 
-     * @param string $ciphertext
-     * @param EncryptionSecretKey $ourPrivateKey Our private key
+     * @param string $ciphertext                  The message to decrypt
+     * @param EncryptionSecretKey $ourPrivateKey  Our private key
      * @param EncryptionPublicKey $theirPublicKey Their public key
-     * @param boolean $raw Don't hex decode the input?
-     * @return string
+     * @param bool $raw                           Expect raw binary
+     * @return string                             The decrypted message
      */
     public static function decrypt(
         string $ciphertext,
@@ -98,10 +104,10 @@ abstract class Crypto
     /**
      * Encrypt a message with a target users' public key
      * 
-     * @param string $plaintext Message to encrypt
-     * @param EncryptionPublicKey $publicKey
-     * @param boolean $raw Don't hex encode the output?
-     * @return string
+     * @param string $plaintext              Message to encrypt
+     * @param EncryptionPublicKey $publicKey Public encryption key
+     * @param bool $raw                      Don't hex encode the output?
+     * @return string                        Ciphertext
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidKey
      */
@@ -133,7 +139,7 @@ abstract class Crypto
      * 
      * @param string $message Message to sign
      * @param SignatureSecretKey $privateKey
-     * @param boolean $raw Don't hex encode the output?
+     * @param bool $raw Don't hex encode the output?
      * @return string Signature (detached)
      */
     public static function sign(
@@ -156,7 +162,7 @@ abstract class Crypto
      * 
      * @param string $ciphertext Encrypted message
      * @param EncryptionSecretKey $privateKey
-     * @param boolean $raw Don't hex decode the input?
+     * @param bool $raw Don't hex decode the input?
      * @return string
      * @throws CryptoException\InvalidKey
      */
@@ -202,7 +208,7 @@ abstract class Crypto
      * @param string $message Message to verify
      * @param SignaturePublicKey $publicKey
      * @param string $signature
-     * @param boolean $raw Don't hex decode the input?
+     * @param bool $raw Don't hex decode the input?
      * @return bool
      * @throws CryptoException\InvalidSignature
      */

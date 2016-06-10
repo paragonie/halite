@@ -4,10 +4,21 @@ namespace ParagonIE\Halite\Structure;
 
 use \ParagonIE\Halite\Util;
 
+/**
+ * Class Node
+ * @package ParagonIE\Halite\Structure
+ */
 class Node
 {
+    /**
+     * @var string
+     */
     private $data;
-    
+
+    /**
+     * Node constructor.
+     * @param string $data
+     */
     public function __construct(string $data)
     {
         $this->data = $data;

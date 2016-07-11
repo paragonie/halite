@@ -16,7 +16,7 @@ class PasswordTest extends PHPUnit_Framework_TestCase
         $key = new EncryptionKey(\str_repeat('A', 32));
         
         $hash = Password::hash(new HiddenString('test password'), $key);
-        $this->assertTrue(\is_string($hash));
+        $this->assertTrue(\is_string($hash->getString()));
         
         $this->assertTrue(
             Password::verify(

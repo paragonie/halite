@@ -28,11 +28,15 @@ class KeyPairTest extends PHPUnit_Framework_TestCase
         // Can this be used?        
         $message = 'This is a test message';
         $signed = Asymmetric::sign(
-            $message,
+            new HiddenString($message),
             $sign_secret
         );
         $this->assertTrue(
-            Asymmetric::verify($message, $sign_public, $signed)
+            Asymmetric::verify(
+                new HiddenString($message),
+                $sign_public,
+                $signed
+            )
         );
         
         $this->assertSame(

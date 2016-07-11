@@ -53,7 +53,7 @@ class KeyTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($sign_public instanceof SignaturePublicKey);
         
         // Can this be used?        
-        $message = 'This is a test message';
+        $message = new HiddenString('This is a test message');
         $signed = Asymmetric::sign(
             $message,
             $sign_secret

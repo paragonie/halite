@@ -6,6 +6,7 @@ use ParagonIE\Halite\{
     Alerts as CryptoException,
     Config,
     Halite,
+    HiddenString,
     Symmetric\Config as SymmetricConfig,
     Util as CryptoUtil
 };
@@ -22,57 +23,59 @@ final class Crypto
     /**
      * Authenticate a string
      * 
-     * @param string $message
+     * @param HiddenString $message
      * @param AuthenticationKey $secretKey
      * @param mixed $encoding
      * @throws CryptoException\InvalidKey
-     * @return string
+     * @return HiddenString
      */
     public static function authenticate(
-        string $message,
+        HiddenString $message,
         AuthenticationKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): string {
+    ): HiddenString {
         $config = SymmetricConfig::getConfig(
             Halite::HALITE_VERSION,
             'auth'
         );
         $mac = self::calculateMAC(
-            $message,
+            $message->getString(),
             $secretKey->getRawKeyMaterial(),
             $config
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($mac);
+            return new HiddenString($encoder($mac));
         }
-        return $mac;
+        return new HiddenString($mac);
     }
     
     /**
      * Decrypt a message using the Halite encryption protocol
      * 
-     * @param string $ciphertext
+     * @param HiddenString $ciphertext
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
-     * @return string
+     * @return HiddenString
      * @throws CryptoException\InvalidMessage
      */
     public static function decrypt(
-        string $ciphertext,
+        HiddenString $ciphertext,
         EncryptionKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): string {
+    ): HiddenString {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given hex data:
             try {
-                $ciphertext = $decoder($ciphertext);
+                $ciphertext = $decoder($ciphertext->getString());
             } catch (\RangeException $ex) {
                 throw new CryptoException\InvalidMessage(
                     'Invalid character encoding'
                 );
             }
+        } else {
+            $ciphertext = $ciphertext->getString();
         }
         list($version, $config, $salt, $nonce, $encrypted, $auth) =
             self::unpackMessageForDecryption($ciphertext);
@@ -95,7 +98,11 @@ final class Crypto
         \Sodium\memzero($authKey);
 
         // crypto_stream_xor() can be used to encrypt and decrypt
-        $plaintext = \Sodium\crypto_stream_xor($encrypted, $nonce, $encKey);
+        $plaintext = \Sodium\crypto_stream_xor(
+            $encrypted,
+            $nonce,
+            $encKey
+        );
         if ($plaintext === false) {
             throw new CryptoException\InvalidMessage(
                 'Invalid message authentication code'
@@ -104,7 +111,7 @@ final class Crypto
         \Sodium\memzero($encrypted);
         \Sodium\memzero($nonce);
         \Sodium\memzero($encKey);
-        return $plaintext;
+        return new HiddenString($plaintext);
     }
     
     /**
@@ -116,16 +123,16 @@ final class Crypto
      * Version 1:
      * (Encrypt then MAC -- xsalsa20 then HMAC-SHA-512/256)
      * 
-     * @param string $plaintext
+     * @param HiddenString $plaintext
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
-     * @return string
+     * @return HiddenString
      */
     public static function encrypt(
-        string $plaintext,
+        HiddenString $plaintext,
         EncryptionKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): string {
+    ): HiddenString {
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
         // Generate a nonce and HKDF salt:
@@ -138,7 +145,11 @@ final class Crypto
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
         
         // Encrypt our message with the encryption key:
-        $encrypted = \Sodium\crypto_stream_xor($plaintext, $nonce, $encKey);
+        $encrypted = \Sodium\crypto_stream_xor(
+            $plaintext->getString(),
+            $nonce,
+            $encKey
+        );
         \Sodium\memzero($encKey);
         
         // Calculate an authentication tag:
@@ -159,9 +170,9 @@ final class Crypto
 
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($message);
+            return new HiddenString($encoder($message));
         }
-        return $message;
+        return new HiddenString($message);
     }
     
     /**
@@ -269,24 +280,26 @@ final class Crypto
     /**
      * Verify a MAC, given a MAC key
      * 
-     * @param string $message
+     * @param HiddenString $message
      * @param AuthenticationKey $secretKey
-     * @param string $mac
+     * @param HiddenString $mac
      * @param mixed $encoding
      * @param SymmetricConfig $config
      * @return bool
      */
     public static function verify(
-        string $message,
+        HiddenString $message,
         AuthenticationKey $secretKey,
-        string $mac,
+        HiddenString $mac,
         $encoding = Halite::ENCODE_BASE64URLSAFE,
         SymmetricConfig $config = null
     ): bool {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given hex data:
-            $mac = $decoder($mac);
+            $mac = $decoder($mac->getString());
+        } else {
+            $mac = $mac->getString();
         }
         if ($config === null) {
             // Default to the current version
@@ -297,7 +310,7 @@ final class Crypto
         }
         return self::verifyMAC(
             $mac,
-            $message,
+            $message->getString(),
             $secretKey->getRawKeyMaterial(),
             $config
         );

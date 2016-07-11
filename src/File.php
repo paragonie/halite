@@ -216,7 +216,7 @@ final class File
      * @param string|resource $filename     File name or file handle
      * @param SignatureSecretKey $secretKey Secret key for digital signatures
      * @param bool $raw_binary              Default: return hexadecimal
-     * @return string                       Detached signature for the file
+     * @return HiddenString                 Detached signature for the file
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidType
      */
@@ -224,7 +224,7 @@ final class File
         $filename,
         SignatureSecretKey $secretKey,
         bool $raw_binary = false
-    ): string {
+    ): HiddenString {
         if (
             \is_resource($filename) ||
             \is_string($filename)
@@ -257,7 +257,7 @@ final class File
     public static function verify(
         $filename,
         SignaturePublicKey $publicKey,
-        string $signature,
+        HiddenString $signature,
         bool $raw_binary = false
     ): bool {
         if (
@@ -694,19 +694,26 @@ final class File
      * @param ReadOnlyFile $input
      * @param SignatureSecretKey $secretKey
      * @param bool $raw_binary Don't hex encode?
-     * @return string
+     * @return HiddenString
      */
     protected static function signData(
         ReadOnlyFile $input,
         SignatureSecretKey $secretKey,
         bool $raw_binary = false
-    ): string {
+    ): HiddenString {
         $checksum = self::checksumData(
             $input,
             $secretKey->derivePublicKey(),
             true
         );
-        return AsymmetricCrypto::sign($checksum, $secretKey, $raw_binary);
+        if (\is_string($checksum)) {
+            $checksum = new HiddenString($checksum);
+        }
+        return AsymmetricCrypto::sign(
+            $checksum,
+            $secretKey,
+            $raw_binary
+        );
     }
 
     /**
@@ -714,7 +721,7 @@ final class File
      *
      * @param $input (file handle)
      * @param SignaturePublicKey $publicKey
-     * @param string $signature
+     * @param HiddenString $signature
      * @param bool $raw_binary Don't hex encode?
      *
      * @return bool
@@ -722,12 +729,12 @@ final class File
     protected static function verifyData(
         ReadOnlyFile $input,
         SignaturePublicKey $publicKey,
-        string $signature,
+        HiddenString $signature,
         bool $raw_binary = false
     ): bool {
         $checksum = self::checksumData($input, $publicKey, true);
         return AsymmetricCrypto::verify(
-            $checksum,
+            new HiddenString($checksum),
             $publicKey,
             $signature,
             $raw_binary

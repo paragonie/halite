@@ -25,13 +25,13 @@ final class Password
      * @param HiddenString $password    The user's password
      * @param EncryptionKey $secret_key The master key for all passwords
      * @param string $level             The security level for this password
-     * @return string                   An encrypted hash to store
+     * @return HiddenString             An encrypted hash to store
      */
     public static function hash(
         HiddenString $password,
         EncryptionKey $secret_key,
         string $level = KeyFactory::INTERACTIVE
-    ): string {
+    ): HiddenString {
         $kdfLimits = KeyFactory::getSecurityLevels($level);
         // First, let's calculate the hash
         $hashed = \Sodium\crypto_pwhash_str(
@@ -41,7 +41,10 @@ final class Password
         );
         
         // Now let's encrypt the result
-        return Crypto::encrypt($hashed, $secret_key);
+        return Crypto::encrypt(
+            new HiddenString($hashed),
+            $secret_key
+        );
     }
 
     /**
@@ -55,7 +58,7 @@ final class Password
      * @throws InvalidMessage
      */
     public static function needsRehash(
-        string $stored,
+        HiddenString $stored,
         EncryptionKey $secret_key,
         string $level = KeyFactory::INTERACTIVE
     ): bool {
@@ -105,12 +108,13 @@ final class Password
     /**
      * Get the configuration for this version of halite
      *
-     * @param string $stored   A stored password hash
+     * @param HiddenString $stored   A stored password hash
      * @return SymmetricConfig
      * @throws InvalidMessage
      */
-    protected static function getConfig(string $stored): SymmetricConfig
+    protected static function getConfig(HiddenString $stored): SymmetricConfig
     {
+        $stored = $stored->getString();
         $length = Util::safeStrlen($stored);
         // This doesn't even have a header.
         if ($length < 8) {
@@ -132,24 +136,27 @@ final class Password
      * Decrypt then verify a password
      *
      * @param HiddenString $password    The user's password
-     * @param string $stored            The encrypted password hash
+     * @param HiddenString $stored      The encrypted password hash
      * @param EncryptionKey $secret_key The master key for all passwords
-     * @return bool                  Is this password valid?
+     * @return bool                     Is this password valid?
      * @throws InvalidMessage
      */
     public static function verify(
         HiddenString $password,
-        string $stored,
+        HiddenString $stored,
         EncryptionKey $secret_key
     ): bool {
         $config = self::getConfig($stored);
         // Hex-encoded, so the minimum ciphertext length is double:
-        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 2)) {
+        if (Util::safeStrlen($stored->getString()) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 2)) {
             throw new InvalidMessage('Encrypted password hash is too short.');
         }
         // First let's decrypt the hash
         $hash_str = Crypto::decrypt($stored, $secret_key);
         // Upon successful decryption, verify the password is correct
-        return \Sodium\crypto_pwhash_str_verify($hash_str, $password->getString());
+        return \Sodium\crypto_pwhash_str_verify(
+            $hash_str->getString(),
+            $password->getString()
+        );
     }
 }

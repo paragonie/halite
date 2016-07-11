@@ -6,6 +6,7 @@ use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\{
     Util as CryptoUtil,
     Halite,
+    HiddenString,
     Key,
     Symmetric\Crypto as SymmetricCrypto,
     Symmetric\EncryptionKey
@@ -24,18 +25,18 @@ final class Crypto
      * Encrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::encrypt()
      * 
-     * @param string $plaintext                    The message to encrypt
+     * @param HiddenString $plaintext              The message to encrypt
      * @param EncryptionSecretKey $ourPrivateKey   Our private key
      * @param EncryptionPublicKey $theirPublicKey  Their public key
      * @param mixed $encoding                      Which encoding scheme to use?
-     * @return string                              Ciphertext
+     * @return HiddenString                        Ciphertext
      */
     public static function encrypt(
-        string $plaintext,
+        HiddenString $plaintext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): string {
+    ): HiddenString {
         $sharedSecretKey = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
@@ -52,18 +53,18 @@ final class Crypto
      * Decrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::decrypt()
      * 
-     * @param string $ciphertext                  The message to decrypt
+     * @param HiddenString $ciphertext            The message to decrypt
      * @param EncryptionSecretKey $ourPrivateKey  Our private key
      * @param EncryptionPublicKey $theirPublicKey Their public key
-     * @param mixed $encoding                      Which encoding scheme to use?
-     * @return string                             The decrypted message
+     * @param mixed $encoding                     Which encoding scheme to use?
+     * @return HiddenString                       The decrypted message
      */
     public static function decrypt(
-        string $ciphertext,
+        HiddenString $ciphertext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): string {
+    ): HiddenString {
         $sharedSecretKey = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
@@ -105,18 +106,18 @@ final class Crypto
     /**
      * Encrypt a message with a target users' public key
      * 
-     * @param string $plaintext              Message to encrypt
+     * @param HiddenString $plaintext        Message to encrypt
      * @param EncryptionPublicKey $publicKey Public encryption key
      * @param mixed $encoding                Which encoding scheme to use?
-     * @return string                        Ciphertext
+     * @return HiddenString                  Ciphertext
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidKey
      */
     public static function seal(
-        string $plaintext,
+        HiddenString $plaintext,
         EncryptionPublicKey $publicKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): string {
+    ): HiddenString {
         if (!$publicKey instanceof EncryptionPublicKey) {
             throw new CryptoException\InvalidKey(
                 'Argument 2: Expected an instance of EncryptionPublicKey'
@@ -128,12 +129,15 @@ final class Crypto
             );
         }
         
-        $sealed = \Sodium\crypto_box_seal($plaintext, $publicKey->getRawKeyMaterial());
+        $sealed = \Sodium\crypto_box_seal(
+            $plaintext->getString(),
+            $publicKey->getRawKeyMaterial()
+        );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($sealed);
+            return new HiddenString($encoder($sealed));
         }
-        return $sealed;
+        return new HiddenString($sealed);
     }
     
     /**
@@ -145,19 +149,19 @@ final class Crypto
      * @return string Signature (detached)
      */
     public static function sign(
-        string $message,
+        HiddenString $message,
         SignatureSecretKey $privateKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): string {
+    ): HiddenString {
         $signed = \Sodium\crypto_sign_detached(
-            $message,
+            $message->getString(),
             $privateKey->getRawKeyMaterial()
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($signed);
+            return new HiddenString($encoder($signed));
         }
-        return $signed;
+        return new HiddenString($signed);
     }
     
     /**
@@ -171,26 +175,28 @@ final class Crypto
      * @throws CryptoException\InvalidMessage
      */
     public static function unseal(
-        string $ciphertext,
+        HiddenString $ciphertext,
         EncryptionSecretKey $privateKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): string {
+    ): HiddenString {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given hex data:
             try {
-                $ciphertext = $decoder($ciphertext);
+                $ciphertext = $decoder($ciphertext->getString());
             } catch (\RangeException $ex) {
                 throw new CryptoException\InvalidMessage(
                     'Invalid character encoding'
                 );
             }
+        } else {
+            $ciphertext = $ciphertext->getString();
         }
 
         // Get a box keypair (needed by crypto_box_seal_open)
         $secret_key = $privateKey->getRawKeyMaterial();
         $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
-        $kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
+        $key_pair = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
             $secret_key,
             $public_key
         );
@@ -200,10 +206,13 @@ final class Crypto
         \Sodium\memzero($public_key);
         
         // Now let's open that sealed box
-        $message = \Sodium\crypto_box_seal_open($ciphertext, $kp);
+        $message = \Sodium\crypto_box_seal_open(
+            $ciphertext,
+            $key_pair
+        );
 
         // Always memzero after retrieving a value
-        \Sodium\memzero($kp);
+        \Sodium\memzero($key_pair);
         if ($message === false) {
             throw new CryptoException\InvalidKey(
                 'Incorrect secret key for this sealed message'
@@ -211,29 +220,31 @@ final class Crypto
         }
 
         // We have our encrypted message here
-        return $message;
+        return new HiddenString($message);
     }
     
     /**
      * Verify a signed message with the correct public key
      * 
-     * @param string $message Message to verify
+     * @param HiddenString $message Message to verify
      * @param SignaturePublicKey $publicKey
-     * @param string $signature
+     * @param HiddenString $signature
      * @param mixed $encoding Which encoding scheme to use?
      * @return bool
      * @throws CryptoException\InvalidSignature
      */
     public static function verify(
-        string $message,
+        HiddenString $message,
         SignaturePublicKey $publicKey,
-        string $signature,
+        HiddenString $signature,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): bool {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given hex data:
-            $signature = $decoder($signature);
+            $signature = $decoder($signature->getString());
+        } else {
+            $signature = $signature->getString();
         }
         if (CryptoUtil::safeStrlen($signature) !== \Sodium\CRYPTO_SIGN_BYTES) {
             throw new CryptoException\InvalidSignature(
@@ -243,7 +254,7 @@ final class Crypto
         
         return \Sodium\crypto_sign_verify_detached(
             $signature,
-            $message,
+            $message->getString(),
             $publicKey->getRawKeyMaterial()
         );
     }

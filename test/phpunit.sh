@@ -6,7 +6,7 @@ cd ${origdir}
 parentdir="$(dirname ${cdir})"
 
 clean=0 # Clean up?
-gpg --fingerprint D8406D0D82947747293778314AA394086372C20A
+gpg --fingerprint D8406D0D82947747293778314AA394086372C20A >& phpunit.out
 if [ $? -ne 0 ]; then
     echo -e "\033[33mDownloading PGP Public Key...\033[0m"
     gpg  --keyserver pgp.mit.edu --recv-keys D8406D0D82947747293778314AA394086372C20A
@@ -44,11 +44,8 @@ if [ ! -f phpunit.phar.asc ]; then
     fi
 fi
 
-# What are the major/minor versions?
-# php -r "var_dump([\Sodium\library_version_major(), \Sodium\library_version_minor()]);"
-
 # Verify before running
-gpg --batch --verify phpunit.phar.asc phpunit.phar
+gpg --batch --verify phpunit.phar.asc phpunit.phar >& phpunit.out2
 if [ $? -eq 0 ]; then
     echo
     echo -e "\033[33mBegin Unit Testing\033[0m"
@@ -62,6 +59,8 @@ if [ $? -eq 0 ]; then
         echo -e "\033[32mCleaning Up!\033[0m"
         rm -f phpunit.phar
         rm -f phpunit.phar.asc
+        rm -f phpunit.out
+        rm -f phpunit.out2
     fi
     exit ${EXITCODE}
 else

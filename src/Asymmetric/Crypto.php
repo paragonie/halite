@@ -17,7 +17,7 @@ use ParagonIE\Halite\{
  *
  * @package ParagonIE\Halite\Asymmetric
  */
-abstract class Crypto
+final class Crypto
 {
     /**
      * Encrypt a string using asymmetric cryptography

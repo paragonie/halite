@@ -5,7 +5,7 @@ namespace ParagonIE\Halite;
 /**
  * Class Halite
  *
- * This is just an abstract class that hosts some constants
+ * This is just an final class that hosts some constants
  *
  * Version Tag Info:
  *
@@ -16,7 +16,7 @@ namespace ParagonIE\Halite;
  *
  * @package ParagonIE\Halite
  */
-abstract class Halite
+final class Halite
 {
     const VERSION             = '2.1.0';
 

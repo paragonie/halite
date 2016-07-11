@@ -16,7 +16,7 @@ use ParagonIE\Halite\{
  *
  * @package ParagonIE\Halite
  */
-abstract class Password
+final class Password
 {
     /**
      * Hash then encrypt a password

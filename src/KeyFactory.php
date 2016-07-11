@@ -19,7 +19,7 @@ use ParagonIE\Halite\{
  *
  * @package ParagonIE\Halite
  */
-abstract class KeyFactory
+final class KeyFactory
 {
     // For key derivation security levels:
     const INTERACTIVE = 'interactive';

@@ -17,7 +17,7 @@ use ParagonIE\Halite\{
  *
  * @package ParagonIE\Halite\Symmetric
  */
-abstract class Crypto
+final class Crypto
 {
     /**
      * Authenticate a string

@@ -15,7 +15,7 @@ use ParagonIE\Halite\Alerts\{
  *
  * @package ParagonIE\Halite
  */
-abstract class Util
+final class Util
 {
     /**
      * Wrapper around \Sodium\crypto_generichash()

@@ -21,20 +21,20 @@ final class Password
     /**
      * Hash then encrypt a password
      *
-     * @param string $password          The user's password
+     * @param HiddenString $password    The user's password
      * @param EncryptionKey $secret_key The master key for all passwords
      * @param string $level             The security level for this password
      * @return string                   An encrypted hash to store
      */
     public static function hash(
-        string $password,
+        HiddenString $password,
         EncryptionKey $secret_key,
         string $level = KeyFactory::INTERACTIVE
     ): string {
         $kdfLimits = KeyFactory::getSecurityLevels($level);
         // First, let's calculate the hash
         $hashed = \Sodium\crypto_pwhash_str(
-            $password,
+            $password->getString(),
             $kdfLimits[0],
             $kdfLimits[1]
         );
@@ -123,15 +123,15 @@ final class Password
 
     /**
      * Decrypt then verify a password
-     * 
-     * @param string $password          The user-provided password
+     *
+     * @param HiddenString $password    The user's password
      * @param string $stored            The encrypted password hash
      * @param EncryptionKey $secret_key The master key for all passwords
      * @return bool                  Is this password valid?
      * @throws InvalidMessage
      */
     public static function verify(
-        string $password,
+        HiddenString $password,
         string $stored,
         EncryptionKey $secret_key
     ): bool {
@@ -143,19 +143,6 @@ final class Password
         // First let's decrypt the hash
         $hash_str = Crypto::decrypt($stored, $secret_key);
         // Upon successful decryption, verify the password is correct
-        $isArgon2 = \hash_equals(
-            Util::safeSubstr($hash_str, 0, 9),
-            \Sodium\CRYPTO_PWHASH_STRPREFIX
-        );
-        $isScrypt = \hash_equals(
-            Util::safeSubstr($hash_str, 0, 3),
-            \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX
-        );
-        if ($isArgon2) {
-            return \Sodium\crypto_pwhash_str_verify($hash_str, $password);
-        } elseif ($isScrypt) {
-            return \Sodium\crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $password);
-        }
-        return false;
+        return \Sodium\crypto_pwhash_str_verify($hash_str, $password);
     }
 }

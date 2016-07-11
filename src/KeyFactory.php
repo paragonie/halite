@@ -95,154 +95,99 @@ final class KeyFactory
     
     /**
      * Derive an authentication key (symmetric) from a password and salt
-     * 
-     * @param string $password
+     *
+     * @param HiddenString $password
      * @param string $salt
-     * @param bool $legacy Use scrypt?
      * @param string $level Security level for KDF
      * 
      * @return AuthenticationKey
      * @throws CryptoException\InvalidSalt
      */
     public static function deriveAuthenticationKey(
-        string $password,
+        HiddenString $password,
         string $salt,
-        bool $legacy = false,
         string $level = self::INTERACTIVE
     ): AuthenticationKey {
-        $kdfLimits = self::getSecurityLevels($level, $legacy);
-        if ($legacy) {
-            // VERSION 1 (scrypt)
-            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
-                throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
-                );
-            }
-            $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-                \Sodium\CRYPTO_AUTH_KEYBYTES,
-                $password,
-                $salt,
-                $kdfLimits[0],
-                $kdfLimits[1]
-            );
-        } else {
-            // VERSION 2+ (argon2)
-            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
-                throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
-                );
-            }
-            $secret_key = \Sodium\crypto_pwhash(
-                \Sodium\CRYPTO_AUTH_KEYBYTES,
-                $password,
-                $salt,
-                $kdfLimits[0],
-                $kdfLimits[1]
+        $kdfLimits = self::getSecurityLevels($level);
+        // VERSION 2+ (argon2)
+        if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+            throw new CryptoException\InvalidSalt(
+                'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
+        $secret_key = \Sodium\crypto_pwhash(
+            \Sodium\CRYPTO_AUTH_KEYBYTES,
+            $password->getString(),
+            $salt,
+            $kdfLimits[0],
+            $kdfLimits[1]
+        );
         return new AuthenticationKey($secret_key);
     }
     
     /**
      * Derive an encryption key (symmetric-key cryptography) from a password
      * and salt
-     * 
-     * @param string $password
+     *
+     * @param HiddenString $password
      * @param string $salt
-     * @param bool $legacy Use scrypt?
      * @param string $level Security level for KDF
      * 
      * @return EncryptionKey
      * @throws CryptoException\InvalidSalt
      */
     public static function deriveEncryptionKey(
-        string $password,
+        HiddenString $password,
         string $salt,
-        bool $legacy = false,
         string $level = self::INTERACTIVE
     ): EncryptionKey {
-        $kdfLimits = self::getSecurityLevels($level, $legacy);
-        if ($legacy) {
-            // VERSION 1 (scrypt)
-            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
-                throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
-                );
-            }
-            $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-                \Sodium\CRYPTO_STREAM_KEYBYTES,
-                $password,
-                $salt,
-                $kdfLimits[0],
-                $kdfLimits[1]
-            );
-        } else {
-            // VERSION 2+ (argon2)
-            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
-                throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
-                );
-            }
-            $secret_key = \Sodium\crypto_pwhash(
-                \Sodium\CRYPTO_STREAM_KEYBYTES,
-                $password,
-                $salt,
-                $kdfLimits[0],
-                $kdfLimits[1]
+        $kdfLimits = self::getSecurityLevels($level);
+        // VERSION 2+ (argon2)
+        if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+            throw new CryptoException\InvalidSalt(
+                'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
+        $secret_key = \Sodium\crypto_pwhash(
+            \Sodium\CRYPTO_STREAM_KEYBYTES,
+            $password->getString(),
+            $salt,
+            $kdfLimits[0],
+            $kdfLimits[1]
+        );
         return new EncryptionKey($secret_key);
     }
     
     /**
      * Derive a key pair for public key encryption from a password and salt
      * 
-     * @param string $password
+     * @param HiddenString $password
      * @param string $salt
-     * @param bool $legacy Use scrypt?
      * @param string $level Security level for KDF
      * 
      * @return EncryptionKeyPair
      * @throws CryptoException\InvalidSalt
      */
     public static function deriveEncryptionKeyPair(
-        string $password,
+        HiddenString $password,
         string $salt,
-        bool $legacy = false,
         string $level = self::INTERACTIVE
     ): EncryptionKeyPair {
-        $kdfLimits = self::getSecurityLevels($level, $legacy);
-        if ($legacy) {
-            // VERSION 1 (scrypt)
-            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
-                throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
-                );
-            }
-            // Diffie Hellman key exchange key pair
-            $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-                \Sodium\CRYPTO_BOX_SEEDBYTES,
-                $password,
-                $salt,
-                $kdfLimits[0],
-                $kdfLimits[1]
-            );
-        } else {
-            // VERSION 2+ (argon2)
-            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
-                throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
-                );
-            }
-            // Diffie Hellman key exchange key pair
-            $seed = \Sodium\crypto_pwhash(
-                \Sodium\CRYPTO_BOX_SEEDBYTES,
-                $password,
-                $salt,
-                $kdfLimits[0],
-                $kdfLimits[1]
+        $kdfLimits = self::getSecurityLevels($level);
+        // VERSION 2+ (argon2)
+        if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+            throw new CryptoException\InvalidSalt(
+                'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
+        // Diffie Hellman key exchange key pair
+        $seed = \Sodium\crypto_pwhash(
+            \Sodium\CRYPTO_BOX_SEEDBYTES,
+            $password->getString(),
+            $salt,
+            $kdfLimits[0],
+            $kdfLimits[1]
+        );
         $keyPair = \Sodium\crypto_box_seed_keypair($seed);
         $secret_key = \Sodium\crypto_box_secretkey($keyPair);
         
@@ -256,52 +201,33 @@ final class KeyFactory
     /**
      * Derive a key pair for public key signatures from a password and salt
      * 
-     * @param string $password
+     * @param HiddenString $password
      * @param string $salt
-     * @param bool $legacy Use scrypt?
      * @param string $level Security level for KDF
      *
      * @return SignatureKeyPair
      * @throws CryptoException\InvalidSalt
      */
     public static function deriveSignatureKeyPair(
-        string $password,
+        HiddenString $password,
         string $salt,
-        bool $legacy = false,
         string $level = self::INTERACTIVE
     ): SignatureKeyPair {
-        $kdfLimits = self::getSecurityLevels($level, $legacy);
-        if ($legacy) {
-            // VERSION 1 (scrypt)
-            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES) {
-                throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
-                );
-            }
-            // Digital signature keypair
-            $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
-                \Sodium\CRYPTO_SIGN_SEEDBYTES,
-                $password,
-                $salt,
-                $kdfLimits[0],
-                $kdfLimits[1]
-            );
-        } else {
-            // VERSION 2+ (argon2)
-            if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
-                throw new CryptoException\InvalidSalt(
-                    'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
-                );
-            }
-            // Digital signature keypair
-            $seed = \Sodium\crypto_pwhash(
-                \Sodium\CRYPTO_SIGN_SEEDBYTES,
-                $password,
-                $salt,
-                $kdfLimits[0],
-                $kdfLimits[1]
+        $kdfLimits = self::getSecurityLevels($level);
+        // VERSION 2+ (argon2)
+        if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+            throw new CryptoException\InvalidSalt(
+                'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
+        // Digital signature keypair
+        $seed = \Sodium\crypto_pwhash(
+            \Sodium\CRYPTO_SIGN_SEEDBYTES,
+            $password->getString(),
+            $salt,
+            $kdfLimits[0],
+            $kdfLimits[1]
+        );
         $keyPair = \Sodium\crypto_sign_seed_keypair($seed);
         $secret_key = \Sodium\crypto_sign_secretkey($keyPair);
         
@@ -316,32 +242,11 @@ final class KeyFactory
      * Returns a 2D array [OPSLIMIT, MEMLIMIT] for the appropriate security level.
      *
      * @param string $level
-     * @param bool $legacy
      * @return int[]
      * @throws CryptoException\InvalidType
      */
-    public static function getSecurityLevels(
-        string $level = self::INTERACTIVE,
-        bool $legacy = false
-    ): array {
-        if ($legacy) {
-            switch ($level) {
-                case self::INTERACTIVE:
-                    return [
-                        \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
-                        \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
-                    ];
-                case self::SENSITIVE:
-                    return [
-                        \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE,
-                        \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE
-                    ];
-                default:
-                    throw new CryptoException\InvalidType(
-                        'Invalid security level for scrypt'
-                    );
-            }
-        }
+    public static function getSecurityLevels(string $level = self::INTERACTIVE): array
+    {
         switch ($level) {
             case self::INTERACTIVE:
                 return [

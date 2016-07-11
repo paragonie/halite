@@ -143,6 +143,6 @@ final class Password
         // First let's decrypt the hash
         $hash_str = Crypto::decrypt($stored, $secret_key);
         // Upon successful decryption, verify the password is correct
-        return \Sodium\crypto_pwhash_str_verify($hash_str, $password);
+        return \Sodium\crypto_pwhash_str_verify($hash_str, $password->getString());
     }
 }

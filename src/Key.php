@@ -12,7 +12,7 @@ use ParagonIE\Halite\Contract;
  *
  * @package ParagonIE\Halite
  */
-final class Key
+class Key
 {
     protected $is_public_key = false;
     protected $is_signing_key = false;

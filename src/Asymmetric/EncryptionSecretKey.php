@@ -2,8 +2,8 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
-use \ParagonIE\Halite\Alerts\InvalidKey;
-use \ParagonIE\Halite\Util as CryptoUtil;
+use ParagonIE\Halite\Alerts\InvalidKey;
+use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
  * Class EncryptionSecretKey

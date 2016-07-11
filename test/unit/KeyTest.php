@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-use \ParagonIE\Halite\Alerts\InvalidType;
-use \ParagonIE\Halite\KeyFactory;
-use \ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
-use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
-use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
-use \ParagonIE\Halite\Asymmetric\SignatureSecretKey;
+use ParagonIE\Halite\Alerts\InvalidType;
+use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
+use ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
+use ParagonIE\Halite\Asymmetric\SignaturePublicKey;
+use ParagonIE\Halite\Asymmetric\SignatureSecretKey;
 
 /**
  * @backupGlobals disabled

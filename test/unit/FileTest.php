@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-use \ParagonIE\Halite\File;
-use \ParagonIE\Halite\KeyFactory;
-use \ParagonIE\Halite\Symmetric\EncryptionKey;
-use \ParagonIE\Halite\Util;
-use \ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\File;
+use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\Symmetric\EncryptionKey;
+use ParagonIE\Halite\Util;
+use ParagonIE\Halite\Alerts as CryptoException;
 
 /**
  * @backupGlobals disabled

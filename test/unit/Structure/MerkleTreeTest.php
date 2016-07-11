@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use \ParagonIE\Halite\Structure\{
+use ParagonIE\Halite\Structure\{
     MerkleTree,
     Node
 };

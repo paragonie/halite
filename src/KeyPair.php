@@ -2,8 +2,8 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Asymmetric\{
+use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Asymmetric\{
     PublicKey,
     SecretKey
 };

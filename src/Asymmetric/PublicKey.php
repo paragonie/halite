@@ -2,8 +2,8 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
-use \ParagonIE\Halite\Contract;
-use \ParagonIE\Halite\Key;
+use ParagonIE\Halite\Contract;
+use ParagonIE\Halite\Key;
 
 /**
  * Class PublicKey

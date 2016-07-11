@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use \ParagonIE\Halite\Halite;
+use ParagonIE\Halite\Halite;
 
 /**
  * @backupGlobals disabled

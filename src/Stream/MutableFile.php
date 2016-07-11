@@ -2,9 +2,9 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
-use \ParagonIE\Halite\Contract\StreamInterface;
-use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Util as CryptoUtil;
+use ParagonIE\Halite\Contract\StreamInterface;
+use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
  * Contrast with ReadOnlyFile: does not prevent race conditions by itself

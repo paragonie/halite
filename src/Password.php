@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use \ParagonIE\Halite\{
+use ParagonIE\Halite\{
     Alerts\InvalidMessage,
     Symmetric\Config as SymmetricConfig,
     Symmetric\Crypto,

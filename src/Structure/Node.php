@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
-use \ParagonIE\Halite\Util;
+use ParagonIE\Halite\Util;
 
 /**
  * Class Node

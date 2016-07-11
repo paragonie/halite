@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Contract;
 
-use \ParagonIE\Halite\Alerts\{
+use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     FileAccessDenied
 };

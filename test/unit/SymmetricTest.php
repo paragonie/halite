@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-use \ParagonIE\Halite\Symmetric\Crypto as Symmetric;
-use \ParagonIE\Halite\Symmetric\AuthenticationKey;
-use \ParagonIE\Halite\Symmetric\EncryptionKey;
-use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Halite;
-use \ParagonIE\Halite\Util;
+use ParagonIE\Halite\Symmetric\Crypto as Symmetric;
+use ParagonIE\Halite\Symmetric\AuthenticationKey;
+use ParagonIE\Halite\Symmetric\EncryptionKey;
+use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Halite;
+use ParagonIE\Halite\Util;
 
 /**
  * @backupGlobals disabled

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-use \ParagonIE\Halite\Alerts as CryptoException;
-use \ParagonIE\Halite\Stream\ReadOnlyFile;
-use \ParagonIE\Halite\Util;
+use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Stream\ReadOnlyFile;
+use ParagonIE\Halite\Util;
 
 /**
  * @backupGlobals disabled

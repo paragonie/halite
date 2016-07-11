@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use \ParagonIE\Halite\Structure\Node;
+use ParagonIE\Halite\Structure\Node;
 
 /**
  * @backupGlobals disabled

@@ -4,7 +4,9 @@ namespace ParagonIE\Halite\Symmetric;
 
 use ParagonIE\Halite\{
     Alerts as CryptoException,
-    Config as BaseConfig
+    Config as BaseConfig,
+    Halite,
+    Util
 };
 
 /**
@@ -25,6 +27,11 @@ final class Config extends BaseConfig
         string $header,
         string $mode = 'encrypt'
     ): self {
+        if (Util::safeStrlen($header) < Halite::VERSION_TAG_LEN) {
+            throw new CryptoException\InvalidMessage(
+                'Invalid version tag'
+            );
+        }
         if (\ord($header[0]) !== 49 || \ord($header[1]) !== 66) {
             throw new CryptoException\InvalidMessage(
                 'Invalid version tag'
@@ -83,6 +90,19 @@ final class Config extends BaseConfig
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
             }
+        } elseif ($major === 3) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 124,
+                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                        'HKDF_SALT_LEN' => 32,
+                        'MAC_ALGO' => 'BLAKE2b',
+                        'MAC_SIZE' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
         }
         throw new CryptoException\InvalidMessage(
             'Invalid version tag'
@@ -114,6 +134,18 @@ final class Config extends BaseConfig
         } elseif ($major === 2) {
             switch ($minor) {
                 case 1:
+                case 0:
+                    return [
+                        'HKDF_SALT_LEN' => 32,
+                        'MAC_ALGO' => 'BLAKE2b',
+                        'MAC_SIZE' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
+                        'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
+        } elseif ($major === 3) {
+            switch ($minor) {
                 case 0:
                     return [
                         'HKDF_SALT_LEN' => 32,

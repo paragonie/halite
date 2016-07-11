@@ -66,26 +66,12 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         $key = new EncryptionKey(\str_repeat('A', 32));
         $message = Symmetric::encrypt('test message', $key);
         $this->assertSame(
-            \strpos($message, \Sodium\bin2hex(Halite::HALITE_VERSION)),
+            \strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
         $plain = Symmetric::decrypt($message, $key);
         $this->assertSame($plain, 'test message');
-    }
-
-    public function testLegacyDecrypt()
-    {
-        $message = "31420100ddad7a2dbbc9a3bb7d693a1c09e807da8c087b41b3e8d3d4" .
-            "1b5e489b2c5ba35bd01ca1129a9c3d1f3ffbe5e8602d61384d669ef6f939edc" .
-            "f4379ff898cb4ca301b01c3651a0ce94cee29da249a2b29297b872a3d8e516c" .
-            "2cab551a8e02e0f5302729450b";
-        $key = new EncryptionKey(\str_repeat('A', 32));
-        $plain = Symmetric::decrypt($message, $key);
-        $this->assertSame(
-            $plain,
-            'test message'
-        );
     }
 
     /**
@@ -96,7 +82,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         $key = new EncryptionKey(\str_repeat('A', 32));
         $message = Symmetric::encrypt('', $key);
         $this->assertSame(
-            \strpos($message, \Sodium\bin2hex(Halite::HALITE_VERSION)),
+            \strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -111,7 +97,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     {
         $key = new EncryptionKey(\str_repeat('A', 32));
         $message = Symmetric::encrypt('test message', $key, true);
-        $this->assertTrue(strpos($message, \ParagonIE\Halite\Halite::HALITE_VERSION) === 0);
+        $this->assertTrue(strpos($message, Halite::HALITE_VERSION) === 0);
         
         $plain = Symmetric::decrypt($message, $key, true);
         $this->assertSame($plain, 'test message');

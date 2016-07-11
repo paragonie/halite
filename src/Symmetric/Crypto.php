@@ -24,14 +24,14 @@ final class Crypto
      * 
      * @param string $message
      * @param AuthenticationKey $secretKey
-     * @param bool $raw
+     * @param mixed $encoding
      * @throws CryptoException\InvalidKey
      * @return string
      */
     public static function authenticate(
         string $message,
         AuthenticationKey $secretKey,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $config = SymmetricConfig::getConfig(
             Halite::HALITE_VERSION,
@@ -42,10 +42,11 @@ final class Crypto
             $secretKey->getRawKeyMaterial(),
             $config
         );
-        if ($raw) {
-            return $mac;
+        $encoder = Halite::chooseEncoder($encoding);
+        if ($encoder) {
+            return $encoder($mac);
         }
-        return \Sodium\bin2hex($mac);
+        return $mac;
     }
     
     /**
@@ -53,18 +54,25 @@ final class Crypto
      * 
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
-     * @param bool $raw Don't hex decode the input?
+     * @param mixed $encoding
      * @return string
      * @throws CryptoException\InvalidMessage
      */
     public static function decrypt(
         string $ciphertext,
         EncryptionKey $secretKey,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
-        if (!$raw) {
+        $decoder = Halite::chooseEncoder($encoding, true);
+        if ($decoder) {
             // We were given hex data:
-            $ciphertext = \Sodium\hex2bin($ciphertext);
+            try {
+                $ciphertext = $decoder($ciphertext);
+            } catch (\RangeException $ex) {
+                throw new CryptoException\InvalidMessage(
+                    'Invalid character encoding'
+                );
+            }
         }
         list($version, $config, $salt, $nonce, $encrypted, $auth) =
             self::unpackMessageForDecryption($ciphertext);
@@ -110,13 +118,13 @@ final class Crypto
      * 
      * @param string $plaintext
      * @param EncryptionKey $secretKey
-     * @param bool $raw Don't hex encode the output?
+     * @param mixed $encoding
      * @return string
      */
     public static function encrypt(
         string $plaintext,
         EncryptionKey $secretKey,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
@@ -149,8 +157,9 @@ final class Crypto
         \Sodium\memzero($encrypted);
         \Sodium\memzero($auth);
 
-        if (!$raw) {
-            return \Sodium\bin2hex($message);
+        $encoder = Halite::chooseEncoder($encoding);
+        if ($encoder) {
+            return $encoder($message);
         }
         return $message;
     }
@@ -263,7 +272,7 @@ final class Crypto
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param string $mac
-     * @param bool $raw
+     * @param mixed $encoding
      * @param SymmetricConfig $config
      * @return bool
      */
@@ -271,11 +280,13 @@ final class Crypto
         string $message,
         AuthenticationKey $secretKey,
         string $mac,
-        bool $raw = false,
+        $encoding = Halite::ENCODE_BASE64URLSAFE,
         SymmetricConfig $config = null
     ): bool {
-        if (!$raw) {
-            $mac = \Sodium\hex2bin($mac);
+        $decoder = Halite::chooseEncoder($encoding, true);
+        if ($decoder) {
+            // We were given hex data:
+            $mac = $decoder($mac);
         }
         if ($config === null) {
             // Default to the current version

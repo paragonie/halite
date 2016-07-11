@@ -5,6 +5,7 @@ namespace ParagonIE\Halite\Asymmetric;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\{
     Util as CryptoUtil,
+    Halite,
     Key,
     Symmetric\Crypto as SymmetricCrypto,
     Symmetric\EncryptionKey
@@ -26,14 +27,14 @@ final class Crypto
      * @param string $plaintext                    The message to encrypt
      * @param EncryptionSecretKey $ourPrivateKey   Our private key
      * @param EncryptionPublicKey $theirPublicKey  Their public key
-     * @param bool $raw                            Don't hex encode the output
+     * @param mixed $encoding                      Which encoding scheme to use?
      * @return string                              Ciphertext
      */
     public static function encrypt(
         string $plaintext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $sharedSecretKey = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
@@ -41,7 +42,7 @@ final class Crypto
         $ciphertext = SymmetricCrypto::encrypt(
             $plaintext,
             $sharedSecretKey,
-            $raw
+            $encoding
         );
         unset($sharedSecretKey);
         return $ciphertext;
@@ -54,19 +55,19 @@ final class Crypto
      * @param string $ciphertext                  The message to decrypt
      * @param EncryptionSecretKey $ourPrivateKey  Our private key
      * @param EncryptionPublicKey $theirPublicKey Their public key
-     * @param bool $raw                           Expect raw binary
+     * @param mixed $encoding                      Which encoding scheme to use?
      * @return string                             The decrypted message
      */
     public static function decrypt(
         string $ciphertext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $sharedSecretKey = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
-        $plaintext = SymmetricCrypto::decrypt($ciphertext, $sharedSecretKey, $raw);
+        $plaintext = SymmetricCrypto::decrypt($ciphertext, $sharedSecretKey, $encoding);
         unset($sharedSecretKey);
         return $plaintext;
     }
@@ -106,7 +107,7 @@ final class Crypto
      * 
      * @param string $plaintext              Message to encrypt
      * @param EncryptionPublicKey $publicKey Public encryption key
-     * @param bool $raw                      Don't hex encode the output?
+     * @param mixed $encoding                Which encoding scheme to use?
      * @return string                        Ciphertext
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidKey
@@ -114,7 +115,7 @@ final class Crypto
     public static function seal(
         string $plaintext,
         EncryptionPublicKey $publicKey,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         if (!$publicKey instanceof EncryptionPublicKey) {
             throw new CryptoException\InvalidKey(
@@ -128,10 +129,11 @@ final class Crypto
         }
         
         $sealed = \Sodium\crypto_box_seal($plaintext, $publicKey->getRawKeyMaterial());
-        if ($raw) {
-            return $sealed;
+        $encoder = Halite::chooseEncoder($encoding);
+        if ($encoder) {
+            return $encoder($sealed);
         }
-        return \Sodium\bin2hex($sealed);
+        return $sealed;
     }
     
     /**
@@ -139,22 +141,23 @@ final class Crypto
      * 
      * @param string $message Message to sign
      * @param SignatureSecretKey $privateKey
-     * @param bool $raw Don't hex encode the output?
+     * @param mixed $encoding Which encoding scheme to use?
      * @return string Signature (detached)
      */
     public static function sign(
         string $message,
         SignatureSecretKey $privateKey,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $signed = \Sodium\crypto_sign_detached(
             $message,
             $privateKey->getRawKeyMaterial()
         );
-        if ($raw) {
-            return $signed;
+        $encoder = Halite::chooseEncoder($encoding);
+        if ($encoder) {
+            return $encoder($signed);
         }
-        return \Sodium\bin2hex($signed);
+        return $signed;
     }
     
     /**
@@ -162,17 +165,26 @@ final class Crypto
      * 
      * @param string $ciphertext Encrypted message
      * @param EncryptionSecretKey $privateKey
-     * @param bool $raw Don't hex decode the input?
+     * @param mixed $encoding Which encoding scheme to use?
      * @return string
      * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
      */
     public static function unseal(
         string $ciphertext,
         EncryptionSecretKey $privateKey,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
-        if (!$raw) {
-            $ciphertext = \Sodium\hex2bin($ciphertext);
+        $decoder = Halite::chooseEncoder($encoding, true);
+        if ($decoder) {
+            // We were given hex data:
+            try {
+                $ciphertext = $decoder($ciphertext);
+            } catch (\RangeException $ex) {
+                throw new CryptoException\InvalidMessage(
+                    'Invalid character encoding'
+                );
+            }
         }
 
         // Get a box keypair (needed by crypto_box_seal_open)
@@ -208,7 +220,7 @@ final class Crypto
      * @param string $message Message to verify
      * @param SignaturePublicKey $publicKey
      * @param string $signature
-     * @param bool $raw Don't hex decode the input?
+     * @param mixed $encoding Which encoding scheme to use?
      * @return bool
      * @throws CryptoException\InvalidSignature
      */
@@ -216,10 +228,12 @@ final class Crypto
         string $message,
         SignaturePublicKey $publicKey,
         string $signature,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): bool {
-        if (!$raw) {
-            $signature = \Sodium\hex2bin($signature);
+        $decoder = Halite::chooseEncoder($encoding, true);
+        if ($decoder) {
+            // We were given hex data:
+            $signature = $decoder($signature);
         }
         if (CryptoUtil::safeStrlen($signature) !== \Sodium\CRYPTO_SIGN_BYTES) {
             throw new CryptoException\InvalidSignature(

@@ -811,6 +811,20 @@ final class File
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
             }
+        } elseif ($major === 3) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'USE_BLAKE2B' => true,
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 92,
+                        'BUFFER' => 1048576,
+                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                        'HKDF_SALT_LEN' => 32,
+                        'MAC_SIZE' => 32,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
         }
         // If we reach here, we've got an invalid version tag:
         throw new CryptoException\InvalidMessage(
@@ -857,6 +871,20 @@ final class File
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
             }
+        } elseif ($major === 3) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'USE_BLAKE2B' => true,
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 100,
+                        'BUFFER' => 1048576,
+                        'HKDF_SALT_LEN' => 32,
+                        'MAC_SIZE' => 32,
+                        'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
         }
         throw new CryptoException\InvalidMessage(
             'Invalid version tag'
@@ -885,6 +913,15 @@ final class File
         } elseif ($major === 2) {
             switch ($minor) {
                 case 1:
+                case 0:
+                    return [
+                        'CHECKSUM_PUBKEY' => true,
+                        'BUFFER' => 1048576,
+                        'HASH_LEN' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                    ];
+            }
+        } elseif ($major === 3) {
+            switch ($minor) {
                 case 0:
                     return [
                         'CHECKSUM_PUBKEY' => true,

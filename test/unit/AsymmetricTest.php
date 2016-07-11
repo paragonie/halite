@@ -27,9 +27,8 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $alice->getSecretKey(),
             $bob->getPublicKey()
         );
-
         $this->assertSame(
-            \strpos($message, \Sodium\bin2hex(Halite::HALITE_VERSION)),
+            \strpos($message, Halite::VERSION_PREFIX),
             0
         );
         
@@ -58,7 +57,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertSame(
-            \strpos($message, \Sodium\bin2hex(Halite::HALITE_VERSION)),
+            \strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -175,7 +174,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         
         // This should throw an exception
         try {
-            $opened = Asymmetric::unseal($sealed, $alice->getSecretKey(), true);
+            $opened = Asymmetric::unseal($sealed, $alice->getSecretKey());
             $this->assertSame($opened, $message);
             $this->fail(
                 'This should have thrown an InvalidMessage exception!'
@@ -198,7 +197,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         $message = 'test message';
         $signature = Asymmetric::sign($message, $alice->getSecretKey());
         
-        $this->assertTrue(strlen($signature) === 128);
+        $this->assertTrue(strlen($signature) === 88);
         
         $this->assertTrue(
             Asymmetric::verify($message, $alice->getPublicKey(), $signature)

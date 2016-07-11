@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\Halite\{
     Alerts\InvalidMessage,
     Symmetric\Config as SymmetricConfig,
@@ -115,6 +116,12 @@ final class Password
         if ($length < 8) {
             throw new InvalidMessage(
                 'Encrypted password hash is way too short.'
+            );
+        }
+        if (Util::safeSubstr($stored, 0, 5) === Halite::VERSION_PREFIX) {
+            return SymmetricConfig::getConfig(
+                Base64UrlSafe::decode($stored),
+                'encrypt'
             );
         }
         $v = \Sodium\hex2bin(Util::safeSubstr($stored, 0, 8));

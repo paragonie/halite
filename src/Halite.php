@@ -2,6 +2,14 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use ParagonIE\ConstantTime\{
+    Base32,
+    Base32Hex,
+    Base64,
+    Base64UrlSafe
+};
+use ParagonIE\Halite\Alerts\InvalidType;
+
 /**
  * Class Halite
  *
@@ -18,13 +26,20 @@ namespace ParagonIE\Halite;
  */
 final class Halite
 {
-    const VERSION             = '2.1.0';
+    const VERSION             = '3.0.0';
 
-    const HALITE_VERSION_KEYS = "\x31\x40\x02\x01";
-    const HALITE_VERSION_FILE = "\x31\x41\x02\x01";
-    const HALITE_VERSION      = "\x31\x42\x02\x01";
-    
+    const HALITE_VERSION_KEYS = "\x31\x40\x03\x00";
+    const HALITE_VERSION_FILE = "\x31\x41\x03\x00";
+    const HALITE_VERSION      = "\x31\x42\x03\x00";
+
     const VERSION_TAG_LEN = 4;
+    const VERSION_PREFIX = 'MUIDA';
+
+    const ENCODE_HEX = 'hex';
+    const ENCODE_BASE32 = 'base32';
+    const ENCODE_BASE32HEX = 'base32hex';
+    const ENCODE_BASE64 = 'base64';
+    const ENCODE_BASE64URLSAFE = 'base64urlsafe';
 
     public static function isLibsodiumSetupCorrectly(bool $echo = false): bool
     {
@@ -48,5 +63,51 @@ final class Halite
         }
 
         return true;
+    }
+
+    /**
+     * Select which encoding/decoding function to use.
+     *
+     * @param mixed $chosen
+     * @param bool $decode
+     * @return callable (array or string)
+     * @throws InvalidType
+     */
+    public static function chooseEncoder($chosen, bool $decode = false)
+    {
+        if ($chosen === true) {
+            return null;
+        } elseif ($chosen === false) {
+            return $decode
+                ? '\\Sodium\\hex2bin'
+                : '\\Sodium\\bin2hex';
+        } elseif ($chosen === self::ENCODE_BASE32) {
+            return [
+                Base32::class,
+                $decode ? 'decode' : 'encode'
+            ];
+        } elseif ($chosen === self::ENCODE_BASE32HEX) {
+            return [
+                Base32Hex::class,
+                $decode ? 'decode' : 'encode'
+            ];
+        } elseif ($chosen === self::ENCODE_BASE64) {
+            return [
+                Base64::class,
+                $decode ? 'decode' : 'encode'
+            ];
+        } elseif ($chosen === self::ENCODE_BASE64URLSAFE) {
+            return [
+                Base64UrlSafe::class,
+                $decode ? 'decode' : 'encode'
+            ];
+        } elseif ($chosen === self::ENCODE_HEX) {
+            return $decode
+                ? '\\Sodium\\hex2bin'
+                : '\\Sodium\\bin2hex';
+        }
+        throw new InvalidType(
+            'Illegal value for encoding choice.'
+        );
     }
 }

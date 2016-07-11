@@ -1,5 +1,9 @@
 # Changelog
 
+# Version 3.0.0 (Not Released)
+
+* Use [paragonie/constant_time_encoding](https://github.com/paragonie/constant_time_encoding) 
+
 ## Version 2.1.2 (2016-07-11)
 
 * Better docblocks, added unit test to prevent regressions.

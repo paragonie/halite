@@ -16,6 +16,8 @@ if [ $? -ne 0 ]; then
         echo -e "\033[31mCould not download PGP public key for verification\033[0m"
         exit 1
     fi
+else
+    cat phpunit.out
 fi
 
 if [ "$clean" -eq 1 ]; then
@@ -68,6 +70,7 @@ else
     chmod -x phpunit.phar
     mv phpunit.phar /tmp/bad-phpunit.phar
     mv phpunit.phar.asc /tmp/bad-phpunit.phar.asc
+    cat phpunit.out2
     echo -e "\033[31mSignature did not match! Check /tmp/bad-phpunit.phar for trojans\033[0m"
     exit 1
 fi

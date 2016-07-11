@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 2.1.2 (2016-07-11)
+
+* Better docblocks, added unit test to prevent regressions.
+
+## Version 2.1.1 (2016-05-15)
+
+* Prevent an undefined index error when calculating the root of an empty MerkleTree.
+
 ## Version 2.1.0 (2016-05-07)
 
 * Key derivation (via `KeyFactory`) can now accept an extra argument to 

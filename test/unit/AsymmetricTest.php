@@ -134,8 +134,18 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         $decr = \Sodium\crypto_box_seal_open($test, $kp);
         $this->assertTrue($decr !== false);
         
-        $sealed = Asymmetric::seal($message, new EncryptionPublicKey(\Sodium\crypto_box_publickey($kp)));
-        $opened = Asymmetric::unseal($sealed, new EncryptionSecretKey(\Sodium\crypto_box_secretkey($kp)));
+        $sealed = Asymmetric::seal(
+            $message,
+            new EncryptionPublicKey(
+                new HiddenString(\Sodium\crypto_box_publickey($kp))
+            )
+        );
+        $opened = Asymmetric::unseal(
+            $sealed,
+            new EncryptionSecretKey(
+                new HiddenString(\Sodium\crypto_box_secretkey($kp))
+            )
+        );
         
         $this->assertSame($opened->getString(), $message->getString());
         

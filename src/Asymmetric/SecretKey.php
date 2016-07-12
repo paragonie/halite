@@ -2,6 +2,7 @@
 namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\Contract;
+use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Key;
 use ParagonIE\Halite\Alerts\CannotPerformOperation;
 
@@ -12,9 +13,9 @@ use ParagonIE\Halite\Alerts\CannotPerformOperation;
 class SecretKey extends Key
 {
     /**
-     * @param string $keyMaterial - The actual key data
+     * @param HiddenString $keyMaterial - The actual key data
      */
-    public function __construct(string $keyMaterial = '')
+    public function __construct(HiddenString $keyMaterial)
     {
         parent::__construct($keyMaterial);
         $this->is_asymmetric_key = true;

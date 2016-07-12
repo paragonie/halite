@@ -37,7 +37,9 @@ final class KeyFactory
         $secret_key = \Sodium\randombytes_buf(
             \Sodium\CRYPTO_AUTH_KEYBYTES
         );
-        return new AuthenticationKey($secret_key);
+        return new AuthenticationKey(
+            new HiddenString($secret_key)
+        );
     }
     
     /**
@@ -51,7 +53,9 @@ final class KeyFactory
         $secret_key = \Sodium\randombytes_buf(
             \Sodium\CRYPTO_STREAM_KEYBYTES
         );
-        return new EncryptionKey($secret_key);
+        return new EncryptionKey(
+            new HiddenString($secret_key)
+        );
     }
     
     /**
@@ -69,7 +73,9 @@ final class KeyFactory
         // Let's wipe our $kp variable
         \Sodium\memzero($kp);
         return new EncryptionKeyPair(
-            new EncryptionSecretKey($secret_key)
+            new EncryptionSecretKey(
+                new HiddenString($secret_key)
+            )
         );
     }
     
@@ -88,7 +94,9 @@ final class KeyFactory
         // Let's wipe our $kp variable
         \Sodium\memzero($kp);
         return new SignatureKeyPair(
-            new SignatureSecretKey($secret_key)
+            new SignatureSecretKey(
+                new HiddenString($secret_key)
+            )
         );
     }
     
@@ -122,7 +130,9 @@ final class KeyFactory
             $kdfLimits[0],
             $kdfLimits[1]
         );
-        return new AuthenticationKey($secret_key);
+        return new AuthenticationKey(
+            new HiddenString($secret_key)
+        );
     }
     
     /**
@@ -155,7 +165,9 @@ final class KeyFactory
             $kdfLimits[0],
             $kdfLimits[1]
         );
-        return new EncryptionKey($secret_key);
+        return new EncryptionKey(
+            new HiddenString($secret_key)
+        );
     }
     
     /**
@@ -194,7 +206,9 @@ final class KeyFactory
         // Let's wipe our $kp variable
         \Sodium\memzero($keyPair);
         return new EncryptionKeyPair(
-            new EncryptionSecretKey($secret_key)
+            new EncryptionSecretKey(
+                new HiddenString($secret_key)
+            )
         );
     }
     
@@ -234,7 +248,9 @@ final class KeyFactory
         // Let's wipe our $kp variable
         \Sodium\memzero($keyPair);
         return new SignatureKeyPair(
-            new SignatureSecretKey($secret_key)
+            new SignatureSecretKey(
+                new HiddenString($secret_key)
+            )
         );
     }
 
@@ -456,10 +472,10 @@ final class KeyFactory
      * Read a key from a file, verify its checksum
      * 
      * @param string $filePath
-     * @return string
+     * @return HiddenString
      * @throws Alerts\CannotPerformOperation
      */
-    protected static function loadKeyFile(string $filePath): string
+    protected static function loadKeyFile(string $filePath): HiddenString
     {
         $fileData = \file_get_contents($filePath);
         if ($fileData === false) {
@@ -469,7 +485,9 @@ final class KeyFactory
         }
         $data = \Sodium\hex2bin($fileData);
         \Sodium\memzero($fileData);
-        return self::getKeyDataFromString($data);
+        return new HiddenString(
+            self::getKeyDataFromString($data)
+        );
     }
     
     /**

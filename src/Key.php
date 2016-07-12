@@ -32,11 +32,11 @@ class Key
     /**
      * You probably should not be using this directly.
      *
-     * @param string $keyMaterial - The actual key data
+     * @param HiddenString $keyMaterial - The actual key data
      */
-    public function __construct(string $keyMaterial = '')
+    public function __construct(HiddenString $keyMaterial)
     {
-        $this->key_material = Util::safeStrcpy($keyMaterial);
+        $this->key_material = Util::safeStrcpy($keyMaterial->getString());
     }
 
     /**

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use ParagonIE\Halite\File;
+use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Util;
@@ -24,7 +25,9 @@ class FileTest extends PHPUnit_Framework_TestCase
         \touch(__DIR__.'/tmp/paragon_avatar.decrypted.png');
         \chmod(__DIR__.'/tmp/paragon_avatar.decrypted.png', 0777);
 
-        $key = new EncryptionKey(\str_repeat('B', 32));
+        $key = new EncryptionKey(
+            new HiddenString(\str_repeat('B', 32))
+        );
         File::encrypt(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.encrypted.png',
@@ -54,7 +57,9 @@ class FileTest extends PHPUnit_Framework_TestCase
         \file_put_contents(__DIR__.'/tmp/empty.txt', '');
         \chmod(__DIR__.'/tmp/empty.txt', 0777);
 
-        $key = new EncryptionKey(\str_repeat('B', 32));
+        $key = new EncryptionKey(
+            new HiddenString(\str_repeat('B', 32))
+        );
         File::encrypt(
             __DIR__.'/tmp/empty.txt',
             __DIR__.'/tmp/empty.encrypted.txt',
@@ -87,7 +92,9 @@ class FileTest extends PHPUnit_Framework_TestCase
         \touch(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png');
         \chmod(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png', 0777);
         
-        $key = new EncryptionKey(\str_repeat('B', 32));
+        $key = new EncryptionKey(
+            new HiddenString(\str_repeat('B', 32))
+        );
         File::encrypt(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.encrypt_fail.png',
@@ -121,7 +128,9 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testEncryptSmallFail()
     {
         $msg = 'Input file is too small to have been encrypted by Halite.';
-        $key = new EncryptionKey(\str_repeat('B', 32));
+        $key = new EncryptionKey(
+            new HiddenString(\str_repeat('B', 32))
+        );
 
         \file_put_contents(
             __DIR__.'/tmp/empty.encrypted.txt',

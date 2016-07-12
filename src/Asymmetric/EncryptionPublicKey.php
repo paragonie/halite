@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\Alerts\InvalidKey;
+use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
@@ -12,12 +13,12 @@ use ParagonIE\Halite\Util as CryptoUtil;
 final class EncryptionPublicKey extends PublicKey
 {
     /**
-     * @param string $keyMaterial - The actual key data
+     * @param HiddenString $keyMaterial - The actual key data
      * @throws InvalidKey
      */
-    public function __construct(string $keyMaterial = '')
+    public function __construct(HiddenString $keyMaterial)
     {
-        if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_BOX_PUBLICKEYBYTES) {
+        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== \Sodium\CRYPTO_BOX_PUBLICKEYBYTES) {
             throw new InvalidKey(
                 'Encryption public key must be CRYPTO_BOX_PUBLICKEYBYTES bytes long'
             );

@@ -386,29 +386,21 @@ final class File
             $config->HKDF_SALT_LEN
         );
 
-        if ($config->USE_BLAKE2B) {
-            // VERSION 2+
-            $mac = \Sodium\crypto_generichash_init($authKey);
-            \Sodium\crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
-            \Sodium\crypto_generichash_update($mac, $firstNonce);
-            \Sodium\crypto_generichash_update($mac, $hkdfSalt);
-        } else {
-            // VERSION 1
-            $mac = \hash_init('sha256', HASH_HMAC, $authKey);
-            // We no longer need $authKey after we set up the hash context
-            unset($authKey);
+        // VERSION 2+
+        $mac = \Sodium\crypto_generichash_init($authKey);
+        \Sodium\crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+        \Sodium\crypto_generichash_update($mac, $firstNonce);
+        \Sodium\crypto_generichash_update($mac, $hkdfSalt);
 
-            \hash_update($mac, Halite::HALITE_VERSION_FILE);
-            \hash_update($mac, $firstNonce);
-            \hash_update($mac, $hkdfSalt);
-        }
         \Sodium\memzero($authKey);
         \Sodium\memzero($hkdfSalt);
 
         return self::streamEncrypt(
             $input,
             $output,
-            new EncryptionKey($encKey),
+            new EncryptionKey(
+                new HiddenString($encKey)
+            ),
             $firstNonce,
             $mac,
             $config
@@ -482,7 +474,9 @@ final class File
         $ret = self::streamDecrypt(
             $input,
             $output,
-            new EncryptionKey($encKey),
+            new EncryptionKey(
+                new HiddenString($encKey)
+            ),
             $firstNonce,
             $mac,
             $config,
@@ -528,7 +522,7 @@ final class File
 
         // Generate a nonce as per crypto_box_seal
         $nonce = \Sodium\crypto_generichash(
-            $ephPublic->getRawKeyMaterial().$publicKey->getRawKeyMaterial(),
+            $ephPublic->getRawKeyMaterial() . $publicKey->getRawKeyMaterial(),
             '',
             \Sodium\CRYPTO_STREAM_NONCEBYTES
         );
@@ -556,25 +550,14 @@ final class File
             $config->HKDF_SALT_LEN
         );
 
-        if ($config->USE_BLAKE2B) {
-            // VERSION 2+
-            $mac = \Sodium\crypto_generichash_init($authKey);
-            // We no longer need $authKey after we set up the hash context
-            \Sodium\memzero($authKey);
+        // VERSION 2+
+        $mac = \Sodium\crypto_generichash_init($authKey);
+        // We no longer need $authKey after we set up the hash context
+        \Sodium\memzero($authKey);
 
-            \Sodium\crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
-            \Sodium\crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
-            \Sodium\crypto_generichash_update($mac, $hkdfSalt);
-        } else {
-            // VERSION 1
-            $mac = \hash_init('sha256', HASH_HMAC, $authKey);
-            // We no longer need $authKey after we set up the hash context
-            \Sodium\memzero($authKey);
-
-            \hash_update($mac, Halite::HALITE_VERSION_FILE);
-            \hash_update($mac, $ephPublic->getRawKeyMaterial());
-            \hash_update($mac, $hkdfSalt);
-        }
+        \Sodium\crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+        \Sodium\crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
+        \Sodium\crypto_generichash_update($mac, $hkdfSalt);
 
         unset($ephPublic);
         \Sodium\memzero($hkdfSalt);
@@ -582,7 +565,9 @@ final class File
         return self::streamEncrypt(
             $input,
             $output,
-            new EncryptionKey($encKey),
+            new EncryptionKey(
+                new HiddenString($encKey)
+            ),
             $nonce,
             $mac,
             $config
@@ -637,7 +622,9 @@ final class File
         );
 
         // Create a key object out of the public key:
-        $ephemeral = new EncryptionPublicKey($ephPublic);
+        $ephemeral = new EncryptionPublicKey(
+            new HiddenString($ephPublic)
+        );
 
         $key = AsymmetricCrypto::getSharedSecret(
             $secretKey,
@@ -672,7 +659,9 @@ final class File
         $ret = self::streamDecrypt(
             $input,
             $output,
-            new EncryptionKey($encKey),
+            new EncryptionKey(
+                new HiddenString($encKey)
+            ),
             $nonce,
             $mac,
             $config,
@@ -991,7 +980,7 @@ final class File
         MutableFile $output,
         EncryptionKey $encKey,
         string $nonce,
-        $mac,
+        string $mac,
         Config $config
     ): int {
         $initHash = $input->getHash();

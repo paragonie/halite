@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\Alerts\InvalidKey;
+use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
@@ -12,12 +13,11 @@ use ParagonIE\Halite\Util as CryptoUtil;
 final class SignatureSecretKey extends SecretKey
 {
     /**
-     * @param string $keyMaterial - The actual key data
-     * @throws InvalidKey
+     * @param HiddenString $keyMaterial - The actual key data
      */
-    public function __construct(string $keyMaterial = '')
+    public function __construct(HiddenString $keyMaterial)
     {
-        if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_SIGN_SECRETKEYBYTES) {
+        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== \Sodium\CRYPTO_SIGN_SECRETKEYBYTES) {
             throw new InvalidKey(
                 'Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES bytes long'
             );
@@ -36,6 +36,6 @@ final class SignatureSecretKey extends SecretKey
         $publicKey = \Sodium\crypto_sign_publickey_from_secretkey(
             $this->getRawKeyMaterial()
         );
-        return new SignaturePublicKey($publicKey);
+        return new SignaturePublicKey(new HiddenString($publicKey));
     }
 }

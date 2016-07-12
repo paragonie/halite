@@ -38,7 +38,12 @@ final class Crypto
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
         $sharedSecretKey = new EncryptionKey(
-            self::getSharedSecret($ourPrivateKey, $theirPublicKey)
+            new HiddenString(
+                self::getSharedSecret(
+                    $ourPrivateKey,
+                    $theirPublicKey
+                )
+            )
         );
         $ciphertext = SymmetricCrypto::encrypt(
             $plaintext,
@@ -66,7 +71,12 @@ final class Crypto
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
         $sharedSecretKey = new EncryptionKey(
-            self::getSharedSecret($ourPrivateKey, $theirPublicKey)
+            new HiddenString(
+                self::getSharedSecret(
+                    $ourPrivateKey,
+                    $theirPublicKey
+                )
+            )
         );
         $plaintext = SymmetricCrypto::decrypt($ciphertext, $sharedSecretKey, $encoding);
         unset($sharedSecretKey);
@@ -82,7 +92,7 @@ final class Crypto
      * @param EncryptionSecretKey $privateKey
      * @param EncryptionPublicKey $publicKey
      * @param bool $get_as_object Get as a Key object?
-     * @return string|Key
+     * @return HiddenString|Key
      */
     public static function getSharedSecret(
         EncryptionSecretKey $privateKey,
@@ -91,9 +101,11 @@ final class Crypto
     ) {
         if ($get_as_object) {
             return new EncryptionKey(
-                \Sodium\crypto_scalarmult(
-                    $privateKey->getRawKeyMaterial(),
-                    $publicKey->getRawKeyMaterial()
+                new HiddenString(
+                    \Sodium\crypto_scalarmult(
+                        $privateKey->getRawKeyMaterial(),
+                        $publicKey->getRawKeyMaterial()
+                    )
                 )
             );
         }

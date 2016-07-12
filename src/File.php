@@ -450,24 +450,14 @@ final class File
         // Split our keys, begin the HMAC instance
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
 
-        if ($config->USE_BLAKE2B) {
-            // VERSION 2+
-            $mac = \Sodium\crypto_generichash_init($authKey);
-            \Sodium\crypto_generichash_update($mac, $header);
-            \Sodium\crypto_generichash_update($mac, $firstNonce);
-            \Sodium\crypto_generichash_update($mac, $hkdfSalt);
+        // VERSION 2+
+        $mac = \Sodium\crypto_generichash_init($authKey);
+        \Sodium\crypto_generichash_update($mac, $header);
+        \Sodium\crypto_generichash_update($mac, $firstNonce);
+        \Sodium\crypto_generichash_update($mac, $hkdfSalt);
 
-            $old_macs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
-        } else {
-            // VERSION 1
-            $mac = \hash_init('sha256', HASH_HMAC, $authKey);
-            \hash_update($mac, $header);
-            \hash_update($mac, $firstNonce);
-            \hash_update($mac, $hkdfSalt);
+        $old_macs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
 
-            // This will throw an exception if it fails.
-            $old_macs = self::streamVerify($input, \hash_copy($mac), $config);
-        }
         \Sodium\memzero($authKey);
         \Sodium\memzero($hkdfSalt);
 
@@ -552,6 +542,7 @@ final class File
 
         // VERSION 2+
         $mac = \Sodium\crypto_generichash_init($authKey);
+
         // We no longer need $authKey after we set up the hash context
         \Sodium\memzero($authKey);
 
@@ -637,22 +628,13 @@ final class File
         // We no longer need the original key after we split it
         unset($key);
 
-        if ($config->USE_BLAKE2B) {
-            $mac = \Sodium\crypto_generichash_init($authKey);
-            \Sodium\crypto_generichash_update($mac, $header);
-            \Sodium\crypto_generichash_update($mac, $ephPublic);
-            \Sodium\crypto_generichash_update($mac, $hkdfSalt);
+        $mac = \Sodium\crypto_generichash_init($authKey);
 
-            $oldMACs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
-        } else {
-            $mac = \hash_init('sha256', HASH_HMAC, $authKey);
-            \hash_update($mac, $header);
-            \hash_update($mac, $ephPublic);
-            \hash_update($mac, $hkdfSalt);
+        \Sodium\crypto_generichash_update($mac, $header);
+        \Sodium\crypto_generichash_update($mac, $ephPublic);
+        \Sodium\crypto_generichash_update($mac, $hkdfSalt);
 
-            // This will throw an exception if it fails.
-            $oldMACs = self::streamVerify($input, \hash_copy($mac), $config);
-        }
+        $oldMACs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
         // We no longer need this:
         \Sodium\memzero($hkdfSalt);
 
@@ -778,26 +760,11 @@ final class File
      */
     protected static function getConfigEncrypt(int $major, int $minor): array
     {
-        if ($major === 1) {
-            switch ($minor) {
-                case 0:
-                    return [
-                        'USE_BLAKE2B' => false,
-                        'SHORTEST_CIPHERTEXT_LENGTH' => 92,
-                        'BUFFER' => 1048576,
-                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_SIZE' => 32,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
-                    ];
-            }
-        } elseif ($major === 2) {
+        if ($major === 2) {
             switch ($minor) {
                 case 1:
                 case 0:
                     return [
-                        'USE_BLAKE2B' => true,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'BUFFER' => 1048576,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
@@ -811,7 +778,6 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
-                        'USE_BLAKE2B' => true,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'BUFFER' => 1048576,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
@@ -838,26 +804,11 @@ final class File
      */
     protected static function getConfigSeal(int $major, int $minor): array
     {
-        if ($major === 1) {
-            switch ($minor) {
-                case 0:
-                    return [
-                        'USE_BLAKE2B' => false,
-                        'SHORTEST_CIPHERTEXT_LENGTH' => 100,
-                        'BUFFER' => 1048576,
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_SIZE' => 32,
-                        'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
-                    ];
-            }
-        } elseif ($major === 2) {
+        if ($major === 2) {
             switch ($minor) {
                 case 1:
                 case 0:
                     return [
-                        'USE_BLAKE2B' => true,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 100,
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
@@ -871,7 +822,6 @@ final class File
             switch ($minor) {
                 case 0:
                     return [
-                        'USE_BLAKE2B' => true,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 100,
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
@@ -897,16 +847,7 @@ final class File
      */
     protected static function getConfigChecksum(int $major, int $minor): array
     {
-        if ($major === 1) {
-            switch ($minor) {
-                case 0:
-                    return [
-                        'CHECKSUM_PUBKEY' => false,
-                        'BUFFER' => 1048576,
-                        'HASH_LEN' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
-                    ];
-            }
-        } elseif ($major === 2) {
+        if ($major === 2) {
             switch ($minor) {
                 case 1:
                 case 0:
@@ -999,13 +940,7 @@ final class File
                 $nonce,
                 $encKey->getRawKeyMaterial()
             );
-            if ($config->USE_BLAKE2B) {
-                // VERSION 2+
-                \Sodium\crypto_generichash_update($mac, $encrypted);
-            } else {
-                // VERSION 1
-                \hash_update($mac, $encrypted);
-            }
+            \Sodium\crypto_generichash_update($mac, $encrypted);
             $written += $output->writeBytes($encrypted);
             \Sodium\increment($nonce);
         }
@@ -1017,18 +952,10 @@ final class File
                 'Read-only file has been modified since it was opened for reading'
             );
         }
-        if ($config->USE_BLAKE2B) {
-            // VERSION 2+
-            $written += $output->writeBytes(
-                \Sodium\crypto_generichash_final($mac, $config->MAC_SIZE),
-                $config->MAC_SIZE
-            );
-        } else {
-            // VERSION 1
-            $written += $output->writeBytes(
-                \hash_final($mac, true)
-            );
-        }
+        $written += $output->writeBytes(
+            \Sodium\crypto_generichash_final($mac, $config->MAC_SIZE),
+            $config->MAC_SIZE
+        );
         return $written;
     }
 
@@ -1054,7 +981,7 @@ final class File
         MutableFile $output,
         EncryptionKey $encKey,
         string $nonce,
-        $mac,
+        string $mac,
         Config $config,
         array &$chunk_macs
     ): bool {
@@ -1077,20 +1004,9 @@ final class File
             }
 
             // Version 2+ uses a keyed BLAKE2b hash instead of HMAC
-            if ($config->USE_BLAKE2B) {
-                \Sodium\crypto_generichash_update($mac, $read);
-                $calcMAC = Util::safeStrcpy($mac);
-                $calc = \Sodium\crypto_generichash_final($calcMAC, $config->MAC_SIZE);
-            } else {
-                \hash_update($mac, $read);
-                $calcMAC = \hash_copy($mac);
-                if ($calcMAC === false) {
-                    throw new CryptoException\CannotPerformOperation(
-                        'An unknown error has occurred'
-                    );
-                }
-                $calc = \hash_final($calcMAC, true);
-            }
+            \Sodium\crypto_generichash_update($mac, $read);
+            $calcMAC = Util::safeStrcpy($mac);
+            $calc = \Sodium\crypto_generichash_final($calcMAC, $config->MAC_SIZE);
 
             if (empty($chunk_macs)) {
                 // Someone attempted to add a chunk at the end.
@@ -1161,44 +1077,22 @@ final class File
             /**
              * We're updating our HMAC and nothing else
              */
-            if ($config->USE_BLAKE2B) {
-                // VERSION 2+
-                \Sodium\crypto_generichash_update($mac, $read);
-                // Copy the hash state then store the MAC of this chunk
-                $chunkMAC = Util::safeStrcpy($mac);
-                $chunkMACs []= \Sodium\crypto_generichash_final(
-                    $chunkMAC,
-                    $config->MAC_SIZE
-                );
-            } else {
-                // VERSION 1
-                \hash_update($mac, $read);
-                /**
-                 * Store a MAC of each chunk
-                 */
-                $chunkMAC = \hash_copy($mac);
-                if ($chunkMAC === false) {
-                    throw new CryptoException\CannotPerformOperation(
-                        'An unknown error has occurred'
-                    );
-                }
-                $chunkMACs []= \hash_final($chunkMAC, true);
-            }
+            \Sodium\crypto_generichash_update($mac, $read);
+            // Copy the hash state then store the MAC of this chunk
+            $chunkMAC = Util::safeStrcpy($mac);
+            $chunkMACs []= \Sodium\crypto_generichash_final(
+                $chunkMAC,
+                $config->MAC_SIZE
+            );
         }
 
         /**
          * We should now have enough data to generate an identical MAC
          */
-        if ($config->USE_BLAKE2B) {
-            // VERSION 2+
-            $finalHMAC = \Sodium\crypto_generichash_final(
-                $mac,
-                $config->MAC_SIZE
-            );
-        } else {
-            // VERSION 1
-            $finalHMAC = \hash_final($mac, true);
-        }
+        $finalHMAC = \Sodium\crypto_generichash_final(
+            $mac,
+            $config->MAC_SIZE
+        );
 
         /**
          * Use hash_equals() to be timing-invariant

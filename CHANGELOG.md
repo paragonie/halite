@@ -3,6 +3,13 @@
 # Version 3.0.0 (Not Released)
 
 * Use [paragonie/constant_time_encoding](https://github.com/paragonie/constant_time_encoding) 
+* We now default to URL-safe Base 64 encoding (RFC 4648) 
+* API change: Now instead of a plain `string` scalar, you will be passing 
+  instances of `HiddenString` back and forth. Should an unhandled exception
+  ever occur, you will be spared the pain of data leaks via stack trace.
+* Dropped support for version 1.
+  * We no longer offer or use scrypt anywhere. Everything is Argon2 now.
+  * `KeyFactory` no longer accepts a `$legacy` argument.
 
 ## Version 2.1.2 (2016-07-11)
 

@@ -63,20 +63,7 @@ final class Config extends BaseConfig
      */
     public static function getConfigEncrypt(int $major, int $minor): array
     {
-        if ($major === 1) {
-            switch ($minor) {
-                case 0:
-                    return [
-                        'HKDF_SALT_LEN' => 32,
-                        'SHORTEST_CIPHERTEXT_LENGTH' => 92,
-                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
-                        'MAC_SIZE' => \Sodium\CRYPTO_AUTH_BYTES,
-                        'MAC_ALGO' => 'HMAC-SHA512/256',
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
-                    ];
-            }
-        } elseif ($major === 2) {
+        if ($major === 2) {
             switch ($minor) {
                 case 1:
                 case 0:
@@ -119,19 +106,7 @@ final class Config extends BaseConfig
      */
     public static function getConfigAuth(int $major, int $minor): array
     {
-        if ($major === 1) {
-            switch ($minor) {
-                case 0:
-                    return [
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_ALGO' => 'HMAC-SHA512/256',
-                        'MAC_SIZE' => \Sodium\CRYPTO_AUTH_BYTES,
-                        'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
-                    ];
-            }
-        } elseif ($major === 2) {
+        if ($major === 2) {
             switch ($minor) {
                 case 1:
                 case 0:

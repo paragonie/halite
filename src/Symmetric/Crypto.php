@@ -336,11 +336,6 @@ final class Crypto
                 $authKey,
                 $config->MAC_SIZE
             );
-        } elseif ($config->MAC_ALGO === 'HMAC-SHA512/256') {
-            return \Sodium\crypto_auth(
-                $message,
-                $authKey
-            );
         }
         throw new CryptoException\InvalidMessage(
             'Invalid Halite version'
@@ -378,12 +373,6 @@ final class Crypto
             $res = \hash_equals($mac, $calc);
             \Sodium\memzero($calc);
             return $res;
-        } elseif ($config->MAC_ALGO === 'HMAC-SHA512/256') {
-            return \Sodium\crypto_auth_verify(
-                $mac,
-                $message,
-                $authKey
-            );
         }
         throw new CryptoException\InvalidMessage(
             'Invalid Halite version'

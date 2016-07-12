@@ -9,14 +9,14 @@ for user authentication, powered by our [symmetric-key cryptography](Symmetric/C
 
 ### `hash()`
 
-> `public static` hash(`string $password`, `EncryptionKey $secret_key`): `string`
+> `public static` hash(`HiddenString $password`, `EncryptionKey $secret_key`): `HiddenString`
 
-Hash a password (with a randomly generated scrypt salt), then encrypt the hash
+Hash a password (with a randomly generated Argon2 salt), then encrypt the hash
 using our [symmetric encryption key](Symmetric/EncryptionKey.md).
 
 ### `verify()`
 
-> `public static` verify(`string $password`, `string $stored`, `EncryptionKey $secret_key`): `boolean`
+> `public static` verify(`HiddenString $password`, `HiddenString $stored`, `EncryptionKey $secret_key`): `bool`
 
 Decrypt the `$stored` password hash, then verify that it matches the given 
 `$password`.

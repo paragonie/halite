@@ -13,7 +13,7 @@ use ParagonIE\Halite\Util as CryptoUtil;
 final class EncryptionSecretKey extends SecretKey
 {
     /**
-     * @param string $keyMaterial - The actual key data
+     * @param HiddenString $keyMaterial - The actual key data
      * @throws InvalidKey
      */
     public function __construct(HiddenString $keyMaterial)
@@ -29,7 +29,7 @@ final class EncryptionSecretKey extends SecretKey
     /**
      * See the appropriate derived class.
      * 
-     * @return SignaturePublicKey
+     * @return EncryptionPublicKey
      */
     public function derivePublicKey()
     {

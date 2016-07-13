@@ -50,7 +50,7 @@ final class Password
     /**
      * Is this password hash stale?
      *
-     * @param string $stored            Encrypted password hash
+     * @param HiddenString $stored      Encrypted password hash
      * @param EncryptionKey $secret_key The master key for all passwords
      * @param string $level             The security level for this password
      * @return bool                     Do we need to regenerate the hash or
@@ -63,17 +63,17 @@ final class Password
         string $level = KeyFactory::INTERACTIVE
     ): bool {
         $config = self::getConfig($stored);
-        $v = \Sodium\hex2bin(Util::safeSubstr($stored, 0, 8));
+        $v = \Sodium\hex2bin(Util::safeSubstr($stored->getString(), 0, 8));
         if (!\hash_equals(Halite::HALITE_VERSION, $v)) {
             // Outdated version of the library; Always rehash without decrypting
             return true;
         }
-        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 2)) {
+        if (Util::safeStrlen($stored->getString()) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 4 / 3)) {
             throw new InvalidMessage('Encrypted password hash is too short.');
         }
 
         // First let's decrypt the hash
-        $hash_str = Crypto::decrypt($stored, $secret_key);
+        $hash_str = Crypto::decrypt($stored, $secret_key)->getString();
 
         // Upon successful decryption, verify that we're using Argon2i
         if (!\hash_equals(

@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
-use ParagonIE\Halite\Contract;
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Key;
 

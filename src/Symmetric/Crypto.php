@@ -117,12 +117,8 @@ final class Crypto
     /**
      * Encrypt a message using the Halite encryption protocol
      *
-     * Version 2:
      * (Encrypt then MAC -- xsalsa20 then keyed-Blake2b)
      *
-     * Version 1:
-     * (Encrypt then MAC -- xsalsa20 then HMAC-SHA-512/256)
-     * 
      * @param HiddenString $plaintext
      * @param EncryptionKey $secretKey
      * @param mixed $encoding

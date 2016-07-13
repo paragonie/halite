@@ -14,6 +14,7 @@ final class SignatureSecretKey extends SecretKey
 {
     /**
      * @param HiddenString $keyMaterial - The actual key data
+     * @throws InvalidKey
      */
     public function __construct(HiddenString $keyMaterial)
     {

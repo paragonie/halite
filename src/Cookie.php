@@ -54,7 +54,8 @@ final class Cookie
             return null;
         }
         try {
-            $decrypted = Crypto::decrypt($_COOKIE[$name], $this->key);
+            $decrypted = Crypto::decrypt($_COOKIE[$name], $this->key)
+                ->getString();
             if (empty($decrypted)) {
                 return null;
             }
@@ -88,7 +89,7 @@ final class Cookie
         return \setcookie(
             $name,
             Crypto::encrypt(
-                \json_encode($value),
+                new HiddenString(\json_encode($value)),
                 $this->key
             ),
             $expire,

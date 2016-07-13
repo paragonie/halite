@@ -1,7 +1,6 @@
 <?php
 namespace ParagonIE\Halite\Asymmetric;
 
-use ParagonIE\Halite\Contract;
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Key;
 use ParagonIE\Halite\Alerts\CannotPerformOperation;

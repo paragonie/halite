@@ -38,11 +38,9 @@ final class Crypto
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
         $sharedSecretKey = new EncryptionKey(
-            new HiddenString(
-                self::getSharedSecret(
-                    $ourPrivateKey,
-                    $theirPublicKey
-                )
+            self::getSharedSecret(
+                $ourPrivateKey,
+                $theirPublicKey
             )
         );
         $ciphertext = SymmetricCrypto::encrypt(
@@ -71,11 +69,9 @@ final class Crypto
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
         $sharedSecretKey = new EncryptionKey(
-            new HiddenString(
-                self::getSharedSecret(
-                    $ourPrivateKey,
-                    $theirPublicKey
-                )
+            self::getSharedSecret(
+                $ourPrivateKey,
+                $theirPublicKey
             )
         );
         $plaintext = SymmetricCrypto::decrypt($ciphertext, $sharedSecretKey, $encoding);
@@ -109,9 +105,11 @@ final class Crypto
                 )
             );
         }
-        return \Sodium\crypto_scalarmult(
-            $privateKey->getRawKeyMaterial(),
-            $publicKey->getRawKeyMaterial()
+        return new HiddenString(
+            \Sodium\crypto_scalarmult(
+                $privateKey->getRawKeyMaterial(),
+                $publicKey->getRawKeyMaterial()
+            )
         );
     }
     
@@ -155,10 +153,10 @@ final class Crypto
     /**
      * Sign a message with our private key
      * 
-     * @param string $message Message to sign
+     * @param HiddenString $message Message to sign
      * @param SignatureSecretKey $privateKey
      * @param mixed $encoding Which encoding scheme to use?
-     * @return string Signature (detached)
+     * @return HiddenString Signature (detached)
      */
     public static function sign(
         HiddenString $message,
@@ -179,10 +177,10 @@ final class Crypto
     /**
      * Decrypt a sealed message with our private key
      * 
-     * @param string $ciphertext Encrypted message
+     * @param HiddenString $ciphertext Encrypted message
      * @param EncryptionSecretKey $privateKey
      * @param mixed $encoding Which encoding scheme to use?
-     * @return string
+     * @return HiddenString
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      */

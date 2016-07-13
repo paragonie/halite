@@ -248,7 +248,7 @@ final class File
      *
      * @param string|resource $filename     File name or file handle
      * @param SignaturePublicKey $publicKey Other party's signature public key
-     * @param string $signature             The signature we received
+     * @param HiddenString $signature             The signature we received
      * @param bool $raw_binary              TRUE if the signature is raw binary
      *
      * @return bool
@@ -909,7 +909,7 @@ final class File
      * @param MutableFile $output
      * @param EncryptionKey $encKey
      * @param string $nonce
-     * @param resource $mac (hash context)
+     * @param string $mac (hash context for BLAKE2b)
      * @param Config $config
      * @return int (number of bytes)
      * @throws CryptoException\FileAccessDenied
@@ -966,7 +966,7 @@ final class File
      * @param MutableFile $output
      * @param EncryptionKey $encKey
      * @param string $nonce
-     * @param resource $mac (hash context)
+     * @param string $mac (hash context for BLAKE2b)
      * @param Config $config
      * @param array &$chunk_macs
      * @return bool

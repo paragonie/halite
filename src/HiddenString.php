@@ -37,7 +37,7 @@ final class HiddenString
     public function __debugInfo()
     {
         return [
-            'interalStringValue' =>
+            'internalStringValue' =>
                 '*',
             'attention' =>
                 'If you need the value of a HiddenString, ' .

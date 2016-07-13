@@ -18,6 +18,16 @@ use ParagonIE\Halite\{
 final class SignatureKeyPair extends KeyPair
 {
     /**
+     * @var SignatureSecretKey
+     */
+    protected $secret_key;
+
+    /**
+     * @var SignaturePublicKey
+     */
+    protected $public_key;
+
+    /**
      * 
      * Pass it a secret key, it will automatically generate a public key
      * 
@@ -47,13 +57,17 @@ final class SignatureKeyPair extends KeyPair
                     $this->setupKeyPair(
                         $keys[1] instanceof SignatureSecretKey
                             ? $keys[1]
-                            : new SignatureSecretKey($keys[1]->getRawKeyMaterial())
+                            : new SignatureSecretKey(
+                                new HiddenString($keys[1]->getRawKeyMaterial())
+                            )
                     );
                 } elseif ($keys[1]->isPublicKey()) {
                     $this->setupKeyPair(
                         $keys[0] instanceof SignatureSecretKey
                             ? $keys[0]
-                            : new SignatureSecretKey($keys[0]->getRawKeyMaterial())
+                            : new SignatureSecretKey(
+                                new HiddenString($keys[0]->getRawKeyMaterial())
+                            )
                     );
                 } else {
                     throw new CryptoException\InvalidKey(
@@ -79,7 +93,9 @@ final class SignatureKeyPair extends KeyPair
                 $this->setupKeyPair(
                     $keys[0] instanceof SignatureSecretKey
                         ? $keys[0]
-                        : new SignatureSecretKey($keys[0]->getRawKeyMaterial())
+                        : new SignatureSecretKey(
+                            new HiddenString($keys[0]->getRawKeyMaterial())
+                        )
                 );
                 break;
             default:
@@ -107,7 +123,7 @@ final class SignatureKeyPair extends KeyPair
      */
     public function getPublicKey()
     {
-        return parent::getPublicKey();
+        return $this->public_key;
     }
     /**
      * Get a Key object for the public key
@@ -116,6 +132,6 @@ final class SignatureKeyPair extends KeyPair
      */
     public function getSecretKey()
     {
-        return parent::getSecretKey();
+        return $this->secret_key;
     }
 }

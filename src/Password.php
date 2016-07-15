@@ -23,13 +23,13 @@ final class Password
      * Hash then encrypt a password
      *
      * @param HiddenString $password    The user's password
-     * @param EncryptionKey $secret_key The master key for all passwords
+     * @param EncryptionKey $secretKey  The master key for all passwords
      * @param string $level             The security level for this password
      * @return HiddenString             An encrypted hash to store
      */
     public static function hash(
         HiddenString $password,
-        EncryptionKey $secret_key,
+        EncryptionKey $secretKey,
         string $level = KeyFactory::INTERACTIVE
     ): HiddenString {
         $kdfLimits = KeyFactory::getSecurityLevels($level);
@@ -43,7 +43,7 @@ final class Password
         // Now let's encrypt the result
         return Crypto::encrypt(
             new HiddenString($hashed),
-            $secret_key
+            $secretKey
         );
     }
 
@@ -51,7 +51,7 @@ final class Password
      * Is this password hash stale?
      *
      * @param HiddenString $stored      Encrypted password hash
-     * @param EncryptionKey $secret_key The master key for all passwords
+     * @param EncryptionKey $secretKey  The master key for all passwords
      * @param string $level             The security level for this password
      * @return bool                     Do we need to regenerate the hash or
      *                                  ciphertext?
@@ -59,21 +59,20 @@ final class Password
      */
     public static function needsRehash(
         HiddenString $stored,
-        EncryptionKey $secret_key,
+        EncryptionKey $secretKey,
         string $level = KeyFactory::INTERACTIVE
     ): bool {
         $config = self::getConfig($stored);
-        $v = \Sodium\hex2bin(Util::safeSubstr($stored->getString(), 0, 8));
-        if (!\hash_equals(Halite::HALITE_VERSION, $v)) {
-            // Outdated version of the library; Always rehash without decrypting
-            return true;
-        }
         if (Util::safeStrlen($stored->getString()) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 4 / 3)) {
             throw new InvalidMessage('Encrypted password hash is too short.');
         }
 
         // First let's decrypt the hash
-        $hash_str = Crypto::decrypt($stored, $secret_key)->getString();
+        $hash_str = Crypto::decrypt(
+            $stored,
+            $secretKey,
+            $config->ENCODING
+        )->getString();
 
         // Upon successful decryption, verify that we're using Argon2i
         if (!\hash_equals(
@@ -122,7 +121,7 @@ final class Password
                 'Encrypted password hash is way too short.'
             );
         }
-        if (Util::safeSubstr($stored, 0, 5) === Halite::VERSION_PREFIX) {
+        if (\hash_equals(Util::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
             return SymmetricConfig::getConfig(
                 Base64UrlSafe::decode($stored),
                 'encrypt'
@@ -137,14 +136,14 @@ final class Password
      *
      * @param HiddenString $password    The user's password
      * @param HiddenString $stored      The encrypted password hash
-     * @param EncryptionKey $secret_key The master key for all passwords
+     * @param EncryptionKey $secretKey The master key for all passwords
      * @return bool                     Is this password valid?
      * @throws InvalidMessage
      */
     public static function verify(
         HiddenString $password,
         HiddenString $stored,
-        EncryptionKey $secret_key
+        EncryptionKey $secretKey
     ): bool {
         $config = self::getConfig($stored);
         // Hex-encoded, so the minimum ciphertext length is double:
@@ -152,7 +151,7 @@ final class Password
             throw new InvalidMessage('Encrypted password hash is too short.');
         }
         // First let's decrypt the hash
-        $hash_str = Crypto::decrypt($stored, $secret_key);
+        $hash_str = Crypto::decrypt($stored, $secretKey);
         // Upon successful decryption, verify the password is correct
         return \Sodium\crypto_pwhash_str_verify(
             $hash_str->getString(),

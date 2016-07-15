@@ -68,6 +68,7 @@ final class Config extends BaseConfig
                 case 1:
                 case 0:
                     return [
+                        'ENCODING' => Halite::ENCODE_HEX,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 124,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
@@ -81,6 +82,7 @@ final class Config extends BaseConfig
             switch ($minor) {
                 case 0:
                     return [
+                        'ENCODING' => Halite::ENCODE_BASE64URLSAFE,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 124,
                         'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,

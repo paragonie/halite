@@ -2,10 +2,12 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\Halite\{
     Alerts\InvalidMessage,
-    Symmetric\EncryptionKey,
-    Symmetric\Crypto
+    Symmetric\Config as SymmetricConfig,
+    Symmetric\Crypto,
+    Symmetric\EncryptionKey
 };
 
 /**
@@ -54,8 +56,13 @@ final class Cookie
             return null;
         }
         try {
-            $decrypted = Crypto::decrypt($_COOKIE[$name], $this->key)
-                ->getString();
+            $stored = new HiddenString($_COOKIE[$name]);
+            $config = self::getConfig($stored);
+            $decrypted = Crypto::decrypt(
+                $stored,
+                $this->key,
+                $config->ENCODING
+            )->getString();
             if (empty($decrypted)) {
                 return null;
             }
@@ -63,6 +70,33 @@ final class Cookie
         } catch (InvalidMessage $e) {
             return null;
         }
+    }
+
+    /**
+     * Get the configuration for this version of halite
+     *
+     * @param HiddenString $stored   A stored password hash
+     * @return SymmetricConfig
+     * @throws InvalidMessage
+     */
+    protected static function getConfig(HiddenString $stored): SymmetricConfig
+    {
+        $stored = $stored->getString();
+        $length = Util::safeStrlen($stored);
+        // This doesn't even have a header.
+        if ($length < 8) {
+            throw new InvalidMessage(
+                'Encrypted password hash is way too short.'
+            );
+        }
+        if (\hash_equals(Util::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
+            return SymmetricConfig::getConfig(
+                Base64UrlSafe::decode($stored),
+                'encrypt'
+            );
+        }
+        $v = \Sodium\hex2bin(Util::safeSubstr($stored, 0, 8));
+        return SymmetricConfig::getConfig($v, 'encrypt');
     }
     
     /**

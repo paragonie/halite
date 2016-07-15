@@ -82,7 +82,7 @@ final class Crypto
         
         // Split our keys
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
-        
+
         // Check the MAC first
         if (!self::verifyMAC(
             $auth,

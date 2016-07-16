@@ -271,4 +271,47 @@ final class Util
         }
         return $return;
     }
+
+    /**
+     * Calculate A xor B, given two binary strings of the same length.
+     *
+     * Uses pack() and unpack() to avoid cache-timing leaks caused by
+     * chr().
+     *
+     * @param string $left
+     * @param string $right
+     * @return string
+     * @throws InvalidType
+     */
+    public static function xorStrings(string $left, string $right): string
+    {
+        $length = self::safeStrlen($left);
+        if ($length !== self::safeStrlen($right)) {
+            throw new InvalidType(
+                'Both strings must be the same length'
+            );
+        }
+        if ($length < 1) {
+            return '';
+        }
+
+        /**
+         * @var int[]
+         */
+        $leftInt = \unpack('C*', $left);
+
+        /**
+         * @var int[]
+         */
+        $rightInt = \unpack('C*', $right);
+
+        $output = '';
+        for ($i = 0; $i < $length; ++$i) {
+            $output .= \pack(
+                'C',
+                (($leftInt[$i + 1] ^ $rightInt[$i + 1]) & 0xff)
+            );
+        }
+        return $output;
+    }
 }

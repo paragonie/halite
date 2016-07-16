@@ -116,43 +116,6 @@ final class Crypto
             )
         );
     }
-
-    /**
-     * Given your private key and multiple others' public keys,
-     * calculate a shared secret.
-     *
-     * @param EncryptionSecretKey $privateKey
-     * @param EncryptionPublicKey[] ...$publicKeys
-     * @return EncryptionKey
-     */
-    public static function getMultiPartySharedSecret(
-        EncryptionSecretKey $privateKey,
-        EncryptionPublicKey ...$publicKeys
-    ): EncryptionKey {
-        $count = \count($publicKeys);
-        if ($count < 1) {
-            throw new \InvalidArgumentException(
-                // What is the sound of one hand clapping?
-                'You cannot calculate the shared secret of just your key.'
-            );
-        }
-        $sharedKey = \Sodium\crypto_scalarmult(
-            $privateKey->getRawKeyMaterial(),
-            $publicKeys[0]->getRawKeyMaterial()
-        );
-        for ($i = 1; $i < $count; ++$i) {
-            $sharedKey = \Sodium\crypto_scalarmult(
-                $sharedKey,
-                $publicKeys[$i]->getRawKeyMaterial()
-            );
-        }
-
-        $keyObject = new EncryptionKey(
-            new HiddenString($sharedKey)
-        );
-        \Sodium\memzero($sharedKey);
-        return $keyObject;
-    }
     
     /**
      * Encrypt a message with a target users' public key

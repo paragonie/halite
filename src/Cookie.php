@@ -56,13 +56,13 @@ final class Cookie
             return null;
         }
         try {
-            $stored = new HiddenString($_COOKIE[$name]);
+            $stored = $_COOKIE[$name];
             $config = self::getConfig($stored);
             $decrypted = Crypto::decrypt(
                 $stored,
                 $this->key,
                 $config->ENCODING
-            )->getString();
+            );
             if (empty($decrypted)) {
                 return null;
             }
@@ -75,13 +75,12 @@ final class Cookie
     /**
      * Get the configuration for this version of halite
      *
-     * @param HiddenString $stored   A stored password hash
+     * @param string $stored   A stored password hash
      * @return SymmetricConfig
      * @throws InvalidMessage
      */
-    protected static function getConfig(HiddenString $stored): SymmetricConfig
+    protected static function getConfig(string $stored): SymmetricConfig
     {
-        $stored = $stored->getString();
         $length = Util::safeStrlen($stored);
         // This doesn't even have a header.
         if ($length < 8) {

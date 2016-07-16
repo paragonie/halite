@@ -1,13 +1,19 @@
 <?php
 declare(strict_types=1);
 
-use ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\KeyFactory;
-use ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
-use ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
+use ParagonIE\Halite\Asymmetric\{
+    Crypto as Asymmetric,
+    EncryptionPublicKey,
+    EncryptionSecretKey
+};
 use ParagonIE\Halite\Halite;
 use ParagonIE\Halite\HiddenString;
+use ParagonIE\Halite\Symmetric\{
+    Crypto as Symmetric,
+    EncryptionKey
+};
 
 /**
  * @backupGlobals disabled
@@ -212,6 +218,59 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         
         $this->assertTrue(
             Asymmetric::verify($message, $alice->getPublicKey(), $signature)
+        );
+    }
+
+    /**
+     * @covers Asymmetric::getMultiPartySharedSecret()
+     */
+    public function testMultiParty()
+    {
+        $alice = KeyFactory::generateEncryptionKeyPair();
+            $alice_sk = $alice->getSecretKey();
+            $alice_pk = $alice->getPublicKey();
+        $bob = KeyFactory::generateEncryptionKeyPair();
+            $bob_sk = $bob->getSecretKey();
+            $bob_pk = $bob->getPublicKey();
+        $charlie = KeyFactory::generateEncryptionKeyPair();
+            $charlie_sk = $charlie->getSecretKey();
+            $charlie_pk = $charlie->getPublicKey();
+
+        $mp1 = Asymmetric::getMultiPartySharedSecret(
+            $alice_sk,
+            $bob_pk,
+            $charlie_pk
+        );
+
+        $this->assertInstanceOf(EncryptionKey::class, $mp1);
+
+        $mp2 = Asymmetric::getMultiPartySharedSecret(
+            $bob_sk,
+            $alice_pk,
+            $charlie_pk
+        );
+        $this->assertInstanceOf(EncryptionKey::class, $mp2);
+
+        $mp3 = Asymmetric::getMultiPartySharedSecret(
+            $charlie_sk,
+            $alice_pk,
+            $bob_pk
+        );
+        $this->assertInstanceOf(EncryptionKey::class, $mp3);
+
+        $cipher = Symmetric::encrypt(
+            new HiddenString('test'),
+            $mp1
+        );
+
+        $this->assertSame(
+            'test',
+            Symmetric::decrypt($cipher, $mp2)->getString()
+        );
+
+        $this->assertSame(
+            'test',
+            Symmetric::decrypt($cipher, $mp3)->getString()
         );
     }
 

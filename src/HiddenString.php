@@ -21,7 +21,7 @@ final class HiddenString
     /**
      * HiddenString constructor.
      * @param string $value
-     * @param bool $allowInline
+     * @param bool $disallowInline
      */
     public function __construct(string $value, bool $disallowInline = false)
     {

@@ -216,7 +216,7 @@ final class File
      * @param string|resource $filename     File name or file handle
      * @param SignatureSecretKey $secretKey Secret key for digital signatures
      * @param bool $raw_binary              Default: return hexadecimal
-     * @return HiddenString                 Detached signature for the file
+     * @return string                       Detached signature for the file
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidType
      */

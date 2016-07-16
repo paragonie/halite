@@ -120,7 +120,7 @@ final class Crypto
      * @param HiddenString $plaintext
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
-     * @return HiddenString
+     * @return string
      */
     public static function encrypt(
         HiddenString $plaintext,
@@ -274,9 +274,9 @@ final class Crypto
     /**
      * Verify a MAC, given a MAC key
      * 
-     * @param HiddenString $message
+     * @param string $message
      * @param AuthenticationKey $secretKey
-     * @param HiddenString $mac
+     * @param string $mac
      * @param mixed $encoding
      * @param SymmetricConfig $config
      * @return bool

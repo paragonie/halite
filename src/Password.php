@@ -50,7 +50,7 @@ final class Password
     /**
      * Is this password hash stale?
      *
-     * @param HiddenString $stored      Encrypted password hash
+     * @param string $stored            Encrypted password hash
      * @param EncryptionKey $secretKey  The master key for all passwords
      * @param string $level             The security level for this password
      * @return bool                     Do we need to regenerate the hash or

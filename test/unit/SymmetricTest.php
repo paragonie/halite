@@ -22,7 +22,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     public function testAuthenticate()
     {
         $key = new AuthenticationKey(new HiddenString(\str_repeat('A', 32)), true);
-        $message = new HiddenString('test message');
+        $message = 'test message';
         $mac = Symmetric::authenticate($message, $key);
         $this->assertTrue(
             Symmetric::verify($message, $key, $mac)
@@ -37,16 +37,16 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     {
         $key = new AuthenticationKey(new HiddenString(\str_repeat('A', 32), true));
         $message = 'test message';
-        $mac = Symmetric::authenticate(new HiddenString($message), $key, true);
+        $mac = Symmetric::authenticate($message, $key, true);
         
         // Test invalid message
         $this->assertFalse(
-            Symmetric::verify(new HiddenString('othermessage'), $key, $mac, true)
+            Symmetric::verify('othermessage', $key, $mac, true)
         );
         
-        $r = \Sodium\randombytes_uniform(\mb_strlen($mac->getString(), '8bit'));
+        $r = \Sodium\randombytes_uniform(\mb_strlen($mac, '8bit'));
         
-        $_mac = $mac->getString();
+        $_mac = $mac;
         $_mac[$r] = \chr(
             \ord($_mac[$r])
                 ^
@@ -56,9 +56,9 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
         // Test invalid signature
         $this->assertFalse(
             Symmetric::verify(
-                new HiddenString($message),
+                $message,
                 $key,
-                new HiddenString($_mac),
+                $_mac,
                 true
             )
         );
@@ -75,7 +75,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
             $key
         );
         $this->assertSame(
-            \strpos($message->getString(), Halite::VERSION_PREFIX),
+            \strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -89,14 +89,13 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     public function testEncryptEmpty()
     {
         $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
-        $message = Symmetric::encrypt(new HiddenString(''), $key)
-            ->getString();
+        $message = Symmetric::encrypt(new HiddenString(''), $key);
         $this->assertSame(
             \strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
-        $plain = Symmetric::decrypt(new HiddenString($message), $key);
+        $plain = Symmetric::decrypt($message, $key);
         $this->assertSame($plain->getString(), '');
     }
     
@@ -106,11 +105,10 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
     public function testRawEncrypt()
     {
         $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
-        $message = Symmetric::encrypt(new HiddenString('test message'), $key, true)
-            ->getString();
+        $message = Symmetric::encrypt(new HiddenString('test message'), $key, true);
         $this->assertTrue(strpos($message, Halite::HALITE_VERSION) === 0);
         
-        $plain = Symmetric::decrypt(new HiddenString($message), $key, true);
+        $plain = Symmetric::decrypt($message, $key, true);
         $this->assertSame($plain->getString(), 'test message');
     }
     
@@ -124,7 +122,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
             new HiddenString('test message'),
             $key,
             true
-        )->getString();
+        );
 
         $r = \Sodium\randombytes_uniform(\mb_strlen($message, '8bit'));
         $message[$r] = \chr(
@@ -133,7 +131,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
             1 << \Sodium\randombytes_uniform(8)
         );
         try {
-            $plain = Symmetric::decrypt(new HiddenString($message), $key, true);
+            $plain = Symmetric::decrypt($message, $key, true);
             $this->assertSame($plain, $message);
             $this->fail(
                 'This should have thrown an InvalidMessage exception!'
@@ -157,7 +155,7 @@ class SymmetricTest extends PHPUnit_Framework_TestCase
             new HiddenString($plaintext),
             $key,
             true
-        )->getString();
+        );
         
         // Let's unpack our message
         $unpacked = Symmetric::unpackMessageForDecryption($message);

@@ -224,7 +224,7 @@ final class File
         $filename,
         SignatureSecretKey $secretKey,
         bool $raw_binary = false
-    ): HiddenString {
+    ): string {
         if (
             \is_resource($filename) ||
             \is_string($filename)
@@ -248,7 +248,7 @@ final class File
      *
      * @param string|resource $filename     File name or file handle
      * @param SignaturePublicKey $publicKey Other party's signature public key
-     * @param HiddenString $signature             The signature we received
+     * @param string $signature             The signature we received
      * @param bool $raw_binary              TRUE if the signature is raw binary
      *
      * @return bool
@@ -257,7 +257,7 @@ final class File
     public static function verify(
         $filename,
         SignaturePublicKey $publicKey,
-        HiddenString $signature,
+        string $signature,
         bool $raw_binary = false
     ): bool {
         if (
@@ -665,21 +665,18 @@ final class File
      * @param ReadOnlyFile $input
      * @param SignatureSecretKey $secretKey
      * @param bool $raw_binary Don't hex encode?
-     * @return HiddenString
+     * @return string
      */
     protected static function signData(
         ReadOnlyFile $input,
         SignatureSecretKey $secretKey,
         bool $raw_binary = false
-    ): HiddenString {
+    ): string {
         $checksum = self::checksumData(
             $input,
             $secretKey->derivePublicKey(),
             true
         );
-        if (\is_string($checksum)) {
-            $checksum = new HiddenString($checksum);
-        }
         return AsymmetricCrypto::sign(
             $checksum,
             $secretKey,
@@ -692,7 +689,7 @@ final class File
      *
      * @param $input (file handle)
      * @param SignaturePublicKey $publicKey
-     * @param HiddenString $signature
+     * @param string $signature
      * @param bool $raw_binary Don't hex encode?
      *
      * @return bool
@@ -700,12 +697,12 @@ final class File
     protected static function verifyData(
         ReadOnlyFile $input,
         SignaturePublicKey $publicKey,
-        HiddenString $signature,
+        string $signature,
         bool $raw_binary = false
     ): bool {
         $checksum = self::checksumData($input, $publicKey, true);
         return AsymmetricCrypto::verify(
-            new HiddenString($checksum),
+            $checksum,
             $publicKey,
             $signature,
             $raw_binary

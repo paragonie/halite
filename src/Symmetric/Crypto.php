@@ -23,59 +23,57 @@ final class Crypto
     /**
      * Authenticate a string
      * 
-     * @param HiddenString $message
+     * @param string $message
      * @param AuthenticationKey $secretKey
      * @param mixed $encoding
      * @throws CryptoException\InvalidKey
-     * @return HiddenString
+     * @return string
      */
     public static function authenticate(
-        HiddenString $message,
+        string $message,
         AuthenticationKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): HiddenString {
+    ): string {
         $config = SymmetricConfig::getConfig(
             Halite::HALITE_VERSION,
             'auth'
         );
         $mac = self::calculateMAC(
-            $message->getString(),
+            $message,
             $secretKey->getRawKeyMaterial(),
             $config
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return new HiddenString($encoder($mac));
+            return $encoder($mac);
         }
-        return new HiddenString($mac);
+        return $mac;
     }
     
     /**
      * Decrypt a message using the Halite encryption protocol
      * 
-     * @param HiddenString $ciphertext
+     * @param string $ciphertext
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
      * @return HiddenString
      * @throws CryptoException\InvalidMessage
      */
     public static function decrypt(
-        HiddenString $ciphertext,
+        string $ciphertext,
         EncryptionKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
-            // We were given hex data:
+            // We were given encoded data:
             try {
-                $ciphertext = $decoder($ciphertext->getString());
+                $ciphertext = $decoder($ciphertext);
             } catch (\RangeException $ex) {
                 throw new CryptoException\InvalidMessage(
                     'Invalid character encoding'
                 );
             }
-        } else {
-            $ciphertext = $ciphertext->getString();
         }
         list($version, $config, $salt, $nonce, $encrypted, $auth) =
             self::unpackMessageForDecryption($ciphertext);
@@ -128,7 +126,7 @@ final class Crypto
         HiddenString $plaintext,
         EncryptionKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): HiddenString {
+    ): string {
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
         // Generate a nonce and HKDF salt:
@@ -166,9 +164,9 @@ final class Crypto
 
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return new HiddenString($encoder($message));
+            return $encoder($message);
         }
-        return new HiddenString($message);
+        return $message;
     }
     
     /**
@@ -284,18 +282,16 @@ final class Crypto
      * @return bool
      */
     public static function verify(
-        HiddenString $message,
+        string $message,
         AuthenticationKey $secretKey,
-        HiddenString $mac,
+        string $mac,
         $encoding = Halite::ENCODE_BASE64URLSAFE,
         SymmetricConfig $config = null
     ): bool {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given hex data:
-            $mac = $decoder($mac->getString());
-        } else {
-            $mac = $mac->getString();
+            $mac = $decoder($mac);
         }
         if ($config === null) {
             // Default to the current version
@@ -306,7 +302,7 @@ final class Crypto
         }
         return self::verifyMAC(
             $mac,
-            $message->getString(),
+            $message,
             $secretKey->getRawKeyMaterial(),
             $config
         );

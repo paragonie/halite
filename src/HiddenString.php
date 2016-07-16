@@ -16,17 +16,17 @@ final class HiddenString
     /**
      * @var bool
      */
-    protected $allowInline = false;
+    protected $disallowInline = false;
 
     /**
      * HiddenString constructor.
      * @param string $value
      * @param bool $allowInline
      */
-    public function __construct(string $value, bool $allowInline = false)
+    public function __construct(string $value, bool $disallowInline = false)
     {
         $this->internalStringValue = Util::safeStrcpy($value);
-        $this->allowInline = $allowInline;
+        $this->disallowInline = $disallowInline;
     }
 
     /**
@@ -64,13 +64,14 @@ final class HiddenString
     }
 
     /**
-     * Prevent accidental echoing of a hidden string
+     * Returns a copy of the string's internal value, which should be zeroed.
+     * Optionally, it can return an empty string.
      *
      * @return string
      */
     public function __toString(): string
     {
-        if ($this->allowInline) {
+        if (!$this->disallowInline) {
             return Util::safeStrcpy($this->internalStringValue);
         }
         return '';

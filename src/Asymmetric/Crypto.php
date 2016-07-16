@@ -29,14 +29,14 @@ final class Crypto
      * @param EncryptionSecretKey $ourPrivateKey   Our private key
      * @param EncryptionPublicKey $theirPublicKey  Their public key
      * @param mixed $encoding                      Which encoding scheme to use?
-     * @return HiddenString                        Ciphertext
+     * @return string                              Ciphertext
      */
     public static function encrypt(
         HiddenString $plaintext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): HiddenString {
+    ): string {
         $sharedSecretKey = new EncryptionKey(
             self::getSharedSecret(
                 $ourPrivateKey,
@@ -56,14 +56,14 @@ final class Crypto
      * Decrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::decrypt()
      * 
-     * @param HiddenString $ciphertext            The message to decrypt
+     * @param string $ciphertext                  The message to decrypt
      * @param EncryptionSecretKey $ourPrivateKey  Our private key
      * @param EncryptionPublicKey $theirPublicKey Their public key
      * @param mixed $encoding                     Which encoding scheme to use?
      * @return HiddenString                       The decrypted message
      */
     public static function decrypt(
-        HiddenString $ciphertext,
+        string $ciphertext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
@@ -74,7 +74,11 @@ final class Crypto
                 $theirPublicKey
             )
         );
-        $plaintext = SymmetricCrypto::decrypt($ciphertext, $sharedSecretKey, $encoding);
+        $plaintext = SymmetricCrypto::decrypt(
+            $ciphertext,
+            $sharedSecretKey,
+            $encoding
+        );
         unset($sharedSecretKey);
         return $plaintext;
     }
@@ -119,7 +123,7 @@ final class Crypto
      * @param HiddenString $plaintext        Message to encrypt
      * @param EncryptionPublicKey $publicKey Public encryption key
      * @param mixed $encoding                Which encoding scheme to use?
-     * @return HiddenString                  Ciphertext
+     * @return string                        Ciphertext
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidKey
      */
@@ -127,7 +131,7 @@ final class Crypto
         HiddenString $plaintext,
         EncryptionPublicKey $publicKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): HiddenString {
+    ): string {
         if (!$publicKey instanceof EncryptionPublicKey) {
             throw new CryptoException\InvalidKey(
                 'Argument 2: Expected an instance of EncryptionPublicKey'
@@ -145,39 +149,39 @@ final class Crypto
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return new HiddenString($encoder($sealed));
+            return $encoder($sealed);
         }
-        return new HiddenString($sealed);
+        return $sealed;
     }
     
     /**
      * Sign a message with our private key
      * 
-     * @param HiddenString $message Message to sign
+     * @param string $message Message to sign
      * @param SignatureSecretKey $privateKey
      * @param mixed $encoding Which encoding scheme to use?
-     * @return HiddenString Signature (detached)
+     * @return string Signature (detached)
      */
     public static function sign(
-        HiddenString $message,
+        string $message,
         SignatureSecretKey $privateKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
-    ): HiddenString {
+    ): string {
         $signed = \Sodium\crypto_sign_detached(
-            $message->getString(),
+            $message,
             $privateKey->getRawKeyMaterial()
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return new HiddenString($encoder($signed));
+            return $encoder($signed);
         }
-        return new HiddenString($signed);
+        return $signed;
     }
     
     /**
      * Decrypt a sealed message with our private key
      * 
-     * @param HiddenString $ciphertext Encrypted message
+     * @param string $ciphertext Encrypted message
      * @param EncryptionSecretKey $privateKey
      * @param mixed $encoding Which encoding scheme to use?
      * @return HiddenString
@@ -185,7 +189,7 @@ final class Crypto
      * @throws CryptoException\InvalidMessage
      */
     public static function unseal(
-        HiddenString $ciphertext,
+        string $ciphertext,
         EncryptionSecretKey $privateKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
@@ -193,14 +197,12 @@ final class Crypto
         if ($decoder) {
             // We were given hex data:
             try {
-                $ciphertext = $decoder($ciphertext->getString());
+                $ciphertext = $decoder($ciphertext);
             } catch (\RangeException $ex) {
                 throw new CryptoException\InvalidMessage(
                     'Invalid character encoding'
                 );
             }
-        } else {
-            $ciphertext = $ciphertext->getString();
         }
 
         // Get a box keypair (needed by crypto_box_seal_open)
@@ -236,25 +238,23 @@ final class Crypto
     /**
      * Verify a signed message with the correct public key
      * 
-     * @param HiddenString $message Message to verify
+     * @param string $message Message to verify
      * @param SignaturePublicKey $publicKey
-     * @param HiddenString $signature
+     * @param string $signature
      * @param mixed $encoding Which encoding scheme to use?
      * @return bool
      * @throws CryptoException\InvalidSignature
      */
     public static function verify(
-        HiddenString $message,
+        string $message,
         SignaturePublicKey $publicKey,
-        HiddenString $signature,
+        string $signature,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): bool {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given hex data:
-            $signature = $decoder($signature->getString());
-        } else {
-            $signature = $signature->getString();
+            $signature = $decoder($signature);
         }
         if (CryptoUtil::safeStrlen($signature) !== \Sodium\CRYPTO_SIGN_BYTES) {
             throw new CryptoException\InvalidSignature(
@@ -264,7 +264,7 @@ final class Crypto
         
         return \Sodium\crypto_sign_verify_detached(
             $signature,
-            $message->getString(),
+            $message,
             $publicKey->getRawKeyMaterial()
         );
     }

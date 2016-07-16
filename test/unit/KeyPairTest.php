@@ -2,9 +2,11 @@
 declare(strict_types=1);
 
 use ParagonIE\Halite\KeyFactory;
-use ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
-use ParagonIE\Halite\Asymmetric\SecretKey as ASecretKey;
-use ParagonIE\Halite\Asymmetric\PublicKey as APublicKey;
+use ParagonIE\Halite\Asymmetric\{
+    Crypto as Asymmetric,
+    SignatureSecretKey,
+    SignaturePublicKey
+};
 use ParagonIE\Halite\HiddenString;
 
 /**
@@ -22,18 +24,18 @@ class KeyPairTest extends PHPUnit_Framework_TestCase
         $sign_secret = $keypair->getSecretKey();
         $sign_public = $keypair->getPublicKey();
         
-        $this->assertTrue($sign_secret instanceof ASecretKey);
-        $this->assertTrue($sign_public instanceof APublicKey);
+        $this->assertTrue($sign_secret instanceof SignatureSecretKey);
+        $this->assertTrue($sign_public instanceof SignaturePublicKey);
         
         // Can this be used?        
         $message = 'This is a test message';
         $signed = Asymmetric::sign(
-            new HiddenString($message),
+            $message,
             $sign_secret
         );
         $this->assertTrue(
             Asymmetric::verify(
-                new HiddenString($message),
+                $message,
                 $sign_public,
                 $signed
             )

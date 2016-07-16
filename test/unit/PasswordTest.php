@@ -16,7 +16,7 @@ class PasswordTest extends PHPUnit_Framework_TestCase
         $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
         
         $hash = Password::hash(new HiddenString('test password'), $key);
-        $this->assertTrue(\is_string($hash->getString()));
+        $this->assertTrue(\is_string($hash));
         
         $this->assertTrue(
             Password::verify(
@@ -47,7 +47,7 @@ class PasswordTest extends PHPUnit_Framework_TestCase
                 '79ec6532b430a4799e545956113f116fa705e3ed2d7b17bb6dbf435f36a0f50dcb541adb82' .
                 'a83f6d01ae66b2f4d46540161ba6cc37dbd0e870aed8334cb71f8162a9e7e7974396bdb1bc' .
                 '4da5099423820b870e39a3ffe5';
-            Password::needsRehash(new HiddenString($legacyHash), $key);
+            Password::needsRehash($legacyHash, $key);
         } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
             $this->assertSame(
                 'Invalid version tag',
@@ -62,7 +62,7 @@ class PasswordTest extends PHPUnit_Framework_TestCase
                 '79ec6532b430a4799e545956113f116fa705e3ed2d7b17bb6dbf435f36a0f50dcb541adb82' .
                 'a83f6d01ae66b2f4d46540161ba6cc37dbd0e870aed8334cb71f8162a9e7e7974396bdb1bc' .
                 '4da5099423820b870e39a3ffe5';
-        Password::needsRehash(new HiddenString($legacyHash), $key);
+            Password::needsRehash($legacyHash, $key);
         } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
             $this->assertSame(
                 'Invalid message authentication code',

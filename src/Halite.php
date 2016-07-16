@@ -6,7 +6,8 @@ use ParagonIE\ConstantTime\{
     Base32,
     Base32Hex,
     Base64,
-    Base64UrlSafe
+    Base64UrlSafe,
+    Hex
 };
 use ParagonIE\Halite\Alerts\InvalidType;
 
@@ -78,33 +79,53 @@ final class Halite
         if ($chosen === true) {
             return null;
         } elseif ($chosen === false) {
-            return $decode
-                ? '\\Sodium\\hex2bin'
-                : '\\Sodium\\bin2hex';
+            return \implode(
+                '::',
+                [
+                    Hex::class,
+                    $decode ? 'decode' : 'encode'
+                ]
+            );
         } elseif ($chosen === self::ENCODE_BASE32) {
-            return [
-                Base32::class,
-                $decode ? 'decode' : 'encode'
-            ];
+            return \implode(
+                '::',
+                [
+                    Base32::class,
+                    $decode ? 'decode' : 'encode'
+                ]
+            );
         } elseif ($chosen === self::ENCODE_BASE32HEX) {
-            return [
-                Base32Hex::class,
-                $decode ? 'decode' : 'encode'
-            ];
+            return \implode(
+                '::',
+                [
+                    Base32Hex::class,
+                    $decode ? 'decode' : 'encode'
+                ]
+            );
         } elseif ($chosen === self::ENCODE_BASE64) {
-            return [
-                Base64::class,
-                $decode ? 'decode' : 'encode'
-            ];
+            return \implode(
+                '::',
+                [
+                    Base64::class,
+                    $decode ? 'decode' : 'encode'
+                ]
+            );
         } elseif ($chosen === self::ENCODE_BASE64URLSAFE) {
-            return [
-                Base64UrlSafe::class,
-                $decode ? 'decode' : 'encode'
-            ];
+            return \implode(
+                '::',
+                [
+                    Base64UrlSafe::class,
+                    $decode ? 'decode' : 'encode'
+                ]
+            );
         } elseif ($chosen === self::ENCODE_HEX) {
-            return $decode
-                ? '\\Sodium\\hex2bin'
-                : '\\Sodium\\bin2hex';
+            return \implode(
+                '::',
+                [
+                    Hex::class,
+                    $decode ? 'decode' : 'encode'
+                ]
+            );
         }
         throw new InvalidType(
             'Illegal value for encoding choice.'

@@ -29,7 +29,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $bob->getPublicKey()
         );
         $this->assertSame(
-            \strpos($message->getString(), Halite::VERSION_PREFIX),
+            \strpos($message, Halite::VERSION_PREFIX),
             0
         );
         
@@ -58,7 +58,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertSame(
-            \strpos($message->getString(), Halite::VERSION_PREFIX),
+            \strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -85,14 +85,14 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             $alice->getSecretKey(),
             $bob->getPublicKey(),
             true
-        )->getString();
+        );
         $r = \Sodium\randombytes_uniform(\mb_strlen($message, '8bit'));
         $amt = \Sodium\randombytes_uniform(8);
         $message[$r] = \chr(\ord($message[$r]) ^ 1 << $amt);
         
         try {
             $plain = Asymmetric::decrypt(
-                new HiddenString($message),
+                $message,
                 $bob->getSecretKey(),
                 $alice->getPublicKey(),
                 true
@@ -176,7 +176,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         $alice = KeyFactory::generateEncryptionKeyPair();
         
         $message = new HiddenString('This is for your eyes only');
-        $sealed = Asymmetric::seal($message, $alice->getPublicKey(), true)->getString();
+        $sealed = Asymmetric::seal($message, $alice->getPublicKey(), true);
         
         // Let's flip one bit, randomly:
         $r = \Sodium\randombytes_uniform(\mb_strlen($sealed, '8bit'));
@@ -185,7 +185,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         
         // This should throw an exception
         try {
-            $opened = Asymmetric::unseal(new HiddenString($sealed), $alice->getSecretKey());
+            $opened = Asymmetric::unseal($sealed, $alice->getSecretKey());
             $this->assertSame($opened->getString(), $message);
             $this->fail(
                 'This should have thrown an InvalidMessage exception!'
@@ -205,10 +205,10 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     {
         $alice = KeyFactory::generateSignatureKeyPair();
         
-        $message = new HiddenString('test message');
+        $message = 'test message';
         $signature = Asymmetric::sign($message, $alice->getSecretKey());
         
-        $this->assertTrue(strlen($signature->getString()) === 88);
+        $this->assertTrue(strlen($signature) === 88);
         
         $this->assertTrue(
             Asymmetric::verify($message, $alice->getPublicKey(), $signature)
@@ -223,19 +223,19 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     {
         $alice = KeyFactory::generateSignatureKeyPair();
         
-        $message = new HiddenString('test message');
+        $message = 'test message';
         $signature = Asymmetric::sign($message, $alice->getSecretKey(), true);
         
         $this->assertFalse(
             Asymmetric::verify(
-                new HiddenString('wrongmessage'),
+                'wrongmessage',
                 $alice->getPublicKey(),
                 $signature,
                 true
             )
         );
         
-        $_signature = $signature->getString();
+        $_signature = $signature;
         // Let's flip one bit, randomly:
         $r = \Sodium\randombytes_uniform(\mb_strlen($_signature, '8bit'));
         $_signature[$r] = \chr(
@@ -248,7 +248,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             Asymmetric::verify(
                 $message,
                 $alice->getPublicKey(),
-                new HiddenString($_signature),
+                $_signature,
                 true
             )
         );

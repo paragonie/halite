@@ -4,6 +4,16 @@ namespace ParagonIE\Halite;
 
 /**
  * Class HiddenString
+ *
+ * The purpose of this class is to encapsulate strings and hide their contents
+ * from stack traces should an unhandled exception occur in a program that uses
+ * Halite.
+ *
+ * The only things that should be protected:
+ * - Passwords
+ * - Plaintext (before encryption)
+ * - Plaintext (after decryption)
+ *
  * @package ParagonIE\Halite
  */
 final class HiddenString
@@ -14,6 +24,8 @@ final class HiddenString
     protected $internalStringValue = '';
 
     /**
+     * Disallow the contents from being accessed via __toString()?
+     *
      * @var bool
      */
     protected $disallowInline = false;

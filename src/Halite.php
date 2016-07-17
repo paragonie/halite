@@ -27,6 +27,14 @@ use ParagonIE\Halite\Alerts\InvalidType;
  */
 final class Halite
 {
+    /**
+     * Don't allow this to be instantiated.
+     */
+    final private function __construct()
+    {
+        throw new \Error('Do not instantiate');
+    }
+
     const VERSION             = '3.0.0';
 
     const HALITE_VERSION_KEYS = "\x31\x40\x03\x00";

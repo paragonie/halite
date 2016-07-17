@@ -26,6 +26,14 @@ use ParagonIE\Halite\{
 final class File
 {
     /**
+     * Don't allow this to be instantiated.
+     */
+    final private function __construct()
+    {
+        throw new \Error('Do not instantiate');
+    }
+
+    /**
      * Calculate the BLAKE2b-512 checksum of a file. This method doesn't load
      * the entire file into memory. You may optionally supply a key to use in
      * the BLAKE2b hash.

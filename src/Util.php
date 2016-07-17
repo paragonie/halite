@@ -18,6 +18,14 @@ use ParagonIE\Halite\Alerts\{
 final class Util
 {
     /**
+     * Don't allow this to be instantiated.
+     */
+    final private function __construct()
+    {
+        throw new \Error('Do not instantiate');
+    }
+
+    /**
      * Wrapper around \Sodium\crypto_generichash()
      *
      * @param string $input

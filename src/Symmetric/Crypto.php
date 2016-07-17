@@ -21,6 +21,14 @@ use ParagonIE\Halite\{
 final class Crypto
 {
     /**
+     * Don't allow this to be instantiated.
+     */
+    final private function __construct()
+    {
+        throw new \Error('Do not instantiate');
+    }
+
+    /**
      * Authenticate a string
      * 
      * @param string $message

@@ -33,25 +33,25 @@ Generate a key pair for public key digital signatures.
 
 ### `deriveAuthenticationKey()`
 
-> `public static` deriveAuthenticationKey(`string $password`, `string $salt`) : [`AuthenticationKey`](Symmetric/AuthenticationKey.md)
+> `public static` deriveAuthenticationKey(`HiddenString $password`, `string $salt`) : [`AuthenticationKey`](Symmetric/AuthenticationKey.md)
 
 Derive a symmetric authentication key from a password and salt.
     
 ### `deriveEncryptionKey()`
 
-> `public static` deriveEncryptionKey(`string $password`, `string $salt`) : [`EncryptionKey`](Symmetric/EncryptionKey.md)
+> `public static` deriveEncryptionKey(`HiddenString $password`, `string $salt`) : [`EncryptionKey`](Symmetric/EncryptionKey.md)
 
 Derive a symmetric encryption key from a password and salt.
 
 ### `deriveEncryptionKeyPair()`
 
-> `public static` deriveEncryptionKeyPair(`string $password`, `string $salt`) : [`EncryptionKeyPair`](EncryptionKeyPair.md)
+> `public static` deriveEncryptionKeyPair(`HiddenString $password`, `string $salt`) : [`EncryptionKeyPair`](EncryptionKeyPair.md)
 
 Derive an asymmetric encryption key pair from a password and salt.
 
 ### `deriveSignatureKeyPair()`
 
-> `public static` deriveSignatureKeyPair(`string $password`, `string $salt`) : [`SignatureKeyPair`](SignatureKeyPair.md)
+> `public static` deriveSignatureKeyPair(`HiddenString $password`, `string $salt`) : [`SignatureKeyPair`](SignatureKeyPair.md)
 
 Derive an asymmetric signature key pair from a password and salt.
 

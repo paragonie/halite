@@ -43,6 +43,7 @@
  * [`\ParagonIE\Halite\EncryptionKeyPair`](EncryptionKeyPair.md)
  * [`\ParagonIE\Halite\File`](File.md)
  * [`\ParagonIE\Halite\Halite`](Halite.md)
+ * [`\ParagonIE\Halite\HiddenString`](HiddenString.md)
  * [`\ParagonIE\Halite\Key`](Key.md)
  * [`\ParagonIE\Halite\KeyFactory`](KeyFactory.md)
  * [`\ParagonIE\Halite\KeyPair`](KeyPair.md)

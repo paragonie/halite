@@ -110,6 +110,7 @@ class UtilTest extends PHPUnit_Framework_TestCase
     {
         $teststring = []; // is not a string, will provoke a warning
 
+        /** @noinspection PhpStrictTypeCheckingInspection */
         Util::safeStrlen($teststring);
     }
     
@@ -141,5 +142,30 @@ class UtilTest extends PHPUnit_Framework_TestCase
         $this->assertSame($unique, $clone);
         \Sodium\memzero($unique);
         $this->assertNotSame($unique, $clone);
+    }
+
+    /**
+     * Verify that xorStrings() produces the expected result.
+     *
+     * @covers Util::xorStrings()
+     */
+    public function testXorStrings()
+    {
+        $a = \str_repeat("\x0f", 32);
+        $b = \str_repeat("\x88", 32);
+        $this->assertSame(
+            \str_repeat("\x87", 32),
+            Util::xorStrings($a, $b)
+        );
+
+        try {
+            $a .= "\x00";
+            $this->assertSame(
+                \str_repeat("\x87", 32),
+                Util::xorStrings($a, $b)
+            );
+            $this->fail('Incorrect string length should throw an exception.');
+        } catch (\ParagonIE\Halite\Alerts\InvalidType $ex) {
+        }
     }
 }

@@ -24,4 +24,8 @@ $string = new HiddenString('foo', true);
 
 $something = $string . ' bar';
 var_dump($something); // string(4) " bar"
+
+// Explicit:
+$something = $string->getString() . ' bar';
+var_dump($something); // string(7) "foo bar"
 ```

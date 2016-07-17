@@ -28,22 +28,22 @@ Check out the [documentation](doc). The basic Halite API is designed for simplic
 
   * Encryption
     * Symmetric
-       * `Symmetric\Crypto::encrypt`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionKey`](doc/Classes/Symmetric/EncryptionKey.md), `bool?`): `string`
-       * `Symmetric\Crypto::decrypt`(`string`, [`EncryptionKey`](doc/Classes/Symmetric/EncryptionKey.md), `bool?`): [`HiddenString`](doc/Classes/HiddenString.md)
+       * `Symmetric\Crypto::encrypt`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionKey`](doc/Classes/Symmetric/EncryptionKey.md)): `string`
+       * `Symmetric\Crypto::decrypt`(`string`, [`EncryptionKey`](doc/Classes/Symmetric/EncryptionKey.md)): [`HiddenString`](doc/Classes/HiddenString.md)
     * Asymmetric
        * Anonymous
-         * `Asymmetric\Crypto::seal`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `string`
-         * `Asymmetric\Crypto::unseal`(`string`, [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md), `bool?`): [`HiddenString`](doc/Classes/HiddenString.md)
+         * `Asymmetric\Crypto::seal`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md)): `string`
+         * `Asymmetric\Crypto::unseal`(`string`, [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md)): [`HiddenString`](doc/Classes/HiddenString.md)
        * Authenticated
-         * `Asymmetric\Crypto::encrypt`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `string`
-         * `Asymmetric\Crypto::decrypt`(`string`, [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): [`HiddenString`](doc/Classes/HiddenString.md)
+         * `Asymmetric\Crypto::encrypt`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md)): `string`
+         * `Asymmetric\Crypto::decrypt`(`string`, [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md)): [`HiddenString`](doc/Classes/HiddenString.md)
   * Authentication
     * Symmetric
-       * `Symmetric\Crypto::authenticate`(`string`, [`AuthenticationKey`](doc/Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
-       * `Symmetric\Crypto::verify`(`string`, [`AuthenticationKey`](doc/Classes/Symmetric/AuthenticationKey.md), `string`, `bool?`): `bool`
+       * `Symmetric\Crypto::authenticate`(`string`, [`AuthenticationKey`](doc/Classes/Symmetric/AuthenticationKey.md)): `string`
+       * `Symmetric\Crypto::verify`(`string`, [`AuthenticationKey`](doc/Classes/Symmetric/AuthenticationKey.md), `string`): `bool`
     * Asymmetric
-       * `Asymmetric\Crypto::sign`(`string`, [`SignatureSecretKey`](doc/Classes/Asymmetric/SignatureSecretKey.md), `bool?`): `string`
-       * `Asymmetric\Crypto::verify`(`string`, [`SignaturePublicKey`](doc/Classes/Asymmetric/SignaturePublicKey.md), `string`, `bool?`): `bool`
+       * `Asymmetric\Crypto::sign`(`string`, [`SignatureSecretKey`](doc/Classes/Asymmetric/SignatureSecretKey.md)): `string`
+       * `Asymmetric\Crypto::verify`(`string`, [`SignaturePublicKey`](doc/Classes/Asymmetric/SignaturePublicKey.md), `string`): `bool`
 
 ### Example: Encrypting a message with a password-derived key
 

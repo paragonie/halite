@@ -48,6 +48,36 @@ Check out the [documentation](doc). The basic Halite API is designed for simplic
        * `Asymmetric\Crypto::sign`(`string`, [`SignatureSecretKey`](doc/Classes/Asymmetric/SignatureSecretKey.md)): `string`
        * `Asymmetric\Crypto::verify`(`string`, [`SignaturePublicKey`](doc/Classes/Asymmetric/SignaturePublicKey.md), `string`): `bool`
 
+### Example: Encrypting and Decrypting a message
+
+First, generate and persist a key exactly once:
+
+```php
+<?php
+use ParagonIE\Halite\KeyFactory;
+
+$encKey = KeyFactory::generateEncryptionKey();
+KeyFactory::save($encKey, '/path/outside/webroot/encryption.key');
+```
+
+And then you can encrypt/decrypt messages like so:
+
+```php
+<?php
+use ParagonIE\Halite\HiddenString;
+use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\Symmetric\Crypto as Symmetric;
+
+$encryptionKey = KeyFactory::loadEncryptionKey('/path/outside/webroot/encryption.key');
+
+$message = new HiddenString('This is a confidential message for your eyes only.');
+$ciphertext = Symmetric::encrypt($message, $encryptionKey);
+
+$decrypted = Symmetric::decrypt($ciphertext, $encryptionKey);
+
+var_dump($decrypted === $message); // bool(true)
+```
+
 ### Example: Encrypting a message with a password-derived key
 
 ```php

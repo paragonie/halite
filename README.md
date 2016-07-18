@@ -78,7 +78,12 @@ $decrypted = Symmetric::decrypt($ciphertext, $encryptionKey);
 var_dump($decrypted === $message); // bool(true)
 ```
 
-### Example: Encrypting a message with a password-derived key
+This should produce something similar to:
+
+    MUIDAEpQznohvNlQ-ZRk-ZZ59Mmox75D_FgAIrXY2cUfStoeL-GIeAe0m-uaeURQdPsVmc5XxRw3-2x5ZAsZH_es37qqFuLFjUI-XK9uG0s30YTsorWfpHdbnqzhRuUOI09c-cKrfMQkNBNm0dDDwZazjTC48zWikRHSHXg8NXerVDebzng1aufc_S-osI_zQuLbZDODujEnpbPZhMMcm4-SWuyVXcBPdGZolJyT
+
+
+### Example: Generating a key from a password
 
 ```php
 <?php
@@ -91,12 +96,22 @@ $passwd = new HiddenString('correct horse battery staple');
 $salt = "\xdd\x7b\x1e\x38\x75\x9f\x72\x86\x0a\xe9\xc8\x58\xf6\x16\x0d\x3b";
 
 $encryptionKey = KeyFactory::deriveEncryptionKey($passwd, $salt);
-
-$message = new HiddenString('This is a confidential message for your eyes only.');
-$ciphertext = Symmetric::encrypt($message, $encryptionKey);
-echo $ciphertext, "\n";
 ```
 
-This should produce something similar to:
+A key derived from a password can be used in place of one randomly generated.
 
-    MUIDAEpQznohvNlQ-ZRk-ZZ59Mmox75D_FgAIrXY2cUfStoeL-GIeAe0m-uaeURQdPsVmc5XxRw3-2x5ZAsZH_es37qqFuLFjUI-XK9uG0s30YTsorWfpHdbnqzhRuUOI09c-cKrfMQkNBNm0dDDwZazjTC48zWikRHSHXg8NXerVDebzng1aufc_S-osI_zQuLbZDODujEnpbPZhMMcm4-SWuyVXcBPdGZolJyT
+### Example: Encrypting a large file on a system with low memory
+
+Halite includes a file cryptography class that utilizes a streaming API to
+allow large files (e.g. gigabytes) be encrypted on a system with very little
+available memory (i.e. less than 8 MB).
+
+```php
+<?php
+use ParagonIE\Halite\File;
+use ParagonIE\Halite\KeyFactory;
+
+$encryptionKey = KeyFactory::loadEncryptionKey('/path/outside/webroot/encryption.key');
+
+File::encrypt('input.txt', 'output.txt', $encryptionKey);
+```

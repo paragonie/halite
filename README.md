@@ -20,10 +20,47 @@ without making your source code available under a GPL-compatible license.
 
 ## Using Halite in Your Applications
 
-1. [Install Libsodium and the PHP Extension](https://paragonie.com/book/pecl-libsodium/read/00-intro.md#installing-libsodium)
-2. `composer require paragonie/halite`
+### Step 1: Installing libsodium
 
-**Halite Version 3 requires PHP 7.0.0 or newer!**
+Before you can use Halite, you must choose a version that fits the requirements 
+of your project. The differences between the requirements for the available 
+versions of Halite are briefly highlighted below.
+
+|           | PHP   | libsodium | PECL libsodium |
+|-----------|-------|-----------|----------------|
+| Halite 2+ | 7.0.0 | 1.0.9     | 1.0.6          |
+| Halite 1  | 5.6.0 | 1.0.6     | 1.0.2          |
+
+If you plan to use Halite 2+, you might need to
+[compile libsodium from source](https://paragonie.com/book/pecl-libsodium/read/00-intro.md#installing-libsodium-source)
+since your distribution probably won't have the necessary version quite yet.
+
+If you plan to use Halite 1, or your distribution has the necessary version already,
+then you should be able to
+[install a precompiled libsodium](https://paragonie.com/book/pecl-libsodium/read/00-intro.md#installing-libsodium)
+package.
+
+### Step 2: Installing the PECL libsodium extension
+
+**Important Note**: It is important that this step is repeated every time that a
+different version of libsodium is installed. The resulting PECL libsodium extension
+is version dependent of the currently installed libsodium.
+
+Installation instructions for the PECL libsodium extension can be found in the
+[PECL libsodium book](https://paragonie.com/book/pecl-libsodium/read/00-intro.md#installing-extension)
+on the Paragon Initiative Enterprises website.
+
+### Step 3: Use Composer to install Halite
+
+The last step required to use Halite is to install it using Composer.
+
+For the latest version of Halite:
+
+    composer require paragonie/halite
+
+Or for older versions of Halite, specify the version number:
+
+    composer require paragonie/halite:^v1
 
 ## Using Halite in Your Project
 

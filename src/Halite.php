@@ -145,6 +145,13 @@ final class Halite
             return false;
         }
 
+        if (!\function_exists('\\Sodium\\crypto_box_seal')) {
+            if ($echo) {
+                echo 'crypto_box_seal() is not available.', "\n";
+            }
+            return false;
+        }
+
         return true;
     }
 }

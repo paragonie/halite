@@ -13,17 +13,6 @@ use ParagonIE\Halite\Structure\{
  */
 class TrimmedMerkleTreeTest extends PHPUnit_Framework_TestCase
 {
-    public function testArithmetic()
-    {
-        $this->assertSame(1, TrimmedMerkleTree::getSizeRoundedUp(1));
-        $this->assertSame(2, TrimmedMerkleTree::getSizeRoundedUp(2));
-        $this->assertSame(4, TrimmedMerkleTree::getSizeRoundedUp(3));
-        $this->assertSame(4, TrimmedMerkleTree::getSizeRoundedUp(4));
-        $this->assertSame(8, TrimmedMerkleTree::getSizeRoundedUp(5));
-        $this->assertSame(8, TrimmedMerkleTree::getSizeRoundedUp(6));
-        $this->assertSame(8, TrimmedMerkleTree::getSizeRoundedUp(7));
-        $this->assertSame(8, TrimmedMerkleTree::getSizeRoundedUp(8));
-    }
 
     public function testExpectedBehavior()
     {

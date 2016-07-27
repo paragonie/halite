@@ -16,12 +16,12 @@ class KeyPair
     /**
      * @var SecretKey
      */
-    protected $secret_key;
+    protected $secretKey;
 
     /**
      * @var PublicKey
      */
-    protected $public_key;
+    protected $publicKey;
 
     /**
      * Hide this from var_dump(), etc.
@@ -43,7 +43,7 @@ class KeyPair
      */
     public function getPublicKey()
     {
-       return $this->public_key;
+       return $this->publicKey;
     }
 
     /**
@@ -53,6 +53,6 @@ class KeyPair
      */
     public function getSecretKey()
     {
-       return $this->secret_key;
+       return $this->secretKey;
     }
 }

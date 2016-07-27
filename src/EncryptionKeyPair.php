@@ -20,12 +20,12 @@ final class EncryptionKeyPair extends KeyPair
     /**
      * @var EncryptionSecretKey
      */
-    protected $secret_key;
+    protected $secretKey;
 
     /**
      * @var EncryptionPublicKey
      */
-    protected $public_key;
+    protected $publicKey;
 
     /**
      * Pass it a secret key, it will automatically generate a public key
@@ -111,8 +111,8 @@ final class EncryptionKeyPair extends KeyPair
      */
     protected function setupKeyPair(EncryptionSecretKey $secret)
     {
-        $this->secret_key = $secret;
-        $this->public_key = $this->secret_key->derivePublicKey();
+        $this->secretKey = $secret;
+        $this->publicKey = $this->secretKey->derivePublicKey();
     }
 
     /**
@@ -122,7 +122,7 @@ final class EncryptionKeyPair extends KeyPair
      */
     public function getPublicKey()
     {
-        return $this->public_key;
+        return $this->publicKey;
     }
 
     /**
@@ -132,6 +132,6 @@ final class EncryptionKeyPair extends KeyPair
      */
     public function getSecretKey()
     {
-        return $this->secret_key;
+        return $this->secretKey;
     }
 }

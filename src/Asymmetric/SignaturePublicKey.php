@@ -24,6 +24,6 @@ final class SignaturePublicKey extends PublicKey
             );
         }
         parent::__construct($keyMaterial);
-        $this->is_signing_key = true;
+        $this->isSigningKey = true;
     }
 }

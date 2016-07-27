@@ -24,6 +24,6 @@ final class AuthenticationKey extends SecretKey
             );
         }
         parent::__construct($keyMaterial);
-        $this->is_signing_key = true;
+        $this->isSigningKey = true;
     }
 }

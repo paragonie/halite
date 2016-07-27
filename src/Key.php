@@ -13,21 +13,21 @@ use ParagonIE\Halite\Alerts as CryptoException;
  */
 class Key
 {
-    protected $is_public_key = false;
-    protected $is_signing_key = false;
-    protected $is_asymmetric_key = false;
-    private $key_material = '';
-    
+    protected $isPublicKey = false;
+    protected $isSigningKey = false;
+    protected $isAsymmetricKey = false;
+    private $keyMaterial = '';
+
     /**
      * Don't let this ever succeed
-     * 
+     *
      * @throws CryptoException\CannotCloneKey
      */
     public function __clone()
     {
         throw new CryptoException\CannotCloneKey;
     }
-    
+
     /**
      * You probably should not be using this directly.
      *
@@ -35,35 +35,35 @@ class Key
      */
     public function __construct(HiddenString $keyMaterial)
     {
-        $this->key_material = Util::safeStrcpy($keyMaterial->getString());
+        $this->keyMaterial = Util::safeStrcpy($keyMaterial->getString());
     }
 
     /**
      * Hide this from var_dump(), etc.
-     * 
+     *
      * @return array
      */
     public function __debugInfo()
     {
-        // We exclude $this->key_material
+        // We exclude $this->keyMaterial
         return [
-            'is_asymmetric_key' => $this->is_asymmetric_key,
-            'is_public_key' => $this->is_public_key,
-            'is_signing_key' => $this->is_signing_key
+            'isAsymmetricKey' => $this->isAsymmetricKey,
+            'isPublicKey' => $this->isPublicKey,
+            'isSigningKey' => $this->isSigningKey
         ];
     }
-    
+
     /**
      * Make sure you wipe the key from memory on destruction
      */
     public function __destruct()
     {
-        if (!$this->is_public_key) {
-            \Sodium\memzero($this->key_material);
-            $this->key_material = null;
+        if (!$this->isPublicKey) {
+            \Sodium\memzero($this->keyMaterial);
+            $this->keyMaterial = null;
         }
     }
-    
+
     /**
      * Don't allow this object to ever be serialized
      */
@@ -71,27 +71,28 @@ class Key
     {
         throw new CryptoException\CannotSerializeKey;
     }
-    
+
     /**
      * Get public keys
-     * 
+     *
      * @return string
      */
     public function __toString()
     {
-        if ($this->is_public_key) {
-            return $this->key_material;
+        if ($this->isPublicKey) {
+            return $this->keyMaterial;
         }
         return '';
     }
+
     /**
      * Get the actual key material
-     * 
+     *
      * @return string
      */
     public function getRawKeyMaterial()
     {
-        return Util::safeStrcpy($this->key_material);
+        return Util::safeStrcpy($this->keyMaterial);
     }
     
     /**
@@ -101,7 +102,7 @@ class Key
      */
     public function isAsymmetricKey()
     {
-        return $this->is_asymmetric_key;
+        return $this->isAsymmetricKey;
     }
     
     /**
@@ -111,7 +112,7 @@ class Key
      */
     public function isEncryptionKey()
     {
-        return !$this->is_signing_key;
+        return !$this->isSigningKey;
     }
     
     /**
@@ -121,7 +122,7 @@ class Key
      */
     public function isPublicKey()
     {
-        return $this->is_public_key;
+        return $this->isPublicKey;
     }
     
     /**
@@ -131,7 +132,7 @@ class Key
      */
     public function isSecretKey()
     {
-        return !$this->is_public_key;
+        return !$this->isPublicKey;
     }
     
     /**
@@ -141,6 +142,6 @@ class Key
      */
     public function isSigningKey()
     {
-        return $this->is_signing_key;
+        return $this->isSigningKey;
     }
 }

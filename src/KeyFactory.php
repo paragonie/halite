@@ -29,52 +29,52 @@ final class KeyFactory
     /**
      * Generate an an authentication key (symmetric-key cryptography)
      * 
-     * @param string &$secret_key
+     * @param string &$secretKey
      * @return AuthenticationKey
      */
-    public static function generateAuthenticationKey(string &$secret_key = ''): AuthenticationKey
+    public static function generateAuthenticationKey(string &$secretKey = ''): AuthenticationKey
     {
-        $secret_key = \Sodium\randombytes_buf(
+        $secretKey = \Sodium\randombytes_buf(
             \Sodium\CRYPTO_AUTH_KEYBYTES
         );
         return new AuthenticationKey(
-            new HiddenString($secret_key)
+            new HiddenString($secretKey)
         );
     }
     
     /**
      * Generate an an encryption key (symmetric-key cryptography)
      * 
-     * @param string &$secret_key
+     * @param string &$secretKey
      * @return EncryptionKey
      */
-    public static function generateEncryptionKey(string &$secret_key = ''): EncryptionKey
+    public static function generateEncryptionKey(string &$secretKey = ''): EncryptionKey
     {
-        $secret_key = \Sodium\randombytes_buf(
+        $secretKey = \Sodium\randombytes_buf(
             \Sodium\CRYPTO_STREAM_KEYBYTES
         );
         return new EncryptionKey(
-            new HiddenString($secret_key)
+            new HiddenString($secretKey)
         );
     }
     
     /**
      * Generate a key pair for public key encryption
      * 
-     * @param string &$secret_key
+     * @param string &$secretKey
      * @return \ParagonIE\Halite\EncryptionKeyPair
      */
-    public static function generateEncryptionKeyPair(string &$secret_key = ''): EncryptionKeyPair
+    public static function generateEncryptionKeyPair(string &$secretKey = ''): EncryptionKeyPair
     {
         // Encryption keypair
         $kp = \Sodium\crypto_box_keypair();
-        $secret_key = \Sodium\crypto_box_secretkey($kp);
+        $secretKey = \Sodium\crypto_box_secretkey($kp);
         
         // Let's wipe our $kp variable
         \Sodium\memzero($kp);
         return new EncryptionKeyPair(
             new EncryptionSecretKey(
-                new HiddenString($secret_key)
+                new HiddenString($secretKey)
             )
         );
     }
@@ -82,20 +82,20 @@ final class KeyFactory
     /**
      * Generate a key pair for public key digital signatures
      * 
-     * @param string &$secret_key
+     * @param string &$secretKey
      * @return SignatureKeyPair
      */
-    public static function generateSignatureKeyPair(string &$secret_key = ''): SignatureKeyPair
+    public static function generateSignatureKeyPair(string &$secretKey = ''): SignatureKeyPair
     {
         // Encryption keypair
         $kp = \Sodium\crypto_sign_keypair();
-        $secret_key = \Sodium\crypto_sign_secretkey($kp);
+        $secretKey = \Sodium\crypto_sign_secretkey($kp);
         
         // Let's wipe our $kp variable
         \Sodium\memzero($kp);
         return new SignatureKeyPair(
             new SignatureSecretKey(
-                new HiddenString($secret_key)
+                new HiddenString($secretKey)
             )
         );
     }
@@ -123,7 +123,7 @@ final class KeyFactory
                 'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
-        $secret_key = \Sodium\crypto_pwhash(
+        $secretKey = \Sodium\crypto_pwhash(
             \Sodium\CRYPTO_AUTH_KEYBYTES,
             $password->getString(),
             $salt,
@@ -131,7 +131,7 @@ final class KeyFactory
             $kdfLimits[1]
         );
         return new AuthenticationKey(
-            new HiddenString($secret_key)
+            new HiddenString($secretKey)
         );
     }
     
@@ -158,7 +158,7 @@ final class KeyFactory
                 'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
-        $secret_key = \Sodium\crypto_pwhash(
+        $secretKey = \Sodium\crypto_pwhash(
             \Sodium\CRYPTO_STREAM_KEYBYTES,
             $password->getString(),
             $salt,
@@ -166,7 +166,7 @@ final class KeyFactory
             $kdfLimits[1]
         );
         return new EncryptionKey(
-            new HiddenString($secret_key)
+            new HiddenString($secretKey)
         );
     }
     
@@ -201,13 +201,13 @@ final class KeyFactory
             $kdfLimits[1]
         );
         $keyPair = \Sodium\crypto_box_seed_keypair($seed);
-        $secret_key = \Sodium\crypto_box_secretkey($keyPair);
+        $secretKey = \Sodium\crypto_box_secretkey($keyPair);
         
         // Let's wipe our $kp variable
         \Sodium\memzero($keyPair);
         return new EncryptionKeyPair(
             new EncryptionSecretKey(
-                new HiddenString($secret_key)
+                new HiddenString($secretKey)
             )
         );
     }
@@ -243,13 +243,13 @@ final class KeyFactory
             $kdfLimits[1]
         );
         $keyPair = \Sodium\crypto_sign_seed_keypair($seed);
-        $secret_key = \Sodium\crypto_sign_secretkey($keyPair);
+        $secretKey = \Sodium\crypto_sign_secretkey($keyPair);
         
         // Let's wipe our $kp variable
         \Sodium\memzero($keyPair);
         return new SignatureKeyPair(
             new SignatureSecretKey(
-                new HiddenString($secret_key)
+                new HiddenString($secretKey)
             )
         );
     }

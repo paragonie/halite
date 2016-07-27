@@ -9,6 +9,7 @@
 * Dropped support for version 1.
   * We no longer offer or use scrypt anywhere. Everything is Argon2 now.
   * `KeyFactory` no longer accepts a `$legacy` argument.
+* Added `TrimmedMerkleTree` to `Structures`.
 
 ## Version 2.1.2 (2016-07-11)
 

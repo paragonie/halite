@@ -66,7 +66,7 @@ final class Cookie
             if (empty($decrypted)) {
                 return null;
             }
-            return \json_decode($decrypted, true);
+            return \json_decode($decrypted->getString(), true);
         } catch (InvalidMessage $e) {
             return null;
         }
@@ -122,7 +122,9 @@ final class Cookie
         return \setcookie(
             $name,
             Crypto::encrypt(
-                new HiddenString(\json_encode($value)),
+                new HiddenString(
+                    \json_encode($value)
+                ),
                 $this->key
             ),
             $expire,

@@ -17,7 +17,7 @@ class PublicKey extends Key
     public function __construct(HiddenString $keyMaterial)
     {
         parent::__construct($keyMaterial);
-        $this->is_asymmetric_key = true;
-        $this->is_public_key = true;
+        $this->isAsymmetricKey = true;
+        $this->isPublicKey = true;
     }
 }

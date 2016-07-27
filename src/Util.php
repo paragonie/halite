@@ -28,6 +28,8 @@ final class Util
     /**
      * Wrapper around \Sodium\crypto_generichash()
      *
+     * Returns hexadecimal characters.
+     *
      * @param string $input
      * @param int $length
      * @return string
@@ -43,6 +45,8 @@ final class Util
 
     /**
      * Wrapper around \Sodium\crypto_generichash()
+     *
+     * Returns raw binary.
      *
      * @param string $input
      * @param int $length
@@ -127,6 +131,9 @@ final class Util
     /**
      * Wrapper around \Sodium\crypto_generichash()
      *
+     * Expects a key (binary string).
+     * Returns hexadecimal characters.
+     *
      * @param string $input
      * @param string $key
      * @param int $length
@@ -144,6 +151,9 @@ final class Util
 
     /**
      * Wrapper around \Sodium\crypto_generichash()
+     *
+     * Expects a key (binary string).
+     * Returns raw binary.
      *
      * @param string $input
      * @param string $key
@@ -264,7 +274,8 @@ final class Util
     }
 
     /**
-     * PHP 7 uses interned strings. We don't want altering this one to alter the original.
+     * PHP 7 uses interned strings. We don't want altering this one to alter
+     * the original string.
      *
      * @param string $string
      * @return string

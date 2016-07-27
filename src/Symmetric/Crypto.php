@@ -124,6 +124,7 @@ final class Crypto
      * Encrypt a message using the Halite encryption protocol
      *
      * (Encrypt then MAC -- xsalsa20 then keyed-Blake2b)
+     * You don't need to worry about chosen-ciphertext attacks.
      *
      * @param HiddenString $plaintext
      * @param EncryptionKey $secretKey
@@ -178,8 +179,7 @@ final class Crypto
     }
     
     /**
-     * Split a key using a variant of HKDF that used a keyed BLAKE2b hash rather
-     * than an HMAC construct
+     * Split a key (using HKDF-BLAKE2b instead of HKDF-HMAC-*)
      * 
      * @param EncryptionKey $master
      * @param string $salt
@@ -209,10 +209,12 @@ final class Crypto
     }
     
     /**
-     * Unpack a message string into an array.
+     * Unpack a message string into an array (assigned to variables via list()).
+     *
+     * Should return exactly 6 elements.
      * 
      * @param string $ciphertext
-     * @return array
+     * @return string[]
      * @throws CryptoException\InvalidMessage
      */
     public static function unpackMessageForDecryption(string $ciphertext): array
@@ -227,7 +229,11 @@ final class Crypto
         }
         
         // The first 4 bytes are reserved for the version size
-        $version = CryptoUtil::safeSubstr($ciphertext, 0, Halite::VERSION_TAG_LEN);
+        $version = CryptoUtil::safeSubstr(
+            $ciphertext,
+            0,
+            Halite::VERSION_TAG_LEN
+        );
         $config = SymmetricConfig::getConfig($version, 'encrypt');
 
         if ($length < $config->SHORTEST_CIPHERTEXT_LENGTH) {
@@ -259,7 +265,7 @@ final class Crypto
                 Halite::VERSION_TAG_LEN +
                 $config->HKDF_SALT_LEN +
                 \Sodium\CRYPTO_STREAM_NONCEBYTES,
-            // v1: $length - 92, v2: $length - 124
+            // $length - 124
             $length - (
                 Halite::VERSION_TAG_LEN +
                 $config->HKDF_SALT_LEN +
@@ -280,7 +286,7 @@ final class Crypto
     }
     
     /**
-     * Verify a MAC, given a MAC key
+     * Verify the authenticity of a message, given a shared MAC key
      * 
      * @param string $message
      * @param AuthenticationKey $secretKey
@@ -317,7 +323,7 @@ final class Crypto
     }
     
     /**
-     * Calculate a MAC
+     * Calculate a MAC. This is used internally.
      * 
      * @param string $message
      * @param string $authKey
@@ -343,7 +349,8 @@ final class Crypto
     }
     
     /**
-     * Verify a MAC
+     * Verify a Message Authentication Code (MAC) of a message, with a shared
+     * key.
      * 
      * @param string $mac             Message Authentication Code
      * @param string $message         The message to verify

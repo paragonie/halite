@@ -21,27 +21,27 @@ class MerkleTree
     /**
      * @var bool
      */
-    private $rootCalculated = false;
+    protected $rootCalculated = false;
 
     /**
      * @var string
      */
-    private $root = '';
+    protected $root = '';
 
     /**
      * @var Node[]
      */
-    private $nodes = [];
+    protected $nodes = [];
 
     /**
      * @var string
      */
-    private $personalization = '';
+    protected $personalization = '';
     
     /**
      * @var int
      */
-    private $outputSize = \Sodium\CRYPTO_GENERICHASH_BYTES;
+    protected $outputSize = \Sodium\CRYPTO_GENERICHASH_BYTES;
     
     /**
      * Instantiate a Merkle tree
@@ -76,7 +76,7 @@ class MerkleTree
      * @param Node[] $nodes
      * @return MerkleTree
      */
-    public function getExpandedTree(Node ...$nodes)
+    public function getExpandedTree(Node ...$nodes): MerkleTree
     {
         $thisTree = $this->nodes;
         foreach ($nodes as $node) {
@@ -163,19 +163,24 @@ class MerkleTree
         // Population (Use self::MERKLE_LEAF as a prefix)
         for ($i = 0; $i < $order; ++$i) {
             if ($i >= $size) {
-                $hash[$i] = self::MERKLE_LEAF . $this->personalization . $this->nodes[$size - 1]->getHash(
-                    true,
-                    $this->outputSize,
-                    $this->personalization
-                );
+                $hash[$i] = self::MERKLE_LEAF .
+                    $this->personalization .
+                    $this->nodes[$size - 1]->getHash(
+                        true,
+                        $this->outputSize,
+                        $this->personalization
+                    );
             } else {
-                $hash[$i] = self::MERKLE_LEAF . $this->personalization . $this->nodes[$i]->getHash(
-                    true,
-                    $this->outputSize,
-                    $this->personalization
-                );
+                $hash[$i] = self::MERKLE_LEAF .
+                    $this->personalization .
+                    $this->nodes[$i]->getHash(
+                        true,
+                        $this->outputSize,
+                        $this->personalization
+                    );
             }
         }
+
         // Calculation (Use self::MERKLE_BRANCH as a prefix)
         do {
             $tmp = [];
@@ -183,12 +188,18 @@ class MerkleTree
             for ($i = 0; $i < $order; $i += 2) {
                 if (empty($hash[$i + 1])) {
                     $tmp[$j] = Util::raw_hash(
-                        self::MERKLE_BRANCH . $this->personalization . $hash[$i] . $hash[$i],
+                        self::MERKLE_BRANCH .
+                            $this->personalization .
+                            $hash[$i] .
+                            $hash[$i],
                         $this->outputSize
                     );
                 } else {
                     $tmp[$j] = Util::raw_hash(
-                        self::MERKLE_BRANCH . $this->personalization . $hash[$i] . $hash[$i + 1],
+                        self::MERKLE_BRANCH .
+                            $this->personalization .
+                            $hash[$i] .
+                            $hash[$i + 1],
                         $this->outputSize
                     );
                 }

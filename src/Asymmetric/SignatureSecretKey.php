@@ -24,7 +24,7 @@ final class SignatureSecretKey extends SecretKey
             );
         }
         parent::__construct($keyMaterial);
-        $this->is_signing_key = true;
+        $this->isSigningKey = true;
     }
     
     /**

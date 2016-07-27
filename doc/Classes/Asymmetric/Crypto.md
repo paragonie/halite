@@ -13,7 +13,7 @@ using X25519 (Elliptic Curve Diffie Hellman key agreement over Curve25519).
 
 ### `encrypt()`
 
-> `public` encrypt(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `string`
+> `public` encrypt(`HiddenString $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `string`
 
 This method will:
 
@@ -29,7 +29,7 @@ This method will:
 
 ### `decrypt()`
 
-> `public` decrypt(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `string`
+> `public` decrypt(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `HiddenString`
 
 This method will:
 
@@ -46,7 +46,7 @@ This method will:
 
 ### `seal()`
 
-> `public` seal(`string $source`,  [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `boolean $raw = false`) : `string`
+> `public` seal(`HiddenString $source`,  [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `boolean $raw = false`) : `string`
 
 Anonymous public-key encryption. Encrypt a message with your recipient's public
 key and they can use their secret key to decrypt it.
@@ -55,7 +55,7 @@ The actual underlying protocol is [`\Sodium\crypto_box_seal()`](https://paragoni
 
 ### `unseal()`
 
-> `public` unseal(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+> `public` unseal(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$secretKey`, `boolean $raw = false`) : `HiddenString`
 
 Anonymous public-key decryption. Decrypt a sealed message with your secret key.
 

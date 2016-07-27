@@ -4,15 +4,15 @@ This is the Basic Halite API:
 
   * Encryption
     * Symmetric
-       * `Symmetric\Crypto::encrypt`(`string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md), `bool?`): `string`
-       * `Symmetric\Crypto::decrypt`(`string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md), `bool?`): `string`
+       * `Symmetric\Crypto::encrypt`(`HiddenString`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md), `bool?`): `string`
+       * `Symmetric\Crypto::decrypt`(`string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md), `bool?`): `HiddenString`
     * Asymmetric
        * Anonymous
-         * `Asymmetric\Crypto::seal`(`string`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `string`
-         * `Asymmetric\Crypto::unseal`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), `bool?`): `string`
+         * `Asymmetric\Crypto::seal`(`HiddenString`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `string`
+         * `Asymmetric\Crypto::unseal`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), `bool?`): `HiddenString`
        * Authenticated
-         * `Asymmetric\Crypto::encrypt`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `string`
-         * `Asymmetric\Crypto::decrypt`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `string`
+         * `Asymmetric\Crypto::encrypt`(`HiddenString`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `string`
+         * `Asymmetric\Crypto::decrypt`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `HiddenString`
   * Authentication
     * Symmetric
        * `Symmetric\Crypto::authenticate`(`string`, [`AuthenticationKey`](Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
@@ -39,6 +39,10 @@ than proceeding as if nothing happened.
 For authentication functions, Halite will typically just return `false`.
 
 ## Encryption
+
+Encryption functions expect your message to be encapsulated in an instance
+of the [`HiddenString`](Classes/HiddenString.md) class. Decryption functions
+will return the decrypted plaintext in a `HiddenString` object.
 
 ### Symmetric-Key Encryption
 
@@ -68,7 +72,9 @@ $enc_key = \ParagonIE\Halite\KeyFactory::loadEncryptionKey('/path/to/encryption.
 
 ```php
 $ciphertext = \ParagonIE\Halite\Symmetric\Crypto::encrypt(
-    "Your message here. Any string content will do just fine.",
+    new HiddenString(
+        "Your message here. Any string content will do just fine."
+    ),
     $enc_key
 );
 ```
@@ -121,7 +127,9 @@ $bob_public = new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(
 
 ```php
 $send_to_bob = \ParagonIE\Halite\Asymmetric\Crypto::encrypt(
-    "Your message here. Any string content will do just fine.",
+    new HiddenString(
+        "Your message here. Any string content will do just fine."
+    ),
     $alice_secret,
     $bob_public
 );
@@ -162,7 +170,9 @@ You want to only keep `$seal_public` stored outside of the trusted environment.
 
 ```php
 $sealed = \ParagonIE\Halite\Asymmetric\Crypto::seal(
-    "Your message here. Any string content will do just fine.",
+    new HiddenString(
+        "Your message here. Any string content will do just fine."
+    ),
     $seal_public
 );
 ```

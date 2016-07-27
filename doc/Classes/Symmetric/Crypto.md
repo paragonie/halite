@@ -12,7 +12,7 @@ Calculate a MAC for a given message, using a secret authentication key.
 
 ### `encrypt()`
 
-> `public` encrypt(`string $plaintext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+> `public` encrypt(`HiddenString $plaintext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `string`
 
 Encrypt-then-authenticate a message. This method will:
 
@@ -27,7 +27,7 @@ Encrypt-then-authenticate a message. This method will:
 
 ### `decrypt()`
 
-> `public` decrypt(`string $ciphertext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+> `public` decrypt(`string $ciphertext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `HiddenString`
 
 Verify-then-decrypt a message. This method will:
 

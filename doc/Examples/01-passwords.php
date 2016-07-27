@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+use \ParagonIE\Halite\HiddenString;
 use \ParagonIE\Halite\Password;
 use \ParagonIE\Halite\KeyFactory;
 
@@ -11,7 +12,7 @@ if (!\file_exists('01-secret-key.txt')) {
     $secretKey = KeyFactory::loadEncryptionKey('01-secret-key.txt');
 }
 
-$password = 'correct horse battery staple';
+$password = new HiddenString('correct horse battery staple');
 $hash = Password::hash($password, $secretKey);
 
 if (Password::verify($password, $hash, $secretKey)) {

@@ -186,7 +186,7 @@ advantage to using this feature over [libsodium's Argon2 implementation](https:/
 
 ```php
 $stored_hash = \ParagonIE\Halite\Password::hash(
-    $plaintext_password, // string
+    $plaintext_password, // HiddenString
     $encryption_key      // \ParagonIE\Halite\Symmetric\EncryptionKey
 );
 ```
@@ -196,7 +196,7 @@ $stored_hash = \ParagonIE\Halite\Password::hash(
 ```php
 try {
     if (\ParagonIE\Halite\Password::verify(
-        $plaintext_password, // string
+        $plaintext_password, // HidddenString
         $stored_hash,        // string
         $encryption_key      // \ParagonIE\Halite\Symmetric\EncryptionKey
     )) {

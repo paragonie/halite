@@ -199,7 +199,7 @@ final class Util
     {
         static $exists = null;
         if ($exists === null) {
-            $exists = \function_exists('mb_strlen');
+            $exists = \is_callable('mb_strlen');
         }
 
         if ($exists) {
@@ -240,7 +240,7 @@ final class Util
     ): string {
         static $exists = null;
         if ($exists === null) {
-            $exists = \function_exists('mb_substr');
+            $exists = \is_callable('mb_substr');
         }
         if ($exists) {
             // mb_substr($str, 0, NULL, '8bit') returns an empty string on PHP

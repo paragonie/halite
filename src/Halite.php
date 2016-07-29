@@ -138,14 +138,14 @@ final class Halite
         }
 
         // Added in version 1.0.3 of the PHP extension
-        if (!\function_exists('\\Sodium\\crypto_pwhash_str')) {
+        if (!\is_callable('\\Sodium\\crypto_pwhash_str')) {
             if ($echo) {
                 echo 'Halite needs version 1.0.6 or higher of the PHP extension installed.', "\n";
             }
             return false;
         }
 
-        if (!\function_exists('\\Sodium\\crypto_box_seal')) {
+        if (!\is_callable('\\Sodium\\crypto_box_seal')) {
             if ($echo) {
                 echo 'crypto_box_seal() is not available.', "\n";
             }

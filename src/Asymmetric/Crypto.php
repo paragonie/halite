@@ -145,11 +145,6 @@ final class Crypto
                 'Argument 2: Expected an instance of EncryptionPublicKey'
             );
         }
-        if (!function_exists('\\Sodium\\crypto_box_seal')) {
-            throw new CryptoException\CannotPerformOperation(
-                'crypto_box_seal is not available'
-            );
-        }
         
         $sealed = \Sodium\crypto_box_seal(
             $plaintext->getString(),

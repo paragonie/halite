@@ -86,7 +86,7 @@ abstract class Util
     {
         static $exists = null;
         if ($exists === null) {
-            $exists = \function_exists('mb_strlen');
+            $exists = \is_callable('mb_strlen');
         }
         if (!\is_string($str)) {
             throw new Alerts\InvalidType(
@@ -125,7 +125,7 @@ abstract class Util
     {
         static $exists = null;
         if ($exists === null) {
-            $exists = \function_exists('mb_substr');
+            $exists = \is_callable('mb_substr');
         }
         if ($exists) {
             // mb_substr($str, 0, NULL, '8bit') returns an empty string on PHP

@@ -166,7 +166,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
                 'Argument 2: Expected an instance of EncryptionPublicKey'
             );
         }
-        if (!function_exists('\\Sodium\\crypto_box_seal')) {
+        if (!\is_callable('\\Sodium\\crypto_box_seal')) {
             throw new CryptoException\CannotPerformOperation(
                 'crypto_box_seal is not available'
             );
@@ -247,7 +247,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         if (!$raw) {
             $source = \Sodium\hex2bin($source);
         }
-        if (!function_exists('\\Sodium\\crypto_box_seal_open')) {
+        if (!\is_callable('\\Sodium\\crypto_box_seal_open')) {
             throw new CryptoException\CannotPerformOperation(
                 'crypto_box_seal_open is not available, please update/reinstall libsodium'
             );

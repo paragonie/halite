@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 2.1.3 (2016-07-29)
+
+* Workaround namespace issue caused by Suhosin.
+
 ## Version 2.1.2 (2016-07-11)
 
 * Better docblocks, added unit test to prevent regressions.

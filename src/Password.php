@@ -145,9 +145,11 @@ final class Password
         EncryptionKey $secretKey
     ): bool {
         $config = self::getConfig($stored);
-        // Hex-encoded, so the minimum ciphertext length is double:
-        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 2)) {
-            throw new InvalidMessage('Encrypted password hash is too short.');
+        // Base64-urlsafe encoded, so 4/3 the size of raw binary
+        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 4/3)) {
+            throw new InvalidMessage(
+                'Encrypted password hash is too short.'
+            );
         }
         // First let's decrypt the hash
         $hash_str = Crypto::decrypt($stored, $secretKey);

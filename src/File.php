@@ -2,7 +2,14 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    FileAccessDenied,
+    FileModified,
+    InvalidKey,
+    InvalidMessage,
+    InvalidType
+};
 use ParagonIE\Halite\{
     Asymmetric\Crypto as AsymmetricCrypto,
     Asymmetric\EncryptionPublicKey,
@@ -43,7 +50,7 @@ final class File
      *                         AuthenticationKey)
      * @param bool $raw       Defaults to returning a hexadecimal string.
      * @return string         The checksum
-     * @throws CryptoException\InvalidType
+     * @throws InvalidType
      */
     public static function checksum(
         $filePath,
@@ -60,7 +67,7 @@ final class File
             $readOnly->close();
             return $checksum;
         }
-        throw new CryptoException\InvalidType(
+        throw new InvalidType(
             'Argument 1: Expected a filename or resource'
         );
     }
@@ -72,7 +79,7 @@ final class File
      * @param string|resource $output File name or file handle
      * @param EncryptionKey $key      Symmetric encryption key
      * @return int                    Number of bytes written
-     * @throws CryptoException\InvalidType
+     * @throws InvalidType
      */
     public static function encrypt(
         $input,
@@ -95,7 +102,7 @@ final class File
             $mutable->close();
             return $data;
         }
-        throw new CryptoException\InvalidType(
+        throw new InvalidType(
             'Argument 1: Expected a filename or resource'
         );
     }
@@ -107,7 +114,7 @@ final class File
      * @param string|resource $output File name or file handle
      * @param EncryptionKey $key      Symmetric encryption key
      * @return bool                   TRUE if successful
-     * @throws CryptoException\InvalidType
+     * @throws InvalidType
      */
     public static function decrypt(
         $input,
@@ -133,7 +140,7 @@ final class File
                 $mutable->close();
             }
         }
-        throw new CryptoException\InvalidType(
+        throw new InvalidType(
             'Strings or file handles expected'
         );
     }
@@ -169,7 +176,7 @@ final class File
             $mutable->close();
             return $data;
         }
-        throw new CryptoException\InvalidType(
+        throw new InvalidType(
             'Argument 1: Expected a filename or resource'
         );
     }
@@ -182,7 +189,7 @@ final class File
      * @param string|resource $output        File name or file handle
      * @param EncryptionSecretKey $secretKey Recipient's encryption secret key
      * @return bool                          TRUE on success
-     * @throws CryptoException\InvalidType
+     * @throws InvalidType
      */
     public static function unseal(
         $input,
@@ -208,7 +215,7 @@ final class File
                 $mutable->close();
             }
         }
-        throw new CryptoException\InvalidType(
+        throw new InvalidType(
             'Argument 1: Expected a filename or resource'
         );
     }
@@ -225,8 +232,8 @@ final class File
      * @param SignatureSecretKey $secretKey Secret key for digital signatures
      * @param bool $raw_binary              Default: return hexadecimal
      * @return string                       Detached signature for the file
-     * @throws CryptoException\InvalidKey
-     * @throws CryptoException\InvalidType
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function sign(
         $filename,
@@ -246,7 +253,7 @@ final class File
             $readOnly->close();
             return $signature;
         }
-        throw new CryptoException\InvalidType(
+        throw new InvalidType(
             'Argument 1: Expected a filename or resource'
         );
     }
@@ -260,7 +267,7 @@ final class File
      * @param bool $raw_binary              TRUE if the signature is raw binary
      *
      * @return bool
-     * @throws CryptoException\InvalidType
+     * @throws InvalidType
      */
     public static function verify(
         $filename,
@@ -282,7 +289,7 @@ final class File
             $readOnly->close();
             return $verified;
         }
-        throw new CryptoException\InvalidType(
+        throw new InvalidType(
             'Argument 1: Expected a filename or resource'
         );
     }
@@ -294,7 +301,7 @@ final class File
      * @param Key $key
      * @param bool $raw
      * @return string
-     * @throws CryptoException\InvalidKey
+     * @throws InvalidKey
      */
     protected static function checksumData(
         StreamInterface $fileStream,
@@ -320,7 +327,7 @@ final class File
                 $config->HASH_LEN
             );
         } elseif (isset($key)) {
-            throw new CryptoException\InvalidKey(
+            throw new InvalidKey(
                 'Argument 2: Expected an instance of AuthenticationKey or SignaturePublicKey'
             );
         } else {
@@ -422,7 +429,7 @@ final class File
      * @param $output
      * @param EncryptionKey $key
      * @return bool
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidMessage
      */
     protected static function decryptData(
         ReadOnlyFile $input,
@@ -434,7 +441,7 @@ final class File
 
         // Make sure it's large enough to even read a version tag
         if ($input->getSize() < Halite::VERSION_TAG_LEN) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 "Input file is too small to have been encrypted by Halite."
             );
         }
@@ -446,7 +453,7 @@ final class File
 
         // Is this shorter than an encrypted empty string?
         if ($input->getSize() < $config->SHORTEST_CIPHERTEXT_LENGTH) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 "Input file is too small to have been encrypted by Halite."
             );
         }
@@ -580,8 +587,8 @@ final class File
      * @param MutableFile $output
      * @param EncryptionSecretKey $secretKey
      * @return bool
-     * @throws CryptoException\CannotPerformOperation
-     * @throws CryptoException\InvalidMessage
+     * @throws CannotPerformOperation
+     * @throws InvalidMessage
      */
     protected static function unsealData(
         ReadOnlyFile $input,
@@ -593,7 +600,7 @@ final class File
 
         // Is the file at least as long as a header?
         if ($input->getSize() < Halite::VERSION_TAG_LEN) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 "Input file is too small to have been encrypted by Halite."
             );
         }
@@ -605,7 +612,7 @@ final class File
         $config = self::getConfig($header, 'seal');
 
         if ($input->getSize() < $config->SHORTEST_CIPHERTEXT_LENGTH) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 "Input file is too small to have been encrypted by Halite."
             );
         }
@@ -723,15 +730,15 @@ final class File
      * @param string $header
      * @param string $mode
      * @return Config
-     * @throws CryptoException\InvalidMessage
-     * @throws CryptoException\InvalidType
+     * @throws InvalidMessage
+     * @throws InvalidType
      */
     protected static function getConfig(
         string $header,
         string $mode = 'encrypt'
     ): Config {
         if (\ord($header[0]) !== 49 || \ord($header[1]) !== 65) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 'Invalid version tag'
             );
         }
@@ -750,7 +757,7 @@ final class File
                 self::getConfigChecksum($major, $minor)
             );
         }
-        throw new CryptoException\InvalidType(
+        throw new InvalidType(
             'Invalid configuration mode'
         );
     }
@@ -761,7 +768,7 @@ final class File
      * @param int $major
      * @param int $minor
      * @return array
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidMessage
      */
     protected static function getConfigEncrypt(int $major, int $minor): array
     {
@@ -794,7 +801,7 @@ final class File
             }
         }
         // If we reach here, we've got an invalid version tag:
-        throw new CryptoException\InvalidMessage(
+        throw new InvalidMessage(
             'Invalid version tag'
         );
     }
@@ -805,7 +812,7 @@ final class File
      * @param int $major
      * @param int $minor
      * @return array
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidMessage
      */
     protected static function getConfigSeal(int $major, int $minor): array
     {
@@ -837,7 +844,7 @@ final class File
                     ];
             }
         }
-        throw new CryptoException\InvalidMessage(
+        throw new InvalidMessage(
             'Invalid version tag'
         );
     }
@@ -848,7 +855,7 @@ final class File
      * @param int $major
      * @param int $minor
      * @return array
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidMessage
      */
     protected static function getConfigChecksum(int $major, int $minor): array
     {
@@ -872,7 +879,7 @@ final class File
                     ];
             }
         }
-        throw new CryptoException\InvalidMessage(
+        throw new InvalidMessage(
             'Invalid version tag'
         );
     }
@@ -917,9 +924,9 @@ final class File
      * @param string $mac (hash context for BLAKE2b)
      * @param Config $config
      * @return int (number of bytes)
-     * @throws CryptoException\FileAccessDenied
-     * @throws CryptoException\FileModified
-     * @throws CryptoException\InvalidKey
+     * @throws FileAccessDenied
+     * @throws FileModified
+     * @throws InvalidKey
      */
     final private static function streamEncrypt(
         ReadOnlyFile $input,
@@ -953,7 +960,7 @@ final class File
 
         // Check that our input file was not modified before we MAC it
         if (!\hash_equals($input->getHash(), $initHash)) {
-            throw new CryptoException\FileModified(
+            throw new FileModified(
                 'Read-only file has been modified since it was opened for reading'
             );
         }
@@ -975,11 +982,11 @@ final class File
      * @param Config $config
      * @param array &$chunk_macs
      * @return bool
-     * @throws CryptoException\FileAccessDenied
-     * @throws CryptoException\CannotPerformOperation
-     * @throws CryptoException\FileModified
-     * @throws CryptoException\InvalidKey
-     * @throws CryptoException\InvalidMessage
+     * @throws FileAccessDenied
+     * @throws CannotPerformOperation
+     * @throws FileModified
+     * @throws InvalidKey
+     * @throws InvalidMessage
      */
     final private static function streamDecrypt(
         ReadOnlyFile $input,
@@ -1015,14 +1022,14 @@ final class File
 
             if (empty($chunk_macs)) {
                 // Someone attempted to add a chunk at the end.
-                throw new CryptoException\InvalidMessage(
+                throw new InvalidMessage(
                     'Invalid message authentication code'
                 );
             } else {
                 $chunkMAC = \array_shift($chunk_macs);
                 if (!\hash_equals($chunkMAC, $calc)) {
                     // This chunk was altered after the original MAC was verified
-                    throw new CryptoException\InvalidMessage(
+                    throw new InvalidMessage(
                         'Invalid message authentication code'
                     );
                 }
@@ -1048,8 +1055,8 @@ final class File
      * @param resource|string $mac (hash context)
      * @param Config $config       Version-specific settings
      * @return array               Hashes of various chunks
-     * @throws CryptoException\CannotPerformOperation
-     * @throws CryptoException\InvalidMessage
+     * @throws CannotPerformOperation
+     * @throws InvalidMessage
      */
     final private static function streamVerify(
         ReadOnlyFile $input,
@@ -1103,7 +1110,7 @@ final class File
          * Use hash_equals() to be timing-invariant
          */
         if (!\hash_equals($finalHMAC, $stored_mac)) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 'Invalid message authentication code'
             );
         }

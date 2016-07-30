@@ -1,6 +1,6 @@
 # Changelog
 
-# Version 3.0.0 (Not Released)
+# Version 3.0.0 (2016-07-30)
 
 * Use [paragonie/constant_time_encoding](https://github.com/paragonie/constant_time_encoding) 
 * We now default to URL-safe Base 64 encoding (RFC 4648) 
@@ -10,6 +10,8 @@
   * We no longer offer or use scrypt anywhere. Everything is Argon2 now.
   * `KeyFactory` no longer accepts a `$legacy` argument.
 * Added `TrimmedMerkleTree` to `Structures`.
+* Use `is_callable()` instead of `function_exists()` for better
+  compatibility with Suhosin.
 
 ## Version 2.1.2 (2016-07-11)
 

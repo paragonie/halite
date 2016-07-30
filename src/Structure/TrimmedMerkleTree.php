@@ -63,7 +63,8 @@ class TrimmedMerkleTree extends MerkleTree
             $hash = $tmp;
             $size >>= 1;
         } while ($size > 1);
-        // We should only have one value left:t
+
+        // We should only have one value left:
         $this->rootCalculated = true;
         return \array_shift($hash);
     }

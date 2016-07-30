@@ -2,7 +2,12 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
-use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidKey,
+    InvalidMessage,
+    InvalidSignature
+};
 use ParagonIE\Halite\{
     Util as CryptoUtil,
     Halite,
@@ -132,8 +137,8 @@ final class Crypto
      * @param EncryptionPublicKey $publicKey Public encryption key
      * @param mixed $encoding                Which encoding scheme to use?
      * @return string                        Ciphertext
-     * @throws CryptoException\CannotPerformOperation
-     * @throws CryptoException\InvalidKey
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
      */
     public static function seal(
         HiddenString $plaintext,
@@ -141,7 +146,7 @@ final class Crypto
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         if (!$publicKey instanceof EncryptionPublicKey) {
-            throw new CryptoException\InvalidKey(
+            throw new InvalidKey(
                 'Argument 2: Expected an instance of EncryptionPublicKey'
             );
         }
@@ -188,8 +193,8 @@ final class Crypto
      * @param EncryptionSecretKey $privateKey
      * @param mixed $encoding Which encoding scheme to use?
      * @return HiddenString
-     * @throws CryptoException\InvalidKey
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidKey
+     * @throws InvalidMessage
      */
     public static function unseal(
         string $ciphertext,
@@ -202,7 +207,7 @@ final class Crypto
             try {
                 $ciphertext = $decoder($ciphertext);
             } catch (\RangeException $ex) {
-                throw new CryptoException\InvalidMessage(
+                throw new InvalidMessage(
                     'Invalid character encoding'
                 );
             }
@@ -229,7 +234,7 @@ final class Crypto
         // Always memzero after retrieving a value
         \Sodium\memzero($key_pair);
         if ($message === false) {
-            throw new CryptoException\InvalidKey(
+            throw new InvalidKey(
                 'Incorrect secret key for this sealed message'
             );
         }
@@ -246,7 +251,7 @@ final class Crypto
      * @param string $signature
      * @param mixed $encoding Which encoding scheme to use?
      * @return bool
-     * @throws CryptoException\InvalidSignature
+     * @throws InvalidSignature
      */
     public static function verify(
         string $message,
@@ -260,7 +265,7 @@ final class Crypto
             $signature = $decoder($signature);
         }
         if (CryptoUtil::safeStrlen($signature) !== \Sodium\CRYPTO_SIGN_BYTES) {
-            throw new CryptoException\InvalidSignature(
+            throw new InvalidSignature(
                 'Signature is not the correct length; is it encoded?'
             );
         }

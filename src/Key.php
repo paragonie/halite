@@ -2,7 +2,10 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Alerts\{
+    CannotCloneKey,
+    CannotSerializeKey
+};
 
 /**
  * Class Key
@@ -21,11 +24,11 @@ class Key
     /**
      * Don't let this ever succeed
      *
-     * @throws CryptoException\CannotCloneKey
+     * @throws CannotCloneKey
      */
     public function __clone()
     {
-        throw new CryptoException\CannotCloneKey;
+        throw new CannotCloneKey;
     }
 
     /**
@@ -69,7 +72,7 @@ class Key
      */
     public function __sleep()
     {
-        throw new CryptoException\CannotSerializeKey;
+        throw new CannotSerializeKey;
     }
 
     /**

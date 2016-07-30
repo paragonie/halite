@@ -2,8 +2,12 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
+use ParagonIE\Halite\Alerts\{
+    InvalidKey,
+    InvalidMessage,
+    InvalidSignature
+};
 use ParagonIE\Halite\{
-    Alerts as CryptoException,
     Config,
     Halite,
     HiddenString,
@@ -34,7 +38,7 @@ final class Crypto
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param mixed $encoding
-     * @throws CryptoException\InvalidKey
+     * @throws InvalidKey
      * @return string
      */
     public static function authenticate(
@@ -65,7 +69,7 @@ final class Crypto
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
      * @return HiddenString
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidMessage
      */
     public static function decrypt(
         string $ciphertext,
@@ -78,7 +82,7 @@ final class Crypto
             try {
                 $ciphertext = $decoder($ciphertext);
             } catch (\RangeException $ex) {
-                throw new CryptoException\InvalidMessage(
+                throw new InvalidMessage(
                     'Invalid character encoding'
                 );
             }
@@ -96,7 +100,7 @@ final class Crypto
             $authKey,
             $config
         )) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 'Invalid message authentication code'
             );
         }
@@ -110,7 +114,7 @@ final class Crypto
             $encKey
         );
         if ($plaintext === false) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 'Invalid message authentication code'
             );
         }
@@ -215,7 +219,7 @@ final class Crypto
      * 
      * @param string $ciphertext
      * @return string[]
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidMessage
      */
     public static function unpackMessageForDecryption(string $ciphertext): array
     {
@@ -223,7 +227,7 @@ final class Crypto
 
         // Fail fast on invalid messages
         if ($length < Halite::VERSION_TAG_LEN) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 'Message is too short'
             );
         }
@@ -237,7 +241,7 @@ final class Crypto
         $config = SymmetricConfig::getConfig($version, 'encrypt');
 
         if ($length < $config->SHORTEST_CIPHERTEXT_LENGTH) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 'Message is too short'
             );
         }
@@ -329,7 +333,7 @@ final class Crypto
      * @param string $authKey
      * @param SymmetricConfig $config
      * @return string
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidMessage
      */
     protected static function calculateMAC(
         string $message,
@@ -343,7 +347,7 @@ final class Crypto
                 $config->MAC_SIZE
             );
         }
-        throw new CryptoException\InvalidMessage(
+        throw new InvalidMessage(
             'Invalid Halite version'
         );
     }
@@ -357,8 +361,8 @@ final class Crypto
      * @param string $authKey         Authentication key (symmetric)
      * @param SymmetricConfig $config Configuration object
      * @return bool
-     * @throws CryptoException\InvalidMessage
-     * @throws CryptoException\InvalidSignature
+     * @throws InvalidMessage
+     * @throws InvalidSignature
      */
     protected static function verifyMAC(
         string $mac,
@@ -367,7 +371,7 @@ final class Crypto
         SymmetricConfig $config
     ): bool {
         if (CryptoUtil::safeStrlen($mac) !== $config->MAC_SIZE) {
-            throw new CryptoException\InvalidSignature(
+            throw new InvalidSignature(
                 'Argument 1: Message Authentication Code is not the correct length; is it encoded?'
             );
         }
@@ -381,7 +385,7 @@ final class Crypto
             \Sodium\memzero($calc);
             return $res;
         }
-        throw new CryptoException\InvalidMessage(
+        throw new InvalidMessage(
             'Invalid Halite version'
         );
     }

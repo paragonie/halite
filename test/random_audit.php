@@ -4,7 +4,6 @@
  */
 require_once \dirname(__DIR__).'/vendor/autoload.php';
 
-
 /**
  * List all the files in a directory (and subdirectories)
  *

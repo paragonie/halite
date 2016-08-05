@@ -5,8 +5,6 @@
 [![Latest Unstable Version](https://poser.pugx.org/paragonie/halite/v/unstable)](https://packagist.org/packages/paragonie/halite)
 [![License](https://poser.pugx.org/paragonie/halite/license)](https://packagist.org/packages/paragonie/halite)
 
-> **Note**: This is unreleased development code.
-
 Halite is a high-level cryptography interface that relies on [libsodium](https://pecl.php.net/package/libsodium)
 for all of its underlying cryptography operations.
 

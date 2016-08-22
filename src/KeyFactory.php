@@ -364,7 +364,146 @@ abstract class KeyFactory
                 );
         }
     }
-    
+    /**
+     * Load a symmetric authentication key from a string
+     *
+     * @param string $keyData
+     * @return AuthenticationKey
+     *
+     * @throws Alerts\CannotPerformOperation
+     */
+    public static function importAuthenticationKey(string $keyData): AuthenticationKey
+    {
+        return new AuthenticationKey(
+            self::getKeyDataFromString(
+                \Sodium\hex2bin($keyData)
+            )
+        );
+    }
+
+    /**
+     * Load a symmetric encryption key from a string
+     *
+     * @param string $keyData
+     * @return EncryptionKey
+     *
+     * @throws Alerts\CannotPerformOperation
+     */
+    public static function importEncryptionKey(string $keyData): EncryptionKey
+    {
+        return new EncryptionKey(
+            self::getKeyDataFromString(
+                \Sodium\hex2bin($keyData)
+            )
+        );
+    }
+
+    /**
+     * Load, specifically, an encryption public key from a string
+     *
+     * @param string $keyData
+     * @return EncryptionPublicKey
+     *
+     * @throws Alerts\CannotPerformOperation
+     */
+    public static function importEncryptionPublicKey(string $keyData): EncryptionPublicKey
+    {
+        return new EncryptionPublicKey(
+            self::getKeyDataFromString(
+                \Sodium\hex2bin($keyData)
+            )
+        );
+    }
+
+    /**
+     * Load, specifically, an encryption secret key from a string
+     *
+     * @param string $keyData
+     * @return EncryptionSecretKey
+     *
+     * @throws Alerts\CannotPerformOperation
+     */
+    public static function importEncryptionSecretKey(string $keyData): EncryptionSecretKey
+    {
+        return new EncryptionSecretKey(
+            self::getKeyDataFromString(
+                \Sodium\hex2bin($keyData)
+            )
+        );
+    }
+
+    /**
+     * Load, specifically, a signature public key from a string
+     *
+     * @param string $keyData
+     * @return SignaturePublicKey
+     *
+     * @throws Alerts\CannotPerformOperation
+     */
+    public static function importSignaturePublicKey(string $keyData): SignaturePublicKey
+    {
+        return new SignaturePublicKey(
+            self::getKeyDataFromString(
+                \Sodium\hex2bin($keyData)
+            )
+        );
+    }
+
+    /**
+     * Load, specifically, a signature secret key from a string
+     *
+     * @param string $keyData
+     * @return SignatureSecretKey
+     *
+     * @throws Alerts\CannotPerformOperation
+     */
+    public static function importSignatureSecretKey(string $keyData): SignatureSecretKey
+    {
+        return new SignatureSecretKey(
+            self::getKeyDataFromString(
+                \Sodium\hex2bin($keyData)
+            )
+        );
+    }
+
+    /**
+     * Load an asymmetric encryption key pair from a string
+     *
+     * @param string $keyData
+     * @return EncryptionKeyPair
+     *
+     * @throws Alerts\CannotPerformOperation
+     */
+    public static function importEncryptionKeyPair(string $keyData): EncryptionKeyPair
+    {
+        return new EncryptionKeyPair(
+            new EncryptionSecretKey(
+                self::getKeyDataFromString(
+                    \Sodium\hex2bin($keyData)
+                )
+            )
+        );
+    }
+
+    /**
+     * Load an asymmetric signature key pair from a string
+     *
+     * @param string $keyData
+     * @return SignatureKeyPair
+     *
+     * @throws Alerts\CannotPerformOperation
+     */
+    public static function importSignatureKeyPair(string $keyData): SignatureKeyPair
+    {
+        return new SignatureKeyPair(
+            new SignatureSecretKey(
+                self::getKeyDataFromString(
+                    \Sodium\hex2bin($keyData)
+                )
+            )
+        );
+    }
+
     /**
      * Load a symmetric authentication key from a file
      * 
@@ -527,6 +666,33 @@ abstract class KeyFactory
                 self::loadKeyFile($filePath)
             )
         );
+    }
+
+    /**
+     * Export a cryptography key to a string (with a checksum)
+     *
+     * @param $key
+     * @return string
+     * @throws \TypeError
+     */
+    public static function export($key): string
+    {
+        if ($key instanceof KeyPair) {
+            return self::export(
+                $key->getSecretKey()
+            );
+        }
+        if ($key instanceof Key) {
+            return \Sodium\bin2hex(
+                Halite::HALITE_VERSION_KEYS . $key->getRawKeyMaterial() .
+                \Sodium\crypto_generichash(
+                    Halite::HALITE_VERSION_KEYS . $key->getRawKeyMaterial(),
+                    '',
+                    \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                )
+            );
+        }
+        throw new \TypeError('Expected a Key.');
     }
     
     /**

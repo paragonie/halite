@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 2.2.0 (2016-08-22)
+
+* Added an `export()` method to `KeyFactory`, and congruent `import*()`
+  methods. For example:
+  * `export($key)` returns a `string` with a versioned and
+     checksummed, hex-encoded string representing the key material.
+  * `importEncryptionKey($string)` expects an `EncryptionKey`
+     object or throws a `TypeError`
+
 ## Version 2.1.3 (2016-07-29)
 
 * Workaround namespace issue caused by Suhosin.

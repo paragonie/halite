@@ -69,7 +69,6 @@ class KeyTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    
     public function testKeyTypes()
     {
         $key = KeyFactory::generateAuthenticationKey();
@@ -143,6 +142,14 @@ class KeyTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(
             \hash_equals($enc_public->getRawKeyMaterial(), $load_public->getRawKeyMaterial())
         );
+
+        $encoded = KeyFactory::export($enc_secret);
+        $imported = KeyFactory::importEncryptionSecretKey($encoded);
+
+        $this->assertSame(
+            $enc_secret->getRawKeyMaterial(),
+            $imported->getRawKeyMaterial()
+        );
         
         \unlink($file_secret);
         \unlink($file_public);
@@ -173,6 +180,14 @@ class KeyTest extends PHPUnit_Framework_TestCase
         );
         $this->assertTrue(
             \hash_equals($sign_public->getRawKeyMaterial(), $load_public->getRawKeyMaterial())
+        );
+
+        $encoded = KeyFactory::export($sign_secret);
+        $imported = KeyFactory::importSignatureSecretKey($encoded);
+
+        $this->assertSame(
+            $sign_secret->getRawKeyMaterial(),
+            $imported->getRawKeyMaterial()
         );
         
         \unlink($file_secret);

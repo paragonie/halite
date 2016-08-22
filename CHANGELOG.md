@@ -1,5 +1,14 @@
 # Changelog
 
+# Version 3.1.0 (2016-08-22)
+
+* Added an `export()` method to `KeyFactory`, and congruent `import*()`
+  methods. For example:
+  * `export($key)` returns a `HiddenString` with a versioned and
+     checksummed, hex-encoded string representing the key material.
+  * `importEncryptionKey($hiddenString)` expects an `EncryptionKey`
+     object or throws a `TypeError`
+
 # Version 3.0.0 (2016-07-30)
 
 * Use [paragonie/constant_time_encoding](https://github.com/paragonie/constant_time_encoding) 

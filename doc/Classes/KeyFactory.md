@@ -41,7 +41,7 @@ Acceptable values for `$level`:
 
 * `KeyFactory::INTERACTIVE` - default
 * `KeyFactory::MODERATE` - takes one to two seconds (depending on hardware)
-* `KeyFactory::SENSITIVE` - takes several seconds; recommended for mission criticial cryptography keys
+* `KeyFactory::SENSITIVE` - takes several seconds; recommended for mission critical cryptography keys
     
 ### `deriveEncryptionKey()`
 

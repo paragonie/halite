@@ -34,7 +34,7 @@ final class Crypto
 
     /**
      * Authenticate a string
-     * 
+     *
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param mixed $encoding
@@ -61,10 +61,10 @@ final class Crypto
         }
         return $mac;
     }
-    
+
     /**
      * Decrypt a message using the Halite encryption protocol
-     * 
+     *
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
@@ -89,7 +89,7 @@ final class Crypto
         }
         list($version, $config, $salt, $nonce, $encrypted, $auth) =
             self::unpackMessageForDecryption($ciphertext);
-        
+
         // Split our keys
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
 
@@ -123,7 +123,7 @@ final class Crypto
         \Sodium\memzero($encKey);
         return new HiddenString($plaintext);
     }
-    
+
     /**
      * Encrypt a message using the Halite encryption protocol
      *
@@ -141,16 +141,16 @@ final class Crypto
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
-        
+
         // Generate a nonce and HKDF salt:
         $nonce = \Sodium\randombytes_buf(
             \Sodium\CRYPTO_SECRETBOX_NONCEBYTES
         );
         $salt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
-        
+
         // Split our keys according to the HKDF salt:
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
-        
+
         // Encrypt our message with the encryption key:
         $encrypted = \Sodium\crypto_stream_xor(
             $plaintext->getString(),
@@ -158,7 +158,7 @@ final class Crypto
             $encKey
         );
         \Sodium\memzero($encKey);
-        
+
         // Calculate an authentication tag:
         $auth = self::calculateMAC(
             Halite::HALITE_VERSION . $salt . $nonce . $encrypted,
@@ -181,10 +181,10 @@ final class Crypto
         }
         return $message;
     }
-    
+
     /**
      * Split a key (using HKDF-BLAKE2b instead of HKDF-HMAC-*)
-     * 
+     *
      * @param EncryptionKey $master
      * @param string $salt
      * @param Config $config
@@ -206,17 +206,17 @@ final class Crypto
             CryptoUtil::hkdfBlake2b(
                 $binary,
                 \Sodium\CRYPTO_AUTH_KEYBYTES,
-                $config->HKDF_AUTH, 
+                $config->HKDF_AUTH,
                 $salt
             )
         ];
     }
-    
+
     /**
      * Unpack a message string into an array (assigned to variables via list()).
      *
      * Should return exactly 6 elements.
-     * 
+     *
      * @param string $ciphertext
      * @return string[]
      * @throws InvalidMessage
@@ -231,7 +231,7 @@ final class Crypto
                 'Message is too short'
             );
         }
-        
+
         // The first 4 bytes are reserved for the version size
         $version = CryptoUtil::safeSubstr(
             $ciphertext,
@@ -245,26 +245,26 @@ final class Crypto
                 'Message is too short'
             );
         }
-        
+
         // The HKDF is used for key splitting
         $salt = CryptoUtil::safeSubstr(
             $ciphertext,
             Halite::VERSION_TAG_LEN,
             $config->HKDF_SALT_LEN
         );
-        
+
         // This is the nonce (we authenticated it):
         $nonce = CryptoUtil::safeSubstr(
-            $ciphertext, 
+            $ciphertext,
             // 36:
             Halite::VERSION_TAG_LEN + $config->HKDF_SALT_LEN,
             // 24:
             \Sodium\CRYPTO_STREAM_NONCEBYTES
         );
-        
+
         // This is the crypto_stream_xor()ed ciphertext
         $encrypted = CryptoUtil::safeSubstr(
-            $ciphertext, 
+            $ciphertext,
             // 60:
                 Halite::VERSION_TAG_LEN +
                 $config->HKDF_SALT_LEN +
@@ -277,21 +277,21 @@ final class Crypto
                 $config->MAC_SIZE
             )
         );
-        
+
         // $auth is the last 32 bytes
         $auth = CryptoUtil::safeSubstr(
             $ciphertext,
             $length - $config->MAC_SIZE
         );
-        
+
         // We don't need this anymore.
         \Sodium\memzero($ciphertext);
         return [$version, $config, $salt, $nonce, $encrypted, $auth];
     }
-    
+
     /**
      * Verify the authenticity of a message, given a shared MAC key
-     * 
+     *
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param string $mac
@@ -325,10 +325,10 @@ final class Crypto
             $config
         );
     }
-    
+
     /**
      * Calculate a MAC. This is used internally.
-     * 
+     *
      * @param string $message
      * @param string $authKey
      * @param SymmetricConfig $config
@@ -351,11 +351,11 @@ final class Crypto
             'Invalid Halite version'
         );
     }
-    
+
     /**
      * Verify a Message Authentication Code (MAC) of a message, with a shared
      * key.
-     * 
+     *
      * @param string $mac             Message Authentication Code
      * @param string $message         The message to verify
      * @param string $authKey         Authentication key (symmetric)

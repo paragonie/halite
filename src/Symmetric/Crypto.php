@@ -8,10 +8,8 @@ use ParagonIE\Halite\Alerts\{
     InvalidSignature
 };
 use ParagonIE\Halite\{
-    Config,
     Halite,
     HiddenString,
-    Symmetric\Config as SymmetricConfig,
     Util as CryptoUtil
 };
 
@@ -46,7 +44,7 @@ final class Crypto
         AuthenticationKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
-        $config = SymmetricConfig::getConfig(
+        $config = Config::getConfig(
             Halite::HALITE_VERSION,
             'auth'
         );
@@ -140,7 +138,7 @@ final class Crypto
         EncryptionKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
-        $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
+        $config = Config::getConfig(Halite::HALITE_VERSION, 'encrypt');
 
         // Generate a nonce and HKDF salt:
         $nonce = \Sodium\randombytes_buf(
@@ -238,7 +236,7 @@ final class Crypto
             0,
             Halite::VERSION_TAG_LEN
         );
-        $config = SymmetricConfig::getConfig($version, 'encrypt');
+        $config = Config::getConfig($version, 'encrypt');
 
         if ($length < $config->SHORTEST_CIPHERTEXT_LENGTH) {
             throw new InvalidMessage(
@@ -296,7 +294,7 @@ final class Crypto
      * @param AuthenticationKey $secretKey
      * @param string $mac
      * @param mixed $encoding
-     * @param SymmetricConfig $config
+     * @param Config $config
      * @return bool
      */
     public static function verify(
@@ -304,7 +302,7 @@ final class Crypto
         AuthenticationKey $secretKey,
         string $mac,
         $encoding = Halite::ENCODE_BASE64URLSAFE,
-        SymmetricConfig $config = null
+        Config $config = null
     ): bool {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
@@ -313,7 +311,7 @@ final class Crypto
         }
         if ($config === null) {
             // Default to the current version
-            $config = SymmetricConfig::getConfig(
+            $config = Config::getConfig(
                 Halite::HALITE_VERSION,
                 'auth'
             );
@@ -331,14 +329,14 @@ final class Crypto
      *
      * @param string $message
      * @param string $authKey
-     * @param SymmetricConfig $config
+     * @param Config $config
      * @return string
      * @throws InvalidMessage
      */
     protected static function calculateMAC(
         string $message,
         string $authKey,
-        SymmetricConfig $config
+        Config $config
     ): string {
         if ($config->MAC_ALGO === 'BLAKE2b') {
             return \Sodium\crypto_generichash(
@@ -359,7 +357,7 @@ final class Crypto
      * @param string $mac             Message Authentication Code
      * @param string $message         The message to verify
      * @param string $authKey         Authentication key (symmetric)
-     * @param SymmetricConfig $config Configuration object
+     * @param Config $config Configuration object
      * @return bool
      * @throws InvalidMessage
      * @throws InvalidSignature
@@ -368,7 +366,7 @@ final class Crypto
         string $mac,
         string $message,
         string $authKey,
-        SymmetricConfig $config
+        Config $config
     ): bool {
         if (CryptoUtil::safeStrlen($mac) !== $config->MAC_SIZE) {
             throw new InvalidSignature(

@@ -1,6 +1,11 @@
 # Changelog
 
-# Version 3.1.0 (2016-08-22)
+## Version 3.1.1 (2016-10-26)
+
+* Fixed [#44](https://github.com/paragonie/halite/issues/44), which
+  caused Halite to be unusable for Symfony users. Thanks, [Usman Zafar](https://github.com/usmanzafar).
+
+## Version 3.1.0 (2016-08-22)
 
 * Added an `export()` method to `KeyFactory`, and congruent `import*()`
   methods. For example:
@@ -9,7 +14,7 @@
   * `importEncryptionKey($hiddenString)` expects an `EncryptionKey`
      object or throws a `TypeError`
 
-# Version 3.0.0 (2016-07-30)
+## Version 3.0.0 (2016-07-30)
 
 * Use [paragonie/constant_time_encoding](https://github.com/paragonie/constant_time_encoding) 
 * We now default to URL-safe Base 64 encoding (RFC 4648) 

@@ -8,7 +8,7 @@ use ParagonIE\Halite\Alerts\{
     InvalidSignature
 };
 use ParagonIE\Halite\{
-    Config,
+    Config as BaseConfig,
     Halite,
     HiddenString,
     Symmetric\Config as SymmetricConfig,
@@ -187,13 +187,13 @@ final class Crypto
      * 
      * @param EncryptionKey $master
      * @param string $salt
-     * @param Config $config
+     * @param BaseConfig $config
      * @return string[]
      */
     public static function splitKeys(
         EncryptionKey $master,
         string $salt = '',
-        Config $config = null
+        BaseConfig $config = null
     ): array {
         $binary = $master->getRawKeyMaterial();
         return [

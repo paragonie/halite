@@ -9,8 +9,6 @@ use ParagonIE\Halite\Alerts as CryptoException;
  *
  * Encapsulates the configuration for a specific version of Halite
  *
- * Secure encrypted cookies
- *
  * This library makes heavy use of return-type declarations,
  * which are a PHP 7 only feature. Read more about them here:
  *

@@ -22,6 +22,11 @@ use ParagonIE\Halite\{
  *
  * Handles all public key cryptography
  *
+ * This library makes heavy use of return-type declarations,
+ * which are a PHP 7 only feature. Read more about them here:
+ *
+ * @ref http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
+ *
  * @package ParagonIE\Halite\Asymmetric
  */
 final class Crypto

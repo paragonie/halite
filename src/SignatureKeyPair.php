@@ -13,6 +13,11 @@ use ParagonIE\Halite\{
  *
  * Describes a pair of secret and public keys
  *
+ * This library makes heavy use of return-type declarations,
+ * which are a PHP 7 only feature. Read more about them here:
+ *
+ * @ref http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
+ *
  * @package ParagonIE\Halite
  */
 final class SignatureKeyPair extends KeyPair

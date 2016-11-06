@@ -13,6 +13,11 @@ use ParagonIE\Halite\Alerts\{
  *
  * Various useful utilities, used within Halite and available for general use
  *
+ * This library makes heavy use of return-type declarations,
+ * which are a PHP 7 only feature. Read more about them here:
+ *
+ * @ref http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
+ *
  * @package ParagonIE\Halite
  */
 final class Util

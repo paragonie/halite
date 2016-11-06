@@ -11,6 +11,11 @@ use ParagonIE\Halite\Alerts\InvalidDigestLength;
  * An implementation of a Merkle hash tree, built on the BLAKE2b hash function
  * (provided by libsodium)
  *
+ * This library makes heavy use of return-type declarations,
+ * which are a PHP 7 only feature. Read more about them here:
+ *
+ * @ref http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
+ *
  * @package ParagonIE\Halite\Structure
  */
 class MerkleTree

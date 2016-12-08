@@ -36,14 +36,26 @@ final class HiddenString
     protected $disallowInline = false;
 
     /**
+     * Disallow the contents from being accessed via __sleep()?
+     *
+     * @var bool
+     */
+    protected $disallowSerialization = false;
+
+    /**
      * HiddenString constructor.
      * @param string $value
      * @param bool $disallowInline
+     * @param bool $disallowSerialization
      */
-    public function __construct(string $value, bool $disallowInline = false)
-    {
+    public function __construct(
+        string $value,
+        bool $disallowInline = false,
+        bool $disallowSerialization = false
+    ) {
         $this->internalStringValue = Util::safeStrcpy($value);
         $this->disallowInline = $disallowInline;
+        $this->disallowSerialization = $disallowSerialization;
     }
 
     /**
@@ -92,5 +104,20 @@ final class HiddenString
             return Util::safeStrcpy($this->internalStringValue);
         }
         return '';
+    }
+
+    /**
+     * @return array
+     */
+    public function __sleep(): array
+    {
+        if (!$this->disallowSerialization) {
+            return [
+                'internalStringValue',
+                'disallowInline',
+                'disallowSerialization'
+            ];
+        }
+        return [];
     }
 }

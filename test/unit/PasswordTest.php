@@ -70,6 +70,17 @@ class PasswordTest extends PHPUnit_Framework_TestCase
             );
         }
 
+        $legacyHash = '31420201016257a21cbfbf16b0ec55cc1269a9da4654bbe343b828d27a571ea7c466' .
+            '80c5c16a43e2451b7323b9b57b38577526329e5062527124aebd4818ca3cb34e14dcd40fd3aa21' .
+            'dec98fcd7ce6d1ab1118f00db09725a7c97b1e88c4e2c91923a1ba5b7677d64174a3323dd3f080' .
+            '04126167ebf2117a35a05d796bc26698b13b2a3e5fa3b52201692987cf2cd0487c3f3c8ac0cdd7' .
+            'daa5703748ef94310671512e0254f5bbbdfe2482de1b8289d12232488fbd96a50d36673ba5633a' .
+            '8efb3d35dd0721b3a64d857424dc03e6cb2922c09710fa05cf8aa496b9ea';
+        $this->assertTrue(
+            Password::verify(new HiddenString('test password'), $legacyHash, $key),
+            'Legacy password hash calculation.'
+        );
+
         $hash = Password::hash(new HiddenString('test password'), $key);
         $this->assertFalse(Password::needsRehash($hash, $key));
     }

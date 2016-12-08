@@ -365,7 +365,7 @@ class FileTest extends PHPUnit_Framework_TestCase
      */
     public function testChecksum()
     {
-        $csum = File::checksum(__DIR__.'/tmp/paragon_avatar.png');
+        $csum = File::checksum(__DIR__.'/tmp/paragon_avatar.png', null, false);
         $this->assertSame(
             $csum,
             "09f9f74a0e742d057ca08394db4c2e444be88c0c94fe9a914c3d3758c7eccafb".

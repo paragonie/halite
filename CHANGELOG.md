@@ -6,6 +6,8 @@
   requested making `HiddenString` defend against `serialize()` leaks.
 * Fixed an encoding issue which broke legacy passwords. 
   (Discovered in the course of CMS Airship development.)
+* The `File` API now supports different encodings for signatures and 
+  checksums (more than just hex and binary).
 
 ## Version 3.1.1 (2016-10-26)
 

@@ -53,21 +53,21 @@ final class File
      * @param string|resource $filePath The file
      * @param Key $key        (optional; expects SignaturePublicKey or
      *                         AuthenticationKey)
-     * @param bool $raw       Defaults to returning a hexadecimal string.
+     * @param mixed $encoding Which encoding scheme to use for the checksum?
      * @return string         The checksum
      * @throws InvalidType
      */
     public static function checksum(
         $filePath,
         Key $key = null,
-        $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         if (\is_resource($filePath) || \is_string($filePath)) {
             $readOnly = new ReadOnlyFile($filePath);
             $checksum = self::checksumData(
                 $readOnly,
                 $key,
-                $raw
+                $encoding
             );
             $readOnly->close();
             return $checksum;
@@ -235,7 +235,7 @@ final class File
      *
      * @param string|resource $filename     File name or file handle
      * @param SignatureSecretKey $secretKey Secret key for digital signatures
-     * @param bool $raw_binary              Default: return hexadecimal
+     * @param mixed $encoding               Which encoding scheme to use for the signature?
      * @return string                       Detached signature for the file
      * @throws InvalidKey
      * @throws InvalidType
@@ -243,7 +243,7 @@ final class File
     public static function sign(
         $filename,
         SignatureSecretKey $secretKey,
-        bool $raw_binary = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         if (
             \is_resource($filename) ||
@@ -253,7 +253,7 @@ final class File
             $signature = self::signData(
                 $readOnly,
                 $secretKey,
-                $raw_binary
+                $encoding
             );
             $readOnly->close();
             return $signature;
@@ -269,7 +269,7 @@ final class File
      * @param string|resource $filename     File name or file handle
      * @param SignaturePublicKey $publicKey Other party's signature public key
      * @param string $signature             The signature we received
-     * @param bool $raw_binary              TRUE if the signature is raw binary
+     * @param mixed $encoding               Which encoding scheme to use for the signature?
      *
      * @return bool
      * @throws InvalidType
@@ -278,7 +278,7 @@ final class File
         $filename,
         SignaturePublicKey $publicKey,
         string $signature,
-        bool $raw_binary = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): bool {
         if (
             \is_resource($filename) ||
@@ -289,7 +289,7 @@ final class File
                 $readOnly,
                 $publicKey,
                 $signature,
-                $raw_binary
+                $encoding
             );
             $readOnly->close();
             return $verified;
@@ -304,14 +304,14 @@ final class File
      *
      * @param StreamInterface $fileStream
      * @param Key $key
-     * @param bool $raw
+     * @param mixed $encoding Which encoding scheme to use for the checksum?
      * @return string
      * @throws InvalidKey
      */
     protected static function checksumData(
         StreamInterface $fileStream,
         Key $key = null,
-        bool $raw = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $config = self::getConfig(
             Halite::HALITE_VERSION_FILE,
@@ -356,17 +356,18 @@ final class File
         }
 
         // 3. Do we want a raw checksum?
-        if ($raw) {
-            return \Sodium\crypto_generichash_final(
-                $state,
-                $config->HASH_LEN
+        $encoder = Halite::chooseEncoder($encoding);
+        if ($encoder) {
+            return $encoder(
+                \Sodium\crypto_generichash_final(
+                    $state,
+                    $config->HASH_LEN
+                )
             );
         }
-        return \Sodium\bin2hex(
-            \Sodium\crypto_generichash_final(
-                $state,
-                $config->HASH_LEN
-            )
+        return \Sodium\crypto_generichash_final(
+            $state,
+            $config->HASH_LEN
         );
     }
 
@@ -684,13 +685,13 @@ final class File
      *
      * @param ReadOnlyFile $input
      * @param SignatureSecretKey $secretKey
-     * @param bool $raw_binary Don't hex encode?
+     * @param mixed $encoding Which encoding scheme to use for the signature?
      * @return string
      */
     protected static function signData(
         ReadOnlyFile $input,
         SignatureSecretKey $secretKey,
-        bool $raw_binary = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $checksum = self::checksumData(
             $input,
@@ -700,7 +701,7 @@ final class File
         return AsymmetricCrypto::sign(
             $checksum,
             $secretKey,
-            $raw_binary
+            $encoding
         );
     }
 
@@ -710,7 +711,7 @@ final class File
      * @param $input (file handle)
      * @param SignaturePublicKey $publicKey
      * @param string $signature
-     * @param bool $raw_binary Don't hex encode?
+     * @param mixed $encoding Which encoding scheme to use for the signature?
      *
      * @return bool
      */
@@ -718,14 +719,14 @@ final class File
         ReadOnlyFile $input,
         SignaturePublicKey $publicKey,
         string $signature,
-        bool $raw_binary = false
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): bool {
         $checksum = self::checksumData($input, $publicKey, true);
         return AsymmetricCrypto::verify(
             $checksum,
             $publicKey,
             $signature,
-            $raw_binary
+            $encoding
         );
     }
 

@@ -96,6 +96,14 @@ class Key
     }
 
     /**
+     * Don't allow this object to ever be unserialized
+     */
+    public function __wakeup()
+    {
+        throw new CannotSerializeKey;
+    }
+
+    /**
      * Get public keys
      *
      * @return string

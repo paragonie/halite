@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 3.2.0
+
+* Resolved [#49](https://github.com/paragonie/halite/issues/49), which
+  requested making `HiddenString` defend against `serialize()` leaks.
+* Fixed an encoding issue which broke legacy passwords. 
+  (Discovered in the course of CMS Airship development.)
+
 ## Version 3.1.1 (2016-10-26)
 
 * Fixed [#44](https://github.com/paragonie/halite/issues/44), which

@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 3.2.0
+## Version 3.2.0 (2016-12-08)
 
 * Resolved [#49](https://github.com/paragonie/halite/issues/49), which
   requested making `HiddenString` defend against `serialize()` leaks.

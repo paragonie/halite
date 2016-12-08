@@ -12,6 +12,11 @@ use ParagonIE\Halite\Alerts\{
  *
  * A stream used by Halite, internally.
  *
+ * This library makes heavy use of return-type declarations,
+ * which are a PHP 7 only feature. Read more about them here:
+ *
+ * @ref http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
+ *
  * @package ParagonIE\Halite\Contract
  */
 interface StreamInterface

@@ -20,6 +20,11 @@ use ParagonIE\Halite\{
  *
  * Encapsulates symmetric-key cryptography
  *
+ * This library makes heavy use of return-type declarations,
+ * which are a PHP 7 only feature. Read more about them here:
+ *
+ * @ref http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
+ *
  * @package ParagonIE\Halite\Symmetric
  */
 final class Crypto
@@ -89,8 +94,13 @@ final class Crypto
         }
         list($version, $config, $salt, $nonce, $encrypted, $auth) =
             self::unpackMessageForDecryption($ciphertext);
-        
-        // Split our keys
+
+        /* Split our key into two keys: One for encryption, the other for
+           authentication. By using separate keys, we can reasonably dismiss
+           likely cross-protocol attacks.
+
+           This uses salted HKDF to split the keys, whic is why we need the
+           salt in the first place. */
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
 
         // Check the MAC first
@@ -147,8 +157,13 @@ final class Crypto
             \Sodium\CRYPTO_SECRETBOX_NONCEBYTES
         );
         $salt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
-        
-        // Split our keys according to the HKDF salt:
+
+        /* Split our key into two keys: One for encryption, the other for
+           authentication. By using separate keys, we can reasonably dismiss
+           likely cross-protocol attacks.
+
+           This uses salted HKDF to split the keys, whic is why we need the
+           salt in the first place. */
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
         
         // Encrypt our message with the encryption key:
@@ -246,7 +261,7 @@ final class Crypto
             );
         }
         
-        // The HKDF is used for key splitting
+        // The salt is used for key splitting (via HKDF)
         $salt = CryptoUtil::safeSubstr(
             $ciphertext,
             Halite::VERSION_TAG_LEN,
@@ -286,6 +301,8 @@ final class Crypto
         
         // We don't need this anymore.
         \Sodium\memzero($ciphertext);
+
+        // Now we return the pieces in a specific order:
         return [$version, $config, $salt, $nonce, $encrypted, $auth];
     }
     

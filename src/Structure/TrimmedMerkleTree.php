@@ -13,6 +13,11 @@ use ParagonIE\Halite\Util;
  * If you're planning to implement this into some sort of crypto-currency,
  * you'll almost certainly want to use the Trimmed variant.
  *
+ * This library makes heavy use of return-type declarations,
+ * which are a PHP 7 only feature. Read more about them here:
+ *
+ * @ref http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
+ *
  * @package ParagonIE\Halite\Structure
  */
 class TrimmedMerkleTree extends MerkleTree

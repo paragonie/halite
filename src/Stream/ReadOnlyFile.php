@@ -7,15 +7,48 @@ use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Key;
 use ParagonIE\Halite\Util as CryptoUtil;
 
+/**
+ * Class ReadOnlyFile
+ *
+ * This library makes heavy use of return-type declarations,
+ * which are a PHP 7 only feature. Read more about them here:
+ *
+ * @ref http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
+ *
+ * @package ParagonIE\Halite\Stream
+ */
 class ReadOnlyFile implements StreamInterface
 {
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
 
+    /**
+     * @var bool
+     */
     private $closeAfter = false;
+
+    /**
+     * @var resource
+     */
     private $fp;
+
+    /**
+     * @var string
+     */
     private $hash;
+
+    /**
+     * @var int
+     */
     private $pos;
+
+    /**
+     * @var null|string
+     */
     private $hashKey = null;
+
+    /**
+     * @var array
+     */
     private $stat = [];
 
     /**
@@ -196,7 +229,7 @@ class ReadOnlyFile implements StreamInterface
      * size matches their values when the file was first opened.
      *
      * @throws CryptoException\FileModified
-     * @return true
+     * @return void
      */
     public function toctouTest()
     {

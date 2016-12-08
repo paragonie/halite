@@ -124,7 +124,6 @@ This should produce something similar to:
 <?php
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
-use ParagonIE\Halite\Symmetric\Crypto as Symmetric;
 
 $passwd = new HiddenString('correct horse battery staple');
 // Use random_bytes(16); to generate the salt:

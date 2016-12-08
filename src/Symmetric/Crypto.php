@@ -99,7 +99,7 @@ final class Crypto
            authentication. By using separate keys, we can reasonably dismiss
            likely cross-protocol attacks.
 
-           This uses salted HKDF to split the keys, whic is why we need the
+           This uses salted HKDF to split the keys, which is why we need the
            salt in the first place. */
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
 
@@ -162,7 +162,7 @@ final class Crypto
            authentication. By using separate keys, we can reasonably dismiss
            likely cross-protocol attacks.
 
-           This uses salted HKDF to split the keys, whic is why we need the
+           This uses salted HKDF to split the keys, which is why we need the
            salt in the first place. */
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
         

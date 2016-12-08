@@ -380,7 +380,7 @@ if (!\extension_loaded('libsodium')) {
         string &$hashState,
         string $append
     ): bool {
-        return '';
+        return false;
     }
 
     /**
@@ -392,7 +392,7 @@ if (!\extension_loaded('libsodium')) {
      * @return string
      */
     function crypto_generichash_final(
-        string $state,
+        string $hashState,
         int $length = 32
     ): string {
         return '';

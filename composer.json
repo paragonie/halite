@@ -1,5 +1,5 @@
 {
-    "name": "paragonie/halite",
+    "name": "guazi/halite",
     "description": "High-level cryptography interface powered by libsodium",
     "type": "library",
     "require": {

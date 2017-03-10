@@ -29,7 +29,7 @@ versions of Halite are briefly highlighted below.
 |           | PHP   | libsodium | PECL libsodium |
 |-----------|-------|-----------|----------------|
 | Halite 2+ | 7.0.0 | 1.0.9     | 1.0.6          |
-| Halite 1  | 5.6.0 | 1.0.6     | 1.0.2          |
+| Halite 1  | 5.5.9 | 1.0.6     | 1.0.2          |
 
 If you plan to use Halite 1, or your distribution has the necessary version already,
 then you should be able to

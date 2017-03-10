@@ -8,8 +8,12 @@ final class EncryptionKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
+     * @param bool   $public
+     * @param bool   $signing
+     * @param bool   $asymmetric
+     * @throws CryptoException\InvalidKey
      */
-    public function __construct($keyMaterial = '', ...$args)
+    public function __construct($keyMaterial = '', $public = false, $signing = false, $asymmetric = false)
     {
         // Longer keys are OK here; it gets blended through HKDF anyway.
         // We're only blocking weak keys here.
@@ -18,6 +22,6 @@ final class EncryptionKey extends SecretKey
                 'Encryption key must be at least CRYPTO_STREAM_KEYBYTES bytes long'
             );
         }
-        parent::__construct($keyMaterial, false);
+        parent::__construct($keyMaterial, false, false);
     }
 }

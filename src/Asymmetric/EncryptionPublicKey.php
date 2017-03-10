@@ -8,9 +8,9 @@ final class EncryptionPublicKey extends PublicKey
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool $signing - Is this a signing key?
+     * @param bool   $signing - Is this a signing key?
      */
-    public function __construct($keyMaterial = '', ...$args) 
+    public function __construct($keyMaterial = '', $public = false, $signing = false, $asymmetric = false)
     {
         // X25519 keys are a fixed size
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_BOX_PUBLICKEYBYTES) {
@@ -18,6 +18,6 @@ final class EncryptionPublicKey extends PublicKey
                 'Encryption public key must be CRYPTO_BOX_PUBLICKEYBYTES bytes long'
             );
         }
-        parent::__construct($keyMaterial, false);
+        parent::__construct($keyMaterial, false, false);
     }
 }

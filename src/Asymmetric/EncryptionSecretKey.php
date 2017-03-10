@@ -10,7 +10,7 @@ final class EncryptionSecretKey extends SecretKey
      * @param string $keyMaterial - The actual key data
      * @param bool $signing - Is this a signing key?
      */
-    public function __construct($keyMaterial = '', ...$args) 
+    public function __construct($keyMaterial = '', $public=false,$signing=false,$asymmetric=false)
     {
         // X25519 keys are a fixed size
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_BOX_SECRETKEYBYTES) {

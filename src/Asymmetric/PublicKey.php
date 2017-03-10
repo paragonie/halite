@@ -8,13 +8,10 @@ class PublicKey extends Key implements Contract\KeyInterface
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool $signing - Is this a signing key?
+     * @param bool   $signing - Is this a signing key?
      */
-    public function __construct($keyMaterial = '', ...$args) 
+    public function __construct($keyMaterial = '', $public = false, $signing = false, $asymmetric = false)
     {
-        $signing = \count($args) >= 1
-            ? $args[0]
-            : false;
         parent::__construct($keyMaterial, true, $signing, true);
     }
 }

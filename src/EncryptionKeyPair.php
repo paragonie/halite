@@ -16,7 +16,7 @@ final class EncryptionKeyPair extends KeyPair
      * 
      * @param ...Key $keys
      */
-    public function __construct(Key ...$keys)
+    public function __construct(array $keys)
     {
         switch (\count($keys)) {
             /**
@@ -185,7 +185,7 @@ final class EncryptionKeyPair extends KeyPair
         }
         if (Key::hasFlag($type, Key::ENCRYPTION)) {
             $key = EncryptionSecretKey::generate(Key::CRYPTO_BOX, $secret_key);
-            $keypair = new EncryptionKeyPair(...$key);
+            $keypair = new EncryptionKeyPair($key);
             return $keypair;
         }
         throw new CryptoException\InvalidKey(
@@ -230,7 +230,7 @@ final class EncryptionKeyPair extends KeyPair
             $filePath,
             ($type | Key::ASYMMETRIC | Key::ENCRYPTION)
         );
-        return new KeyPair(...$keys);
+        return new KeyPair($keys);
     }
     
     /**

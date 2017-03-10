@@ -5,6 +5,8 @@ cdir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd $origdir
 parentdir="$(dirname $cdir)"
 
+echo $parentdir,$origdir,$cdir
+
 clean=0 # Clean up?
 gpg --fingerprint D8406D0D82947747293778314AA394086372C20A
 if [ $? -ne 0 ]; then
@@ -56,7 +58,7 @@ if [ $? -eq 0 ]; then
     php phpunit.phar --bootstrap "$parentdir/autoload.php" "$parentdir/test/unit"
     EXITCODE=$?
     # Test with mbstring.func_overload = 7
-    php -dmbstring.func_overload=7 phpunit.phar --bootstrap "$parentdir/autoload.php" "$parentdir/test/unit"
+    php -dmbstring.func_overload=7 phpunit.phar --bootstrap "$parentdir/vendor/autoload.php" "$parentdir/test/unit"
     # Cleanup
     if [ "$clean" -eq 1 ]; then
         echo -e "\033[32mCleaning Up!\033[0m"

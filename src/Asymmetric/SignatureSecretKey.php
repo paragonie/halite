@@ -8,9 +8,12 @@ final class SignatureSecretKey extends SecretKey
 {
     /**
      * @param string $keyMaterial - The actual key data
-     * @param bool $signing - Is this a signing key?
+     * @param bool   $public
+     * @param bool   $signing - Is this a signing key?
+     * @param bool   $asymmetric
+     * @throws CryptoException\InvalidKey
      */
-    public function __construct($keyMaterial = '', ...$args) 
+    public function __construct($keyMaterial = '', $public = false, $signing = false, $asymmetric = false)
     {
         // Ed25519 keys are a fixed size
         if (CryptoUtil::safeStrlen($keyMaterial) !== \Sodium\CRYPTO_SIGN_SECRETKEYBYTES) {
@@ -18,12 +21,12 @@ final class SignatureSecretKey extends SecretKey
                 'Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES bytes long'
             );
         }
-        parent::__construct($keyMaterial, true);
+        parent::__construct($keyMaterial, false, true);
     }
-    
+
     /**
      * See the appropriate derived class.
-     * 
+     *
      * @return SignaturePublicKey
      */
     public function derivePublicKey()

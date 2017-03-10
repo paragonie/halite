@@ -21,7 +21,7 @@ class KeyPair
      * 
      * @param ...Key $keys
      */
-    public function __construct(Key ...$keys)
+    public function __construct(array $keys)
     {
         switch (\count($keys)) {
             /**
@@ -184,16 +184,5 @@ class KeyPair
     public function getSecretKey()
     {
        return $this->secret_key;
-    }
-    
-    /**
-     * Save a copy of the secret key to a file
-     *
-     * @param string $filePath
-     * @return bool|int
-     */
-    public function saveToFile($filePath)
-    {
-        return $this->secret_key->saveToFile($filePath);
     }
 }

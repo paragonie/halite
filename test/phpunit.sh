@@ -32,14 +32,14 @@ fi
 
 # Let's grab the latest release and its signature
 if [ ! -f phpunit.phar ]; then
-    wget https://phar.phpunit.de/phpunit.phar
+    wget https://phar.phpunit.de/phpunit-4.8.35.phar -O phpunit.phar
     if [ $? -ne 0 ]; then
         echo "wget phpunit.phar was unsuccessful"
         exit 1
     fi
 fi
 if [ ! -f phpunit.phar.asc ]; then
-    wget https://phar.phpunit.de/phpunit.phar.asc
+    wget https://phar.phpunit.de/phpunit-4.8.35.phar.asc -O phpunit.phar.asc
     if [ $? -ne 0 ]; then
         echo "wget phpunit.phar.asc was unsuccessful"
         exit 1

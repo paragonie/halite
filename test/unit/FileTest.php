@@ -12,7 +12,7 @@ use ParagonIE\Halite\Util;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class FileTest extends PHPUnit_Framework_TestCase
+class FileTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @covers File::encrypt()

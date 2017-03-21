@@ -7,7 +7,7 @@ use ParagonIE\Halite\HiddenString;
  * @backupGlobals disabled
  * @covers HiddenString
  */
-class HiddenStringTest extends PHPUnit_Framework_TestCase
+class HiddenStringTest extends \PHPUnit\Framework\TestCase
 {
     public function testRandomString()
     {

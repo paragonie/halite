@@ -13,7 +13,7 @@ use ParagonIE\Halite\KeyFactory;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class AsymmetricTest extends PHPUnit_Framework_TestCase
+class AsymmetricTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @covers Asymmetric::encrypt()

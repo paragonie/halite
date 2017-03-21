@@ -10,7 +10,7 @@ use ParagonIE\Halite\Halite;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class HaliteTest extends PHPUnit_Framework_TestCase
+class HaliteTest extends \PHPUnit\Framework\TestCase
 {
     public function testLibsodiumDetection()
     {

@@ -11,7 +11,7 @@ use ParagonIE\Halite\KeyFactory;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class KeyPairTest extends PHPUnit_Framework_TestCase
+class KeyPairTest extends \PHPUnit\Framework\TestCase
 {
     public function testDeriveSigningKey()
     {

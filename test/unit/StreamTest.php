@@ -9,7 +9,7 @@ use ParagonIE\Halite\Util;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class StreamTest extends PHPUnit_Framework_TestCase
+class StreamTest extends \PHPUnit\Framework\TestCase
 {
     public function testFileHash()
     {

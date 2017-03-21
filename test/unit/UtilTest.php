@@ -13,7 +13,7 @@ use ParagonIE\Halite\Util;
  * @license    http://opensource.org/licenses/GPL-3.0 GPL 3
  * @link       https://paragonie.com/project/halite
  */
-class UtilTest extends PHPUnit_Framework_TestCase
+class UtilTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * BLAKE2b hash

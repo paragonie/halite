@@ -1,21 +1,19 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use ParagonIE\Halite\Alerts as CryptoException;
-use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Asymmetric\{
-    Crypto as Asymmetric,
-    EncryptionPublicKey,
-    EncryptionSecretKey
+    Crypto as Asymmetric, EncryptionPublicKey, EncryptionSecretKey
 };
 use ParagonIE\Halite\Halite;
 use ParagonIE\Halite\HiddenString;
+use ParagonIE\Halite\KeyFactory;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class AsymmetricTest extends PHPUnit_Framework_TestCase
+class AsymmetricTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @covers Asymmetric::encrypt()
@@ -23,8 +21,8 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     public function testEncrypt()
     {
         $alice = KeyFactory::generateEncryptionKeyPair();
-        $bob = KeyFactory::generateEncryptionKeyPair();
-        
+        $bob   = KeyFactory::generateEncryptionKeyPair();
+
         $message = Asymmetric::encrypt(
             new HiddenString('test message'),
             $alice->getSecretKey(),
@@ -34,13 +32,13 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
             \strpos($message, Halite::VERSION_PREFIX),
             0
         );
-        
+
         $plain = Asymmetric::decrypt(
             $message,
             $bob->getSecretKey(),
             $alice->getPublicKey()
         );
-        
+
         $this->assertSame($plain->getString(), 'test message');
     }
 
@@ -51,7 +49,7 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     public function testEncryptEmpty()
     {
         $alice = KeyFactory::generateEncryptionKeyPair();
-        $bob = KeyFactory::generateEncryptionKeyPair();
+        $bob   = KeyFactory::generateEncryptionKeyPair();
 
         $message = Asymmetric::encrypt(
             new HiddenString(''),
@@ -80,18 +78,18 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     public function testEncryptFail()
     {
         $alice = KeyFactory::generateEncryptionKeyPair();
-        $bob = KeyFactory::generateEncryptionKeyPair();
-        
-        $message = Asymmetric::encrypt(
+        $bob   = KeyFactory::generateEncryptionKeyPair();
+
+        $message     = Asymmetric::encrypt(
             new HiddenString('test message'),
             $alice->getSecretKey(),
             $bob->getPublicKey(),
             true
         );
-        $r = \Sodium\randombytes_uniform(\mb_strlen($message, '8bit'));
-        $amt = \Sodium\randombytes_uniform(8);
+        $r           = \Sodium\randombytes_uniform(\mb_strlen($message, '8bit'));
+        $amt         = \Sodium\randombytes_uniform(8);
         $message[$r] = \chr(\ord($message[$r]) ^ 1 << $amt);
-        
+
         try {
             $plain = Asymmetric::decrypt(
                 $message,
@@ -120,22 +118,22 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         ) {
             $this->markTestSkipped("Your version of libsodium is too old");
         }
-        $alice = KeyFactory::generateEncryptionKeyPair();
+        $alice      = KeyFactory::generateEncryptionKeyPair();
         $enc_secret = $alice->getSecretKey();
         $enc_public = $alice->getPublicKey();
-        
+
         $this->assertSame(
             \Sodium\crypto_box_publickey_from_secretkey($enc_secret->getRawKeyMaterial()),
             $enc_public->getRawKeyMaterial()
         );
-        
+
         $message = new HiddenString('This is for your eyes only');
-        
-        $kp = \Sodium\crypto_box_keypair();
+
+        $kp   = \Sodium\crypto_box_keypair();
         $test = \Sodium\crypto_box_seal($message->getString(), \Sodium\crypto_box_publickey($kp));
         $decr = \Sodium\crypto_box_seal_open($test, $kp);
         $this->assertTrue($decr !== false);
-        
+
         $sealed = Asymmetric::seal(
             $message,
             new EncryptionPublicKey(
@@ -148,17 +146,17 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
                 new HiddenString(\Sodium\crypto_box_secretkey($kp))
             )
         );
-        
+
         $this->assertSame($opened->getString(), $message->getString());
-        
+
         $sealed = Asymmetric::seal($message, $enc_public);
         $opened = Asymmetric::unseal($sealed, $enc_secret);
-        
+
         $this->assertSame($opened->getString(), $message->getString());
-        
+
         $sealed_raw = Asymmetric::seal($message, $alice->getPublicKey());
         $opened_raw = Asymmetric::unseal($sealed_raw, $alice->getSecretKey());
-        
+
         $this->assertSame($opened_raw->getString(), $message->getString());
     }
 
@@ -174,17 +172,17 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
         ) {
             $this->markTestSkipped("Your version of libsodium is too old");
         }
-        
+
         $alice = KeyFactory::generateEncryptionKeyPair();
-        
+
         $message = new HiddenString('This is for your eyes only');
-        $sealed = Asymmetric::seal($message, $alice->getPublicKey(), true);
-        
+        $sealed  = Asymmetric::seal($message, $alice->getPublicKey(), true);
+
         // Let's flip one bit, randomly:
-        $r = \Sodium\randombytes_uniform(\mb_strlen($sealed, '8bit'));
-        $amt = 1 << \Sodium\randombytes_uniform(8);
+        $r          = \Sodium\randombytes_uniform(\mb_strlen($sealed, '8bit'));
+        $amt        = 1 << \Sodium\randombytes_uniform(8);
         $sealed[$r] = \chr(\ord($sealed[$r]) ^ $amt);
-        
+
         // This should throw an exception
         try {
             $opened = Asymmetric::unseal($sealed, $alice->getSecretKey());
@@ -206,12 +204,12 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     public function testSign()
     {
         $alice = KeyFactory::generateSignatureKeyPair();
-        
-        $message = 'test message';
+
+        $message   = 'test message';
         $signature = Asymmetric::sign($message, $alice->getSecretKey());
-        
+
         $this->assertTrue(strlen($signature) === 88);
-        
+
         $this->assertTrue(
             Asymmetric::verify($message, $alice->getPublicKey(), $signature)
         );
@@ -224,10 +222,10 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
     public function testSignFail()
     {
         $alice = KeyFactory::generateSignatureKeyPair();
-        
-        $message = 'test message';
+
+        $message   = 'test message';
         $signature = Asymmetric::sign($message, $alice->getSecretKey(), true);
-        
+
         $this->assertFalse(
             Asymmetric::verify(
                 'wrongmessage',
@@ -236,16 +234,16 @@ class AsymmetricTest extends PHPUnit_Framework_TestCase
                 true
             )
         );
-        
+
         $_signature = $signature;
         // Let's flip one bit, randomly:
-        $r = \Sodium\randombytes_uniform(\mb_strlen($_signature, '8bit'));
+        $r              = \Sodium\randombytes_uniform(\mb_strlen($_signature, '8bit'));
         $_signature[$r] = \chr(
             \ord($_signature[$r])
-                ^
+            ^
             1 << \Sodium\randombytes_uniform(8)
         );
-        
+
         $this->assertFalse(
             Asymmetric::verify(
                 $message,

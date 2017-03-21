@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\HiddenString;
@@ -18,6 +18,6 @@ class PublicKey extends Key
     {
         parent::__construct($keyMaterial);
         $this->isAsymmetricKey = true;
-        $this->isPublicKey = true;
+        $this->isPublicKey     = true;
     }
 }

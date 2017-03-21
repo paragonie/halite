@@ -1,20 +1,12 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Asymmetric;
 
-use ParagonIE\Halite\Alerts\{
-    CannotPerformOperation,
-    InvalidKey,
-    InvalidMessage,
-    InvalidSignature
-};
 use ParagonIE\Halite\{
-    Util as CryptoUtil,
-    Halite,
-    HiddenString,
-    Key,
-    Symmetric\Crypto as SymmetricCrypto,
-    Symmetric\EncryptionKey
+    Halite, HiddenString, Key, Symmetric\Crypto as SymmetricCrypto, Symmetric\EncryptionKey, Util as CryptoUtil
+};
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation, InvalidKey, InvalidMessage, InvalidSignature
 };
 
 /**
@@ -42,11 +34,11 @@ final class Crypto
     /**
      * Encrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::encrypt()
-     * 
-     * @param HiddenString $plaintext              The message to encrypt
-     * @param EncryptionSecretKey $ourPrivateKey   Our private key
-     * @param EncryptionPublicKey $theirPublicKey  Their public key
-     * @param mixed $encoding                      Which encoding scheme to use?
+     *
+     * @param HiddenString                  $plaintext The message to encrypt
+     * @param EncryptionSecretKey|SecretKey $ourPrivateKey Our private key
+     * @param EncryptionPublicKey|PublicKey $theirPublicKey Their public key
+     * @param mixed                         $encoding Which encoding scheme to use?
      * @return string                              Ciphertext
      */
     public static function encrypt(
@@ -61,7 +53,7 @@ final class Crypto
                 $theirPublicKey
             )
         );
-        $ciphertext = SymmetricCrypto::encrypt(
+        $ciphertext      = SymmetricCrypto::encrypt(
             $plaintext,
             $sharedSecretKey,
             $encoding
@@ -69,15 +61,15 @@ final class Crypto
         unset($sharedSecretKey);
         return $ciphertext;
     }
-    
+
     /**
      * Decrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::decrypt()
-     * 
-     * @param string $ciphertext                  The message to decrypt
-     * @param EncryptionSecretKey $ourPrivateKey  Our private key
-     * @param EncryptionPublicKey $theirPublicKey Their public key
-     * @param mixed $encoding                     Which encoding scheme to use?
+     *
+     * @param string                        $ciphertext The message to decrypt
+     * @param EncryptionSecretKey|SecretKey $ourPrivateKey Our private key
+     * @param EncryptionPublicKey|PublicKey $theirPublicKey Their public key
+     * @param mixed                         $encoding Which encoding scheme to use?
      * @return HiddenString                       The decrypted message
      */
     public static function decrypt(
@@ -92,7 +84,7 @@ final class Crypto
                 $theirPublicKey
             )
         );
-        $plaintext = SymmetricCrypto::decrypt(
+        $plaintext       = SymmetricCrypto::decrypt(
             $ciphertext,
             $sharedSecretKey,
             $encoding
@@ -100,16 +92,16 @@ final class Crypto
         unset($sharedSecretKey);
         return $plaintext;
     }
-    
+
     /**
      * Diffie-Hellman, ECDHE, etc.
-     * 
+     *
      * Get a shared secret from a private key you possess and a public key for
      * the intended message recipient
-     * 
+     *
      * @param EncryptionSecretKey $privateKey
      * @param EncryptionPublicKey $publicKey
-     * @param bool $get_as_object Get as a Key object?
+     * @param bool                $get_as_object Get as a Key object?
      * @return HiddenString|Key
      */
     public static function getSharedSecret(
@@ -134,13 +126,13 @@ final class Crypto
             )
         );
     }
-    
+
     /**
      * Encrypt a message with a target users' public key
-     * 
-     * @param HiddenString $plaintext        Message to encrypt
-     * @param EncryptionPublicKey $publicKey Public encryption key
-     * @param mixed $encoding                Which encoding scheme to use?
+     *
+     * @param HiddenString                  $plaintext Message to encrypt
+     * @param EncryptionPublicKey|PublicKey $publicKey Public encryption key
+     * @param mixed                         $encoding Which encoding scheme to use?
      * @return string                        Ciphertext
      * @throws CannotPerformOperation
      * @throws InvalidKey
@@ -155,8 +147,8 @@ final class Crypto
                 'Argument 2: Expected an instance of EncryptionPublicKey'
             );
         }
-        
-        $sealed = \Sodium\crypto_box_seal(
+
+        $sealed  = \Sodium\crypto_box_seal(
             $plaintext->getString(),
             $publicKey->getRawKeyMaterial()
         );
@@ -166,13 +158,13 @@ final class Crypto
         }
         return $sealed;
     }
-    
+
     /**
      * Sign a message with our private key
-     * 
-     * @param string $message Message to sign
-     * @param SignatureSecretKey $privateKey
-     * @param mixed $encoding Which encoding scheme to use?
+     *
+     * @param string                       $message Message to sign
+     * @param SignatureSecretKey|SecretKey $privateKey
+     * @param mixed                        $encoding Which encoding scheme to use?
      * @return string Signature (detached)
      */
     public static function sign(
@@ -180,7 +172,7 @@ final class Crypto
         SignatureSecretKey $privateKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
-        $signed = \Sodium\crypto_sign_detached(
+        $signed  = \Sodium\crypto_sign_detached(
             $message,
             $privateKey->getRawKeyMaterial()
         );
@@ -190,13 +182,13 @@ final class Crypto
         }
         return $signed;
     }
-    
+
     /**
      * Decrypt a sealed message with our private key
-     * 
-     * @param string $ciphertext Encrypted message
-     * @param EncryptionSecretKey $privateKey
-     * @param mixed $encoding Which encoding scheme to use?
+     *
+     * @param string                        $ciphertext Encrypted message
+     * @param EncryptionSecretKey|SecretKey $privateKey
+     * @param mixed                         $encoding Which encoding scheme to use?
      * @return HiddenString
      * @throws InvalidKey
      * @throws InvalidMessage
@@ -221,15 +213,15 @@ final class Crypto
         // Get a box keypair (needed by crypto_box_seal_open)
         $secret_key = $privateKey->getRawKeyMaterial();
         $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
-        $key_pair = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
+        $key_pair   = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
             $secret_key,
             $public_key
         );
-        
+
         // Wipe these immediately:
         \Sodium\memzero($secret_key);
         \Sodium\memzero($public_key);
-        
+
         // Now let's open that sealed box
         $message = \Sodium\crypto_box_seal_open(
             $ciphertext,
@@ -247,14 +239,14 @@ final class Crypto
         // We have our encrypted message here
         return new HiddenString($message);
     }
-    
+
     /**
      * Verify a signed message with the correct public key
-     * 
-     * @param string $message Message to verify
-     * @param SignaturePublicKey $publicKey
-     * @param string $signature
-     * @param mixed $encoding Which encoding scheme to use?
+     *
+     * @param string                       $message Message to verify
+     * @param SignaturePublicKey|PublicKey $publicKey
+     * @param string                       $signature
+     * @param mixed                        $encoding Which encoding scheme to use?
      * @return bool
      * @throws InvalidSignature
      */
@@ -274,7 +266,7 @@ final class Crypto
                 'Signature is not the correct length; is it encoded?'
             );
         }
-        
+
         return \Sodium\crypto_sign_verify_detached(
             $signature,
             $message,

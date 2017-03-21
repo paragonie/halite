@@ -1,10 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Alerts\{
-    CannotCloneKey,
-    CannotSerializeKey
+    CannotCloneKey, CannotSerializeKey
 };
 
 /**
@@ -25,17 +24,14 @@ class Key
      * @var bool
      */
     protected $isPublicKey = false;
-
     /**
      * @var bool
      */
     protected $isSigningKey = false;
-
     /**
      * @var bool
      */
     protected $isAsymmetricKey = false;
-
     /**
      * @var string
      */
@@ -66,13 +62,13 @@ class Key
      *
      * @return array
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         // We exclude $this->keyMaterial
         return [
             'isAsymmetricKey' => $this->isAsymmetricKey,
-            'isPublicKey' => $this->isPublicKey,
-            'isSigningKey' => $this->isSigningKey
+            'isPublicKey'     => $this->isPublicKey,
+            'isSigningKey'    => $this->isSigningKey,
         ];
     }
 
@@ -108,7 +104,7 @@ class Key
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->isPublicKey) {
             return $this->keyMaterial;
@@ -121,57 +117,57 @@ class Key
      *
      * @return string
      */
-    public function getRawKeyMaterial()
+    public function getRawKeyMaterial(): string
     {
         return Util::safeStrcpy($this->keyMaterial);
     }
-    
+
     /**
      * Is this a part of a key pair?
-     * 
+     *
      * @return bool
      */
-    public function isAsymmetricKey()
+    public function isAsymmetricKey(): bool
     {
         return $this->isAsymmetricKey;
     }
-    
+
     /**
      * Is this a signing key?
-     * 
+     *
      * @return bool
      */
-    public function isEncryptionKey()
+    public function isEncryptionKey(): bool
     {
         return !$this->isSigningKey;
     }
-    
+
     /**
      * Is this a public key?
-     * 
+     *
      * @return bool
      */
-    public function isPublicKey()
+    public function isPublicKey(): bool
     {
         return $this->isPublicKey;
     }
-    
+
     /**
      * Is this a secret key?
-     * 
+     *
      * @return bool
      */
-    public function isSecretKey()
+    public function isSecretKey(): bool
     {
         return !$this->isPublicKey;
     }
-    
+
     /**
      * Is this a signing key?
-     * 
+     *
      * @return bool
      */
-    public function isSigningKey()
+    public function isSigningKey(): bool
     {
         return $this->isSigningKey;
     }

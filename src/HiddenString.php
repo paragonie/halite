@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite;
 
 /**
@@ -27,14 +27,12 @@ final class HiddenString
      * @var string
      */
     protected $internalStringValue = '';
-
     /**
      * Disallow the contents from being accessed via __toString()?
      *
      * @var bool
      */
     protected $disallowInline = false;
-
     /**
      * Disallow the contents from being accessed via __sleep()?
      *
@@ -45,16 +43,16 @@ final class HiddenString
     /**
      * HiddenString constructor.
      * @param string $value
-     * @param bool $disallowInline
-     * @param bool $disallowSerialization
+     * @param bool   $disallowInline
+     * @param bool   $disallowSerialization
      */
     public function __construct(
         string $value,
         bool $disallowInline = false,
         bool $disallowSerialization = false
     ) {
-        $this->internalStringValue = Util::safeStrcpy($value);
-        $this->disallowInline = $disallowInline;
+        $this->internalStringValue   = Util::safeStrcpy($value);
+        $this->disallowInline        = $disallowInline;
         $this->disallowSerialization = $disallowSerialization;
     }
 
@@ -68,9 +66,9 @@ final class HiddenString
         return [
             'internalStringValue' =>
                 '*',
-            'attention' =>
+            'attention'           =>
                 'If you need the value of a HiddenString, ' .
-                'invoke getString() instead of dumping it.'
+                'invoke getString() instead of dumping it.',
         ];
     }
 
@@ -115,7 +113,7 @@ final class HiddenString
             return [
                 'internalStringValue',
                 'disallowInline',
-                'disallowSerialization'
+                'disallowSerialization',
             ];
         }
         return [];

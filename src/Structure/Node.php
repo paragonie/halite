@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Structure;
 
 use ParagonIE\Halite\Util;
@@ -43,10 +43,10 @@ class Node
     /**
      * Get a hash of the data (defaults to hex encoded)
      *
-     * @param bool $raw
+     * @param bool   $raw
      *
      * These two aren't really meant to be used externally:
-     * @param int $outputSize
+     * @param int    $outputSize
      * @param string $personalization
      *
      * @return string

@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use ParagonIE\Halite\Alerts\CannotPerformOperation;
 use ParagonIE\Halite\Util;
@@ -13,9 +13,8 @@ use ParagonIE\Halite\Util;
  * @license    http://opensource.org/licenses/GPL-3.0 GPL 3
  * @link       https://paragonie.com/project/halite
  */
-class UtilTest extends PHPUnit_Framework_TestCase
+class UtilTest extends \PHPUnit\Framework\TestCase
 {
-
     /**
      * BLAKE2b hash
      *
@@ -25,7 +24,7 @@ class UtilTest extends PHPUnit_Framework_TestCase
     {
         $this->assertSame(
             Util::raw_hash(''),
-            "\x0e\x57\x51\xc0\x26\xe5\x43\xb2\xe8\xab\x2e\xb0\x60\x99\xda\xa1".
+            "\x0e\x57\x51\xc0\x26\xe5\x43\xb2\xe8\xab\x2e\xb0\x60\x99\xda\xa1" .
             "\xd1\xe5\xdf\x47\x77\x8f\x77\x87\xfa\xab\x45\xcd\xf1\x2f\xe3\xa8"
         );
 
@@ -45,7 +44,7 @@ class UtilTest extends PHPUnit_Framework_TestCase
         $key = Util::raw_hash('');
         $this->assertSame(
             Util::raw_keyed_hash('', $key),
-            "\x0a\x28\xe9\x66\xfb\x7a\x7d\x39\xfd\x0a\x4d\x12\xd6\xfb\x14\x62".
+            "\x0a\x28\xe9\x66\xfb\x7a\x7d\x39\xfd\x0a\x4d\x12\xd6\xfb\x14\x62" .
             "\x5b\x94\xb1\x73\x89\x43\x33\x8d\x2b\x3d\xf4\xcc\x81\xcb\x4e\xf0"
         );
 
@@ -57,38 +56,38 @@ class UtilTest extends PHPUnit_Framework_TestCase
 
     /**
      * Test our HKDF-esque construct built atop BLAKE2b
-     * 
+     *
      * @covers Util::hkdfBlake2b()
      */
     public function testBlake2bKDF()
     {
-        $ikm = 'YELLOW SUBMARINE';
-        $len = 32;
+        $ikm  = 'YELLOW SUBMARINE';
+        $len  = 32;
         $info = 'TESTING HKDF-BLAKE2B';
         $salt = str_repeat("\x80", 32);
-        
+
         $test = Util::hkdfBlake2b($ikm, $len, $info, $salt);
         $this->assertSame(
             $test,
-            "\x7b\xaf\xb1\x11\x1c\xda\xce\x81\xd1\xb0\x73\xff\x6e\x68\x8f\xc3".
+            "\x7b\xaf\xb1\x11\x1c\xda\xce\x81\xd1\xb0\x73\xff\x6e\x68\x8f\xc3" .
             "\x6f\xb5\xa2\xc7\xbd\x53\xf6\xf1\xb4\x2f\x80\x71\x29\x4b\xb7\xf7"
         );
         // Let's change the IKM
-        $ikmB = 'YELLOW SUBMARINF';
+        $ikmB    = 'YELLOW SUBMARINF';
         $testIkm = Util::hkdfBlake2b($ikmB, $len, $info, $salt);
         $this->assertNotEquals($test, $testIkm);
-        
+
         // Let's change the info
-        $infoB = 'TESTING HKDF-BLAKE2C';
+        $infoB    = 'TESTING HKDF-BLAKE2C';
         $testInfo = Util::hkdfBlake2b($ikm, $len, $infoB, $salt);
         $this->assertNotEquals($test, $testInfo);
-        
+
         // Let's change the salt
-        $saltB = str_repeat("\x80", 31) . "\x81";
+        $saltB    = str_repeat("\x80", 31) . "\x81";
         $testSalt = Util::hkdfBlake2b($ikm, $len, $info, $saltB);
         $this->assertNotEquals($test, $testSalt);
     }
-    
+
     /**
      * @covers Util::safeStrlen()
      */
@@ -97,13 +96,13 @@ class UtilTest extends PHPUnit_Framework_TestCase
         $valid = "\xF0\x9D\x92\xB3"; // One 4-byte UTF-8 character
         $this->assertSame(Util::safeStrlen($valid), 4);
     }
-    
+
     /**
      * test safeStrlen() with illegal parameter. We expect to see an exception
      * @return void
      * @throws CannotPerformOperation
      * @expectedException \TypeError
-     * 
+     *
      * @covers Util::safeStrlen()
      */
     public function testSafeStrlenFail()
@@ -113,10 +112,10 @@ class UtilTest extends PHPUnit_Framework_TestCase
         /** @noinspection PhpStrictTypeCheckingInspection */
         Util::safeStrlen($teststring);
     }
-    
+
     /**
      * Verify that safeSubstr() operates over binary data.
-     * 
+     *
      * @covers Util::safeSubstr()
      */
     public function testSafeSubstr()
@@ -138,7 +137,7 @@ class UtilTest extends PHPUnit_Framework_TestCase
     public function testSafeStrcpy()
     {
         $unique = \Sodium\randombytes_buf(128);
-        $clone = Util::safeStrcpy($unique);
+        $clone  = Util::safeStrcpy($unique);
         $this->assertSame($unique, $clone);
         \Sodium\memzero($unique);
         $this->assertNotSame($unique, $clone);

@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Alerts;
 
 class InvalidKey extends HaliteAlert
 {
-    
 }

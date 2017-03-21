@@ -1,16 +1,15 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use ParagonIE\Halite\Structure\{
-    MerkleTree,
-    Node
+    MerkleTree, Node
 };
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class MerkleTreeTest extends PHPUnit_Framework_TestCase
+class MerkleTreeTest extends \PHPUnit\Framework\TestCase
 {
     public function testArithmetic()
     {
@@ -51,7 +50,7 @@ class MerkleTreeTest extends PHPUnit_Framework_TestCase
             $treeA->getRoot(),
             $treeB->getRoot()
         );
-        
+
         $treeC = $treeA->getExpandedTree(
             new Node('e'),
             new Node('e'),

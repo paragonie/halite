@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Structure;
 
 use ParagonIE\Halite\Util;
@@ -50,16 +50,16 @@ class TrimmedMerkleTree extends MerkleTree
         // Calculation (Use self::MERKLE_BRANCH as a prefix)
         do {
             $tmp = [];
-            $j = 0;
+            $j   = 0;
             for ($i = 0; $i < $size; $i += 2) {
                 if (empty($hash[$i + 1])) {
                     $tmp[$j] = $hash[$i];
                 } else {
                     $tmp[$j] = Util::raw_hash(
                         self::MERKLE_BRANCH .
-                            $this->personalization .
-                            $hash[$i] .
-                            $hash[$i + 1],
+                        $this->personalization .
+                        $hash[$i] .
+                        $hash[$i + 1],
                         $this->outputSize
                     );
                 }
@@ -84,7 +84,7 @@ class TrimmedMerkleTree extends MerkleTree
     {
         $thisTree = $this->nodes;
         foreach ($nodes as $node) {
-            $thisTree []= $node;
+            $thisTree [] = $node;
         }
         return (new TrimmedMerkleTree(...$thisTree))
             ->setHashSize($this->outputSize)

@@ -1,13 +1,10 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\Halite\{
-    Alerts\InvalidMessage,
-    Symmetric\Config as SymmetricConfig,
-    Symmetric\Crypto,
-    Symmetric\EncryptionKey
+    Alerts\InvalidMessage, Symmetric\Config as SymmetricConfig, Symmetric\Crypto, Symmetric\EncryptionKey
 };
 
 /**
@@ -22,7 +19,7 @@ use ParagonIE\Halite\{
  *
  * @package ParagonIE\Halite
  */
-final class Cookie 
+final class Cookie
 {
     /**
      * @var EncryptionKey
@@ -37,21 +34,22 @@ final class Cookie
     {
         $this->key = $key;
     }
+
     /**
      * Hide this from var_dump(), etc.
-     * 
+     *
      * @return array
      */
     public function __debugInfo()
     {
         return [
-            'key' => 'private'
+            'key' => 'private',
         ];
     }
-    
+
     /**
      * Store a value in an encrypted cookie
-     * 
+     *
      * @param string $name
      * @return mixed (typically an array)
      */
@@ -61,8 +59,8 @@ final class Cookie
             return null;
         }
         try {
-            $stored = $_COOKIE[$name];
-            $config = self::getConfig($stored);
+            $stored    = $_COOKIE[$name];
+            $config    = self::getConfig($stored);
             $decrypted = Crypto::decrypt(
                 $stored,
                 $this->key,
@@ -80,7 +78,7 @@ final class Cookie
     /**
      * Get the configuration for this version of halite
      *
-     * @param string $stored   A stored password hash
+     * @param string $stored A stored password hash
      * @return SymmetricConfig
      * @throws InvalidMessage
      */
@@ -102,17 +100,17 @@ final class Cookie
         $v = \Sodium\hex2bin(Util::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
     }
-    
+
     /**
      * Store a value in an encrypted cookie
-     * 
+     *
      * @param string $name
-     * @param mixed $value
-     * @param int $expire    (defaults to 0)
-     * @param string $path   (defaults to '/')
+     * @param mixed  $value
+     * @param int    $expire (defaults to 0)
+     * @param string $path (defaults to '/')
      * @param string $domain (defaults to NULL)
-     * @param bool $secure   (defaults to TRUE)
-     * @param bool $httpOnly (defaults to TRUE)
+     * @param bool   $secure (defaults to TRUE)
+     * @param bool   $httpOnly (defaults to TRUE)
      * @return bool
      */
     public function store(

@@ -1,11 +1,10 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Asymmetric\{
-    PublicKey,
-    SecretKey
+    PublicKey, SecretKey
 };
 
 /**
@@ -26,7 +25,6 @@ class KeyPair
      * @var SecretKey
      */
     protected $secretKey;
-
     /**
      * @var PublicKey
      */
@@ -34,34 +32,34 @@ class KeyPair
 
     /**
      * Hide this from var_dump(), etc.
-     * 
+     *
      * @return array
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return [
             'privateKey' => '**protected**',
-            'publicKey' => '**protected**'
+            'publicKey'  => '**protected**',
         ];
     }
 
     /**
      * Get a Key object for the public key
-     * 
+     *
      * @return PublicKey
      */
-    public function getPublicKey()
+    public function getPublicKey(): PublicKey
     {
-       return $this->publicKey;
+        return $this->publicKey;
     }
 
     /**
      * Get a Key object for the secret key
-     * 
+     *
      * @return SecretKey
      */
-    public function getSecretKey()
+    public function getSecretKey(): SecretKey
     {
-       return $this->secretKey;
+        return $this->secretKey;
     }
 }

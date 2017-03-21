@@ -18,5 +18,8 @@
             "name": "Paragon Initiative Enterprises",
             "email": "info@paragonie.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^6.0"
+    }
 }

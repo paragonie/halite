@@ -1,10 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Contract;
 
 use ParagonIE\Halite\Alerts\{
-    CannotPerformOperation,
-    FileAccessDenied
+    CannotPerformOperation, FileAccessDenied
 };
 
 /**
@@ -37,8 +36,8 @@ interface StreamInterface
 
     /**
      * Read from a stream; prevent partial reads
-     * 
-     * @param int $num
+     *
+     * @param int  $num
      * @param bool $skipTests
      * @return string
      * @throws FileAccessDenied
@@ -52,12 +51,12 @@ interface StreamInterface
      * @return int
      */
     public function remainingBytes(): int;
-    
+
     /**
      * Write to a stream; prevent partial writes
-     * 
+     *
      * @param string $buf
-     * @param int $num (number of bytes)
+     * @param int    $num (number of bytes)
      * @return int
      * @throws FileAccessDenied
      */

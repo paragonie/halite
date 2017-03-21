@@ -1,11 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\{
-    Alerts as CryptoException,
-    Asymmetric\SignaturePublicKey,
-    Asymmetric\SignatureSecretKey
+    Alerts as CryptoException, Asymmetric\SignatureSecretKey
 };
 
 /**
@@ -23,18 +21,8 @@ use ParagonIE\Halite\{
 final class SignatureKeyPair extends KeyPair
 {
     /**
-     * @var SignatureSecretKey
-     */
-    protected $secretKey;
-
-    /**
-     * @var SignaturePublicKey
-     */
-    protected $publicKey;
-
-    /**
      * Pass it a secret key, it will automatically generate a public key
-     * 
+     *
      * @param Key[] $keys
      * @throws CryptoException\InvalidKey
      * @throws \InvalidArgumentException
@@ -62,16 +50,16 @@ final class SignatureKeyPair extends KeyPair
                         $keys[1] instanceof SignatureSecretKey
                             ? $keys[1]
                             : new SignatureSecretKey(
-                                new HiddenString($keys[1]->getRawKeyMaterial())
-                            )
+                            new HiddenString($keys[1]->getRawKeyMaterial())
+                        )
                     );
                 } elseif ($keys[1]->isPublicKey()) {
                     $this->setupKeyPair(
                         $keys[0] instanceof SignatureSecretKey
                             ? $keys[0]
                             : new SignatureSecretKey(
-                                new HiddenString($keys[0]->getRawKeyMaterial())
-                            )
+                            new HiddenString($keys[0]->getRawKeyMaterial())
+                        )
                     );
                 } else {
                     throw new CryptoException\InvalidKey(
@@ -98,8 +86,8 @@ final class SignatureKeyPair extends KeyPair
                     $keys[0] instanceof SignatureSecretKey
                         ? $keys[0]
                         : new SignatureSecretKey(
-                            new HiddenString($keys[0]->getRawKeyMaterial())
-                        )
+                        new HiddenString($keys[0]->getRawKeyMaterial())
+                    )
                 );
                 break;
             default:
@@ -118,25 +106,5 @@ final class SignatureKeyPair extends KeyPair
     {
         $this->secretKey = $secret;
         $this->publicKey = $this->secretKey->derivePublicKey();
-    }
-
-    /**
-     * Get a Key object for the public key
-     *
-     * @return SignaturePublicKey
-     */
-    public function getPublicKey()
-    {
-        return $this->publicKey;
-    }
-
-    /**
-     * Get a Key object for the public key
-     *
-     * @return SignatureSecretKey
-     */
-    public function getSecretKey()
-    {
-        return $this->secretKey;
     }
 }

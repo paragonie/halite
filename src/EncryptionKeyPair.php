@@ -1,11 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\{
-    Alerts as CryptoException,
-    Asymmetric\EncryptionPublicKey,
-    Asymmetric\EncryptionSecretKey
+    Alerts as CryptoException, Asymmetric\EncryptionSecretKey
 };
 
 /**
@@ -22,16 +20,6 @@ use ParagonIE\Halite\{
  */
 final class EncryptionKeyPair extends KeyPair
 {
-    /**
-     * @var EncryptionSecretKey
-     */
-    protected $secretKey;
-
-    /**
-     * @var EncryptionPublicKey
-     */
-    protected $publicKey;
-
     /**
      * Pass it a secret key, it will automatically generate a public key
      *
@@ -62,16 +50,16 @@ final class EncryptionKeyPair extends KeyPair
                         $keys[1] instanceof EncryptionSecretKey
                             ? $keys[1]
                             : new EncryptionSecretKey(
-                                new HiddenString($keys[1]->getRawKeyMaterial())
-                            )
+                            new HiddenString($keys[1]->getRawKeyMaterial())
+                        )
                     );
                 } elseif ($keys[1]->isPublicKey()) {
                     $this->setupKeyPair(
                         $keys[0] instanceof EncryptionSecretKey
                             ? $keys[0]
                             : new EncryptionSecretKey(
-                                new HiddenString($keys[0]->getRawKeyMaterial())
-                            )
+                            new HiddenString($keys[0]->getRawKeyMaterial())
+                        )
                     );
                 } else {
                     throw new CryptoException\InvalidKey(
@@ -98,8 +86,8 @@ final class EncryptionKeyPair extends KeyPair
                     $keys[0] instanceof EncryptionSecretKey
                         ? $keys[0]
                         : new EncryptionSecretKey(
-                            new HiddenString($keys[0]->getRawKeyMaterial())
-                        )
+                        new HiddenString($keys[0]->getRawKeyMaterial())
+                    )
                 );
                 break;
             default:
@@ -118,25 +106,5 @@ final class EncryptionKeyPair extends KeyPair
     {
         $this->secretKey = $secret;
         $this->publicKey = $this->secretKey->derivePublicKey();
-    }
-
-    /**
-     * Get a Key object for the public key
-     *
-     * @return EncryptionPublicKey
-     */
-    public function getPublicKey()
-    {
-        return $this->publicKey;
-    }
-
-    /**
-     * Get a Key object for the public key
-     *
-     * @return EncryptionSecretKey
-     */
-    public function getSecretKey()
-    {
-        return $this->secretKey;
     }
 }

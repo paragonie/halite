@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Symmetric;
 
 use ParagonIE\Halite\Key;

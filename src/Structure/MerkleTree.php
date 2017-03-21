@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Structure;
 
-use ParagonIE\Halite\Util;
 use ParagonIE\Halite\Alerts\InvalidDigestLength;
+use ParagonIE\Halite\Util;
 
 /**
  * Class MerkleTree
@@ -20,49 +20,46 @@ use ParagonIE\Halite\Alerts\InvalidDigestLength;
  */
 class MerkleTree
 {
-    const MERKLE_LEAF =   "\x01";
+    const MERKLE_LEAF = "\x01";
+
     const MERKLE_BRANCH = "\x00";
 
     /**
      * @var bool
      */
     protected $rootCalculated = false;
-
     /**
      * @var string
      */
     protected $root = '';
-
     /**
      * @var Node[]
      */
     protected $nodes = [];
-
     /**
      * @var string
      */
     protected $personalization = '';
-    
     /**
      * @var int
      */
     protected $outputSize = \Sodium\CRYPTO_GENERICHASH_BYTES;
-    
+
     /**
      * Instantiate a Merkle tree
-     * 
+     *
      * @param Node[] $nodes
      */
     public function __construct(Node ...$nodes)
     {
         $this->nodes = $nodes;
     }
-    
+
     /**
      * Get the root hash of this Merkle tree.
      *
      * @param bool $raw - Do we want a raw string instead of a hex string?
-     * 
+     *
      * @return string
      */
     public function getRoot(bool $raw = false): string
@@ -74,7 +71,7 @@ class MerkleTree
             ? $this->root
             : \Sodium\bin2hex($this->root);
     }
-    
+
     /**
      * Merkle Trees are immutable. Return a replacement with extra nodes.
      *
@@ -85,7 +82,7 @@ class MerkleTree
     {
         $thisTree = $this->nodes;
         foreach ($nodes as $node) {
-            $thisTree []= $node;
+            $thisTree [] = $node;
         }
         return (new MerkleTree(...$thisTree))
             ->setHashSize($this->outputSize)
@@ -164,7 +161,7 @@ class MerkleTree
             return '';
         }
         $order = self::getSizeRoundedUp($size);
-        $hash = [];
+        $hash  = [];
         // Population (Use self::MERKLE_LEAF as a prefix)
         for ($i = 0; $i < $order; ++$i) {
             if ($i >= $size) {
@@ -189,22 +186,22 @@ class MerkleTree
         // Calculation (Use self::MERKLE_BRANCH as a prefix)
         do {
             $tmp = [];
-            $j = 0;
+            $j   = 0;
             for ($i = 0; $i < $order; $i += 2) {
                 if (empty($hash[$i + 1])) {
                     $tmp[$j] = Util::raw_hash(
                         self::MERKLE_BRANCH .
-                            $this->personalization .
-                            $hash[$i] .
-                            $hash[$i],
+                        $this->personalization .
+                        $hash[$i] .
+                        $hash[$i],
                         $this->outputSize
                     );
                 } else {
                     $tmp[$j] = Util::raw_hash(
                         self::MERKLE_BRANCH .
-                            $this->personalization .
-                            $hash[$i] .
-                            $hash[$i + 1],
+                        $this->personalization .
+                        $hash[$i] .
+                        $hash[$i + 1],
                         $this->outputSize
                     );
                 }
@@ -227,7 +224,7 @@ class MerkleTree
     public static function getSizeRoundedUp(int $inputSize): int
     {
         $order = 1;
-        while($order < $inputSize) {
+        while ($order < $inputSize) {
             $order <<= 1;
         }
         return $order;

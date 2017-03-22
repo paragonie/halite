@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\Alerts\InvalidKey;
@@ -25,13 +25,13 @@ final class EncryptionSecretKey extends SecretKey
         }
         parent::__construct($keyMaterial);
     }
-    
+
     /**
      * See the appropriate derived class.
-     * 
+     *
      * @return EncryptionPublicKey
      */
-    public function derivePublicKey()
+    public function derivePublicKey(): EncryptionPublicKey
     {
         $publicKey = \Sodium\crypto_box_publickey_from_secretkey(
             $this->getRawKeyMaterial()

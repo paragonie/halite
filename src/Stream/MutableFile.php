@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Stream;
 
-use ParagonIE\Halite\Contract\StreamInterface;
 use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Contract\StreamInterface;
 use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
@@ -26,17 +26,14 @@ class MutableFile implements StreamInterface
      * @var bool
      */
     private $closeAfter = false;
-
     /**
      * @var resource
      */
     private $fp;
-
     /**
      * @var int
      */
     private $pos;
-
     /**
      * @var array
      */
@@ -50,13 +47,13 @@ class MutableFile implements StreamInterface
     public function __construct($file)
     {
         if (is_string($file)) {
-            $this->fp = \fopen($file, 'wb');
+            $this->fp         = \fopen($file, 'wb');
             $this->closeAfter = true;
-            $this->pos = 0;
-            $this->stat = \fstat($this->fp);
+            $this->pos        = 0;
+            $this->stat       = \fstat($this->fp);
         } elseif (is_resource($file)) {
-            $this->fp = $file;
-            $this->pos = \ftell($this->fp);
+            $this->fp   = $file;
+            $this->pos  = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
         } else {
             throw new CryptoException\InvalidType(
@@ -109,7 +106,7 @@ class MutableFile implements StreamInterface
     /**
      * Read from a stream; prevent partial reads
      *
-     * @param int $num
+     * @param int  $num
      * @param bool $skipTests
      * @return string
      * @throws CryptoException\CannotPerformOperation
@@ -125,7 +122,7 @@ class MutableFile implements StreamInterface
         if (($this->pos + $num) > $this->stat['size']) {
             throw new CryptoException\CannotPerformOperation('Out-of-bounds read');
         }
-        $buf = '';
+        $buf       = '';
         $remaining = $num;
         do {
             if ($remaining <= 0) {
@@ -153,13 +150,13 @@ class MutableFile implements StreamInterface
     public function remainingBytes(): int
     {
         $stat = \fstat($this->fp);
-        $pos = \ftell($this->fp);
+        $pos  = \ftell($this->fp);
         return (PHP_INT_MAX & ($stat['size'] - $pos));
     }
-    
+
     /**
      * Set the current cursor position to the desired location
-     * 
+     *
      * @param int $i
      * @return bool
      * @throws CryptoException\CannotPerformOperation
@@ -179,7 +176,7 @@ class MutableFile implements StreamInterface
      * Write to a stream; prevent partial writes
      *
      * @param string $buf
-     * @param int $num (number of bytes)
+     * @param int    $num (number of bytes)
      * @return int
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\CannotPerformOperation

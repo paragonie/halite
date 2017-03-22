@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Stream;
 
-use ParagonIE\Halite\Contract\StreamInterface;
 use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Contract\StreamInterface;
 use ParagonIE\Halite\Key;
 use ParagonIE\Halite\Util as CryptoUtil;
 
@@ -25,27 +25,22 @@ class ReadOnlyFile implements StreamInterface
      * @var bool
      */
     private $closeAfter = false;
-
     /**
      * @var resource
      */
     private $fp;
-
     /**
      * @var string
      */
     private $hash;
-
     /**
      * @var int
      */
     private $pos;
-
     /**
      * @var null|string
      */
     private $hashKey = null;
-
     /**
      * @var array
      */
@@ -54,30 +49,30 @@ class ReadOnlyFile implements StreamInterface
     /**
      * ReadOnlyFile constructor
      *
-     * @param $file
+     * @param          $file
      * @param Key|null $key
      * @throws CryptoException\InvalidType
      */
     public function __construct($file, Key $key = null)
     {
         if (is_string($file)) {
-            $this->fp = \fopen($file, 'rb');
+            $this->fp         = \fopen($file, 'rb');
             $this->closeAfter = true;
-            $this->pos = 0;
-            $this->stat = \fstat($this->fp);
+            $this->pos        = 0;
+            $this->stat       = \fstat($this->fp);
         } elseif (is_resource($file)) {
-            $this->fp = $file;
-            $this->pos = \ftell($this->fp);
+            $this->fp   = $file;
+            $this->pos  = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
         } else {
             throw new CryptoException\InvalidType(
                 'Argument 1: Expected a filename or resource'
             );
         }
-        $this->hashKey = !empty($key) 
+        $this->hashKey = !empty($key)
             ? $key->getRawKeyMaterial()
             : '';
-        $this->hash = $this->getHash();
+        $this->hash    = $this->getHash();
     }
 
     /**
@@ -130,7 +125,7 @@ class ReadOnlyFile implements StreamInterface
 
     /**
      * Where are we in the buffer?
-     * 
+     *
      * @return int
      */
     public function getPos(): int
@@ -140,21 +135,21 @@ class ReadOnlyFile implements StreamInterface
 
     /**
      * How big is this buffer?
-     * 
+     *
      * @return int
      */
     public function getSize(): int
     {
         return $this->stat['size'];
     }
-    
+
     /**
      * Read from a stream; prevent partial reads (also uses run-time testing to
      * prevent partial reads -- you can turn this off if you need performance
      * and aren't concerned about race condition attacks, but this isn't a
      * decision to make lightly!)
-     * 
-     * @param int $num
+     *
+     * @param int  $num
      * @param bool $skipTests Only set this to TRUE if you're absolutely sure
      *                           that you don't want to defend against TOCTOU /
      *                           race condition attacks on the filesystem!
@@ -172,7 +167,7 @@ class ReadOnlyFile implements StreamInterface
         if (($this->pos + $num) > $this->stat['size']) {
             throw new CryptoException\CannotPerformOperation('Out-of-bounds read');
         }
-        $buf = '';
+        $buf       = '';
         $remaining = $num;
         if (!$skipTests) {
             $this->toctouTest();
@@ -194,10 +189,10 @@ class ReadOnlyFile implements StreamInterface
         } while ($remaining > 0);
         return $buf;
     }
-    
+
     /**
      * Get number of bytes remaining
-     * 
+     *
      * @return int
      */
     public function remainingBytes(): int
@@ -245,12 +240,12 @@ class ReadOnlyFile implements StreamInterface
             );
         }
     }
-    
+
     /**
      * This is a meaningless operation for a Read-Only File!
-     * 
+     *
      * @param string $buf
-     * @param int $num (number of bytes)
+     * @param int    $num (number of bytes)
      * @return int
      * @throws CryptoException\FileAccessDenied
      */

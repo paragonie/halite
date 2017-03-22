@@ -1,12 +1,8 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use ParagonIE\ConstantTime\{
-    Base32,
-    Base32Hex,
-    Base64,
-    Base64UrlSafe,
-    Hex
+    Base32, Base32Hex, Base64, Base64UrlSafe, Hex
 };
 use ParagonIE\Halite\Halite;
 
@@ -14,7 +10,7 @@ use ParagonIE\Halite\Halite;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class HaliteTest extends PHPUnit_Framework_TestCase
+class HaliteTest extends \PHPUnit\Framework\TestCase
 {
     public function testLibsodiumDetection()
     {

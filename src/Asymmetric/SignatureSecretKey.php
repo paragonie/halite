@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\Alerts\InvalidKey;
@@ -26,13 +26,13 @@ final class SignatureSecretKey extends SecretKey
         parent::__construct($keyMaterial);
         $this->isSigningKey = true;
     }
-    
+
     /**
      * See the appropriate derived class.
-     * 
+     *
      * @return SignaturePublicKey
      */
-    public function derivePublicKey()
+    public function derivePublicKey(): SignaturePublicKey
     {
         $publicKey = \Sodium\crypto_sign_publickey_from_secretkey(
             $this->getRawKeyMaterial()

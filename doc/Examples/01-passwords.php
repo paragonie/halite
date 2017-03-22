@@ -1,8 +1,8 @@
 <?php
-declare(strict_types=1);
-use \ParagonIE\Halite\HiddenString;
-use \ParagonIE\Halite\Password;
-use \ParagonIE\Halite\KeyFactory;
+declare(strict_types = 1);
+use ParagonIE\Halite\HiddenString;
+use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\Password;
 
 // First, manage the keys
 if (!\file_exists('01-secret-key.txt')) {
@@ -13,7 +13,7 @@ if (!\file_exists('01-secret-key.txt')) {
 }
 
 $password = new HiddenString('correct horse battery staple');
-$hash = Password::hash($password, $secretKey);
+$hash     = Password::hash($password, $secretKey);
 
 if (Password::verify($password, $hash, $secretKey)) {
     echo 'Access granted', "\n";

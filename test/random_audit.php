@@ -2,7 +2,7 @@
 /**
  * Grabs a random file and tells you to audit it.
  */
-require_once \dirname(__DIR__).'/vendor/autoload.php';
+require_once \dirname(__DIR__) . '/vendor/autoload.php';
 
 /**
  * List all the files in a directory (and subdirectories)
@@ -21,9 +21,9 @@ function list_all_files(string $folder, string $extension = '*'): array
     } else {
         $pattern = '/.*\.' . \preg_quote($extension, '/') . '$/';
     }
-    $files = new \RegexIterator($ite, $pattern, \RegexIterator::GET_MATCH);
+    $files    = new \RegexIterator($ite, $pattern, \RegexIterator::GET_MATCH);
     $fileList = [];
-    foreach($files as $file) {
+    foreach ($files as $file) {
         if (\is_array($file)) {
             foreach ($file as $i => $f) {
                 // Prevent . and .. from being treated as valid files:
@@ -46,7 +46,7 @@ if ($argc > 1) {
 $fileList = [];
 foreach ($extensions as $ex) {
     foreach (list_all_files(\dirname(__DIR__) . '/src/', $ex) as $file) {
-        $fileList []= $file;
+        $fileList [] = $file;
     }
 }
 

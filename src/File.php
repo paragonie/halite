@@ -1,26 +1,12 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts\{
-    CannotPerformOperation,
-    FileAccessDenied,
-    FileModified,
-    InvalidKey,
-    InvalidMessage,
-    InvalidType
-};
 use ParagonIE\Halite\{
-    Asymmetric\Crypto as AsymmetricCrypto,
-    Asymmetric\EncryptionPublicKey,
-    Asymmetric\EncryptionSecretKey,
-    Asymmetric\SignaturePublicKey,
-    Asymmetric\SignatureSecretKey,
-    Contract\StreamInterface,
-    Stream\MutableFile,
-    Stream\ReadOnlyFile,
-    Symmetric\AuthenticationKey,
-    Symmetric\EncryptionKey
+    Asymmetric\Crypto as AsymmetricCrypto, Asymmetric\EncryptionPublicKey, Asymmetric\EncryptionSecretKey, Asymmetric\SignaturePublicKey, Asymmetric\SignatureSecretKey, Contract\StreamInterface, Stream\MutableFile, Stream\ReadOnlyFile, Symmetric\AuthenticationKey, Symmetric\EncryptionKey
+};
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation, FileAccessDenied, FileModified, InvalidKey, InvalidMessage, InvalidType
 };
 
 /**
@@ -51,9 +37,9 @@ final class File
      * the BLAKE2b hash.
      *
      * @param string|resource $filePath The file
-     * @param Key $key        (optional; expects SignaturePublicKey or
+     * @param Key             $key (optional; expects SignaturePublicKey or
      *                         AuthenticationKey)
-     * @param mixed $encoding Which encoding scheme to use for the checksum?
+     * @param mixed           $encoding Which encoding scheme to use for the checksum?
      * @return string         The checksum
      * @throws InvalidType
      */
@@ -80,9 +66,9 @@ final class File
     /**
      * Encrypt a file using symmetric authenticated encryption.
      *
-     * @param string|resource $input  File name or file handle
+     * @param string|resource $input File name or file handle
      * @param string|resource $output File name or file handle
-     * @param EncryptionKey $key      Symmetric encryption key
+     * @param EncryptionKey   $key Symmetric encryption key
      * @return int                    Number of bytes written
      * @throws InvalidType
      */
@@ -97,8 +83,8 @@ final class File
             (\is_resource($output) || \is_string($output))
         ) {
             $readOnly = new ReadOnlyFile($input);
-            $mutable = new MutableFile($output);
-            $data = self::encryptData(
+            $mutable  = new MutableFile($output);
+            $data     = self::encryptData(
                 $readOnly,
                 $mutable,
                 $key
@@ -115,9 +101,9 @@ final class File
     /**
      * Decrypt a file using symmetric-key authenticated encryption.
      *
-     * @param string|resource $input  File name or file handle
+     * @param string|resource $input File name or file handle
      * @param string|resource $output File name or file handle
-     * @param EncryptionKey $key      Symmetric encryption key
+     * @param EncryptionKey   $key Symmetric encryption key
      * @return bool                   TRUE if successful
      * @throws InvalidType
      */
@@ -133,8 +119,8 @@ final class File
         ) {
             try {
                 $readOnly = new ReadOnlyFile($input);
-                $mutable = new MutableFile($output);
-                $data = self::decryptData(
+                $mutable  = new MutableFile($output);
+                $data     = self::decryptData(
                     $readOnly,
                     $mutable,
                     $key
@@ -154,8 +140,8 @@ final class File
      * Encrypt a file using anonymous public-key encryption (with ciphertext
      * authentication).
      *
-     * @param string|resource $input         File name or file handle
-     * @param string|resource $output        File name or file handle
+     * @param string|resource     $input File name or file handle
+     * @param string|resource     $output File name or file handle
      * @param EncryptionPublicKey $publicKey Recipient's encryption public key
      * @return int                           Number of bytes written
      * @throws Alerts\InvalidType
@@ -171,8 +157,8 @@ final class File
             (\is_resource($output) || \is_string($output))
         ) {
             $readOnly = new ReadOnlyFile($input);
-            $mutable = new MutableFile($output);
-            $data = self::sealData(
+            $mutable  = new MutableFile($output);
+            $data     = self::sealData(
                 $readOnly,
                 $mutable,
                 $publicKey
@@ -190,8 +176,8 @@ final class File
      * Decrypt a file using anonymous public-key encryption. Ciphertext
      * integrity is still assured thanks to the Encrypt-then-MAC construction.
      *
-     * @param string|resource $input         File name or file handle
-     * @param string|resource $output        File name or file handle
+     * @param string|resource     $input File name or file handle
+     * @param string|resource     $output File name or file handle
      * @param EncryptionSecretKey $secretKey Recipient's encryption secret key
      * @return bool                          TRUE on success
      * @throws InvalidType
@@ -207,7 +193,7 @@ final class File
             (\is_resource($output) || \is_string($output))
         ) {
             $readOnly = new ReadOnlyFile($input);
-            $mutable = new MutableFile($output);
+            $mutable  = new MutableFile($output);
             try {
                 $data = self::unsealData(
                     $readOnly,
@@ -233,9 +219,9 @@ final class File
      *    Ed25519 public key used as a BLAKE2b key.
      * 2. Sign the checksum with Ed25519, using the corresponding public key.
      *
-     * @param string|resource $filename     File name or file handle
+     * @param string|resource    $filename File name or file handle
      * @param SignatureSecretKey $secretKey Secret key for digital signatures
-     * @param mixed $encoding               Which encoding scheme to use for the signature?
+     * @param mixed              $encoding Which encoding scheme to use for the signature?
      * @return string                       Detached signature for the file
      * @throws InvalidKey
      * @throws InvalidType
@@ -249,7 +235,7 @@ final class File
             \is_resource($filename) ||
             \is_string($filename)
         ) {
-            $readOnly = new ReadOnlyFile($filename);
+            $readOnly  = new ReadOnlyFile($filename);
             $signature = self::signData(
                 $readOnly,
                 $secretKey,
@@ -266,10 +252,10 @@ final class File
     /**
      * Verify a digital signature for a file.
      *
-     * @param string|resource $filename     File name or file handle
+     * @param string|resource    $filename File name or file handle
      * @param SignaturePublicKey $publicKey Other party's signature public key
-     * @param string $signature             The signature we received
-     * @param mixed $encoding               Which encoding scheme to use for the signature?
+     * @param string             $signature The signature we received
+     * @param mixed              $encoding Which encoding scheme to use for the signature?
      *
      * @return bool
      * @throws InvalidType
@@ -303,8 +289,8 @@ final class File
      * Calculate the BLAKE2b checksum of the contents of a file
      *
      * @param StreamInterface $fileStream
-     * @param Key $key
-     * @param mixed $encoding Which encoding scheme to use for the checksum?
+     * @param Key             $key
+     * @param mixed           $encoding Which encoding scheme to use for the checksum?
      * @return string
      * @throws InvalidKey
      */
@@ -325,7 +311,7 @@ final class File
                 $key->getRawKeyMaterial(),
                 $config->HASH_LEN
             );
-        } elseif($config->CHECKSUM_PUBKEY && $key instanceof SignaturePublicKey) {
+        } elseif ($config->CHECKSUM_PUBKEY && $key instanceof SignaturePublicKey) {
             // In version 2, we use the public key as a hash key
             $state = \Sodium\crypto_generichash_init(
                 $key->getRawKeyMaterial(),
@@ -374,8 +360,8 @@ final class File
     /**
      * Encrypt the contents of a file.
      *
-     * @param $input
-     * @param $output
+     * @param               $input
+     * @param               $output
      * @param EncryptionKey $key
      * @return int
      */
@@ -388,7 +374,7 @@ final class File
 
         // Generate a nonce and HKDF salt
         $firstNonce = \Sodium\randombytes_buf($config->NONCE_BYTES);
-        $hkdfSalt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
+        $hkdfSalt   = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
 
         // Let's split our key
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
@@ -431,8 +417,8 @@ final class File
     /**
      * Decrypt the contents of a file.
      *
-     * @param $input
-     * @param $output
+     * @param               $input
+     * @param               $output
      * @param EncryptionKey $key
      * @return bool
      * @throws InvalidMessage
@@ -466,7 +452,7 @@ final class File
 
         // Let's grab the first nonce and salt
         $firstNonce = $input->readBytes($config->NONCE_BYTES);
-        $hkdfSalt = $input->readBytes($config->HKDF_SALT_LEN);
+        $hkdfSalt   = $input->readBytes($config->HKDF_SALT_LEN);
 
         // Split our keys, begin the HMAC instance
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
@@ -506,8 +492,8 @@ final class File
     /**
      * Seal the contents of a file.
      *
-     * @param ReadOnlyFile $input
-     * @param MutableFile $output
+     * @param ReadOnlyFile        $input
+     * @param MutableFile         $output
      * @param EncryptionPublicKey $publicKey
      * @return int
      */
@@ -518,8 +504,8 @@ final class File
     ): int {
         // Generate a new keypair for this encryption
         $ephemeralKeyPair = KeyFactory::generateEncryptionKeyPair();
-        $ephSecret = $ephemeralKeyPair->getSecretKey();
-        $ephPublic = $ephemeralKeyPair->getPublicKey();
+        $ephSecret        = $ephemeralKeyPair->getSecretKey();
+        $ephPublic        = $ephemeralKeyPair->getPublicKey();
         unset($ephemeralKeyPair);
 
         // Calculate the shared secret key
@@ -589,8 +575,8 @@ final class File
     /**
      * Unseal the contents of a file.
      *
-     * @param ReadOnlyFile $input
-     * @param MutableFile $output
+     * @param ReadOnlyFile        $input
+     * @param MutableFile         $output
      * @param EncryptionSecretKey $secretKey
      * @return bool
      * @throws CannotPerformOperation
@@ -624,7 +610,7 @@ final class File
         }
         // Let's grab the public key and salt
         $ephPublic = $input->readBytes($config->PUBLICKEY_BYTES);
-        $hkdfSalt = $input->readBytes($config->HKDF_SALT_LEN);
+        $hkdfSalt  = $input->readBytes($config->HKDF_SALT_LEN);
 
         // Generate the same nonce, as per sealData()
         $nonce = \Sodium\crypto_generichash(
@@ -683,9 +669,9 @@ final class File
     /**
      * Sign the contents of a file
      *
-     * @param ReadOnlyFile $input
+     * @param ReadOnlyFile       $input
      * @param SignatureSecretKey $secretKey
-     * @param mixed $encoding Which encoding scheme to use for the signature?
+     * @param mixed              $encoding Which encoding scheme to use for the signature?
      * @return string
      */
     protected static function signData(
@@ -708,10 +694,10 @@ final class File
     /**
      * Verify the contents of a file
      *
-     * @param $input (file handle)
+     * @param                    $input (file handle)
      * @param SignaturePublicKey $publicKey
-     * @param string $signature
-     * @param mixed $encoding Which encoding scheme to use for the signature?
+     * @param string             $signature
+     * @param mixed              $encoding Which encoding scheme to use for the signature?
      *
      * @return bool
      */
@@ -784,12 +770,12 @@ final class File
                 case 0:
                     return [
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
-                        'BUFFER' => 1048576,
-                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_SIZE' => 32,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                        'BUFFER'                     => 1048576,
+                        'NONCE_BYTES'                => \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                        'HKDF_SALT_LEN'              => 32,
+                        'MAC_SIZE'                   => 32,
+                        'HKDF_SBOX'                  => 'Halite|EncryptionKey',
+                        'HKDF_AUTH'                  => 'AuthenticationKeyFor_|Halite',
                     ];
             }
         } elseif ($major === 3) {
@@ -797,12 +783,12 @@ final class File
                 case 0:
                     return [
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
-                        'BUFFER' => 1048576,
-                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_SIZE' => 32,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                        'BUFFER'                     => 1048576,
+                        'NONCE_BYTES'                => \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                        'HKDF_SALT_LEN'              => 32,
+                        'MAC_SIZE'                   => 32,
+                        'HKDF_SBOX'                  => 'Halite|EncryptionKey',
+                        'HKDF_AUTH'                  => 'AuthenticationKeyFor_|Halite',
                     ];
             }
         }
@@ -828,12 +814,12 @@ final class File
                 case 0:
                     return [
                         'SHORTEST_CIPHERTEXT_LENGTH' => 100,
-                        'BUFFER' => 1048576,
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_SIZE' => 32,
-                        'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                        'BUFFER'                     => 1048576,
+                        'HKDF_SALT_LEN'              => 32,
+                        'MAC_SIZE'                   => 32,
+                        'PUBLICKEY_BYTES'            => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
+                        'HKDF_SBOX'                  => 'Halite|EncryptionKey',
+                        'HKDF_AUTH'                  => 'AuthenticationKeyFor_|Halite',
                     ];
             }
         } elseif ($major === 3) {
@@ -841,12 +827,12 @@ final class File
                 case 0:
                     return [
                         'SHORTEST_CIPHERTEXT_LENGTH' => 100,
-                        'BUFFER' => 1048576,
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_SIZE' => 32,
-                        'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                        'BUFFER'                     => 1048576,
+                        'HKDF_SALT_LEN'              => 32,
+                        'MAC_SIZE'                   => 32,
+                        'PUBLICKEY_BYTES'            => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
+                        'HKDF_SBOX'                  => 'Halite|EncryptionKey',
+                        'HKDF_AUTH'                  => 'AuthenticationKeyFor_|Halite',
                     ];
             }
         }
@@ -871,8 +857,8 @@ final class File
                 case 0:
                     return [
                         'CHECKSUM_PUBKEY' => true,
-                        'BUFFER' => 1048576,
-                        'HASH_LEN' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                        'BUFFER'          => 1048576,
+                        'HASH_LEN'        => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
                     ];
             }
         } elseif ($major === 3) {
@@ -880,8 +866,8 @@ final class File
                 case 0:
                     return [
                         'CHECKSUM_PUBKEY' => true,
-                        'BUFFER' => 1048576,
-                        'HASH_LEN' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                        'BUFFER'          => 1048576,
+                        'HASH_LEN'        => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
                     ];
             }
         }
@@ -893,7 +879,7 @@ final class File
     /**
      * Split a key using HKDF-BLAKE2b
      *
-     * @param Key $master
+     * @param Key    $master
      * @param string $salt
      * @param Config $config
      * @return string[]
@@ -916,19 +902,19 @@ final class File
                 \Sodium\CRYPTO_AUTH_KEYBYTES,
                 $config->HKDF_AUTH,
                 $salt
-            )
+            ),
         ];
     }
 
     /**
      * Stream encryption - Do not call directly
      *
-     * @param ReadOnlyFile $input
-     * @param MutableFile $output
+     * @param ReadOnlyFile  $input
+     * @param MutableFile   $output
      * @param EncryptionKey $encKey
-     * @param string $nonce
-     * @param string $mac (hash context for BLAKE2b)
-     * @param Config $config
+     * @param string        $nonce
+     * @param string        $mac (hash context for BLAKE2b)
+     * @param Config        $config
      * @return int (number of bytes)
      * @throws FileAccessDenied
      * @throws FileModified
@@ -944,7 +930,7 @@ final class File
     ): int {
         $initHash = $input->getHash();
         // Begin the streaming decryption
-        $size = $input->getSize();
+        $size    = $input->getSize();
         $written = 0;
         while ($input->remainingBytes() > 0) {
             $read = $input->readBytes(
@@ -980,13 +966,13 @@ final class File
     /**
      * Stream decryption - Do not call directly
      *
-     * @param ReadOnlyFile $input
-     * @param MutableFile $output
+     * @param ReadOnlyFile  $input
+     * @param MutableFile   $output
      * @param EncryptionKey $encKey
-     * @param string $nonce
-     * @param string $mac (hash context for BLAKE2b)
-     * @param Config $config
-     * @param array &$chunk_macs
+     * @param string        $nonce
+     * @param string        $mac (hash context for BLAKE2b)
+     * @param Config        $config
+     * @param array         &$chunk_macs
      * @return bool
      * @throws FileAccessDenied
      * @throws CannotPerformOperation
@@ -1003,7 +989,7 @@ final class File
         Config $config,
         array &$chunk_macs
     ): bool {
-        $start = $input->getPos();
+        $start      = $input->getPos();
         $cipher_end = $input->getSize() - $config->MAC_SIZE;
         // Begin the streaming decryption
         $input->reset($start);
@@ -1024,7 +1010,7 @@ final class File
             // Version 2+ uses a keyed BLAKE2b hash instead of HMAC
             \Sodium\crypto_generichash_update($mac, $read);
             $calcMAC = Util::safeStrcpy($mac);
-            $calc = \Sodium\crypto_generichash_final($calcMAC, $config->MAC_SIZE);
+            $calc    = \Sodium\crypto_generichash_final($calcMAC, $config->MAC_SIZE);
 
             if (empty($chunk_macs)) {
                 // Someone attempted to add a chunk at the end.
@@ -1057,9 +1043,9 @@ final class File
     /**
      * Recalculate and verify the HMAC of the input file
      *
-     * @param ReadOnlyFile $input  The file we are verifying
+     * @param ReadOnlyFile    $input The file we are verifying
      * @param resource|string $mac (hash context)
-     * @param Config $config       Version-specific settings
+     * @param Config          $config Version-specific settings
      * @return array               Hashes of various chunks
      * @throws CannotPerformOperation
      * @throws InvalidMessage
@@ -1087,7 +1073,7 @@ final class File
              */
             if (($input->getPos() + $config->BUFFER) >= $cipher_end) {
                 $break = true;
-                $read = $input->readBytes($cipher_end - $input->getPos());
+                $read  = $input->readBytes($cipher_end - $input->getPos());
             } else {
                 $read = $input->readBytes($config->BUFFER);
             }
@@ -1097,8 +1083,8 @@ final class File
              */
             \Sodium\crypto_generichash_update($mac, $read);
             // Copy the hash state then store the MAC of this chunk
-            $chunkMAC = Util::safeStrcpy($mac);
-            $chunkMACs []= \Sodium\crypto_generichash_final(
+            $chunkMAC     = Util::safeStrcpy($mac);
+            $chunkMACs [] = \Sodium\crypto_generichash_final(
                 $chunkMAC,
                 $config->MAC_SIZE
             );

@@ -1,13 +1,10 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\Halite\{
-    Alerts\InvalidMessage,
-    Symmetric\Config as SymmetricConfig,
-    Symmetric\Crypto,
-    Symmetric\EncryptionKey
+    Alerts\InvalidMessage, Symmetric\Config as SymmetricConfig, Symmetric\Crypto, Symmetric\EncryptionKey
 };
 
 /**
@@ -27,9 +24,9 @@ final class Password
     /**
      * Hash then encrypt a password
      *
-     * @param HiddenString $password    The user's password
-     * @param EncryptionKey $secretKey  The master key for all passwords
-     * @param string $level             The security level for this password
+     * @param HiddenString  $password The user's password
+     * @param EncryptionKey $secretKey The master key for all passwords
+     * @param string        $level The security level for this password
      * @return string                   An encrypted hash to store
      */
     public static function hash(
@@ -44,7 +41,7 @@ final class Password
             $kdfLimits[0],
             $kdfLimits[1]
         );
-        
+
         // Now let's encrypt the result
         return Crypto::encrypt(
             new HiddenString($hashed),
@@ -55,9 +52,9 @@ final class Password
     /**
      * Is this password hash stale?
      *
-     * @param string $stored            Encrypted password hash
-     * @param EncryptionKey $secretKey  The master key for all passwords
-     * @param string $level             The security level for this password
+     * @param string        $stored Encrypted password hash
+     * @param EncryptionKey $secretKey The master key for all passwords
+     * @param string        $level The security level for this password
      * @return bool                     Do we need to regenerate the hash or
      *                                  ciphertext?
      * @throws InvalidMessage
@@ -83,7 +80,8 @@ final class Password
         if (!\hash_equals(
             Util::safeSubstr($hash_str, 0, 9),
             \Sodium\CRYPTO_PWHASH_STRPREFIX
-        )) {
+        )
+        ) {
             return true;
         }
 
@@ -112,7 +110,7 @@ final class Password
     /**
      * Get the configuration for this version of halite
      *
-     * @param string $stored   A stored password hash
+     * @param string $stored A stored password hash
      * @return SymmetricConfig
      * @throws InvalidMessage
      */
@@ -138,9 +136,9 @@ final class Password
     /**
      * Decrypt then verify a password
      *
-     * @param HiddenString $password    The user's password
-     * @param string $stored            The encrypted password hash
-     * @param EncryptionKey $secretKey  The master key for all passwords
+     * @param HiddenString  $password The user's password
+     * @param string        $stored The encrypted password hash
+     * @param EncryptionKey $secretKey The master key for all passwords
      * @return bool                     Is this password valid?
      * @throws InvalidMessage
      */
@@ -151,7 +149,7 @@ final class Password
     ): bool {
         $config = self::getConfig($stored);
         // Base64-urlsafe encoded, so 4/3 the size of raw binary
-        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 4/3)) {
+        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 4 / 3)) {
             throw new InvalidMessage(
                 'Encrypted password hash is too short.'
             );

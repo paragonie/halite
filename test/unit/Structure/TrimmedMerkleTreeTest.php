@@ -1,19 +1,16 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use ParagonIE\Halite\Structure\{
-    MerkleTree,
-    Node,
-    TrimmedMerkleTree
+    MerkleTree, Node, TrimmedMerkleTree
 };
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class TrimmedMerkleTreeTest extends PHPUnit_Framework_TestCase
+class TrimmedMerkleTreeTest extends \PHPUnit\Framework\TestCase
 {
-
     public function testExpectedBehavior()
     {
         $treeA = new TrimmedMerkleTree(

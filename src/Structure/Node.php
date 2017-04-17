@@ -53,7 +53,7 @@ class Node
      */
     public function getHash(
         bool $raw = false,
-        int $outputSize = \Sodium\CRYPTO_GENERICHASH_BYTES,
+        int $outputSize = SODIUM_CRYPTO_GENERICHASH_BYTES,
         string $personalization = ''
     ): string {
         if ($raw) {

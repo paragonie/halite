@@ -11,7 +11,7 @@ use ParagonIE\Halite\Structure\{
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class TrimmedMerkleTreeTest extends PHPUnit_Framework_TestCase
+class TrimmedMerkleTreeTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testExpectedBehavior()

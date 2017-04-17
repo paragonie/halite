@@ -12,7 +12,7 @@ use ParagonIE\Halite\Alerts as CryptoException;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class FileTest extends PHPUnit_Framework_TestCase
+class FileTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @covers File::encrypt()
@@ -144,12 +144,12 @@ class FileTest extends PHPUnit_Framework_TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($e->getMessage(), $msg);
+            $this->assertSame($msg, $e->getMessage());
         }
 
         \file_put_contents(
             __DIR__.'/tmp/empty.encrypted.txt',
-            "\x31\x41\x02\x00\x01"
+            "\x31\x41\x04\x00\x01"
         );
         try {
             File::decrypt(
@@ -159,13 +159,12 @@ class FileTest extends PHPUnit_Framework_TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($e->getMessage(), $msg);
+            $this->assertSame($msg, $e->getMessage());
         }
-
 
         \file_put_contents(
             __DIR__.'/tmp/empty.encrypted.txt',
-            "\x31\x41\x02\x00" . \str_repeat("\x00", 87)
+            "\x31\x41\x04\x00" . \str_repeat("\x00", 87)
         );
         try {
             File::decrypt(
@@ -175,7 +174,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($e->getMessage(), $msg);
+            $this->assertSame($msg, $e->getMessage());
         }
 
         \unlink(__DIR__.'/tmp/empty.encrypted.txt');
@@ -319,7 +318,7 @@ class FileTest extends PHPUnit_Framework_TestCase
 
         \file_put_contents(
             __DIR__.'/tmp/empty.sealed.txt',
-            "\x31\x41\x02\x00" . \str_repeat("\x00", 95)
+            "\x31\x41\x04\x00" . \str_repeat("\x00", 95)
         );
         try {
             File::unseal(
@@ -329,7 +328,7 @@ class FileTest extends PHPUnit_Framework_TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($e->getMessage(), $msg);
+            $this->assertSame($msg, $e->getMessage());
         }
 
         \unlink(__DIR__.'/tmp/empty.sealed.txt');

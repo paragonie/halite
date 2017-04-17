@@ -7,7 +7,7 @@ use ParagonIE\Halite\Structure\Node;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class NodeTest extends PHPUnit_Framework_TestCase
+class NodeTest extends \PHPUnit\Framework\TestCase
 {
     public function testHash()
     {

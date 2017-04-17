@@ -9,7 +9,7 @@ use ParagonIE\Halite\Symmetric\EncryptionKey;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class PasswordTest extends PHPUnit_Framework_TestCase
+class PasswordTest extends \PHPUnit\Framework\TestCase
 {
     public function testEncrypt()
     {

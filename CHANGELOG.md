@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 4.0.0 (Not released)
+
+* Bump minimum PHP version to 7.2.0.
+* 
+
 ## Version 3.2.0 (2016-12-08)
 
 * Resolved [#49](https://github.com/paragonie/halite/issues/49), which

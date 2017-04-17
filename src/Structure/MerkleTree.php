@@ -46,7 +46,7 @@ class MerkleTree
     /**
      * @var int
      */
-    protected $outputSize = \Sodium\CRYPTO_GENERICHASH_BYTES;
+    protected $outputSize = SODIUM_CRYPTO_GENERICHASH_BYTES;
     
     /**
      * Instantiate a Merkle tree
@@ -72,7 +72,7 @@ class MerkleTree
         }
         return $raw
             ? $this->root
-            : \Sodium\bin2hex($this->root);
+            : \bin2hex($this->root);
     }
     
     /**
@@ -101,19 +101,19 @@ class MerkleTree
      */
     public function setHashSize(int $size): self
     {
-        if ($size < \Sodium\CRYPTO_GENERICHASH_BYTES_MIN) {
+        if ($size < SODIUM_CRYPTO_GENERICHASH_BYTES_MIN) {
             throw new InvalidDigestLength(
                 \sprintf(
                     'Merkle roots must be at least %d long.',
-                    \Sodium\CRYPTO_GENERICHASH_BYTES_MIN
+                    SODIUM_CRYPTO_GENERICHASH_BYTES_MIN
                 )
             );
         }
-        if ($size > \Sodium\CRYPTO_GENERICHASH_BYTES_MAX) {
+        if ($size > SODIUM_CRYPTO_GENERICHASH_BYTES_MAX) {
             throw new InvalidDigestLength(
                 \sprintf(
                     'Merkle roots must be at most %d long.',
-                    \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                    SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                 )
             );
         }

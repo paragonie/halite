@@ -82,7 +82,7 @@ class Key
     public function __destruct()
     {
         if (!$this->isPublicKey) {
-            \Sodium\memzero($this->keyMaterial);
+            \sodium_memzero($this->keyMaterial);
             $this->keyMaterial = null;
         }
     }

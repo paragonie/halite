@@ -13,7 +13,7 @@ use ParagonIE\Halite\Util;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class SymmetricTest extends PHPUnit_Framework_TestCase
+class SymmetricTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @covers Symmetric::authenticate()

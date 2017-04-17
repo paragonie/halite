@@ -86,7 +86,7 @@ final class Config extends BaseConfig
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
             }
-        } elseif ($major === 3) {
+        } elseif ($major === 3 || $major === 4) {
             switch ($minor) {
                 case 0:
                     return [
@@ -129,7 +129,7 @@ final class Config extends BaseConfig
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
             }
-        } elseif ($major === 3) {
+        } elseif ($major === 3 || $major === 4) {
             switch ($minor) {
                 case 0:
                     return [

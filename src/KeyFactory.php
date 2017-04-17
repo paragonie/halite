@@ -39,8 +39,8 @@ final class KeyFactory
      */
     public static function generateAuthenticationKey(string &$secretKey = ''): AuthenticationKey
     {
-        $secretKey = \Sodium\randombytes_buf(
-            \Sodium\CRYPTO_AUTH_KEYBYTES
+        $secretKey = \sodium_randombytes_buf(
+            SODIUM_CRYPTO_AUTH_KEYBYTES
         );
         return new AuthenticationKey(
             new HiddenString($secretKey)
@@ -55,8 +55,8 @@ final class KeyFactory
      */
     public static function generateEncryptionKey(string &$secretKey = ''): EncryptionKey
     {
-        $secretKey = \Sodium\randombytes_buf(
-            \Sodium\CRYPTO_STREAM_KEYBYTES
+        $secretKey = \sodium_randombytes_buf(
+            SODIUM_CRYPTO_STREAM_KEYBYTES
         );
         return new EncryptionKey(
             new HiddenString($secretKey)
@@ -72,11 +72,11 @@ final class KeyFactory
     public static function generateEncryptionKeyPair(string &$secretKey = ''): EncryptionKeyPair
     {
         // Encryption keypair
-        $kp = \Sodium\crypto_box_keypair();
-        $secretKey = \Sodium\crypto_box_secretkey($kp);
+        $kp = \sodium_crypto_box_keypair();
+        $secretKey = \sodium_crypto_box_secretkey($kp);
         
         // Let's wipe our $kp variable
-        \Sodium\memzero($kp);
+        \sodium_memzero($kp);
         return new EncryptionKeyPair(
             new EncryptionSecretKey(
                 new HiddenString($secretKey)
@@ -93,11 +93,11 @@ final class KeyFactory
     public static function generateSignatureKeyPair(string &$secretKey = ''): SignatureKeyPair
     {
         // Encryption keypair
-        $kp = \Sodium\crypto_sign_keypair();
-        $secretKey = \Sodium\crypto_sign_secretkey($kp);
+        $kp = \sodium_crypto_sign_keypair();
+        $secretKey = \sodium_crypto_sign_secretkey($kp);
         
         // Let's wipe our $kp variable
-        \Sodium\memzero($kp);
+        \sodium_memzero($kp);
         return new SignatureKeyPair(
             new SignatureSecretKey(
                 new HiddenString($secretKey)
@@ -123,13 +123,13 @@ final class KeyFactory
     ): AuthenticationKey {
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
-        if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+        if (Util::safeStrlen($salt) !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
-                'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
+                'Expected ' . SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
-        $secretKey = \Sodium\crypto_pwhash(
-            \Sodium\CRYPTO_AUTH_KEYBYTES,
+        $secretKey = \sodium_crypto_pwhash(
+            SODIUM_CRYPTO_AUTH_KEYBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
@@ -158,13 +158,13 @@ final class KeyFactory
     ): EncryptionKey {
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
-        if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+        if (Util::safeStrlen($salt) !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
-                'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
+                'Expected ' . SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
-        $secretKey = \Sodium\crypto_pwhash(
-            \Sodium\CRYPTO_STREAM_KEYBYTES,
+        $secretKey = \sodium_crypto_pwhash(
+            SODIUM_CRYPTO_STREAM_KEYBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
@@ -192,24 +192,24 @@ final class KeyFactory
     ): EncryptionKeyPair {
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
-        if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+        if (Util::safeStrlen($salt) !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
-                'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
+                'Expected ' . SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
         // Diffie Hellman key exchange key pair
-        $seed = \Sodium\crypto_pwhash(
-            \Sodium\CRYPTO_BOX_SEEDBYTES,
+        $seed = \sodium_crypto_pwhash(
+            SODIUM_CRYPTO_BOX_SEEDBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
             $kdfLimits[1]
         );
-        $keyPair = \Sodium\crypto_box_seed_keypair($seed);
-        $secretKey = \Sodium\crypto_box_secretkey($keyPair);
+        $keyPair = \sodium_crypto_box_seed_keypair($seed);
+        $secretKey = \sodium_crypto_box_secretkey($keyPair);
         
         // Let's wipe our $kp variable
-        \Sodium\memzero($keyPair);
+        \sodium_memzero($keyPair);
         return new EncryptionKeyPair(
             new EncryptionSecretKey(
                 new HiddenString($secretKey)
@@ -234,24 +234,24 @@ final class KeyFactory
     ): SignatureKeyPair {
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
-        if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
+        if (Util::safeStrlen($salt) !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
-                'Expected ' . \Sodium\CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
+                'Expected ' . SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
         // Digital signature keypair
-        $seed = \Sodium\crypto_pwhash(
-            \Sodium\CRYPTO_SIGN_SEEDBYTES,
+        $seed = \sodium_crypto_pwhash(
+            SODIUM_CRYPTO_SIGN_SEEDBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
             $kdfLimits[1]
         );
-        $keyPair = \Sodium\crypto_sign_seed_keypair($seed);
-        $secretKey = \Sodium\crypto_sign_secretkey($keyPair);
+        $keyPair = \sodium_crypto_sign_seed_keypair($seed);
+        $secretKey = \sodium_crypto_sign_secretkey($keyPair);
         
         // Let's wipe our $kp variable
-        \Sodium\memzero($keyPair);
+        \sodium_memzero($keyPair);
         return new SignatureKeyPair(
             new SignatureSecretKey(
                 new HiddenString($secretKey)
@@ -271,18 +271,18 @@ final class KeyFactory
         switch ($level) {
             case self::INTERACTIVE:
                 return [
-                    \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-                    \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+                    SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+                    SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
                 ];
             case self::MODERATE:
                 return [
-                    \Sodium\CRYPTO_PWHASH_OPSLIMIT_MODERATE,
-                    \Sodium\CRYPTO_PWHASH_MEMLIMIT_MODERATE
+                    SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE,
+                    SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE
                 ];
             case self::SENSITIVE:
                 return [
-                    \Sodium\CRYPTO_PWHASH_OPSLIMIT_SENSITIVE,
-                    \Sodium\CRYPTO_PWHASH_MEMLIMIT_SENSITIVE
+                    SODIUM_CRYPTO_PWHASH_OPSLIMIT_SENSITIVE,
+                    SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE
                 ];
             default:
                 throw new CryptoException\InvalidType(
@@ -304,7 +304,7 @@ final class KeyFactory
         return new AuthenticationKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \Sodium\hex2bin($keyData->getString())
+                    \hex2bin($keyData->getString())
                 )
             )
         );
@@ -323,7 +323,7 @@ final class KeyFactory
         return new EncryptionKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \Sodium\hex2bin($keyData->getString())
+                    \hex2bin($keyData->getString())
                 )
             )
         );
@@ -342,7 +342,7 @@ final class KeyFactory
         return new EncryptionPublicKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \Sodium\hex2bin($keyData->getString())
+                    \hex2bin($keyData->getString())
                 )
             )
         );
@@ -361,7 +361,7 @@ final class KeyFactory
         return new EncryptionSecretKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \Sodium\hex2bin($keyData->getString())
+                    \hex2bin($keyData->getString())
                 )
             )
         );
@@ -380,7 +380,7 @@ final class KeyFactory
         return new SignaturePublicKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \Sodium\hex2bin($keyData->getString())
+                    \hex2bin($keyData->getString())
                 )
             )
         );
@@ -399,7 +399,7 @@ final class KeyFactory
         return new SignatureSecretKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \Sodium\hex2bin($keyData->getString())
+                    \hex2bin($keyData->getString())
                 )
             )
         );
@@ -419,7 +419,7 @@ final class KeyFactory
             new EncryptionSecretKey(
                 new HiddenString(
                     self::getKeyDataFromString(
-                        \Sodium\hex2bin($keyData->getString())
+                        \hex2bin($keyData->getString())
                     )
                 )
             )
@@ -440,7 +440,7 @@ final class KeyFactory
             new SignatureSecretKey(
                 new HiddenString(
                     self::getKeyDataFromString(
-                        \Sodium\hex2bin($keyData->getString())
+                        \hex2bin($keyData->getString())
                     )
                 )
             )
@@ -627,12 +627,12 @@ final class KeyFactory
         }
         if ($key instanceof Key) {
             return new HiddenString(
-                \Sodium\bin2hex(
+                \bin2hex(
                     Halite::HALITE_VERSION_KEYS . $key->getRawKeyMaterial() .
-                    \Sodium\crypto_generichash(
+                    \sodium_crypto_generichash(
                         Halite::HALITE_VERSION_KEYS . $key->getRawKeyMaterial(),
                         '',
-                        \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                        SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                     )
                 )
             );
@@ -673,8 +673,8 @@ final class KeyFactory
                 'Cannot load key from file: '. $filePath
             );
         }
-        $data = \Sodium\hex2bin($fileData);
-        \Sodium\memzero($fileData);
+        $data = \hex2bin($fileData);
+        \sodium_memzero($fileData);
         return new HiddenString(
             self::getKeyDataFromString($data)
         );
@@ -694,27 +694,27 @@ final class KeyFactory
         $keyData = Util::safeSubstr(
             $data,
             Halite::VERSION_TAG_LEN,
-            -\Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+            -SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
         $checksum = Util::safeSubstr(
             $data,
-            -\Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
-            \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+            -SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
+            SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
-        $calc = \Sodium\crypto_generichash(
+        $calc = \sodium_crypto_generichash(
             $versionTag . $keyData,
             '',
-            \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+            SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
         if (!\hash_equals($calc, $checksum)) {
             throw new Alerts\InvalidKey(
                 'Checksum validation fail'
             );
         }
-        \Sodium\memzero($data);
-        \Sodium\memzero($versionTag);
-        \Sodium\memzero($calc);
-        \Sodium\memzero($checksum);
+        \sodium_memzero($data);
+        \sodium_memzero($versionTag);
+        \sodium_memzero($calc);
+        \sodium_memzero($checksum);
         return $keyData;
     }
     
@@ -731,12 +731,12 @@ final class KeyFactory
     ): bool {
         $saved = \file_put_contents(
             $filePath,
-            \Sodium\bin2hex(
+            \bin2hex(
                 Halite::HALITE_VERSION_KEYS . $keyData .
-                \Sodium\crypto_generichash(
+                \sodium_crypto_generichash(
                     Halite::HALITE_VERSION_KEYS . $keyData,
                     '',
-                    \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                    SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                 )
             )
         );

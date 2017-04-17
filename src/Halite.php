@@ -32,14 +32,14 @@ use ParagonIE\Halite\Alerts\InvalidType;
  */
 final class Halite
 {
-    const VERSION              = '3.0.0';
+    const VERSION              = '4.0.0';
 
-    const HALITE_VERSION_KEYS  = "\x31\x40\x03\x00";
-    const HALITE_VERSION_FILE  = "\x31\x41\x03\x00";
-    const HALITE_VERSION       = "\x31\x42\x03\x00";
+    const HALITE_VERSION_KEYS  = "\x31\x40\x04\x00";
+    const HALITE_VERSION_FILE  = "\x31\x41\x04\x00";
+    const HALITE_VERSION       = "\x31\x42\x04\x00";
 
     const VERSION_TAG_LEN      = 4;
-    const VERSION_PREFIX       = 'MUIDA';
+    const VERSION_PREFIX       = 'MUIEA';
 
     const ENCODE_HEX           = 'hex';
     const ENCODE_BASE32        = 'base32';
@@ -132,25 +132,25 @@ final class Halite
     public static function isLibsodiumSetupCorrectly(bool $echo = false): bool
     {
         // Require libsodium 1.0.9
-        $major = \Sodium\library_version_major();
-        $minor = \Sodium\library_version_minor();
+        $major = \sodium_library_version_major();
+        $minor = \sodium_library_version_minor();
         if ($major < 9 || ($major === 9 && $minor < 2)) {
             if ($echo) {
                 echo 'Halite needs libsodium 1.0.9 or higher. You have: ',
-                \Sodium\version_string(), "\n";
+                sodium_version_string(), "\n";
             }
             return false;
         }
 
         // Added in version 1.0.3 of the PHP extension
-        if (!\is_callable('\\Sodium\\crypto_pwhash_str')) {
+        if (!\is_callable('sodium_crypto_pwhash_str')) {
             if ($echo) {
                 echo 'Halite needs version 1.0.6 or higher of the PHP extension installed.', "\n";
             }
             return false;
         }
 
-        if (!\is_callable('\\Sodium\\crypto_box_seal')) {
+        if (!\is_callable('sodium_crypto_box_seal')) {
             if ($echo) {
                 echo 'crypto_box_seal() is not available.', "\n";
             }

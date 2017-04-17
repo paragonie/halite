@@ -111,9 +111,9 @@ class ReadOnlyFile implements StreamInterface
         \fseek($this->fp, 0, SEEK_SET);
 
         // Create a hash context:
-        $h = \Sodium\crypto_generichash_init(
+        $h = sodium_crypto_generichash_init(
             $this->hashKey,
-            \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+            SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
         for ($i = 0; $i < $this->stat['size']; $i += self::CHUNK) {
             if (($i + self::CHUNK) > $this->stat['size']) {
@@ -121,11 +121,11 @@ class ReadOnlyFile implements StreamInterface
             } else {
                 $c = \fread($this->fp, self::CHUNK);
             }
-            \Sodium\crypto_generichash_update($h, $c);
+            sodium_crypto_generichash_update($h, $c);
         }
         // Reset the file pointer's internal cursor to where it was:
         \fseek($this->fp, $init, SEEK_SET);
-        return \Sodium\crypto_generichash_final($h);
+        return sodium_crypto_generichash_final($h);
     }
 
     /**

@@ -114,11 +114,11 @@ final class Crypto
                 'Invalid message authentication code'
             );
         }
-        \Sodium\memzero($salt);
-        \Sodium\memzero($authKey);
+        \sodium_memzero($salt);
+        \sodium_memzero($authKey);
 
         // crypto_stream_xor() can be used to encrypt and decrypt
-        $plaintext = \Sodium\crypto_stream_xor(
+        $plaintext = \sodium_crypto_stream_xor(
             $encrypted,
             $nonce,
             $encKey
@@ -128,9 +128,9 @@ final class Crypto
                 'Invalid message authentication code'
             );
         }
-        \Sodium\memzero($encrypted);
-        \Sodium\memzero($nonce);
-        \Sodium\memzero($encKey);
+        \sodium_memzero($encrypted);
+        \sodium_memzero($nonce);
+        \sodium_memzero($encKey);
         return new HiddenString($plaintext);
     }
     
@@ -153,10 +153,10 @@ final class Crypto
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
         // Generate a nonce and HKDF salt:
-        $nonce = \Sodium\randombytes_buf(
-            \Sodium\CRYPTO_SECRETBOX_NONCEBYTES
+        $nonce = \sodium_randombytes_buf(
+            SODIUM_CRYPTO_SECRETBOX_NONCEBYTES
         );
-        $salt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
+        $salt = \sodium_randombytes_buf($config->HKDF_SALT_LEN);
 
         /* Split our key into two keys: One for encryption, the other for
            authentication. By using separate keys, we can reasonably dismiss
@@ -167,12 +167,12 @@ final class Crypto
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
         
         // Encrypt our message with the encryption key:
-        $encrypted = \Sodium\crypto_stream_xor(
+        $encrypted = \sodium_crypto_stream_xor(
             $plaintext->getString(),
             $nonce,
             $encKey
         );
-        \Sodium\memzero($encKey);
+        \sodium_memzero($encKey);
         
         // Calculate an authentication tag:
         $auth = self::calculateMAC(
@@ -180,15 +180,15 @@ final class Crypto
             $authKey,
             $config
         );
-        \Sodium\memzero($authKey);
+        \sodium_memzero($authKey);
 
         $message = Halite::HALITE_VERSION . $salt . $nonce . $encrypted . $auth;
 
         // Wipe every superfluous piece of data from memory
-        \Sodium\memzero($nonce);
-        \Sodium\memzero($salt);
-        \Sodium\memzero($encrypted);
-        \Sodium\memzero($auth);
+        \sodium_memzero($nonce);
+        \sodium_memzero($salt);
+        \sodium_memzero($encrypted);
+        \sodium_memzero($auth);
 
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
@@ -214,13 +214,13 @@ final class Crypto
         return [
             CryptoUtil::hkdfBlake2b(
                 $binary,
-                \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
+                SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
                 $config->HKDF_SBOX,
                 $salt
             ),
             CryptoUtil::hkdfBlake2b(
                 $binary,
-                \Sodium\CRYPTO_AUTH_KEYBYTES,
+                SODIUM_CRYPTO_AUTH_KEYBYTES,
                 $config->HKDF_AUTH, 
                 $salt
             )
@@ -274,7 +274,7 @@ final class Crypto
             // 36:
             Halite::VERSION_TAG_LEN + $config->HKDF_SALT_LEN,
             // 24:
-            \Sodium\CRYPTO_STREAM_NONCEBYTES
+            SODIUM_CRYPTO_STREAM_NONCEBYTES
         );
         
         // This is the crypto_stream_xor()ed ciphertext
@@ -283,12 +283,12 @@ final class Crypto
             // 60:
                 Halite::VERSION_TAG_LEN +
                 $config->HKDF_SALT_LEN +
-                \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                SODIUM_CRYPTO_STREAM_NONCEBYTES,
             // $length - 124
             $length - (
                 Halite::VERSION_TAG_LEN +
                 $config->HKDF_SALT_LEN +
-                \Sodium\CRYPTO_STREAM_NONCEBYTES +
+                SODIUM_CRYPTO_STREAM_NONCEBYTES +
                 $config->MAC_SIZE
             )
         );
@@ -300,7 +300,7 @@ final class Crypto
         );
         
         // We don't need this anymore.
-        \Sodium\memzero($ciphertext);
+        \sodium_memzero($ciphertext);
 
         // Now we return the pieces in a specific order:
         return [$version, $config, $salt, $nonce, $encrypted, $auth];
@@ -358,7 +358,7 @@ final class Crypto
         SymmetricConfig $config
     ): string {
         if ($config->MAC_ALGO === 'BLAKE2b') {
-            return \Sodium\crypto_generichash(
+            return \sodium_crypto_generichash(
                 $message,
                 $authKey,
                 $config->MAC_SIZE
@@ -393,13 +393,13 @@ final class Crypto
             );
         }
         if ($config->MAC_ALGO === 'BLAKE2b') {
-            $calc = \Sodium\crypto_generichash(
+            $calc = \sodium_crypto_generichash(
                 $message,
                 $authKey,
                 $config->MAC_SIZE
             );
             $res = \hash_equals($mac, $calc);
-            \Sodium\memzero($calc);
+            \sodium_memzero($calc);
             return $res;
         }
         throw new InvalidMessage(

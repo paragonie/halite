@@ -1,61 +1,64 @@
 <?php
 declare(strict_types=1);
-namespace Sodium;
 
-const CRYPTO_AEAD_AES256GCM_KEYBYTES  =  32;
-const CRYPTO_AEAD_AES256GCM_NSECBYTES  =  0;
-const CRYPTO_AEAD_AES256GCM_NPUBBYTES  =  12;
-const CRYPTO_AEAD_AES256GCM_ABYTES  =  16;
-const CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES  =  32;
-const CRYPTO_AEAD_CHACHA20POLY1305_NSECBYTES  =  0;
-const CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES  =  8;
-const CRYPTO_AEAD_CHACHA20POLY1305_ABYTES  =  16;
-const CRYPTO_AUTH_BYTES  =  32;
-const CRYPTO_AUTH_KEYBYTES  =  32;
-const CRYPTO_BOX_SEALBYTES  =  16;
-const CRYPTO_BOX_SECRETKEYBYTES  =  32;
-const CRYPTO_BOX_PUBLICKEYBYTES  =  32;
-const CRYPTO_BOX_KEYPAIRBYTES  =  64;
-const CRYPTO_BOX_MACBYTES  =  16;
-const CRYPTO_BOX_NONCEBYTES  =  24;
-const CRYPTO_BOX_SEEDBYTES  =  32;
-const CRYPTO_KX_BYTES  =  32;
-const CRYPTO_KX_PUBLICKEYBYTES  =  32;
-const CRYPTO_KX_SECRETKEYBYTES  =  32;
-const CRYPTO_GENERICHASH_BYTES  =  32;
-const CRYPTO_GENERICHASH_BYTES_MIN  =  16;
-const CRYPTO_GENERICHASH_BYTES_MAX  =  64;
-const CRYPTO_GENERICHASH_KEYBYTES  =  32;
-const CRYPTO_GENERICHASH_KEYBYTES_MIN  =  16;
-const CRYPTO_GENERICHASH_KEYBYTES_MAX  =  64;
-const CRYPTO_PWHASH_SALTBYTES  =  16;
-const CRYPTO_PWHASH_STRPREFIX  =  '$argon2i$';
-const CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE  =  4;
-const CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE  =  33554432;
-const CRYPTO_PWHASH_OPSLIMIT_MODERATE  =  6;
-const CRYPTO_PWHASH_MEMLIMIT_MODERATE  =  134217728;
-const CRYPTO_PWHASH_OPSLIMIT_SENSITIVE  =  8;
-const CRYPTO_PWHASH_MEMLIMIT_SENSITIVE  =  536870912;
-const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES  =  32;
-const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX  =  '$7$';
-const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE  =  534288;
-const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE  =  16777216;
-const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE  =  33554432;
-const CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE  =  1073741824;
-const CRYPTO_SCALARMULT_BYTES  =  32;
-const CRYPTO_SCALARMULT_SCALARBYTES  =  32;
-const CRYPTO_SHORTHASH_BYTES  =  8;
-const CRYPTO_SHORTHASH_KEYBYTES  =  16;
-const CRYPTO_SECRETBOX_KEYBYTES  =  32;
-const CRYPTO_SECRETBOX_MACBYTES  =  16;
-const CRYPTO_SECRETBOX_NONCEBYTES  =  24;
-const CRYPTO_SIGN_BYTES  =  64;
-const CRYPTO_SIGN_SEEDBYTES  =  32;
-const CRYPTO_SIGN_PUBLICKEYBYTES  =  32;
-const CRYPTO_SIGN_SECRETKEYBYTES  =  64;
-const CRYPTO_SIGN_KEYPAIRBYTES = 96;
-const CRYPTO_STREAM_KEYBYTES = 32;
-const CRYPTO_STREAM_NONCEBYTES  = 24;
+const SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES  =  32;
+const SODIUM_CRYPTO_AEAD_AES256GCM_NSECBYTES  =  0;
+const SODIUM_CRYPTO_AEAD_AES256GCM_NPUBBYTES  =  12;
+const SODIUM_CRYPTO_AEAD_AES256GCM_ABYTES  =  16;
+const SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_KEYBYTES  =  32;
+const SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_NSECBYTES  =  0;
+const SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_NPUBBYTES  =  8;
+const SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_ABYTES  =  16;
+const SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_KEYBYTES  =  32;
+const SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_NSECBYTES  = 0;
+const SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_NPUBBYTES  = 12;
+const SODIUM_CRYPTO_AEAD_CHACHA20POLY1305_IETF_ABYTES  =  16;
+const SODIUM_CRYPTO_AUTH_BYTES  =  32;
+const SODIUM_CRYPTO_AUTH_KEYBYTES  =  32;
+const SODIUM_CRYPTO_BOX_SEALBYTES  =  16;
+const SODIUM_CRYPTO_BOX_SECRETKEYBYTES  =  32;
+const SODIUM_CRYPTO_BOX_PUBLICKEYBYTES  =  32;
+const SODIUM_CRYPTO_BOX_KEYPAIRBYTES  =  64;
+const SODIUM_CRYPTO_BOX_MACBYTES  =  16;
+const SODIUM_CRYPTO_BOX_NONCEBYTES  =  24;
+const SODIUM_CRYPTO_BOX_SEEDBYTES  =  32;
+const SODIUM_CRYPTO_KX_BYTES  =  32;
+const SODIUM_CRYPTO_KX_PUBLICKEYBYTES  =  32;
+const SODIUM_CRYPTO_KX_SECRETKEYBYTES  =  32;
+const SODIUM_CRYPTO_GENERICHASH_BYTES  =  32;
+const SODIUM_CRYPTO_GENERICHASH_BYTES_MIN  =  16;
+const SODIUM_CRYPTO_GENERICHASH_BYTES_MAX  =  64;
+const SODIUM_CRYPTO_GENERICHASH_KEYBYTES  =  32;
+const SODIUM_CRYPTO_GENERICHASH_KEYBYTES_MIN  =  16;
+const SODIUM_CRYPTO_GENERICHASH_KEYBYTES_MAX  =  64;
+const SODIUM_CRYPTO_PWHASH_SALTBYTES  =  16;
+const SODIUM_CRYPTO_PWHASH_STRPREFIX  =  '$argon2i$';
+const SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE  =  4;
+const SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE  =  33554432;
+const SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE  =  6;
+const SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE  =  134217728;
+const SODIUM_CRYPTO_PWHASH_OPSLIMIT_SENSITIVE  =  8;
+const SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE  =  536870912;
+const SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_SALTBYTES  =  32;
+const SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_STRPREFIX  =  '$7$';
+const SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE  =  534288;
+const SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE  =  16777216;
+const SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_SENSITIVE  =  33554432;
+const SODIUM_CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_SENSITIVE  =  1073741824;
+const SODIUM_CRYPTO_SCALARMULT_BYTES  =  32;
+const SODIUM_CRYPTO_SCALARMULT_SCALARBYTES  =  32;
+const SODIUM_CRYPTO_SHORTHASH_BYTES  =  8;
+const SODIUM_CRYPTO_SHORTHASH_KEYBYTES  =  16;
+const SODIUM_CRYPTO_SECRETBOX_KEYBYTES  =  32;
+const SODIUM_CRYPTO_SECRETBOX_MACBYTES  =  16;
+const SODIUM_CRYPTO_SECRETBOX_NONCEBYTES  =  24;
+const SODIUM_CRYPTO_SIGN_BYTES  =  64;
+const SODIUM_CRYPTO_SIGN_SEEDBYTES  =  32;
+const SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES  =  32;
+const SODIUM_CRYPTO_SIGN_SECRETKEYBYTES  =  64;
+const SODIUM_CRYPTO_SIGN_KEYPAIRBYTES = 96;
+const SODIUM_CRYPTO_STREAM_KEYBYTES = 32;
+const SODIUM_CRYPTO_STREAM_NONCEBYTES  = 24;
 
 /**
  * To silence the phpstorm "unknown namespace" errors.
@@ -71,7 +74,7 @@ if (!\extension_loaded('libsodium')) {
      * 
      * @return bool
      */
-    function crypto_aead_aes256gcm_is_available(): bool
+    function sodium_crypto_aead_aes256gcm_is_available(): bool
     {
         return false;
     }
@@ -86,7 +89,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $ad additional data (optional)
      * @return string
      */
-    function crypto_aead_aes256gcm_decrypt(
+    function sodium_crypto_aead_aes256gcm_decrypt(
         string $msg,
         string $nonce,
         string $key,
@@ -105,7 +108,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $ad additional data (optional)
      * @return string
      */
-    function crypto_aead_aes256gcm_encrypt(
+    function sodium_crypto_aead_aes256gcm_encrypt(
         string $msg,
         string $nonce,
         string $key,
@@ -124,7 +127,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $ad additional data (optional)
      * @return string
      */
-    function crypto_aead_chacha20poly1305_decrypt(
+    function sodium_crypto_aead_chacha20poly1305_decrypt(
         string $msg,
         string $nonce,
         string $key,
@@ -143,7 +146,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $ad additional data (optional)
      * @return string
      */
-    function crypto_aead_chacha20poly1305_encrypt(
+    function sodium_crypto_aead_chacha20poly1305_encrypt(
         string $msg,
         string $nonce,
         string $key,
@@ -153,6 +156,45 @@ if (!\extension_loaded('libsodium')) {
     }
 
     /**
+     * Authenticated Encryption with Associated Data (decrypt)
+     * ChaCha20 + Poly1305
+     *
+     * @param string $msg encrypted message
+     * @param string $nonce
+     * @param string $key
+     * @param string $ad additional data (optional)
+     * @return string
+     */
+    function sodium_crypto_aead_chacha20poly1305_ietf_decrypt(
+        string $msg,
+        string $nonce,
+        string $key,
+        string $ad = ''
+    ): string {
+        return '';
+    }
+
+    /**
+     * Authenticated Encryption with Associated Data (encrypt)
+     * ChaCha20 + Poly1305
+     *
+     * @param string $msg plaintext message
+     * @param string $nonce
+     * @param string $key
+     * @param string $ad additional data (optional)
+     * @return string
+     */
+    function sodium_crypto_aead_chacha20poly1305_ietf_encrypt(
+        string $msg,
+        string $nonce,
+        string $key,
+        string $ad = ''
+    ): string {
+        return '';
+    }
+
+
+    /**
      * Secret-key message authentication
      * HMAC SHA-512/256
      * 
@@ -160,7 +202,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $key
      * @return string
      */
-    function crypto_auth(
+    function sodium_crypto_auth(
         string $msg,
         string $key
     ): string {
@@ -176,7 +218,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $key
      * @return bool
      */
-    function crypto_auth_verify(
+    function sodium_crypto_auth_verify(
         string $mac,
         string $msg,
         string $key
@@ -193,7 +235,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $keypair
      * @return string
      */
-    function crypto_box(
+    function sodium_crypto_box(
         string $msg,
         string $nonce,
         string $keypair
@@ -206,7 +248,7 @@ if (!\extension_loaded('libsodium')) {
      * 
      * @return string
      */
-    function crypto_box_keypair(): string {
+    function sodium_crypto_box_keypair(): string {
         return '';
     }
 
@@ -216,7 +258,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $seed
      * @return string
      */
-    function crypto_box_seed_keypair(
+    function sodium_crypto_box_seed_keypair(
         string $seed
     ): string {
         return '';
@@ -229,7 +271,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $publickey
      * @return string
      */
-    function crypto_box_keypair_from_secretkey_and_publickey(
+    function sodium_crypto_box_keypair_from_secretkey_and_publickey(
         string $secretkey,
         string $publickey
     ): string {
@@ -245,7 +287,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $keypair
      * @return string
      */
-    function crypto_box_open(
+    function sodium_crypto_box_open(
         string $msg,
         string $nonce,
         string $keypair
@@ -259,7 +301,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $keypair
      * @return string
      */
-    function crypto_box_publickey(
+    function sodium_crypto_box_publickey(
         string $keypair
     ): string {
         return '';
@@ -271,7 +313,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $secretkey
      * @return string
      */
-    function crypto_box_publickey_from_secretkey(
+    function sodium_crypto_box_publickey_from_secretkey(
         string $secretkey
     ): string {
         return '';
@@ -285,7 +327,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $publickey
      * @return string
      */
-    function crypto_box_seal(
+    function sodium_crypto_box_seal(
         string $message,
         string $publickey
     ): string {
@@ -300,7 +342,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $keypair
      * @return string
      */
-    function crypto_box_seal_open(
+    function sodium_crypto_box_seal_open(
         string $encrypted,
         string $keypair
     ): string {
@@ -313,7 +355,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $keypair
      * @return string
      */
-    function crypto_box_secretkey(string $keypair): string
+    function sodium_crypto_box_secretkey(string $keypair): string
     {
         return '';
     }
@@ -328,7 +370,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $server_publickey
      * @return string
      */
-    function crypto_kx(
+    function sodium_crypto_kx(
         string $secretkey,
         string $publickey,
         string $client_publickey,
@@ -345,7 +387,7 @@ if (!\extension_loaded('libsodium')) {
      * @param int $length
      * @return string
      */
-    function crypto_generichash(
+    function sodium_crypto_generichash(
         string $input,
         string $key = '',
         int $length = 32
@@ -361,7 +403,7 @@ if (!\extension_loaded('libsodium')) {
      * @param int $length
      * @return string
      */
-    function crypto_generichash_init(
+    function sodium_crypto_generichash_init(
         string $key = '',
         int $length = 32
     ): string {
@@ -376,7 +418,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $append
      * @return bool
      */
-    function crypto_generichash_update(
+    function sodium_crypto_generichash_update(
         string &$hashState,
         string $append
     ): bool {
@@ -391,7 +433,7 @@ if (!\extension_loaded('libsodium')) {
      * @param int $length
      * @return string
      */
-    function crypto_generichash_final(
+    function sodium_crypto_generichash_final(
         string $hashState,
         int $length = 32
     ): string {
@@ -409,7 +451,7 @@ if (!\extension_loaded('libsodium')) {
      * @param int $memlimit
      * @return string
      */
-    function crypto_pwhash(
+    function sodium_crypto_pwhash(
         int $out_len,
         string $passwd,
         string $salt,
@@ -428,7 +470,7 @@ if (!\extension_loaded('libsodium')) {
      * @param int $memlimit
      * @return string
      */
-    function crypto_pwhash_str(
+    function sodium_crypto_pwhash_str(
         string $passwd,
         int $opslimit,
         int $memlimit
@@ -444,7 +486,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $passwd
      * @return bool
      */
-    function crypto_pwhash_str_verify(
+    function sodium_crypto_pwhash_str_verify(
         string $hash,
         string $passwd
     ): bool {
@@ -462,7 +504,7 @@ if (!\extension_loaded('libsodium')) {
      * @param int $memlimit
      * @return string
      */
-    function crypto_pwhash_scryptsalsa208sha256(
+    function sodium_crypto_pwhash_scryptsalsa208sha256(
         int $out_len,
         string $passwd,
         string $salt,
@@ -481,7 +523,7 @@ if (!\extension_loaded('libsodium')) {
      * @param int $memlimit
      * @return string
      */
-    function crypto_pwhash_scryptsalsa208sha256_str(
+    function sodium_crypto_pwhash_scryptsalsa208sha256_str(
         string $passwd,
         int $opslimit,
         int $memlimit
@@ -497,7 +539,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $passwd
      * @return bool
      */
-    function crypto_pwhash_scryptsalsa208sha256_str_verify(
+    function sodium_crypto_pwhash_scryptsalsa208sha256_str_verify(
         string $hash,
         string $passwd
     ): bool {
@@ -512,7 +554,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $ecdhB
      * @return string
      */
-    function crypto_scalarmult(
+    function sodium_crypto_scalarmult(
         string $ecdhA,
         string $ecdhB
     ): string {
@@ -528,7 +570,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $key
      * @return string
      */
-    function crypto_secretbox(
+    function sodium_crypto_secretbox(
         string $plaintext,
         string $nonce,
         string $key
@@ -545,7 +587,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $key
      * @return string
      */
-    function crypto_secretbox_open(
+    function sodium_crypto_secretbox_open(
         string $ciphertext,
         string $nonce,
         string $key
@@ -561,7 +603,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $key
      * @return string
      */
-    function crypto_shorthash(
+    function sodium_crypto_shorthash(
         string $message,
         string $key
     ): string {
@@ -576,7 +618,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $secretkey
      * @return string
      */
-    function crypto_sign(
+    function sodium_crypto_sign(
         string $message,
         string $secretkey
     ): string {
@@ -591,7 +633,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $secretkey
      * @return string
      */
-    function crypto_sign_detached(
+    function sodium_crypto_sign_detached(
         string $message,
         string $secretkey
     ): string {
@@ -604,7 +646,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $sign_pk
      * @return string
      */
-    function crypto_sign_ed25519_pk_to_curve25519(
+    function sodium_crypto_sign_ed25519_pk_to_curve25519(
         string $sign_pk
     ): string {
         return '';
@@ -616,7 +658,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $sign_sk
      * @return string
      */
-    function crypto_sign_ed25519_sk_to_curve25519(
+    function sodium_crypto_sign_ed25519_sk_to_curve25519(
         string $sign_sk
     ): string {
         return '';
@@ -627,7 +669,7 @@ if (!\extension_loaded('libsodium')) {
      * 
      * @return string
      */
-    function crypto_sign_keypair(): string
+    function sodium_crypto_sign_keypair(): string
     {
         return '';
     }
@@ -640,7 +682,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $publickey
      * @return string
      */
-    function crypto_sign_keypair_from_secretkey_and_publickey(
+    function sodium_crypto_sign_keypair_from_secretkey_and_publickey(
         string $secretkey,
         string $publickey
     ): string {
@@ -654,7 +696,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $publickey
      * @return string
      */
-    function crypto_sign_open(
+    function sodium_crypto_sign_open(
         string $signed_message,
         string $publickey
     ): string {
@@ -667,7 +709,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $keypair
      * @return string
      */
-    function crypto_sign_publickey(
+    function sodium_crypto_sign_publickey(
         string $keypair
     ): string {
         return '';
@@ -679,7 +721,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $keypair
      * @return string
      */
-    function crypto_sign_secretkey(
+    function sodium_crypto_sign_secretkey(
         string $keypair
     ): string {
         return '';
@@ -691,7 +733,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $secretkey
      * @return string
      */
-    function crypto_sign_publickey_from_secretkey(
+    function sodium_crypto_sign_publickey_from_secretkey(
         string $secretkey
     ): string {
         return '';
@@ -703,7 +745,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $seed
      * @return string
      */
-    function crypto_sign_seed_keypair(
+    function sodium_crypto_sign_seed_keypair(
         string $seed
     ): string {
         return '';
@@ -717,7 +759,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $publickey
      * @return bool
      */
-    function crypto_sign_verify_detached(
+    function sodium_crypto_sign_verify_detached(
         string $signature,
         string $msg,
         string $publickey
@@ -734,7 +776,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $key
      * @return string
      */
-    function crypto_stream(
+    function sodium_crypto_stream(
         int $length,
         string $nonce,
         string $key
@@ -751,7 +793,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $key
      * @return string
      */
-    function crypto_stream_xor(
+    function sodium_crypto_stream_xor(
         string $plaintext,
         string $nonce,
         string $key
@@ -766,7 +808,7 @@ if (!\extension_loaded('libsodium')) {
      * @param int $length
      * @return string
      */
-    function randombytes_buf(
+    function sodium_randombytes_buf(
         int $length
     ): string {
         return '';
@@ -778,7 +820,7 @@ if (!\extension_loaded('libsodium')) {
      * 
      * @return int
      */
-    function randombytes_random16(): string {
+    function sodium_randombytes_random16(): string {
         return '';
     }
 
@@ -789,7 +831,7 @@ if (!\extension_loaded('libsodium')) {
      * @param int $upperBoundNonInclusive
      * @return int
      */
-    function randombytes_uniform(
+    function sodium_randombytes_uniform(
         int $upperBoundNonInclusive
     ): int {
         return 0;
@@ -814,7 +856,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $right
      * @return int
      */
-    function compare(
+    function sodium_compare(
         string $left,
         string $right
     ): int {
@@ -839,7 +881,7 @@ if (!\extension_loaded('libsodium')) {
      * @param &string $nonce
      * @return string
      */
-    function increment(
+    function sodium_increment(
         string &$nonce
     ): string {
         return '';
@@ -852,7 +894,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $right
      * @return string
      */
-    function add(
+    function sodium_add(
         string &$left,
         string $right
     ): string {
@@ -863,7 +905,7 @@ if (!\extension_loaded('libsodium')) {
      * Get the true major version of libsodium
      * @return int
      */
-    function library_version_major(): int {
+    function sodium_library_version_major(): int {
         return 0;
     }
 
@@ -871,7 +913,7 @@ if (!\extension_loaded('libsodium')) {
      * Get the true minor version of libsodium
      * @return int
      */
-    function library_version_minor(): int {
+    function sodium_library_version_minor(): int {
         return 0;
     }
     
@@ -882,7 +924,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $right
      * @return int
      */
-    function memcmp(
+    function sodium_memcmp(
         string $left,
         string $right
     ): int {
@@ -894,7 +936,7 @@ if (!\extension_loaded('libsodium')) {
      * 
      * @param &string $nonce
      */
-    function memzero(
+    function sodium_memzero(
         string &$target
     ) {
         $target = '';
@@ -905,7 +947,7 @@ if (!\extension_loaded('libsodium')) {
      * 
      * @return string
      */
-    function version_string(): string {
+    function sodium_version_string(): string {
         return 'NA';
     }
 
@@ -915,7 +957,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $sk
      * @return string
      */
-    function crypto_scalarmult_base(
+    function sodium_crypto_scalarmult_base(
         string $sk
     ): string {
         return '';

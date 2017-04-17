@@ -79,7 +79,7 @@ final class HiddenString
      */
     public function __destruct()
     {
-        \Sodium\memzero($this->internalStringValue);
+        \sodium_memzero($this->internalStringValue);
     }
 
     /**

@@ -99,7 +99,7 @@ final class Cookie
                 'encrypt'
             );
         }
-        $v = \Sodium\hex2bin(Util::safeSubstr($stored, 0, 8));
+        $v = \hex2bin(Util::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
     }
     

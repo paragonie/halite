@@ -13,7 +13,7 @@ use ParagonIE\Halite\HiddenString;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class KeyTest extends PHPUnit_Framework_TestCase
+class KeyTest extends \PHPUnit\Framework\TestCase
 {
     public function testDerive()
     {

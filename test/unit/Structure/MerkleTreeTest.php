@@ -10,7 +10,7 @@ use ParagonIE\Halite\Structure\{
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class MerkleTreeTest extends PHPUnit_Framework_TestCase
+class MerkleTreeTest extends \PHPUnit\Framework\TestCase
 {
     public function testArithmetic()
     {

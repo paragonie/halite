@@ -3,7 +3,7 @@
     "description": "High-level cryptography interface powered by libsodium",
     "type": "library",
     "require": {
-        "php": "^7",
+        "php": "^7.1",
         "paragonie/constant_time_encoding": "^2",
         "ext-libsodium": "^1.0.6"
     },
@@ -12,7 +12,7 @@
             "ParagonIE\\Halite\\": "src"
         }
     },
-    "license": "GPL3",
+    "license": ["GPL3", "MIT"],
     "authors": [
         {
             "name": "Paragon Initiative Enterprises",

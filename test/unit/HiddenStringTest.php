@@ -1,7 +1,7 @@
 <?php
-declare(strict_types=1);
-use ParagonIE\Halite\HiddenString;
+declare(strict_types = 1);
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use ParagonIE\Halite\HiddenString;
 
 /**
  * @backupGlobals disabled
@@ -17,7 +17,7 @@ class HiddenStringTest extends PHPUnit_Framework_TestCase
             [true, true],
             [true, false],
             [false, true],
-            [false, false]
+            [false, false],
         ];
         foreach ($sets as $set) {
             $hidden = new HiddenString($str, $set[0], $set[1]);
@@ -30,7 +30,7 @@ class HiddenStringTest extends PHPUnit_Framework_TestCase
             $print = \print_r($hidden, true);
             $this->assertFalse(\strpos($print, $str));
 
-            $cast = (string) $hidden;
+            $cast = (string)$hidden;
             if ($set[0]) {
                 $this->assertFalse(\strpos($cast, $str));
             } else {

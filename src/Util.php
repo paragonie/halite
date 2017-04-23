@@ -1,11 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Alerts\{
-    CannotPerformOperation,
-    InvalidDigestLength,
-    InvalidType
+    CannotPerformOperation, InvalidDigestLength, InvalidType
 };
 
 /**
@@ -36,7 +34,7 @@ final class Util
      * Returns hexadecimal characters.
      *
      * @param string $input
-     * @param int $length
+     * @param int    $length
      * @return string
      */
     public static function hash(
@@ -54,7 +52,7 @@ final class Util
      * Returns raw binary.
      *
      * @param string $input
-     * @param int $length
+     * @param int    $length
      * @return string
      */
     public static function raw_hash(
@@ -67,15 +65,15 @@ final class Util
     /**
      * Use a derivative of HKDF to derive multiple keys from one.
      * http://tools.ietf.org/html/rfc5869
-     * 
+     *
      * This is a variant from hash_hkdf() and instead uses BLAKE2b provided by
      * libsodium.
-     * 
-     * Important: instead of a true HKDF (from HMAC) construct, this uses the 
+     *
+     * Important: instead of a true HKDF (from HMAC) construct, this uses the
      * \Sodium\crypto_generichash() key parameter. This is *probably* okay.
-     * 
+     *
      * @param string $ikm Initial Keying Material
-     * @param int $length How many bytes?
+     * @param int    $length How many bytes?
      * @param string $info What sort of key are we deriving?
      * @param string $salt
      * @return string
@@ -112,7 +110,7 @@ final class Util
             );
         }
         // T(0) = ''
-        $t = '';
+        $t          = '';
         $last_block = '';
         for ($block_index = 1; self::safeStrlen($t) < $length; ++$block_index) {
             // T(i) = HMAC-Hash(PRK, T(i-1) | info | 0x??)
@@ -141,7 +139,7 @@ final class Util
      *
      * @param string $input
      * @param string $key
-     * @param int $length
+     * @param int    $length
      * @return string
      */
     public static function keyed_hash(
@@ -162,7 +160,7 @@ final class Util
      *
      * @param string $input
      * @param string $key
-     * @param int $length
+     * @param int    $length
      * @return string
      * @throws CannotPerformOperation
      */
@@ -189,10 +187,10 @@ final class Util
         }
         return \Sodium\crypto_generichash($input, $key, $length);
     }
-    
+
     /**
      * Safe string length
-     * 
+     *
      * @ref mbstring.func_overload
      *
      * @static bool $exists
@@ -225,7 +223,7 @@ final class Util
         }
         return $length;
     }
-    
+
     /**
      * Safe substring
      *
@@ -233,8 +231,8 @@ final class Util
      *
      * @static bool $exists
      * @param string $str
-     * @param int $start
-     * @param int $length
+     * @param int    $start
+     * @param int    $length
      * @return string
      * @throws InvalidType
      */

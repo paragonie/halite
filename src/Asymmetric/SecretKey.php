@@ -1,9 +1,9 @@
 <?php
 namespace ParagonIE\Halite\Asymmetric;
 
+use ParagonIE\Halite\Alerts\CannotPerformOperation;
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Key;
-use ParagonIE\Halite\Alerts\CannotPerformOperation;
 
 /**
  * Class SecretKey
@@ -19,7 +19,7 @@ class SecretKey extends Key
         parent::__construct($keyMaterial);
         $this->isAsymmetricKey = true;
     }
-    
+
     /**
      * See the appropriate derived class.
      */

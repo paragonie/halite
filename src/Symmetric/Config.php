@@ -1,12 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 namespace ParagonIE\Halite\Symmetric;
 
 use ParagonIE\Halite\{
-    Alerts as CryptoException,
-    Config as BaseConfig,
-    Halite,
-    Util
+    Alerts as CryptoException, Config as BaseConfig, Halite, Util
 };
 
 /**
@@ -25,7 +22,7 @@ final class Config extends BaseConfig
 {
     /**
      * Get the configuration
-     * 
+     *
      * @param string $header
      * @param string $mode
      * @return Config
@@ -57,13 +54,13 @@ final class Config extends BaseConfig
             );
         }
         throw new CryptoException\InvalidMessage(
-            'Invalid configuration mode: '.$mode
+            'Invalid configuration mode: ' . $mode
         );
     }
-    
+
     /**
      * Get the configuration for encrypt operations
-     * 
+     *
      * @param int $major
      * @param int $minor
      * @return array
@@ -76,28 +73,28 @@ final class Config extends BaseConfig
                 case 1:
                 case 0:
                     return [
-                        'ENCODING' => Halite::ENCODE_HEX,
+                        'ENCODING'                   => Halite::ENCODE_HEX,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 124,
-                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_ALGO' => 'BLAKE2b',
-                        'MAC_SIZE' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                        'NONCE_BYTES'                => \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                        'HKDF_SALT_LEN'              => 32,
+                        'MAC_ALGO'                   => 'BLAKE2b',
+                        'MAC_SIZE'                   => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
+                        'HKDF_SBOX'                  => 'Halite|EncryptionKey',
+                        'HKDF_AUTH'                  => 'AuthenticationKeyFor_|Halite',
                     ];
             }
         } elseif ($major === 3) {
             switch ($minor) {
                 case 0:
                     return [
-                        'ENCODING' => Halite::ENCODE_BASE64URLSAFE,
+                        'ENCODING'                   => Halite::ENCODE_BASE64URLSAFE,
                         'SHORTEST_CIPHERTEXT_LENGTH' => 124,
-                        'NONCE_BYTES' => \Sodium\CRYPTO_STREAM_NONCEBYTES,
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_ALGO' => 'BLAKE2b',
-                        'MAC_SIZE' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                        'NONCE_BYTES'                => \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                        'HKDF_SALT_LEN'              => 32,
+                        'MAC_ALGO'                   => 'BLAKE2b',
+                        'MAC_SIZE'                   => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
+                        'HKDF_SBOX'                  => 'Halite|EncryptionKey',
+                        'HKDF_AUTH'                  => 'AuthenticationKeyFor_|Halite',
                     ];
             }
         }
@@ -105,10 +102,10 @@ final class Config extends BaseConfig
             'Invalid version tag'
         );
     }
-    
+
     /**
      * Get the configuration for seal operations
-     * 
+     *
      * @param int $major
      * @param int $minor
      * @return array
@@ -121,24 +118,24 @@ final class Config extends BaseConfig
                 case 1:
                 case 0:
                     return [
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_ALGO' => 'BLAKE2b',
-                        'MAC_SIZE' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
+                        'HKDF_SALT_LEN'   => 32,
+                        'MAC_ALGO'        => 'BLAKE2b',
+                        'MAC_SIZE'        => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
                         'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                        'HKDF_SBOX'       => 'Halite|EncryptionKey',
+                        'HKDF_AUTH'       => 'AuthenticationKeyFor_|Halite',
                     ];
             }
         } elseif ($major === 3) {
             switch ($minor) {
                 case 0:
                     return [
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_ALGO' => 'BLAKE2b',
-                        'MAC_SIZE' => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
+                        'HKDF_SALT_LEN'   => 32,
+                        'MAC_ALGO'        => 'BLAKE2b',
+                        'MAC_SIZE'        => \Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
                         'PUBLICKEY_BYTES' => \Sodium\CRYPTO_BOX_PUBLICKEYBYTES,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                        'HKDF_SBOX'       => 'Halite|EncryptionKey',
+                        'HKDF_AUTH'       => 'AuthenticationKeyFor_|Halite',
                     ];
             }
         }

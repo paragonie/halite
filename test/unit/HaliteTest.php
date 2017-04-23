@@ -1,12 +1,8 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use ParagonIE\ConstantTime\{
-    Base32,
-    Base32Hex,
-    Base64,
-    Base64UrlSafe,
-    Hex
+    Base32, Base32Hex, Base64, Base64UrlSafe, Hex
 };
 use ParagonIE\Halite\Halite;
 

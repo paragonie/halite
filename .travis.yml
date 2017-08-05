@@ -1,7 +1,7 @@
 language: php
+dist: trusty
 
 php:
-
 - 7.0
 
 before_install:
@@ -18,10 +18,7 @@ before_install:
 - echo "extension = libsodium.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 install:
-
 - composer install
-- composer self-update
-- composer update
 - chmod +x ./test/phpunit.sh
 
 script: ./test/phpunit.sh

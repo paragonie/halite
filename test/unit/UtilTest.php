@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use ParagonIE\Halite\Alerts\CannotPerformOperation;
 use ParagonIE\Halite\Util;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Halite Util test case
@@ -13,7 +14,7 @@ use ParagonIE\Halite\Util;
  * @license    http://opensource.org/licenses/GPL-3.0 GPL 3
  * @link       https://paragonie.com/project/halite
  */
-class UtilTest extends PHPUnit_Framework_TestCase
+class UtilTest extends TestCase
 {
 
     /**

@@ -7,12 +7,13 @@ use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Util;
 use ParagonIE\Halite\Alerts as CryptoException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class FileTest extends PHPUnit_Framework_TestCase
+class FileTest extends TestCase
 {
     /**
      * @covers File::encrypt()

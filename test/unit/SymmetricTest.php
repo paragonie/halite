@@ -8,12 +8,13 @@ use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Halite;
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Util;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class SymmetricTest extends PHPUnit_Framework_TestCase
+class SymmetricTest extends TestCase
 {
     /**
      * @covers Symmetric::authenticate()

@@ -6,12 +6,13 @@ use ParagonIE\Halite\Structure\{
     Node,
     TrimmedMerkleTree
 };
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class TrimmedMerkleTreeTest extends PHPUnit_Framework_TestCase
+class TrimmedMerkleTreeTest extends TestCase
 {
 
     public function testExpectedBehavior()

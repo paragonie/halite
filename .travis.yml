@@ -15,7 +15,7 @@ before_install:
 - ./configure && make check
 - sudo make install
 - cd ..
-- pecl install libsodium
+- pecl install libsodium-1.0.6
 - echo "extension = libsodium.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 install:

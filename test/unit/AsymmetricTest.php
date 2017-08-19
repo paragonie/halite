@@ -89,8 +89,8 @@ class AsymmetricTest extends TestCase
             $bob->getPublicKey(),
             true
         );
-        $r = \Sodium\randombytes_uniform(\mb_strlen($message, '8bit'));
-        $amt = \Sodium\randombytes_uniform(8);
+        $r = random_int(0, \mb_strlen($message, '8bit') - 1);
+        $amt = random_int(0, 7);
         $message[$r] = \chr(\ord($message[$r]) ^ 1 << $amt);
         
         try {
@@ -116,8 +116,8 @@ class AsymmetricTest extends TestCase
     public function testSeal()
     {
         if (
-            \Sodium\library_version_major() < 7 ||
-            (\Sodium\library_version_major() == 7 && \Sodium\library_version_minor() < 5)
+            sodium_library_version_major() < 7 ||
+            (sodium_library_version_major() == 7 && sodium_library_version_minor() < 5)
         ) {
             $this->markTestSkipped("Your version of libsodium is too old");
         }
@@ -126,27 +126,27 @@ class AsymmetricTest extends TestCase
         $enc_public = $alice->getPublicKey();
         
         $this->assertSame(
-            \Sodium\crypto_box_publickey_from_secretkey($enc_secret->getRawKeyMaterial()),
+            sodium_crypto_box_publickey_from_secretkey($enc_secret->getRawKeyMaterial()),
             $enc_public->getRawKeyMaterial()
         );
         
         $message = new HiddenString('This is for your eyes only');
         
-        $kp = \Sodium\crypto_box_keypair();
-        $test = \Sodium\crypto_box_seal($message->getString(), \Sodium\crypto_box_publickey($kp));
-        $decr = \Sodium\crypto_box_seal_open($test, $kp);
+        $kp = sodium_crypto_box_keypair();
+        $test = sodium_crypto_box_seal($message->getString(), sodium_crypto_box_publickey($kp));
+        $decr = sodium_crypto_box_seal_open($test, $kp);
         $this->assertTrue($decr !== false);
         
         $sealed = Asymmetric::seal(
             $message,
             new EncryptionPublicKey(
-                new HiddenString(\Sodium\crypto_box_publickey($kp))
+                new HiddenString(sodium_crypto_box_publickey($kp))
             )
         );
         $opened = Asymmetric::unseal(
             $sealed,
             new EncryptionSecretKey(
-                new HiddenString(\Sodium\crypto_box_secretkey($kp))
+                new HiddenString(sodium_crypto_box_secretkey($kp))
             )
         );
         
@@ -170,8 +170,8 @@ class AsymmetricTest extends TestCase
     public function testSealFail()
     {
         if (
-            \Sodium\library_version_major() < 7 ||
-            (\Sodium\library_version_major() == 7 && \Sodium\library_version_minor() < 5)
+            SODIUM_LIBRARY_MAJOR_VERSION < 7 ||
+            (SODIUM_LIBRARY_MAJOR_VERSION == 7 && SODIUM_LIBRARY_MINOR_VERSION < 5)
         ) {
             $this->markTestSkipped("Your version of libsodium is too old");
         }
@@ -182,8 +182,8 @@ class AsymmetricTest extends TestCase
         $sealed = Asymmetric::seal($message, $alice->getPublicKey(), true);
         
         // Let's flip one bit, randomly:
-        $r = \Sodium\randombytes_uniform(\mb_strlen($sealed, '8bit'));
-        $amt = 1 << \Sodium\randombytes_uniform(8);
+        $r = random_int(0, \mb_strlen($sealed, '8bit') - 1);
+        $amt = 1 << random_int(0, 7);
         $sealed[$r] = \chr(\ord($sealed[$r]) ^ $amt);
         
         // This should throw an exception
@@ -240,11 +240,11 @@ class AsymmetricTest extends TestCase
         
         $_signature = $signature;
         // Let's flip one bit, randomly:
-        $r = \Sodium\randombytes_uniform(\mb_strlen($_signature, '8bit'));
+        $r = random_int(0, \mb_strlen($_signature, '8bit') - 1);
         $_signature[$r] = \chr(
             \ord($_signature[$r])
                 ^
-            1 << \Sodium\randombytes_uniform(8)
+            1 << random_int(0, 7)
         );
         
         $this->assertFalse(

@@ -13,7 +13,7 @@ class NodeTest extends TestCase
     public function testHash()
     {
         $stringData = \random_bytes(32);
-        $hash = \Sodium\crypto_generichash($stringData);
+        $hash = sodium_crypto_generichash($stringData);
         $node = new Node($stringData);
 
         $this->assertSame($stringData, $node->getData());

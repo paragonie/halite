@@ -103,7 +103,7 @@ class FileTest extends TestCase
         );
         
         $fp = \fopen(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png', 'ab');
-        \fwrite($fp, \Sodium\randombytes_buf(1));
+        \fwrite($fp, \random_bytes(1));
         fclose($fp);
             
         try {
@@ -276,7 +276,7 @@ class FileTest extends TestCase
         );
         
         $fp = \fopen(__DIR__.'/tmp/paragon_avatar.seal_fail.png', 'ab');
-        \fwrite($fp, \Sodium\randombytes_buf(1));
+        \fwrite($fp, \random_bytes(1));
         \fclose($fp);
         
         try {
@@ -373,7 +373,7 @@ class FileTest extends TestCase
             "8dd286e3d6bc37f353e76c0c5aa2036d978ca28ffaccfa59f5dc1f076c5517a0"
         );
         
-        $data = \Sodium\randombytes_buf(32);
+        $data = \random_bytes(32);
         \file_put_contents(__DIR__.'/tmp/garbage.dat', $data);
         
         $hash = Util::raw_hash($data, 64);

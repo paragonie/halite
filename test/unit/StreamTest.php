@@ -16,7 +16,7 @@ class StreamTest extends TestCase
     {
         $filename = \tempnam('/tmp', 'x');
         
-        $buf = \Sodium\randombytes_buf(65537);
+        $buf = \random_bytes(65537);
         \file_put_contents($filename, $buf);
         
         $fileOne = new ReadOnlyFile($filename);
@@ -34,7 +34,7 @@ class StreamTest extends TestCase
     {
         $filename = \tempnam('/tmp', 'x');
         
-        $buf = \Sodium\randombytes_buf(65537);
+        $buf = \random_bytes(65537);
         \file_put_contents($filename, $buf);
         
         $fStream = new ReadOnlyFile($filename);

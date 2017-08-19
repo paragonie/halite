@@ -27,7 +27,7 @@ class KeyTest extends TestCase
             "\x79\x12\x36\xc1\xf0\x6b\x73\xbd\xaa\x88\x89\x80\xe3\x2c\x4b\xdb".
             "\x25\xd1\xf9\x39\xe5\xf7\x13\x30\x5c\xd8\x4c\x50\x22\xcc\x96\x6e"
         );
-        $salt = \Sodium\hex2bin(
+        $salt = sodium_hex2bin(
             '762ce4cabd543065172236de1027536a'
         );
         
@@ -222,7 +222,7 @@ class KeyTest extends TestCase
             KeyFactory::MODERATE
         );
         $this->assertSame(
-            \Sodium\bin2hex($key->getRawKeyMaterial()),
+            sodium_bin2hex($key->getRawKeyMaterial()),
             '227817a188e55a679ddc8b1ca51f7aba4d1086f0512f9e3eb547c2392d49bde9'
         );
 
@@ -232,7 +232,7 @@ class KeyTest extends TestCase
             KeyFactory::SENSITIVE
         );
         $this->assertSame(
-            \Sodium\bin2hex($key->getRawKeyMaterial()),
+            sodium_bin2hex($key->getRawKeyMaterial()),
             'c5e8ac6e81ffd5c4f9f985e5c49e2b66d760167e739f424b346b1d747e711446'
         );
     }

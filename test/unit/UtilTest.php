@@ -138,10 +138,10 @@ class UtilTest extends TestCase
      */
     public function testSafeStrcpy()
     {
-        $unique = \Sodium\randombytes_buf(128);
+        $unique = \random_bytes(128);
         $clone = Util::safeStrcpy($unique);
         $this->assertSame($unique, $clone);
-        \Sodium\memzero($unique);
+        sodium_memzero($unique);
         $this->assertNotSame($unique, $clone);
     }
 

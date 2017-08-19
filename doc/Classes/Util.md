@@ -8,7 +8,7 @@
 
 > `public static` hash(`string $input`, `int $length = 32`): `string`
 
-User-friendly wrapper for `\Sodium\crypto_generichash`.
+User-friendly wrapper for `sodium_crypto_generichash`.
 
 Returns a hexadecimal-encoded hash of an input, for any length.
 
@@ -16,7 +16,7 @@ Returns a hexadecimal-encoded hash of an input, for any length.
 
 > `public static` hash(`string $input`, `string $key`, `int $length = 32`): `string`
 
-User-friendly wrapper for `\Sodium\crypto_generichash`.
+User-friendly wrapper for `sodium_crypto_generichash`.
 
 Returns a hexadecimal-encoded keyed hash of an input, for any length.
 
@@ -24,7 +24,7 @@ Returns a hexadecimal-encoded keyed hash of an input, for any length.
 
 > `public static` rawhash(`string $input`, `int $length = 32`): `string`
 
-User-friendly wrapper for `\Sodium\crypto_generichash`.
+User-friendly wrapper for `sodium_crypto_generichash`.
 
 Returns a raw binary hash of an input, for any length.
 
@@ -32,7 +32,7 @@ Returns a raw binary hash of an input, for any length.
 
 > `public static` hash(`string $input`, `string $key`, `int $length = 32`): `string`
 
-User-friendly wrapper for `\Sodium\crypto_generichash`.
+User-friendly wrapper for `sodium_crypto_generichash`.
 
 Returns a raw binary keyed hash of an input, for any length.
 
@@ -48,7 +48,7 @@ function (BLAKE2b) for key splitting.
 > `public static` safeStrcpy(`string $str`): `string`
 
 Returns a copy of a string without triggering PHP's optimizations. The
-string returned by this method can safely be used with `\Sodium\memzero()`
+string returned by this method can safely be used with `sodium_memzero()`
 without corrupting other copies of the same string.
 
 ### `safeStrlen()`

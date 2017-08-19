@@ -132,8 +132,8 @@ final class Halite
     public static function isLibsodiumSetupCorrectly(bool $echo = false): bool
     {
         // Require libsodium 1.0.9
-        $major = \sodium_library_version_major();
-        $minor = \sodium_library_version_minor();
+        $major = \SODIUM_LIBRARY_MAJOR_VERSION;
+        $minor = \SODIUM_LIBRARY_MINOR_VERSION;
         if ($major < 9 || ($major === 9 && $minor < 2)) {
             if ($echo) {
                 echo 'Halite needs libsodium 1.0.9 or higher. You have: ',

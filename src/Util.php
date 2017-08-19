@@ -384,21 +384,6 @@ final class Util
         if ($length < 1) {
             return '';
         }
-
-        /**
-         * @var array<int, int>
-         */
-        $leftInt = self::stringToIntArray($left);
-
-        /**
-         * @var array<int, int>
-         */
-        $rightInt = self::stringToIntArray($right);
-
-        $output = '';
-        for ($i = 0; $i < $length; ++$i) {
-            $output .= self::intToChr($leftInt[$i] ^ $rightInt[$i]);
-        }
-        return $output;
+        return (string) ($left ^ $right);
     }
 }

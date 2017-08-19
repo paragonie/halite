@@ -126,8 +126,13 @@ final class Password
             );
         }
         if (\hash_equals(Util::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
+            $decoded = Base64UrlSafe::decode($stored);
+            if (!\is_string($decoded)) {
+                \sodium_memzero($stored);
+                throw new InvalidMessage('Invalid encoding');
+            }
             return SymmetricConfig::getConfig(
-                Base64UrlSafe::decode($stored),
+                $decoded,
                 'encrypt'
             );
         }

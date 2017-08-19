@@ -28,7 +28,7 @@ final class Config extends BaseConfig
      * 
      * @param string $header
      * @param string $mode
-     * @return Config
+     * @return self
      * @throws CryptoException\InvalidMessage
      */
     public static function getConfig(

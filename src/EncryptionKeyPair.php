@@ -35,7 +35,7 @@ final class EncryptionKeyPair extends KeyPair
     /**
      * Pass it a secret key, it will automatically generate a public key
      *
-     * @param Key[] $keys
+     * @param array<int, Key> $keys
      * @throws CryptoException\InvalidKey
      * @throws \InvalidArgumentException
      */
@@ -113,8 +113,9 @@ final class EncryptionKeyPair extends KeyPair
      * Set up our key pair
      *
      * @param EncryptionSecretKey $secret
+     * @return void
      */
-    protected function setupKeyPair(EncryptionSecretKey $secret)
+    protected function setupKeyPair(EncryptionSecretKey $secret): void
     {
         $this->secretKey = $secret;
         $this->publicKey = $this->secretKey->derivePublicKey();

@@ -35,6 +35,7 @@ class TrimmedMerkleTree extends MerkleTree
         if ($size < 1) {
             return '';
         }
+        /** @var array<int, string> $hash */
         $hash = [];
         // Population (Use self::MERKLE_LEAF as a prefix)
         for ($i = 0; $i < $size; ++$i) {
@@ -57,9 +58,9 @@ class TrimmedMerkleTree extends MerkleTree
                 } else {
                     $tmp[$j] = Util::raw_hash(
                         self::MERKLE_BRANCH .
-                            $this->personalization .
-                            $hash[$i] .
-                            $hash[$i + 1],
+                        $this->personalization .
+                        $hash[$i] .
+                        $hash[$i + 1],
                         $this->outputSize
                     );
                 }
@@ -71,14 +72,16 @@ class TrimmedMerkleTree extends MerkleTree
 
         // We should only have one value left:
         $this->rootCalculated = true;
-        return \array_shift($hash);
+        /** @var string $first */
+        $first = \array_shift($hash);
+        return $first;
     }
 
     /**
      * Merkle Trees are immutable. Return a replacement with extra nodes.
      *
-     * @param Node[] $nodes
-     * @return MerkleTree
+     * @param array<int, Node> $nodes
+     * @return TrimmedMerkleTree
      */
     public function getExpandedTree(Node ...$nodes): MerkleTree
     {
@@ -86,8 +89,9 @@ class TrimmedMerkleTree extends MerkleTree
         foreach ($nodes as $node) {
             $thisTree []= $node;
         }
-        return (new TrimmedMerkleTree(...$thisTree))
-            ->setHashSize($this->outputSize)
-            ->setPersonalizationString($this->personalization);
+        $new = new TrimmedMerkleTree(...$thisTree);
+        $new->setHashSize($this->outputSize);
+        $new->setPersonalizationString($this->personalization);
+        return $new;
     }
 }

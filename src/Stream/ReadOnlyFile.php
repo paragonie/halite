@@ -39,7 +39,7 @@ class ReadOnlyFile implements StreamInterface
     /**
      * @var int
      */
-    private $pos;
+    private $pos = 0;
 
     /**
      * @var null|string
@@ -57,15 +57,23 @@ class ReadOnlyFile implements StreamInterface
      * @param $file
      * @param Key|null $key
      * @throws CryptoException\InvalidType
+     * @throws CryptoException\FileAccessDenied
      */
     public function __construct($file, Key $key = null)
     {
-        if (is_string($file)) {
-            $this->fp = \fopen($file, 'rb');
+        if (\is_string($file)) {
+            $fp = \fopen($file, 'rb');
+            if (!\is_resource($fp)) {
+                throw new CryptoException\FileAccessDenied(
+                    'Could not open file for reading'
+                );
+            }
+            $this->fp = $fp;
+
             $this->closeAfter = true;
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
-        } elseif (is_resource($file)) {
+        } elseif (\is_resource($file)) {
             $this->fp = $file;
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
@@ -90,8 +98,9 @@ class ReadOnlyFile implements StreamInterface
 
     /**
      * Close the file handle.
+     * @return void
      */
-    public function close()
+    public function close(): void
     {
         if ($this->closeAfter) {
             $this->closeAfter = false;
@@ -181,8 +190,9 @@ class ReadOnlyFile implements StreamInterface
             if ($remaining <= 0) {
                 break;
             }
+            /** @var string $read */
             $read = \fread($this->fp, $remaining);
-            if ($read === false) {
+            if (!\is_string($read)) {
                 throw new CryptoException\FileAccessDenied(
                     'Could not read from the file'
                 );

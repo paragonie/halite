@@ -723,7 +723,7 @@ final class KeyFactory
      * 
      * @param string $filePath
      * @param string $keyData
-     * @return int|bool
+     * @return bool
      */
     protected static function saveKeyFile(
         string $filePath,

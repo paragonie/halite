@@ -81,6 +81,9 @@ final class Crypto
         EncryptionKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
+        $encKey = '';
+        $authKey = '';
+
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given encoded data:
@@ -207,8 +210,8 @@ final class Crypto
      */
     public static function splitKeys(
         EncryptionKey $master,
-        string $salt = '',
-        BaseConfig $config = null
+        string $salt,
+        BaseConfig $config
     ): array {
         $binary = $master->getRawKeyMaterial();
         return [
@@ -233,7 +236,7 @@ final class Crypto
      * Should return exactly 6 elements.
      * 
      * @param string $ciphertext
-     * @return string[]
+     * @return array<int, mixed>
      * @throws InvalidMessage
      */
     public static function unpackMessageForDecryption(string $ciphertext): array

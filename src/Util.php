@@ -140,8 +140,10 @@ final class Util
             $t .= $last_block;
         }
         // ORM = first L octets of T
+        /** @var string $orm */
         $orm = self::safeSubstr($t, 0, $length);
-        if ($orm === false) {
+
+        if (!\is_string($orm)) {
             throw new CannotPerformOperation(
                 'An unknown error has occurred'
             );
@@ -261,8 +263,9 @@ final class Util
             }
         } else {
             // If we reached here, we can rely on strlen to count bytes:
+            /** @var int $length */
             $length = \strlen($str);
-            if ($length === false) {
+            if (!\is_int($length)) {
                 throw new CannotPerformOperation(
                     'strlen() failed unexpectedly'
                 );

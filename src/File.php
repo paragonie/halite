@@ -512,6 +512,9 @@ final class File
         MutableFile $output,
         EncryptionPublicKey $publicKey
     ): int {
+        $encKey = '';
+        $authKey = '';
+
         // Generate a new keypair for this encryption
         $ephemeralKeyPair = KeyFactory::generateEncryptionKeyPair();
         $ephSecret = $ephemeralKeyPair->getSecretKey();
@@ -520,6 +523,9 @@ final class File
 
         // Calculate the shared secret key
         $sharedSecretKey = AsymmetricCrypto::getSharedSecret($ephSecret, $publicKey, true);
+        if (!($sharedSecretKey instanceof EncryptionKey)) {
+            throw new \TypeError();
+        }
 
         // Destroy the secret key after we have the shared secret
         unset($ephSecret);
@@ -539,9 +545,6 @@ final class File
 
         // Split the keys
         list ($encKey, $authKey) = self::splitKeys($sharedSecretKey, $hkdfSalt, $config);
-
-        // We no longer need the original key after we split it
-        unset($key);
 
         // Write the header:
         $output->writeBytes(
@@ -601,6 +604,9 @@ final class File
         MutableFile $output,
         EncryptionSecretKey $secretKey
     ): bool {
+        $encKey = '';
+        $authKey = '';
+
         $publicKey = $secretKey
             ->derivePublicKey();
 
@@ -643,6 +649,9 @@ final class File
             $ephemeral,
             true
         );
+        if (!($key instanceof Key)) {
+            throw new \TypeError();
+        }
         unset($ephemeral);
 
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
@@ -897,8 +906,8 @@ final class File
      */
     protected static function splitKeys(
         Key $master,
-        string $salt = '',
-        Config $config = null
+        string $salt,
+        Config $config
     ): array {
         $binary = $master->getRawKeyMaterial();
         return [

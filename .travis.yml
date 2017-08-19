@@ -4,11 +4,12 @@ dist: trusty
 
 php:
 
+- 7.2
 - nightly
 
 before_install:
 - sudo apt-get update
-- sudo apt-get install make build-essential automake php-pear php7.2-dev
+- sudo apt-get install make build-essential automake
 - git clone git://github.com/jedisct1/libsodium.git
 - cd libsodium
 - git checkout 1.0.13

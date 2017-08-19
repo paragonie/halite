@@ -35,6 +35,3 @@ if (\file_exists(__DIR__.'/vendor/autoload.php')) {
         }
     });
 }
-if (!defined('SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE')) {
-    die('WHY THE FUCK');
-}

@@ -10,12 +10,13 @@ use ParagonIE\Halite\Asymmetric\{
 };
 use ParagonIE\Halite\Halite;
 use ParagonIE\Halite\HiddenString;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class AsymmetricTest extends PHPUnit_Framework_TestCase
+class AsymmetricTest extends TestCase
 {
     /**
      * @covers Asymmetric::encrypt()

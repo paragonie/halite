@@ -8,12 +8,13 @@ use ParagonIE\Halite\Asymmetric\{
     SignaturePublicKey
 };
 use ParagonIE\Halite\HiddenString;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class KeyPairTest extends PHPUnit_Framework_TestCase
+class KeyPairTest extends TestCase
 {
     public function testDeriveSigningKey()
     {

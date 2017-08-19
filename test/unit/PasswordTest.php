@@ -4,12 +4,13 @@ declare(strict_types=1);
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Password;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class PasswordTest extends PHPUnit_Framework_TestCase
+class PasswordTest extends TestCase
 {
     public function testEncrypt()
     {

@@ -1,7 +1,8 @@
 language: php
+sudo: true
+dist: trusty
 
 php:
-
 - 7.0
 
 before_install:
@@ -14,14 +15,11 @@ before_install:
 - ./configure && make check
 - sudo make install
 - cd ..
-- pecl install libsodium
+- pecl install libsodium-1.0.6
 - echo "extension = libsodium.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 install:
-
 - composer install
-- composer self-update
-- composer update
 - chmod +x ./test/phpunit.sh
 
 script: ./test/phpunit.sh

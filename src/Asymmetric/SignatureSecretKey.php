@@ -18,7 +18,7 @@ final class SignatureSecretKey extends SecretKey
      */
     public function __construct(HiddenString $keyMaterial)
     {
-        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
+        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
             throw new InvalidKey(
                 'Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES bytes long'
             );
@@ -34,7 +34,7 @@ final class SignatureSecretKey extends SecretKey
      */
     public function derivePublicKey()
     {
-        $publicKey = sodium_crypto_sign_publickey_from_secretkey(
+        $publicKey = \sodium_crypto_sign_publickey_from_secretkey(
             $this->getRawKeyMaterial()
         );
         return new SignaturePublicKey(new HiddenString($publicKey));

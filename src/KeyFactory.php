@@ -40,9 +40,7 @@ final class KeyFactory
      */
     public static function generateAuthenticationKey(string &$secretKey = ''): AuthenticationKey
     {
-        $secretKey = \random_bytes(
-            SODIUM_CRYPTO_AUTH_KEYBYTES
-        );
+        $secretKey = \random_bytes(\SODIUM_CRYPTO_AUTH_KEYBYTES);
         return new AuthenticationKey(
             new HiddenString($secretKey)
         );
@@ -56,9 +54,7 @@ final class KeyFactory
      */
     public static function generateEncryptionKey(string &$secretKey = ''): EncryptionKey
     {
-        $secretKey = \random_bytes(
-            SODIUM_CRYPTO_STREAM_KEYBYTES
-        );
+        $secretKey = \random_bytes(\SODIUM_CRYPTO_STREAM_KEYBYTES);
         return new EncryptionKey(
             new HiddenString($secretKey)
         );
@@ -124,13 +120,13 @@ final class KeyFactory
     ): AuthenticationKey {
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
-        if (Util::safeStrlen($salt) !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
+        if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
-                'Expected ' . SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
+                'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
         $secretKey = \sodium_crypto_pwhash(
-            SODIUM_CRYPTO_AUTH_KEYBYTES,
+            \SODIUM_CRYPTO_AUTH_KEYBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
@@ -159,13 +155,13 @@ final class KeyFactory
     ): EncryptionKey {
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
-        if (Util::safeStrlen($salt) !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
+        if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
-                'Expected ' . SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
+                'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
         $secretKey = \sodium_crypto_pwhash(
-            SODIUM_CRYPTO_STREAM_KEYBYTES,
+            \SODIUM_CRYPTO_STREAM_KEYBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
@@ -193,14 +189,14 @@ final class KeyFactory
     ): EncryptionKeyPair {
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
-        if (Util::safeStrlen($salt) !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
+        if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
-                'Expected ' . SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
+                'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
         // Diffie Hellman key exchange key pair
         $seed = \sodium_crypto_pwhash(
-            SODIUM_CRYPTO_BOX_SEEDBYTES,
+            \SODIUM_CRYPTO_BOX_SEEDBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
@@ -235,14 +231,14 @@ final class KeyFactory
     ): SignatureKeyPair {
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
-        if (Util::safeStrlen($salt) !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
+        if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
-                'Expected ' . SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
+                'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
         // Digital signature keypair
         $seed = \sodium_crypto_pwhash(
-            SODIUM_CRYPTO_SIGN_SEEDBYTES,
+            \SODIUM_CRYPTO_SIGN_SEEDBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
@@ -272,18 +268,18 @@ final class KeyFactory
         switch ($level) {
             case self::INTERACTIVE:
                 return [
-                    SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-                    SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+                    \SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+                    \SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
                 ];
             case self::MODERATE:
                 return [
-                    SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE,
-                    SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE
+                    \SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE,
+                    \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE
                 ];
             case self::SENSITIVE:
                 return [
-                    SODIUM_CRYPTO_PWHASH_OPSLIMIT_SENSITIVE,
-                    SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE
+                    \SODIUM_CRYPTO_PWHASH_OPSLIMIT_SENSITIVE,
+                    \SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE
                 ];
             default:
                 throw new CryptoException\InvalidType(
@@ -633,7 +629,7 @@ final class KeyFactory
                     \sodium_crypto_generichash(
                         Halite::HALITE_VERSION_KEYS . $key->getRawKeyMaterial(),
                         '',
-                        SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+                        \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                     )
                 )
             );
@@ -695,17 +691,17 @@ final class KeyFactory
         $keyData = Util::safeSubstr(
             $data,
             Halite::VERSION_TAG_LEN,
-            -SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+            -\SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
         $checksum = Util::safeSubstr(
             $data,
-            -SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
-            SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+            -\SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
+            \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
         $calc = \sodium_crypto_generichash(
             $versionTag . $keyData,
             '',
-            SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+            \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
         if (!\hash_equals($calc, $checksum)) {
             throw new Alerts\InvalidKey(
@@ -737,7 +733,7 @@ final class KeyFactory
                 \sodium_crypto_generichash(
                     Halite::HALITE_VERSION_KEYS . $keyData,
                     '',
-                    SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+                    \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                 )
             )
         );

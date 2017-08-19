@@ -158,7 +158,6 @@ final class Halite
             }
             return false;
         }
-
         return true;
     }
 }

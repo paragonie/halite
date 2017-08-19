@@ -18,7 +18,7 @@ final class SignaturePublicKey extends PublicKey
      */
     public function __construct(HiddenString $keyMaterial)
     {
-        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) {
+        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) {
             throw new InvalidKey(
                 'Signature public key must be CRYPTO_SIGN_PUBLICKEYBYTES bytes long'
             );

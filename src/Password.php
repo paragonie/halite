@@ -83,7 +83,7 @@ final class Password
         // Upon successful decryption, verify that we're using Argon2i
         if (!\hash_equals(
             Util::safeSubstr($hash_str, 0, 9),
-            SODIUM_CRYPTO_PWHASH_STRPREFIX
+            \SODIUM_CRYPTO_PWHASH_STRPREFIX
         )) {
             return true;
         }

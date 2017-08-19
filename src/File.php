@@ -394,7 +394,7 @@ final class File
         );
         $output->writeBytes(
             $firstNonce,
-            SODIUM_CRYPTO_STREAM_NONCEBYTES
+            \SODIUM_CRYPTO_STREAM_NONCEBYTES
         );
         $output->writeBytes(
             $hkdfSalt,
@@ -537,7 +537,7 @@ final class File
         $nonce = \sodium_crypto_generichash(
             $ephPublic->getRawKeyMaterial() . $publicKey->getRawKeyMaterial(),
             '',
-            SODIUM_CRYPTO_STREAM_NONCEBYTES
+            \SODIUM_CRYPTO_STREAM_NONCEBYTES
         );
 
         // Generate a random HKDF salt
@@ -553,7 +553,7 @@ final class File
         );
         $output->writeBytes(
             $ephPublic->getRawKeyMaterial(),
-            SODIUM_CRYPTO_BOX_PUBLICKEYBYTES
+            \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES
         );
         $output->writeBytes(
             $hkdfSalt,
@@ -636,7 +636,7 @@ final class File
         $nonce = \sodium_crypto_generichash(
             $ephPublic . $publicKey->getRawKeyMaterial(),
             '',
-            SODIUM_CRYPTO_STREAM_NONCEBYTES
+            \SODIUM_CRYPTO_STREAM_NONCEBYTES
         );
 
         // Create a key object out of the public key:
@@ -794,7 +794,7 @@ final class File
             return [
                 'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                 'BUFFER' => 1048576,
-                'NONCE_BYTES' => SODIUM_CRYPTO_STREAM_NONCEBYTES,
+                'NONCE_BYTES' => \SODIUM_CRYPTO_STREAM_NONCEBYTES,
                 'HKDF_SALT_LEN' => 32,
                 'MAC_SIZE' => 32,
                 'HKDF_SBOX' => 'Halite|EncryptionKey',
@@ -806,7 +806,7 @@ final class File
                     return [
                         'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                         'BUFFER' => 1048576,
-                        'NONCE_BYTES' => SODIUM_CRYPTO_STREAM_NONCEBYTES,
+                        'NONCE_BYTES' => \SODIUM_CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
@@ -838,7 +838,7 @@ final class File
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,
-                        'PUBLICKEY_BYTES' => SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
+                        'PUBLICKEY_BYTES' => \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
@@ -851,7 +851,7 @@ final class File
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,
-                        'PUBLICKEY_BYTES' => SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
+                        'PUBLICKEY_BYTES' => \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
@@ -872,22 +872,13 @@ final class File
      */
     protected static function getConfigChecksum(int $major, int $minor): array
     {
-        if ($major === 4) {
+        if ($major === 3 || $major === 4) {
             switch ($minor) {
                 case 0:
                     return [
                         'CHECKSUM_PUBKEY' => true,
                         'BUFFER' => 1048576,
-                        'HASH_LEN' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
-                    ];
-            }
-        } elseif ($major === 3) {
-            switch ($minor) {
-                case 0:
-                    return [
-                        'CHECKSUM_PUBKEY' => true,
-                        'BUFFER' => 1048576,
-                        'HASH_LEN' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+                        'HASH_LEN' => \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                     ];
             }
         }
@@ -913,13 +904,13 @@ final class File
         return [
             Util::hkdfBlake2b(
                 $binary,
-                SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
+                \SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
                 $config->HKDF_SBOX,
                 $salt
             ),
             Util::hkdfBlake2b(
                 $binary,
-                SODIUM_CRYPTO_AUTH_KEYBYTES,
+                \SODIUM_CRYPTO_AUTH_KEYBYTES,
                 $config->HKDF_AUTH,
                 $salt
             )

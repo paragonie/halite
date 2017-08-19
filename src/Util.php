@@ -58,7 +58,7 @@ final class Util
      */
     public static function hash(
         string $input,
-        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
+        int $length = \SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
         return Hex::encode(
             self::raw_keyed_hash($input, '', $length)
@@ -76,7 +76,7 @@ final class Util
      */
     public static function raw_hash(
         string $input,
-        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
+        int $length = \SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
         return self::raw_keyed_hash($input, '', $length);
     }
@@ -106,14 +106,14 @@ final class Util
         string $salt = ''
     ): string {
         // Sanity-check the desired output length.
-        if ($length < 0 || $length > (255 * SODIUM_CRYPTO_GENERICHASH_KEYBYTES)) {
+        if ($length < 0 || $length > (255 * \SODIUM_CRYPTO_GENERICHASH_KEYBYTES)) {
             throw new InvalidDigestLength(
                 'Argument 2: Bad HKDF Digest Length'
             );
         }
         // "If [salt] not provided, is set to a string of HashLen zeroes."
         if (empty($salt)) {
-            $salt = \str_repeat("\x00", SODIUM_CRYPTO_GENERICHASH_KEYBYTES);
+            $salt = \str_repeat("\x00", \SODIUM_CRYPTO_GENERICHASH_KEYBYTES);
         }
 
         // HKDF-Extract:
@@ -123,7 +123,7 @@ final class Util
 
         // HKDF-Expand:
         // This check is useless, but it serves as a reminder to the spec.
-        if (self::safeStrlen($prk) < SODIUM_CRYPTO_GENERICHASH_KEYBYTES) {
+        if (self::safeStrlen($prk) < \SODIUM_CRYPTO_GENERICHASH_KEYBYTES) {
             throw new CannotPerformOperation(
                 'An unknown error has occurred'
             );
@@ -195,7 +195,7 @@ final class Util
     public static function keyed_hash(
         string $input,
         string $key,
-        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
+        int $length = \SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
         return Hex::encode(
             self::raw_keyed_hash($input, $key, $length)
@@ -217,21 +217,21 @@ final class Util
     public static function raw_keyed_hash(
         string $input,
         string $key,
-        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
+        int $length = \SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
-        if ($length < SODIUM_CRYPTO_GENERICHASH_BYTES_MIN) {
+        if ($length < \SODIUM_CRYPTO_GENERICHASH_BYTES_MIN) {
             throw new CannotPerformOperation(
                 \sprintf(
                     'Output length must be at least %d bytes.',
-                    SODIUM_CRYPTO_GENERICHASH_BYTES_MIN
+                    \SODIUM_CRYPTO_GENERICHASH_BYTES_MIN
                 )
             );
         }
-        if ($length > SODIUM_CRYPTO_GENERICHASH_BYTES_MAX) {
+        if ($length > \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX) {
             throw new CannotPerformOperation(
                 \sprintf(
                     'Output length must be at most %d bytes.',
-                    SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+                    \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                 )
             );
         }

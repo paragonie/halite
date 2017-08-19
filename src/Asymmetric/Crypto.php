@@ -42,12 +42,13 @@ final class Crypto
     /**
      * Encrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::encrypt()
-     * 
+     *
      * @param HiddenString $plaintext              The message to encrypt
      * @param EncryptionSecretKey $ourPrivateKey   Our private key
      * @param EncryptionPublicKey $theirPublicKey  Their public key
      * @param mixed $encoding                      Which encoding scheme to use?
      * @return string                              Ciphertext
+     * @throws \TypeError
      */
     public static function encrypt(
         HiddenString $plaintext,
@@ -75,7 +76,7 @@ final class Crypto
     /**
      * Decrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::decrypt()
-     * 
+     *
      * @param string $ciphertext                  The message to decrypt
      * @param EncryptionSecretKey $ourPrivateKey  Our private key
      * @param EncryptionPublicKey $theirPublicKey Their public key
@@ -111,7 +112,7 @@ final class Crypto
      * 
      * Get a shared secret from a private key you possess and a public key for
      * the intended message recipient
-     * 
+     *
      * @param EncryptionSecretKey $privateKey
      * @param EncryptionPublicKey $publicKey
      * @param bool $get_as_object Get as a Key object?
@@ -125,7 +126,7 @@ final class Crypto
         if ($get_as_object) {
             return new EncryptionKey(
                 new HiddenString(
-                    sodium_crypto_scalarmult(
+                    \sodium_crypto_scalarmult(
                         $privateKey->getRawKeyMaterial(),
                         $publicKey->getRawKeyMaterial()
                     )
@@ -133,7 +134,7 @@ final class Crypto
             );
         }
         return new HiddenString(
-            sodium_crypto_scalarmult(
+            \sodium_crypto_scalarmult(
                 $privateKey->getRawKeyMaterial(),
                 $publicKey->getRawKeyMaterial()
             )
@@ -142,7 +143,7 @@ final class Crypto
     
     /**
      * Encrypt a message with a target users' public key
-     * 
+     *
      * @param HiddenString $plaintext        Message to encrypt
      * @param EncryptionPublicKey $publicKey Public encryption key
      * @param mixed $encoding                Which encoding scheme to use?
@@ -168,7 +169,7 @@ final class Crypto
     
     /**
      * Sign a message with our private key
-     * 
+     *
      * @param string $message Message to sign
      * @param SignatureSecretKey $privateKey
      * @param mixed $encoding Which encoding scheme to use?
@@ -179,7 +180,7 @@ final class Crypto
         SignatureSecretKey $privateKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
-        $signed = sodium_crypto_sign_detached(
+        $signed = \sodium_crypto_sign_detached(
             $message,
             $privateKey->getRawKeyMaterial()
         );
@@ -192,7 +193,7 @@ final class Crypto
     
     /**
      * Decrypt a sealed message with our private key
-     * 
+     *
      * @param string $ciphertext Encrypted message
      * @param EncryptionSecretKey $privateKey
      * @param mixed $encoding Which encoding scheme to use?
@@ -219,24 +220,24 @@ final class Crypto
 
         // Get a box keypair (needed by crypto_box_seal_open)
         $secret_key = $privateKey->getRawKeyMaterial();
-        $public_key = sodium_crypto_box_publickey_from_secretkey($secret_key);
-        $key_pair = sodium_crypto_box_keypair_from_secretkey_and_publickey(
+        $public_key = \sodium_crypto_box_publickey_from_secretkey($secret_key);
+        $key_pair = \sodium_crypto_box_keypair_from_secretkey_and_publickey(
             $secret_key,
             $public_key
         );
         
         // Wipe these immediately:
-        sodium_memzero($secret_key);
-        sodium_memzero($public_key);
+        \sodium_memzero($secret_key);
+        \sodium_memzero($public_key);
         
         // Now let's open that sealed box
-        $message = sodium_crypto_box_seal_open(
+        $message = \sodium_crypto_box_seal_open(
             $ciphertext,
             $key_pair
         );
 
         // Always memzero after retrieving a value
-        sodium_memzero($key_pair);
+        \sodium_memzero($key_pair);
         if ($message === false) {
             throw new InvalidKey(
                 'Incorrect secret key for this sealed message'
@@ -249,7 +250,7 @@ final class Crypto
     
     /**
      * Verify a signed message with the correct public key
-     * 
+     *
      * @param string $message Message to verify
      * @param SignaturePublicKey $publicKey
      * @param string $signature
@@ -274,7 +275,7 @@ final class Crypto
             );
         }
         
-        return sodium_crypto_sign_verify_detached(
+        return \sodium_crypto_sign_verify_detached(
             $signature,
             $message,
             $publicKey->getRawKeyMaterial()

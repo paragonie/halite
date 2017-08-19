@@ -156,9 +156,7 @@ final class Crypto
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
         // Generate a nonce and HKDF salt:
-        $nonce = \random_bytes(
-            SODIUM_CRYPTO_SECRETBOX_NONCEBYTES
-        );
+        $nonce = \random_bytes(\SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
         $salt = \random_bytes($config->HKDF_SALT_LEN);
 
         /* Split our key into two keys: One for encryption, the other for
@@ -217,13 +215,13 @@ final class Crypto
         return [
             CryptoUtil::hkdfBlake2b(
                 $binary,
-                SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
+                \SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
                 $config->HKDF_SBOX,
                 $salt
             ),
             CryptoUtil::hkdfBlake2b(
                 $binary,
-                SODIUM_CRYPTO_AUTH_KEYBYTES,
+                \SODIUM_CRYPTO_AUTH_KEYBYTES,
                 $config->HKDF_AUTH, 
                 $salt
             )
@@ -277,7 +275,7 @@ final class Crypto
             // 36:
             Halite::VERSION_TAG_LEN + $config->HKDF_SALT_LEN,
             // 24:
-            SODIUM_CRYPTO_STREAM_NONCEBYTES
+            \SODIUM_CRYPTO_STREAM_NONCEBYTES
         );
         
         // This is the crypto_stream_xor()ed ciphertext
@@ -286,12 +284,12 @@ final class Crypto
             // 60:
                 Halite::VERSION_TAG_LEN +
                 $config->HKDF_SALT_LEN +
-                SODIUM_CRYPTO_STREAM_NONCEBYTES,
+                \SODIUM_CRYPTO_STREAM_NONCEBYTES,
             // $length - 124
             $length - (
                 Halite::VERSION_TAG_LEN +
                 $config->HKDF_SALT_LEN +
-                SODIUM_CRYPTO_STREAM_NONCEBYTES +
+                \SODIUM_CRYPTO_STREAM_NONCEBYTES +
                 $config->MAC_SIZE
             )
         );

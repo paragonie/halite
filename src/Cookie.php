@@ -2,8 +2,10 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\ConstantTime\Base64UrlSafe;
-use ParagonIE\ConstantTime\Hex;
+use ParagonIE\ConstantTime\{
+    Base64UrlSafe,
+    Hex
+};
 use ParagonIE\Halite\{
     Alerts\InvalidMessage,
     Symmetric\Config as SymmetricConfig,

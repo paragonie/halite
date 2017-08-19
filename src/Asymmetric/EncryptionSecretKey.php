@@ -18,7 +18,7 @@ final class EncryptionSecretKey extends SecretKey
      */
     public function __construct(HiddenString $keyMaterial)
     {
-        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_BOX_SECRETKEYBYTES) {
+        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_BOX_SECRETKEYBYTES) {
             throw new InvalidKey(
                 'Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES bytes long'
             );
@@ -33,7 +33,7 @@ final class EncryptionSecretKey extends SecretKey
      */
     public function derivePublicKey()
     {
-        $publicKey = sodium_crypto_box_publickey_from_secretkey(
+        $publicKey = \sodium_crypto_box_publickey_from_secretkey(
             $this->getRawKeyMaterial()
         );
         return new EncryptionPublicKey(

@@ -110,14 +110,14 @@ person, Bob, will do the same on his end.)
 $alice_keypair = \ParagonIE\Halite\KeyFactory::generateEncryptionKeyPair();
 $alice_secret = $alice_keypair->getSecretKey();
 $alice_public = $alice_keypair->getPublicKey();
-$send_to_bob = \Sodium\bin2hex($alice_public->getRawKeyMaterial());
+$send_to_bob = sodium_bin2hex($alice_public->getRawKeyMaterial());
 ```
 
 Alice will then load Bob's public key into the appropriate object like so:
 
 ```php
 $bob_public = new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(
-    \Sodium\hex2bin($recv_from_bob)
+    sodium_hex2bin($recv_from_bob)
 );
 ```
 

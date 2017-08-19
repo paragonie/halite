@@ -103,7 +103,7 @@ class FileTest extends TestCase
         );
         
         $fp = \fopen(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png', 'ab');
-        \fwrite($fp, \Sodium\randombytes_buf(1));
+        \fwrite($fp, \random_bytes(1));
         fclose($fp);
             
         try {
@@ -145,12 +145,12 @@ class FileTest extends TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($e->getMessage(), $msg);
+            $this->assertSame($msg, $e->getMessage());
         }
 
         \file_put_contents(
             __DIR__.'/tmp/empty.encrypted.txt',
-            "\x31\x41\x02\x00\x01"
+            "\x31\x41\x03\x00\x01"
         );
         try {
             File::decrypt(
@@ -160,13 +160,13 @@ class FileTest extends TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($e->getMessage(), $msg);
+            $this->assertSame($msg, $e->getMessage());
         }
 
 
         \file_put_contents(
             __DIR__.'/tmp/empty.encrypted.txt',
-            "\x31\x41\x02\x00" . \str_repeat("\x00", 87)
+            "\x31\x41\x03\x00" . \str_repeat("\x00", 87)
         );
         try {
             File::decrypt(
@@ -176,7 +176,7 @@ class FileTest extends TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($e->getMessage(), $msg);
+            $this->assertSame($msg, $e->getMessage());
         }
 
         \unlink(__DIR__.'/tmp/empty.encrypted.txt');
@@ -276,7 +276,7 @@ class FileTest extends TestCase
         );
         
         $fp = \fopen(__DIR__.'/tmp/paragon_avatar.seal_fail.png', 'ab');
-        \fwrite($fp, \Sodium\randombytes_buf(1));
+        \fwrite($fp, \random_bytes(1));
         \fclose($fp);
         
         try {
@@ -315,12 +315,12 @@ class FileTest extends TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($e->getMessage(), $msg);
+            $this->assertSame($msg, $e->getMessage());
         }
 
         \file_put_contents(
             __DIR__.'/tmp/empty.sealed.txt',
-            "\x31\x41\x02\x00" . \str_repeat("\x00", 95)
+            "\x31\x41\x03\x00" . \str_repeat("\x00", 95)
         );
         try {
             File::unseal(
@@ -330,7 +330,7 @@ class FileTest extends TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($e->getMessage(), $msg);
+            $this->assertSame($msg, $e->getMessage());
         }
 
         \unlink(__DIR__.'/tmp/empty.sealed.txt');
@@ -373,7 +373,7 @@ class FileTest extends TestCase
             "8dd286e3d6bc37f353e76c0c5aa2036d978ca28ffaccfa59f5dc1f076c5517a0"
         );
         
-        $data = \Sodium\randombytes_buf(32);
+        $data = \random_bytes(32);
         \file_put_contents(__DIR__.'/tmp/garbage.dat', $data);
         
         $hash = Util::raw_hash($data, 64);

@@ -18,7 +18,7 @@ final class AuthenticationKey extends SecretKey
      */
     public function __construct(HiddenString $keyMaterial)
     {
-        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== \Sodium\CRYPTO_AUTH_KEYBYTES) {
+        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_AUTH_KEYBYTES) {
             throw new InvalidKey(
                 'Authentication key must be CRYPTO_AUTH_KEYBYTES bytes long'
             );

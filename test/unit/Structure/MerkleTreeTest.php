@@ -92,7 +92,7 @@ class MerkleTreeTest extends TestCase
             '6781891a87aa476454b74dc635c5cdebfc8f887438829ce2e81423f54906c058',
             $treeA->getRoot()
         );
-        $treeA->setHashSize(\Sodium\CRYPTO_GENERICHASH_BYTES_MAX);
+        $treeA->setHashSize(SODIUM_CRYPTO_GENERICHASH_BYTES_MAX);
         $this->assertSame(
             '0e97a7c708bc8350809ecbeb941d9338af894c37d5fbfb6c3aa2f7ee0bc798f07d7505f33c5b6a6200c191efc51d9c4c0fd2d1397fe7291628aee424ff9093c3',
             $treeA->getRoot()

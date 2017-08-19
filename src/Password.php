@@ -39,7 +39,7 @@ final class Password
     ): string {
         $kdfLimits = KeyFactory::getSecurityLevels($level);
         // First, let's calculate the hash
-        $hashed = \Sodium\crypto_pwhash_str(
+        $hashed = \sodium_crypto_pwhash_str(
             $password->getString(),
             $kdfLimits[0],
             $kdfLimits[1]
@@ -82,7 +82,7 @@ final class Password
         // Upon successful decryption, verify that we're using Argon2i
         if (!\hash_equals(
             Util::safeSubstr($hash_str, 0, 9),
-            \Sodium\CRYPTO_PWHASH_STRPREFIX
+            SODIUM_CRYPTO_PWHASH_STRPREFIX
         )) {
             return true;
         }
@@ -131,7 +131,7 @@ final class Password
                 'encrypt'
             );
         }
-        $v = \Sodium\hex2bin(Util::safeSubstr($stored, 0, 8));
+        $v = \hex2bin(Util::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
     }
 
@@ -159,7 +159,7 @@ final class Password
         // First let's decrypt the hash
         $hash_str = Crypto::decrypt($stored, $secretKey, $config->ENCODING);
         // Upon successful decryption, verify the password is correct
-        return \Sodium\crypto_pwhash_str_verify(
+        return \sodium_crypto_pwhash_str_verify(
             $hash_str->getString(),
             $password->getString()
         );

@@ -51,7 +51,7 @@ This method will:
 Anonymous public-key encryption. Encrypt a message with your recipient's public
 key and they can use their secret key to decrypt it.
 
-The actual underlying protocol is [`\Sodium\crypto_box_seal()`](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-box-seal).
+The actual underlying protocol is [`sodium_crypto_box_seal()`](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-box-seal).
 
 ### `unseal()`
 
@@ -59,13 +59,13 @@ The actual underlying protocol is [`\Sodium\crypto_box_seal()`](https://paragoni
 
 Anonymous public-key decryption. Decrypt a sealed message with your secret key.
 
-The actual underlying protocol is [`\Sodium\crypto_box_seal_open()`](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-box-seal).
+The actual underlying protocol is [`sodium_crypto_box_seal_open()`](https://paragonie.com/book/pecl-libsodium/read/08-advanced.md#crypto-box-seal).
 
 ### `sign()`
 
 > `public` sign(`string $message`, [`SignatureSecretKey`](SignatureSecretKey.md) `$secretKey`, `boolean $raw = false`) : `string`
 
-Calculates a digital signature of `$message`, using [`\Sodium\crypto_sign()`](https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md#crypto-sign).
+Calculates a digital signature of `$message`, using [`sodium_crypto_sign()`](https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md#crypto-sign).
 
 ### `verify()`
 

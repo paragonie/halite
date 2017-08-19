@@ -86,7 +86,7 @@ class TrimmedMerkleTreeTest extends TestCase
             '8dc7ee23d6b29df641ac78a8c56bb2e0379015eeb06e1a01feb8bb617d6272f6',
             $treeA->getRoot()
         );
-        $treeA->setHashSize(\Sodium\CRYPTO_GENERICHASH_BYTES_MAX);
+        $treeA->setHashSize(SODIUM_CRYPTO_GENERICHASH_BYTES_MAX);
         $this->assertSame(
             'd25cb4ca1eb8bbf882376a3d66a33c91c7005386b8312979a003110323495e9c6e91701837d59dc798b84eed8cfa59a4763b61c54bbe2c502b9386da88c938e1',
             $treeA->getRoot()

@@ -3,23 +3,27 @@ sudo: true
 dist: trusty
 
 php:
-- 7.0
+
+- 7.2
+- nightly
 
 before_install:
 - sudo apt-get update
-- sudo apt-get install make build-essential automake php5-dev php-pear
+- sudo apt-get install make build-essential automake
 - git clone git://github.com/jedisct1/libsodium.git
 - cd libsodium
-- git checkout 1.0.10
+- git checkout 1.0.13
 - ./autogen.sh
 - ./configure && make check
 - sudo make install
 - cd ..
-- pecl install libsodium-1.0.6
-- echo "extension = libsodium.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+- pecl install libsodium
 
 install:
+
 - composer install
+- composer self-update
+- composer update
 - chmod +x ./test/phpunit.sh
 
 script: ./test/phpunit.sh

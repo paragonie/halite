@@ -120,7 +120,7 @@ final class Crypto
         if ($get_as_object) {
             return new EncryptionKey(
                 new HiddenString(
-                    \Sodium\crypto_scalarmult(
+                    sodium_crypto_scalarmult(
                         $privateKey->getRawKeyMaterial(),
                         $publicKey->getRawKeyMaterial()
                     )
@@ -128,7 +128,7 @@ final class Crypto
             );
         }
         return new HiddenString(
-            \Sodium\crypto_scalarmult(
+            sodium_crypto_scalarmult(
                 $privateKey->getRawKeyMaterial(),
                 $publicKey->getRawKeyMaterial()
             )
@@ -156,7 +156,7 @@ final class Crypto
             );
         }
         
-        $sealed = \Sodium\crypto_box_seal(
+        $sealed = sodium_crypto_box_seal(
             $plaintext->getString(),
             $publicKey->getRawKeyMaterial()
         );
@@ -180,7 +180,7 @@ final class Crypto
         SignatureSecretKey $privateKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
-        $signed = \Sodium\crypto_sign_detached(
+        $signed = sodium_crypto_sign_detached(
             $message,
             $privateKey->getRawKeyMaterial()
         );
@@ -220,24 +220,24 @@ final class Crypto
 
         // Get a box keypair (needed by crypto_box_seal_open)
         $secret_key = $privateKey->getRawKeyMaterial();
-        $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
-        $key_pair = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
+        $public_key = sodium_crypto_box_publickey_from_secretkey($secret_key);
+        $key_pair = sodium_crypto_box_keypair_from_secretkey_and_publickey(
             $secret_key,
             $public_key
         );
         
         // Wipe these immediately:
-        \Sodium\memzero($secret_key);
-        \Sodium\memzero($public_key);
+        sodium_memzero($secret_key);
+        sodium_memzero($public_key);
         
         // Now let's open that sealed box
-        $message = \Sodium\crypto_box_seal_open(
+        $message = sodium_crypto_box_seal_open(
             $ciphertext,
             $key_pair
         );
 
         // Always memzero after retrieving a value
-        \Sodium\memzero($key_pair);
+        sodium_memzero($key_pair);
         if ($message === false) {
             throw new InvalidKey(
                 'Incorrect secret key for this sealed message'
@@ -269,13 +269,13 @@ final class Crypto
             // We were given hex data:
             $signature = $decoder($signature);
         }
-        if (CryptoUtil::safeStrlen($signature) !== \Sodium\CRYPTO_SIGN_BYTES) {
+        if (CryptoUtil::safeStrlen($signature) !== SODIUM_CRYPTO_SIGN_BYTES) {
             throw new InvalidSignature(
                 'Signature is not the correct length; is it encoded?'
             );
         }
         
-        return \Sodium\crypto_sign_verify_detached(
+        return sodium_crypto_sign_verify_detached(
             $signature,
             $message,
             $publicKey->getRawKeyMaterial()

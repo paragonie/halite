@@ -3,23 +3,16 @@
     "description": "High-level cryptography interface powered by libsodium",
     "type": "library",
     "require": {
-        "php": "^7",
+        "php": "^7.2",
         "paragonie/constant_time_encoding": "^2"
     },
     "autoload": {
         "psr-4": {
             "ParagonIE\\Halite\\": "src"
-        },
-        "files": [
-            "stub/Sodium.stub.php"
-        ]
+        }
     },
     "require-dev": {
         "phpunit/phpunit": "^6"
-    },
-    "suggest": {
-        "ext-sodium": "^2.0.4 - Preferred",
-        "ext-libsodium": "^1.0.6 - Legacy"
     },
     "license": "GPL3",
     "authors": [

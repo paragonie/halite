@@ -45,13 +45,13 @@ class SymmetricTest extends TestCase
             Symmetric::verify('othermessage', $key, $mac, true)
         );
         
-        $r = \Sodium\randombytes_uniform(\mb_strlen($mac, '8bit'));
+        $r = random_int(0, \mb_strlen($mac, '8bit') - 1);
         
         $_mac = $mac;
         $_mac[$r] = \chr(
             \ord($_mac[$r])
                 ^
-            1 << \Sodium\randombytes_uniform(8)
+            1 << random_int(0, 7)
         );
         
         // Test invalid signature
@@ -125,11 +125,11 @@ class SymmetricTest extends TestCase
             true
         );
 
-        $r = \Sodium\randombytes_uniform(\mb_strlen($message, '8bit'));
+        $r = random_int(0, \mb_strlen($message, '8bit') - 1);
         $message[$r] = \chr(
             \ord($message[$r])
                 ^
-            1 << \Sodium\randombytes_uniform(8)
+            1 << random_int(0, 7)
         );
         try {
             $plain = Symmetric::decrypt($message, $key, true);
@@ -150,8 +150,8 @@ class SymmetricTest extends TestCase
         $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
         
         // Randomly sized plaintext
-        $size = \Sodium\randombytes_uniform(1023) + 1;
-        $plaintext = \Sodium\randombytes_buf($size);
+        $size = random_int(1, 1024);
+        $plaintext = \random_bytes($size);
         $message = Symmetric::encrypt(
             new HiddenString($plaintext),
             $key,
@@ -167,13 +167,13 @@ class SymmetricTest extends TestCase
         $config = $unpacked[1];
         if ($config instanceof \ParagonIE\Halite\Symmetric\Config) {
             $this->assertSame(Util::safeStrlen($unpacked[2]), $config->HKDF_SALT_LEN);
-            $this->assertSame(Util::safeStrlen($unpacked[3]), \Sodium\CRYPTO_STREAM_NONCEBYTES);
+            $this->assertSame(Util::safeStrlen($unpacked[3]), SODIUM_CRYPTO_STREAM_NONCEBYTES);
             $this->assertSame(
                 Util::safeStrlen($unpacked[4]),
                 Util::safeStrlen($message) - (
                     Halite::VERSION_TAG_LEN +
                     $config->HKDF_SALT_LEN +
-                    \Sodium\CRYPTO_STREAM_NONCEBYTES +
+                    SODIUM_CRYPTO_STREAM_NONCEBYTES +
                     $config->MAC_SIZE
                 )
             );

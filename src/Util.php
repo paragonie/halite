@@ -31,7 +31,23 @@ final class Util
     }
 
     /**
-     * Wrapper around \Sodium\crypto_generichash()
+     * Convert a character to an integer (without cache-timing side-channels)
+     *
+     * @param string $chr
+     * @return int
+     * @throws \RangeException
+     */
+    public static function chrToInt(string $chr): int
+    {
+        if (self::safeStrlen($chr) !== 1) {
+            throw new \RangeException('Must be a string with a length of 1');
+        }
+        $result = \unpack('C', $chr);
+        return (int) $result[1];
+    }
+
+    /**
+     * Wrapper around SODIUM_CRypto_generichash()
      *
      * Returns hexadecimal characters.
      *
@@ -41,15 +57,15 @@ final class Util
      */
     public static function hash(
         string $input,
-        int $length = \Sodium\CRYPTO_GENERICHASH_BYTES
+        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
-        return \Sodium\bin2hex(
+        return \bin2hex(
             self::raw_keyed_hash($input, '', $length)
         );
     }
 
     /**
-     * Wrapper around \Sodium\crypto_generichash()
+     * Wrapper around SODIUM_CRypto_generichash()
      *
      * Returns raw binary.
      *
@@ -59,7 +75,7 @@ final class Util
      */
     public static function raw_hash(
         string $input,
-        int $length = \Sodium\CRYPTO_GENERICHASH_BYTES
+        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
         return self::raw_keyed_hash($input, '', $length);
     }
@@ -72,7 +88,7 @@ final class Util
      * libsodium.
      * 
      * Important: instead of a true HKDF (from HMAC) construct, this uses the 
-     * \Sodium\crypto_generichash() key parameter. This is *probably* okay.
+     * crypto_generichash() key parameter. This is *probably* okay.
      * 
      * @param string $ikm Initial Keying Material
      * @param int $length How many bytes?
@@ -89,14 +105,14 @@ final class Util
         string $salt = ''
     ): string {
         // Sanity-check the desired output length.
-        if ($length < 0 || $length > (255 * \Sodium\CRYPTO_GENERICHASH_KEYBYTES)) {
+        if ($length < 0 || $length > (255 * SODIUM_CRYPTO_GENERICHASH_KEYBYTES)) {
             throw new InvalidDigestLength(
                 'Argument 2: Bad HKDF Digest Length'
             );
         }
         // "If [salt] not provided, is set to a string of HashLen zeroes."
         if (empty($salt)) {
-            $salt = \str_repeat("\x00", \Sodium\CRYPTO_GENERICHASH_KEYBYTES);
+            $salt = \str_repeat("\x00", SODIUM_CRYPTO_GENERICHASH_KEYBYTES);
         }
 
         // HKDF-Extract:
@@ -106,7 +122,7 @@ final class Util
 
         // HKDF-Expand:
         // This check is useless, but it serves as a reminder to the spec.
-        if (self::safeStrlen($prk) < \Sodium\CRYPTO_GENERICHASH_KEYBYTES) {
+        if (self::safeStrlen($prk) < SODIUM_CRYPTO_GENERICHASH_KEYBYTES) {
             throw new CannotPerformOperation(
                 'An unknown error has occurred'
             );
@@ -134,7 +150,36 @@ final class Util
     }
 
     /**
-     * Wrapper around \Sodium\crypto_generichash()
+     * Convert an array of integers to a string
+     *
+     * @param array<int, int> $integers
+     * @return string
+     */
+    public static function intArrayToString(array $integers): string
+    {
+        $args = $integers;
+        foreach ($args as $i => $v) {
+            $args[$i] = (int) ($v & 0xff);
+        }
+        return \pack(
+            \str_repeat('C', \count($args)),
+            ...$args
+        );
+    }
+
+    /**
+     * Convert an integer to a string (without cache-timing side-channels)
+     *
+     * @param int $int
+     * @return string
+     */
+    public static function intToChr(int $int): string
+    {
+        return \pack('C', $int);
+    }
+
+    /**
+     * Wrapper around SODIUM_CRypto_generichash()
      *
      * Expects a key (binary string).
      * Returns hexadecimal characters.
@@ -147,15 +192,15 @@ final class Util
     public static function keyed_hash(
         string $input,
         string $key,
-        int $length = \Sodium\CRYPTO_GENERICHASH_BYTES
+        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
-        return \Sodium\bin2hex(
+        return \bin2hex(
             self::raw_keyed_hash($input, $key, $length)
         );
     }
 
     /**
-     * Wrapper around \Sodium\crypto_generichash()
+     * Wrapper around SODIUM_CRypto_generichash()
      *
      * Expects a key (binary string).
      * Returns raw binary.
@@ -169,25 +214,25 @@ final class Util
     public static function raw_keyed_hash(
         string $input,
         string $key,
-        int $length = \Sodium\CRYPTO_GENERICHASH_BYTES
+        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
-        if ($length < \Sodium\CRYPTO_GENERICHASH_BYTES_MIN) {
+        if ($length < SODIUM_CRYPTO_GENERICHASH_BYTES_MIN) {
             throw new CannotPerformOperation(
                 \sprintf(
                     'Output length must be at least %d bytes.',
-                    \Sodium\CRYPTO_GENERICHASH_BYTES_MIN
+                    SODIUM_CRYPTO_GENERICHASH_BYTES_MIN
                 )
             );
         }
-        if ($length > \Sodium\CRYPTO_GENERICHASH_BYTES_MAX) {
+        if ($length > SODIUM_CRYPTO_GENERICHASH_BYTES_MAX) {
             throw new CannotPerformOperation(
                 \sprintf(
                     'Output length must be at most %d bytes.',
-                    \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
+                    SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                 )
             );
         }
-        return \Sodium\crypto_generichash($input, $key, $length);
+        return \sodium_crypto_generichash($input, $key, $length);
     }
     
     /**
@@ -290,11 +335,29 @@ final class Util
     {
         $length = self::safeStrlen($string);
         $return = '';
-        for ($i = 0; $i < $length; ++$i) {
-            $return .= $string[$i];
+        $chunk = $length >> 1;
+        for ($i = 0; $i < $length; $i += $chunk) {
+            $return .= self::safeSubstr($string, $i, $chunk);
         }
         return $return;
     }
+
+    /**
+     * Turn a string into an array of integers
+     *
+     * @param string $string
+     * @return array<int, int>
+     * @throws \TypeError
+     */
+    public static function stringToIntArray(string $string): array
+    {
+        /**
+         * @var array<int, int>
+         */
+        $values = \array_values(\unpack('C*', $string));
+        return $values;
+    }
+
 
     /**
      * Calculate A xor B, given two binary strings of the same length.
@@ -320,21 +383,18 @@ final class Util
         }
 
         /**
-         * @var int[]
+         * @var array<int, int>
          */
-        $leftInt = \unpack('C*', $left);
+        $leftInt = self::stringToIntArray($left);
 
         /**
-         * @var int[]
+         * @var array<int, int>
          */
-        $rightInt = \unpack('C*', $right);
+        $rightInt = self::stringToIntArray($right);
 
         $output = '';
         for ($i = 0; $i < $length; ++$i) {
-            $output .= \pack(
-                'C',
-                (($leftInt[$i + 1] ^ $rightInt[$i + 1]) & 0xff)
-            );
+            $output .= self::intToChr($leftInt[$i] ^ $rightInt[$i]);
         }
         return $output;
     }

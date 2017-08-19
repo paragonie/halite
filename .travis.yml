@@ -3,8 +3,10 @@ sudo: true
 dist: trusty
 
 php:
-
 - 7.2
+- nightly
+
+allow_failures:
 - nightly
 
 before_install:

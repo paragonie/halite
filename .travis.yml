@@ -9,7 +9,7 @@ before_install:
 - sudo apt-get install make build-essential automake php-dev php-pear
 - git clone git://github.com/jedisct1/libsodium.git
 - cd libsodium
-- git checkout 1.0.11
+- git checkout 1.0.13
 - ./autogen.sh
 - ./configure && make check
 - sudo make install

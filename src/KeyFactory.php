@@ -39,7 +39,7 @@ final class KeyFactory
      */
     public static function generateAuthenticationKey(string &$secretKey = ''): AuthenticationKey
     {
-        $secretKey = \sodium_randombytes_buf(
+        $secretKey = \random_bytes(
             SODIUM_CRYPTO_AUTH_KEYBYTES
         );
         return new AuthenticationKey(
@@ -55,7 +55,7 @@ final class KeyFactory
      */
     public static function generateEncryptionKey(string &$secretKey = ''): EncryptionKey
     {
-        $secretKey = \sodium_randombytes_buf(
+        $secretKey = \random_bytes(
             SODIUM_CRYPTO_STREAM_KEYBYTES
         );
         return new EncryptionKey(

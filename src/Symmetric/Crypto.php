@@ -153,10 +153,10 @@ final class Crypto
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
         // Generate a nonce and HKDF salt:
-        $nonce = \sodium_randombytes_buf(
+        $nonce = \random_bytes(
             SODIUM_CRYPTO_SECRETBOX_NONCEBYTES
         );
-        $salt = \sodium_randombytes_buf($config->HKDF_SALT_LEN);
+        $salt = \random_bytes($config->HKDF_SALT_LEN);
 
         /* Split our key into two keys: One for encryption, the other for
            authentication. By using separate keys, we can reasonably dismiss

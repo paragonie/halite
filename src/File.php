@@ -381,8 +381,8 @@ final class File
         $config = self::getConfig(Halite::HALITE_VERSION_FILE, 'encrypt');
 
         // Generate a nonce and HKDF salt
-        $firstNonce = \sodium_randombytes_buf($config->NONCE_BYTES);
-        $hkdfSalt = \sodium_randombytes_buf($config->HKDF_SALT_LEN);
+        $firstNonce = \random_bytes($config->NONCE_BYTES);
+        $hkdfSalt = \random_bytes($config->HKDF_SALT_LEN);
 
         // Let's split our key
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
@@ -535,7 +535,7 @@ final class File
         );
 
         // Generate a random HKDF salt
-        $hkdfSalt = \sodium_randombytes_buf($config->HKDF_SALT_LEN);
+        $hkdfSalt = \random_bytes($config->HKDF_SALT_LEN);
 
         // Split the keys
         list ($encKey, $authKey) = self::splitKeys($sharedSecretKey, $hkdfSalt, $config);

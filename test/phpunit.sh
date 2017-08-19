@@ -22,55 +22,55 @@ fi
 
 if [ "$clean" -eq 1 ]; then
     # Let's clean them up, if they exist
-    if [ -f phpunit-6.3.0.phar ]; then
-        rm -f phpunit-6.3.0.phar
+    if [ -f phpunit.phar ]; then
+        rm -f phpunit.phar
     fi
-    if [ -f phpunit-6.3.0.phar.asc ]; then
-        rm -f phpunit-6.3.0.phar.asc
+    if [ -f phpunit.phar.asc ]; then
+        rm -f phpunit.phar.asc
     fi
 fi
 
 # Let's grab the latest release and its signature
-if [ ! -f phpunit-6.3.0.phar ]; then
-    wget https://phar.phpunit.de/phpunit-6.3.0.phar
+if [ ! -f phpunit.phar ]; then
+    wget https://phar.phpunit.de/phpunit.phar
     if [ $? -ne 0 ]; then
-        echo "wget phpunit-6.3.0.phar was unsuccessful"
+        echo "wget phpunit.phar was unsuccessful"
         exit 1
     fi
 fi
-if [ ! -f phpunit-6.3.0.phar.asc ]; then
-    wget https://phar.phpunit.de/phpunit-6.3.0.phar.asc
+if [ ! -f phpunit.phar.asc ]; then
+    wget https://phar.phpunit.de/phpunit.phar.asc
     if [ $? -ne 0 ]; then
-        echo "wget phpunit-6.3.0.phar.asc was unsuccessful"
+        echo "wget phpunit.phar.asc was unsuccessful"
         exit 1
     fi
 fi
 
 # Verify before running
-gpg --batch --verify phpunit-6.3.0.phar.asc phpunit-6.3.0.phar >& phpunit.out2
+gpg --batch --verify phpunit.phar.asc phpunit.phar >& phpunit.out2
 if [ $? -eq 0 ]; then
     echo
     echo -e "\033[33mBegin Unit Testing\033[0m"
     # Run the testing suite
-    php phpunit-6.3.0.phar --bootstrap "$parentdir/autoload.php" "$parentdir/test/unit"
+    php phpunit.phar --bootstrap "$parentdir/autoload.php" "$parentdir/test/unit"
     EXITCODE=$?
     # Test with mbstring.func_overload = 7
-    php -dmbstring.func_overload=7 phpunit-6.3.0.phar --bootstrap "$parentdir/autoload.php" "$parentdir/test/unit"
+    php -dmbstring.func_overload=7 phpunit.phar --bootstrap "$parentdir/autoload.php" "$parentdir/test/unit"
     # Cleanup
     if [ "$clean" -eq 1 ]; then
         echo -e "\033[32mCleaning Up!\033[0m"
-        rm -f phpunit-6.3.0.phar
-        rm -f phpunit-6.3.0.phar.asc
+        rm -f phpunit.phar
+        rm -f phpunit.phar.asc
         rm -f phpunit.out
         rm -f phpunit.out2
     fi
     exit ${EXITCODE}
 else
     echo
-    chmod -x phpunit-6.3.0.phar
-    mv phpunit-6.3.0.phar /tmp/bad-phpunit-6.3.0.phar
-    mv phpunit-6.3.0.phar.asc /tmp/bad-phpunit-6.3.0.phar.asc
+    chmod -x phpunit.phar
+    mv phpunit.phar /tmp/bad-phpunit.phar
+    mv phpunit.phar.asc /tmp/bad-phpunit.phar.asc
     cat phpunit.out2
-    echo -e "\033[31mSignature did not match! Check /tmp/bad-phpunit-6.3.0.phar for trojans\033[0m"
+    echo -e "\033[31mSignature did not match! Check /tmp/bad-phpunit.phar for trojans\033[0m"
     exit 1
 fi

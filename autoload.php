@@ -35,7 +35,6 @@ if (\file_exists(__DIR__.'/vendor/autoload.php')) {
         }
     });
 }
-require_once __DIR__.'/vendor/paragonie/sodium_compat/lib/php72compat.php';
 if (!defined('SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE')) {
     die('WHY THE FUCK');
 }

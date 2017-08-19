@@ -2,12 +2,13 @@ language: php
 sudo: true
 dist: trusty
 
-php:
-- 7.2
-- nightly
-
-allow_failures:
-- nightly
+matrix:
+  fast_finish: true
+  include:
+    - php: "7.2"
+    - php: "nightly"
+  allow_failures:
+    - php: "nightly"
 
 before_install:
 - sudo apt-get update

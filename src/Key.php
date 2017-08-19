@@ -121,7 +121,7 @@ class Key
      *
      * @return string
      */
-    public function getRawKeyMaterial()
+    public function getRawKeyMaterial(): string
     {
         return Util::safeStrcpy($this->keyMaterial);
     }
@@ -131,7 +131,7 @@ class Key
      * 
      * @return bool
      */
-    public function isAsymmetricKey()
+    public function isAsymmetricKey(): bool
     {
         return $this->isAsymmetricKey;
     }
@@ -141,7 +141,7 @@ class Key
      * 
      * @return bool
      */
-    public function isEncryptionKey()
+    public function isEncryptionKey(): bool
     {
         return !$this->isSigningKey;
     }
@@ -151,7 +151,7 @@ class Key
      * 
      * @return bool
      */
-    public function isPublicKey()
+    public function isPublicKey(): bool
     {
         return $this->isPublicKey;
     }
@@ -161,7 +161,7 @@ class Key
      * 
      * @return bool
      */
-    public function isSecretKey()
+    public function isSecretKey(): bool
     {
         return !$this->isPublicKey;
     }
@@ -171,7 +171,7 @@ class Key
      * 
      * @return bool
      */
-    public function isSigningKey()
+    public function isSigningKey(): bool
     {
         return $this->isSigningKey;
     }

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use ParagonIE\ConstantTime\Hex;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
@@ -59,7 +60,7 @@ final class Util
         string $input,
         int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
-        return \bin2hex(
+        return Hex::encode(
             self::raw_keyed_hash($input, '', $length)
         );
     }
@@ -196,7 +197,7 @@ final class Util
         string $key,
         int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
-        return \bin2hex(
+        return Hex::encode(
             self::raw_keyed_hash($input, $key, $length)
         );
     }
@@ -360,7 +361,6 @@ final class Util
         $values = \array_values(\unpack('C*', $string));
         return $values;
     }
-
 
     /**
      * Calculate A xor B, given two binary strings of the same length.

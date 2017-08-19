@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use ParagonIE\ConstantTime\Hex;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\{
     Asymmetric\EncryptionPublicKey,
@@ -304,7 +305,7 @@ final class KeyFactory
         return new AuthenticationKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \hex2bin($keyData->getString())
+                    Hex::decode($keyData->getString())
                 )
             )
         );
@@ -323,7 +324,7 @@ final class KeyFactory
         return new EncryptionKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \hex2bin($keyData->getString())
+                    Hex::decode($keyData->getString())
                 )
             )
         );
@@ -342,7 +343,7 @@ final class KeyFactory
         return new EncryptionPublicKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \hex2bin($keyData->getString())
+                    Hex::decode($keyData->getString())
                 )
             )
         );
@@ -361,7 +362,7 @@ final class KeyFactory
         return new EncryptionSecretKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \hex2bin($keyData->getString())
+                    Hex::decode($keyData->getString())
                 )
             )
         );
@@ -380,7 +381,7 @@ final class KeyFactory
         return new SignaturePublicKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \hex2bin($keyData->getString())
+                    Hex::decode($keyData->getString())
                 )
             )
         );
@@ -399,7 +400,7 @@ final class KeyFactory
         return new SignatureSecretKey(
             new HiddenString(
                 self::getKeyDataFromString(
-                    \hex2bin($keyData->getString())
+                    Hex::decode($keyData->getString())
                 )
             )
         );
@@ -419,7 +420,7 @@ final class KeyFactory
             new EncryptionSecretKey(
                 new HiddenString(
                     self::getKeyDataFromString(
-                        \hex2bin($keyData->getString())
+                        Hex::decode($keyData->getString())
                     )
                 )
             )
@@ -440,7 +441,7 @@ final class KeyFactory
             new SignatureSecretKey(
                 new HiddenString(
                     self::getKeyDataFromString(
-                        \hex2bin($keyData->getString())
+                        Hex::decode($keyData->getString())
                     )
                 )
             )
@@ -627,7 +628,7 @@ final class KeyFactory
         }
         if ($key instanceof Key) {
             return new HiddenString(
-                \bin2hex(
+                Hex::encode(
                     Halite::HALITE_VERSION_KEYS . $key->getRawKeyMaterial() .
                     \sodium_crypto_generichash(
                         Halite::HALITE_VERSION_KEYS . $key->getRawKeyMaterial(),
@@ -673,7 +674,7 @@ final class KeyFactory
                 'Cannot load key from file: '. $filePath
             );
         }
-        $data = \hex2bin($fileData);
+        $data = Hex::decode($fileData);
         \sodium_memzero($fileData);
         return new HiddenString(
             self::getKeyDataFromString($data)
@@ -731,7 +732,7 @@ final class KeyFactory
     ): bool {
         $saved = \file_put_contents(
             $filePath,
-            \bin2hex(
+            Hex::encode(
                 Halite::HALITE_VERSION_KEYS . $keyData .
                 \sodium_crypto_generichash(
                     Halite::HALITE_VERSION_KEYS . $keyData,

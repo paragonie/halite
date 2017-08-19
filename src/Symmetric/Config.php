@@ -71,22 +71,7 @@ final class Config extends BaseConfig
      */
     public static function getConfigEncrypt(int $major, int $minor): array
     {
-        if ($major === 2) {
-            switch ($minor) {
-                case 1:
-                case 0:
-                    return [
-                        'ENCODING' => Halite::ENCODE_HEX,
-                        'SHORTEST_CIPHERTEXT_LENGTH' => 124,
-                        'NONCE_BYTES' => \SODIUM_CRYPTO_STREAM_NONCEBYTES,
-                        'HKDF_SALT_LEN' => 32,
-                        'MAC_ALGO' => 'BLAKE2b',
-                        'MAC_SIZE' => \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
-                        'HKDF_SBOX' => 'Halite|EncryptionKey',
-                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
-                    ];
-            }
-        } elseif ($major === 3 || $major === 4) {
+        if ($major === 3 || $major === 4) {
             switch ($minor) {
                 case 0:
                     return [

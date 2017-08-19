@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
+use ParagonIE\ConstantTime\Hex;
 use ParagonIE\Halite\Util;
 use ParagonIE\Halite\Alerts\InvalidDigestLength;
 
@@ -72,7 +73,7 @@ class MerkleTree
         }
         return $raw
             ? $this->root
-            : \bin2hex($this->root);
+            : Hex::encode($this->root);
     }
     
     /**

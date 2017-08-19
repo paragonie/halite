@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use ParagonIE\ConstantTime\Hex;
 use ParagonIE\Halite\{
     Alerts\InvalidMessage,
     Symmetric\Config as SymmetricConfig,
@@ -104,7 +105,7 @@ final class Cookie
                 'encrypt'
             );
         }
-        $v = \hex2bin(Util::safeSubstr($stored, 0, 8));
+        $v = Hex::decode(Util::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
     }
     

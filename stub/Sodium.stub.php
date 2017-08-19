@@ -73,6 +73,9 @@ if (!\extension_loaded('libsodium')) {
      */
     function crypto_aead_aes256gcm_is_available(): bool
     {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_aead_aes256gcm_is_available();
+        }
         return false;
     }
 
@@ -92,6 +95,9 @@ if (!\extension_loaded('libsodium')) {
         string $key,
         string $ad = ''
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_aead_aes256gcm_decrypt($msg, $nonce, $key, $ad);
+        }
         return '';
     }
 
@@ -111,6 +117,9 @@ if (!\extension_loaded('libsodium')) {
         string $key,
         string $ad = ''
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_aead_aes256gcm_encrypt($msg, $nonce, $key, $ad);
+        }
         return '';
     }
 
@@ -130,6 +139,9 @@ if (!\extension_loaded('libsodium')) {
         string $key,
         string $ad = ''
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_aead_chacha20poly1305_decrypt($msg, $nonce, $key, $ad);
+        }
         return '';
     }
 
@@ -149,6 +161,9 @@ if (!\extension_loaded('libsodium')) {
         string $key,
         string $ad = ''
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_aead_chacha20poly1305_encrypt($msg, $nonce, $key, $ad);
+        }
         return '';
     }
 
@@ -164,6 +179,9 @@ if (!\extension_loaded('libsodium')) {
         string $msg,
         string $key
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_auth($msg, $key);
+        }
         return '';
     }
 
@@ -181,6 +199,9 @@ if (!\extension_loaded('libsodium')) {
         string $msg,
         string $key
     ): bool {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_auth_verify($mac, $msg, $key);
+        }
         return false;
     }
 
@@ -198,6 +219,9 @@ if (!\extension_loaded('libsodium')) {
         string $nonce,
         string $keypair
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box($msg, $nonce, $keypair);
+        }
         return '';
     }
 
@@ -207,6 +231,9 @@ if (!\extension_loaded('libsodium')) {
      * @return string
      */
     function crypto_box_keypair(): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box_keypair();
+        }
         return '';
     }
 
@@ -219,6 +246,9 @@ if (!\extension_loaded('libsodium')) {
     function crypto_box_seed_keypair(
         string $seed
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box_seed_keypair($seed);
+        }
         return '';
     }
 
@@ -233,6 +263,9 @@ if (!\extension_loaded('libsodium')) {
         string $secretkey,
         string $publickey
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box_keypair_from_secretkey_and_publickey($secretkey, $publickey);
+        }
         return '';
     }
 
@@ -250,6 +283,9 @@ if (!\extension_loaded('libsodium')) {
         string $nonce,
         string $keypair
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box_open($msg, $nonce, $keypair);
+        }
         return '';
     }
 
@@ -262,6 +298,9 @@ if (!\extension_loaded('libsodium')) {
     function crypto_box_publickey(
         string $keypair
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box_publickey($keypair);
+        }
         return '';
     }
 
@@ -274,6 +313,9 @@ if (!\extension_loaded('libsodium')) {
     function crypto_box_publickey_from_secretkey(
         string $secretkey
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box_publickey_from_secretkey($secretkey);
+        }
         return '';
     }
 
@@ -289,6 +331,9 @@ if (!\extension_loaded('libsodium')) {
         string $message,
         string $publickey
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box_seal($message, $publickey);
+        }
         return '';
     }
     
@@ -304,6 +349,9 @@ if (!\extension_loaded('libsodium')) {
         string $encrypted,
         string $keypair
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box_seal_open($encrypted, $keypair);
+        }
         return '';
     }
     
@@ -315,6 +363,9 @@ if (!\extension_loaded('libsodium')) {
      */
     function crypto_box_secretkey(string $keypair): string
     {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_box_secretkey($keypair);
+        }
         return '';
     }
 
@@ -334,6 +385,9 @@ if (!\extension_loaded('libsodium')) {
         string $client_publickey,
         string $server_publickey
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_kx($secretkey, $publickey, $client_publickey, $server_publickey);
+        }
         return '';
     }
     
@@ -350,6 +404,9 @@ if (!\extension_loaded('libsodium')) {
         string $key = '',
         int $length = 32
     ): string{
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_generichash($input, $key, $length);
+        }
         return '';
     }
 
@@ -365,6 +422,9 @@ if (!\extension_loaded('libsodium')) {
         string $key = '',
         int $length = 32
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_generichash_init($key, $length);
+        }
         return '';
     }
 
@@ -379,8 +439,10 @@ if (!\extension_loaded('libsodium')) {
     function crypto_generichash_update(
         string &$hashState,
         string $append
-    ): bool {
-        return false;
+    ) {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_generichash_update($hashState, $append);
+        }
     }
 
     /**
@@ -395,6 +457,9 @@ if (!\extension_loaded('libsodium')) {
         string $hashState,
         int $length = 32
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_generichash_final($hashState, $length);
+        }
         return '';
     }
 
@@ -416,6 +481,9 @@ if (!\extension_loaded('libsodium')) {
         int $opslimit,
         int $memlimit
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_pwhash($out_len, $passwd, $salt, $opslimit, $memlimit);
+        }
         return '';
     }
 
@@ -433,6 +501,9 @@ if (!\extension_loaded('libsodium')) {
         int $opslimit,
         int $memlimit
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_pwhash_str($passwd, $opslimit, $memlimit);
+        }
         return '';
     }
 
@@ -448,6 +519,9 @@ if (!\extension_loaded('libsodium')) {
         string $hash,
         string $passwd
     ): bool {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_pwhash_str_verify($hash, $passwd);
+        }
         return false;
     }
 
@@ -469,6 +543,9 @@ if (!\extension_loaded('libsodium')) {
         int $opslimit,
         int $memlimit
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_pwhash_scryptsalsa208sha256($out_len, $passwd, $salt, $opslimit, $memlimit);
+        }
         return '';
     }
 
@@ -486,6 +563,9 @@ if (!\extension_loaded('libsodium')) {
         int $opslimit,
         int $memlimit
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_pwhash_scryptsalsa208sha256_str($passwd, $opslimit, $memlimit);
+        }
         return '';
     }
 
@@ -501,6 +581,9 @@ if (!\extension_loaded('libsodium')) {
         string $hash,
         string $passwd
     ): bool {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_pwhash_scryptsalsa208sha256_str_verify($hash, $passwd);
+        }
         return false;
     }
 
@@ -516,6 +599,9 @@ if (!\extension_loaded('libsodium')) {
         string $ecdhA,
         string $ecdhB
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_scalarmult($ecdhA, $ecdhB);
+        }
         return '';
     }
 
@@ -533,6 +619,9 @@ if (!\extension_loaded('libsodium')) {
         string $nonce,
         string $key
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_secretbox($plaintext, $nonce, $key);
+        }
         return '';
     }
 
@@ -550,6 +639,9 @@ if (!\extension_loaded('libsodium')) {
         string $nonce,
         string $key
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_secretbox_open($ciphertext, $nonce, $key);
+        }
         return '';
     }
 
@@ -565,6 +657,9 @@ if (!\extension_loaded('libsodium')) {
         string $message,
         string $key
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_shorthash($message, $key);
+        }
         return '';
     }
 
@@ -580,6 +675,9 @@ if (!\extension_loaded('libsodium')) {
         string $message,
         string $secretkey
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign($message, $secretkey);
+        }
         return '';
     }
 
@@ -595,6 +693,9 @@ if (!\extension_loaded('libsodium')) {
         string $message,
         string $secretkey
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_detached($message, $secretkey);
+        }
         return '';
     }
 
@@ -607,6 +708,9 @@ if (!\extension_loaded('libsodium')) {
     function crypto_sign_ed25519_pk_to_curve25519(
         string $sign_pk
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_ed25519_pk_to_curve25519($sign_pk);
+        }
         return '';
     }
 
@@ -619,8 +723,12 @@ if (!\extension_loaded('libsodium')) {
     function crypto_sign_ed25519_sk_to_curve25519(
         string $sign_sk
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_ed25519_sk_to_curve25519($sign_sk);
+        }
         return '';
     }
+
 
     /**
      * Generate an Ed25519 keypair for use with the crypto_sign API
@@ -629,6 +737,9 @@ if (!\extension_loaded('libsodium')) {
      */
     function crypto_sign_keypair(): string
     {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_keypair();
+        }
         return '';
     }
 
@@ -644,6 +755,9 @@ if (!\extension_loaded('libsodium')) {
         string $secretkey,
         string $publickey
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_keypair_from_secretkey_and_publickey($secretkey, $publickey);
+        }
         return '';
     }
 
@@ -658,6 +772,9 @@ if (!\extension_loaded('libsodium')) {
         string $signed_message,
         string $publickey
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_open($signed_message, $publickey);
+        }
         return '';
     }
 
@@ -670,6 +787,9 @@ if (!\extension_loaded('libsodium')) {
     function crypto_sign_publickey(
         string $keypair
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_publickey($keypair);
+        }
         return '';
     }
 
@@ -682,6 +802,9 @@ if (!\extension_loaded('libsodium')) {
     function crypto_sign_secretkey(
         string $keypair
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_secretkey($keypair);
+        }
         return '';
     }
 
@@ -694,6 +817,9 @@ if (!\extension_loaded('libsodium')) {
     function crypto_sign_publickey_from_secretkey(
         string $secretkey
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_publickey_from_secretkey($secretkey);
+        }
         return '';
     }
 
@@ -706,6 +832,9 @@ if (!\extension_loaded('libsodium')) {
     function crypto_sign_seed_keypair(
         string $seed
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_seed_keypair($seed);
+        }
         return '';
     }
 
@@ -722,6 +851,9 @@ if (!\extension_loaded('libsodium')) {
         string $msg,
         string $publickey
     ): bool {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_sign_verify_detached($signature, $msg, $publickey);
+        }
         return false;
     }
 
@@ -739,6 +871,9 @@ if (!\extension_loaded('libsodium')) {
         string $nonce,
         string $key
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_stream($length, $nonce, $key);
+        }
         return '';
     }
 
@@ -756,6 +891,9 @@ if (!\extension_loaded('libsodium')) {
         string $nonce,
         string $key
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_crypto_stream_xor($plaintext, $nonce, $key);
+        }
         return '';
     }
 
@@ -769,7 +907,7 @@ if (!\extension_loaded('libsodium')) {
     function randombytes_buf(
         int $length
     ): string {
-        return '';
+        return \random_bytes($length);
     }
 
     /**
@@ -778,8 +916,9 @@ if (!\extension_loaded('libsodium')) {
      * 
      * @return int
      */
-    function randombytes_random16(): string {
-        return '';
+    function randombytes_random16(): int
+    {
+        return randombytes_uniform(0xffff);
     }
 
     /**
@@ -792,7 +931,7 @@ if (!\extension_loaded('libsodium')) {
     function randombytes_uniform(
         int $upperBoundNonInclusive
     ): int {
-        return 0;
+        return \random_int(0, $upperBoundNonInclusive - 1);
     }
 
     /**
@@ -804,6 +943,9 @@ if (!\extension_loaded('libsodium')) {
     function bin2hex(
         string $binary
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_bin2hex($binary);
+        }
         return '';
     }
 
@@ -818,6 +960,9 @@ if (!\extension_loaded('libsodium')) {
         string $left,
         string $right
     ): int {
+        if (\extension_loaded('sodium')) {
+            return \sodium_compare($left, $right);
+        }
         return 0;
     }
 
@@ -830,6 +975,9 @@ if (!\extension_loaded('libsodium')) {
     function hex2bin(
         string $binary
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_hex2bin($binary);
+        }
         return '';
     }
     
@@ -839,9 +987,11 @@ if (!\extension_loaded('libsodium')) {
      * @param &string $nonce
      * @return string
      */
-    function increment(
-        string &$nonce
-    ): string {
+    function increment(string &$nonce)
+    {
+        if (\extension_loaded('sodium')) {
+            return \sodium_increment($nonce);
+        }
         return '';
     }
 
@@ -856,6 +1006,9 @@ if (!\extension_loaded('libsodium')) {
         string &$left,
         string $right
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_add($left, $right);
+        }
         return '';
     }
 
@@ -864,6 +1017,9 @@ if (!\extension_loaded('libsodium')) {
      * @return int
      */
     function library_version_major(): int {
+        if (\extension_loaded('sodium')) {
+            return \SODIUM_LIBRARY_MAJOR_VERSION;
+        }
         return 0;
     }
 
@@ -872,6 +1028,9 @@ if (!\extension_loaded('libsodium')) {
      * @return int
      */
     function library_version_minor(): int {
+        if (\extension_loaded('sodium')) {
+            return \SODIUM_LIBRARY_MINOR_VERSION;
+        }
         return 0;
     }
     
@@ -886,6 +1045,9 @@ if (!\extension_loaded('libsodium')) {
         string $left,
         string $right
     ): int {
+        if (\extension_loaded('sodium')) {
+            return \sodium_memcmp($left, $right);
+        }
         return 0;
     }
 
@@ -897,6 +1059,9 @@ if (!\extension_loaded('libsodium')) {
     function memzero(
         string &$target
     ) {
+        if (\extension_loaded('sodium')) {
+            return \sodium_memzero($target);
+        }
         $target = '';
     }
 
@@ -906,6 +1071,9 @@ if (!\extension_loaded('libsodium')) {
      * @return string
      */
     function version_string(): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_version_string();
+        }
         return 'NA';
     }
 
@@ -918,6 +1086,9 @@ if (!\extension_loaded('libsodium')) {
     function crypto_scalarmult_base(
         string $sk
     ): string {
+        if (\extension_loaded('sodium')) {
+            return \sodium_scalarmult_base($sk);
+        }
         return '';
     }
 }

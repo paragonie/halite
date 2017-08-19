@@ -61,7 +61,7 @@ final class Halite
      * @internal
      * @param mixed $chosen
      * @param bool $decode
-     * @return callable (array or string)
+     * @return callable|null
      * @throws InvalidType
      */
     public static function chooseEncoder($chosen, bool $decode = false)
@@ -137,7 +137,7 @@ final class Halite
         if ($major < 9 || ($major === 9 && $minor < 2)) {
             if ($echo) {
                 echo 'Halite needs libsodium 1.0.9 or higher. You have: ',
-                sodium_version_string(), "\n";
+                SODIUM_LIBRARY_VERSION, "\n";
             }
             return false;
         }

@@ -22,6 +22,8 @@ class SecretKey extends Key
     
     /**
      * See the appropriate derived class.
+     * @throws CannotPerformOperation
+     * @return void
      */
     public function derivePublicKey()
     {

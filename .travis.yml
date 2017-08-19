@@ -28,4 +28,6 @@ install:
 - composer update
 - chmod +x ./test/phpunit.sh
 
-script: ./test/phpunit.sh
+script:
+- vendor/bin/phpunit
+- vendor/bin/psalm

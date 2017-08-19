@@ -51,7 +51,7 @@ class MerkleTree
     /**
      * Instantiate a Merkle tree
      * 
-     * @param Node[] $nodes
+     * @param array<int, Node> $nodes
      */
     public function __construct(Node ...$nodes)
     {
@@ -78,7 +78,7 @@ class MerkleTree
     /**
      * Merkle Trees are immutable. Return a replacement with extra nodes.
      *
-     * @param Node[] $nodes
+     * @param array<int, Node> $nodes
      * @return MerkleTree
      */
     public function getExpandedTree(Node ...$nodes): MerkleTree
@@ -96,7 +96,7 @@ class MerkleTree
      * Set the hash output size.
      *
      * @param int $size
-     * @return MerkleTree
+     * @return self
      * @throws InvalidDigestLength
      */
     public function setHashSize(int $size): self
@@ -128,7 +128,7 @@ class MerkleTree
      * Sets the personalization string for the Merkle root calculation
      *
      * @param string $str
-     * @return MerkleTree
+     * @return self
      */
     public function setPersonalizationString(string $str = ''): self
     {
@@ -142,7 +142,7 @@ class MerkleTree
     /**
      * Explicitly recalculate the Merkle root
      *
-     * @return MerkleTree
+     * @return self
      */
     public function triggerRootCalculation(): self
     {
@@ -215,7 +215,9 @@ class MerkleTree
         } while ($order > 1);
         // We should only have one value left:t
         $this->rootCalculated = true;
-        return \array_shift($hash);
+        /** @var string $first */
+        $first = \array_shift($hash);
+        return $first;
     }
 
     /**

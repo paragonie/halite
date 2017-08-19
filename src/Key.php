@@ -83,7 +83,7 @@ class Key
     {
         if (!$this->isPublicKey) {
             \sodium_memzero($this->keyMaterial);
-            $this->keyMaterial = null;
+            $this->keyMaterial = '';
         }
     }
 

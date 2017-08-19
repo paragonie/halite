@@ -116,8 +116,8 @@ class AsymmetricTest extends TestCase
     public function testSeal()
     {
         if (
-            sodium_library_version_major() < 7 ||
-            (sodium_library_version_major() == 7 && sodium_library_version_minor() < 5)
+            SODIUM_LIBRARY_MAJOR_VERSION < 7 ||
+            (SODIUM_LIBRARY_MAJOR_VERSION == 7 && SODIUM_LIBRARY_MINOR_VERSION < 5)
         ) {
             $this->markTestSkipped("Your version of libsodium is too old");
         }

@@ -59,6 +59,18 @@ final class HiddenString
     }
 
     /**
+     * @param HiddenString $other
+     * @return bool
+     */
+    public function equals(HiddenString $other)
+    {
+        return \hash_equals(
+            $this->getString(),
+            $other->getString()
+        );
+    }
+
+    /**
      * Hide its internal state from var_dump()
      *
      * @return array

@@ -54,8 +54,6 @@ if [ $? -eq 0 ]; then
     # Run the testing suite
     php phpunit.phar --bootstrap "$parentdir/autoload.php" "$parentdir/test/unit"
     EXITCODE=$?
-    # Test with mbstring.func_overload = 7
-    php -dmbstring.func_overload=7 phpunit.phar --bootstrap "$parentdir/autoload.php" "$parentdir/test/unit"
     # Cleanup
     if [ "$clean" -eq 1 ]; then
         echo -e "\033[32mCleaning Up!\033[0m"

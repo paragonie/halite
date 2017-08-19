@@ -8,12 +8,13 @@ use ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
 use ParagonIE\Halite\Asymmetric\SignaturePublicKey;
 use ParagonIE\Halite\Asymmetric\SignatureSecretKey;
 use ParagonIE\Halite\HiddenString;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class KeyTest extends \PHPUnit\Framework\TestCase
+class KeyTest extends TestCase
 {
     public function testDerive()
     {

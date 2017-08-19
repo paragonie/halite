@@ -4,12 +4,13 @@ declare(strict_types=1);
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Stream\ReadOnlyFile;
 use ParagonIE\Halite\Util;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class StreamTest extends \PHPUnit\Framework\TestCase
+class StreamTest extends TestCase
 {
     public function testFileHash()
     {

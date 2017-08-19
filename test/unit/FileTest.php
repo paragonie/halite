@@ -7,12 +7,13 @@ use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Util;
 use ParagonIE\Halite\Alerts as CryptoException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class FileTest extends \PHPUnit\Framework\TestCase
+class FileTest extends TestCase
 {
     /**
      * @covers File::encrypt()
@@ -144,12 +145,12 @@ class FileTest extends \PHPUnit\Framework\TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($msg, $e->getMessage());
+            $this->assertSame($e->getMessage(), $msg);
         }
 
         \file_put_contents(
             __DIR__.'/tmp/empty.encrypted.txt',
-            "\x31\x41\x04\x00\x01"
+            "\x31\x41\x02\x00\x01"
         );
         try {
             File::decrypt(
@@ -159,12 +160,13 @@ class FileTest extends \PHPUnit\Framework\TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($msg, $e->getMessage());
+            $this->assertSame($e->getMessage(), $msg);
         }
+
 
         \file_put_contents(
             __DIR__.'/tmp/empty.encrypted.txt',
-            "\x31\x41\x04\x00" . \str_repeat("\x00", 87)
+            "\x31\x41\x02\x00" . \str_repeat("\x00", 87)
         );
         try {
             File::decrypt(
@@ -174,7 +176,7 @@ class FileTest extends \PHPUnit\Framework\TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($msg, $e->getMessage());
+            $this->assertSame($e->getMessage(), $msg);
         }
 
         \unlink(__DIR__.'/tmp/empty.encrypted.txt');
@@ -318,7 +320,7 @@ class FileTest extends \PHPUnit\Framework\TestCase
 
         \file_put_contents(
             __DIR__.'/tmp/empty.sealed.txt',
-            "\x31\x41\x04\x00" . \str_repeat("\x00", 95)
+            "\x31\x41\x02\x00" . \str_repeat("\x00", 95)
         );
         try {
             File::unseal(
@@ -328,7 +330,7 @@ class FileTest extends \PHPUnit\Framework\TestCase
             );
             $this->fail("This should scream bloody murder");
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertSame($msg, $e->getMessage());
+            $this->assertSame($e->getMessage(), $msg);
         }
 
         \unlink(__DIR__.'/tmp/empty.sealed.txt');

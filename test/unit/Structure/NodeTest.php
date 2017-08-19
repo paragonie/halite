@@ -2,12 +2,13 @@
 declare(strict_types=1);
 
 use ParagonIE\Halite\Structure\Node;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class NodeTest extends \PHPUnit\Framework\TestCase
+class NodeTest extends TestCase
 {
     public function testHash()
     {

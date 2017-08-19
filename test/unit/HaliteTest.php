@@ -9,12 +9,13 @@ use ParagonIE\ConstantTime\{
     Hex
 };
 use ParagonIE\Halite\Halite;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class HaliteTest extends \PHPUnit\Framework\TestCase
+class HaliteTest extends TestCase
 {
     public function testLibsodiumDetection()
     {

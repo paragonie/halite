@@ -1,13 +1,15 @@
 <?php
 declare(strict_types=1);
+
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @covers HiddenString
  */
-class HiddenStringTest extends \PHPUnit\Framework\TestCase
+class HiddenStringTest extends TestCase
 {
     public function testRandomString()
     {

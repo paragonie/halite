@@ -5,12 +5,13 @@ use ParagonIE\Halite\Structure\{
     MerkleTree,
     Node
 };
+use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class MerkleTreeTest extends \PHPUnit\Framework\TestCase
+class MerkleTreeTest extends TestCase
 {
     public function testArithmetic()
     {

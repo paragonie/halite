@@ -133,6 +133,13 @@ final class Halite
      */
     public static function isLibsodiumSetupCorrectly(bool $echo = false): bool
     {
+        if (!\extension_loaded('sodium')) {
+            if ($echo) {
+                echo "You do not have the sodium extension enabled.\n";
+            }
+            return false;
+        }
+
         // Require libsodium 1.0.13
         $major = \SODIUM_LIBRARY_MAJOR_VERSION;
         $minor = \SODIUM_LIBRARY_MINOR_VERSION;

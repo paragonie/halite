@@ -81,6 +81,29 @@ final class Crypto
         EncryptionKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
+        return static::decryptWithAd(
+            $ciphertext,
+            $secretKey,
+            '',
+            $encoding
+        );
+    }
+
+    /**
+     * Decrypt a message using the Halite encryption protocol
+     *
+     * @param string $ciphertext
+     * @param EncryptionKey $secretKey
+     * @param mixed $encoding
+     * @return HiddenString
+     * @throws InvalidMessage
+     */
+    public static function decryptWithAd(
+        string $ciphertext,
+        EncryptionKey $secretKey,
+        string $additionalData = '',
+        $encoding = Halite::ENCODE_BASE64URLSAFE
+    ): HiddenString {
         $encKey = '';
         $authKey = '';
 
@@ -109,7 +132,7 @@ final class Crypto
         // Check the MAC first
         if (!self::verifyMAC(
             $auth,
-            $version . $salt . $nonce . $encrypted,
+            $version . $salt . $nonce . $additionalData . $encrypted,
             $authKey,
             $config
         )) {
@@ -153,8 +176,29 @@ final class Crypto
         EncryptionKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
+        return static::encryptWithAd(
+            $plaintext,
+            $secretKey,
+            '',
+            $encoding
+        );
+    }
+
+    /**
+     * @param HiddenString $plaintext
+     * @param EncryptionKey $secretKey
+     * @param string $additionalData
+     * @param string $encoding
+     * @return string
+     */
+    public static function encryptWithAd(
+        HiddenString $plaintext,
+        EncryptionKey $secretKey,
+        string $additionalData = '',
+        $encoding = Halite::ENCODE_BASE64URLSAFE
+    ): string {
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
-        
+
         // Generate a nonce and HKDF salt:
         $nonce = \random_bytes(\SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
         $salt = \random_bytes($config->HKDF_SALT_LEN);
@@ -166,7 +210,7 @@ final class Crypto
            This uses salted HKDF to split the keys, which is why we need the
            salt in the first place. */
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
-        
+
         // Encrypt our message with the encryption key:
         $encrypted = \sodium_crypto_stream_xor(
             $plaintext->getString(),
@@ -174,10 +218,10 @@ final class Crypto
             $encKey
         );
         \sodium_memzero($encKey);
-        
+
         // Calculate an authentication tag:
         $auth = self::calculateMAC(
-            Halite::HALITE_VERSION . $salt . $nonce . $encrypted,
+            Halite::HALITE_VERSION . $salt . $nonce . $additionalData . $encrypted,
             $authKey,
             $config
         );
@@ -196,6 +240,7 @@ final class Crypto
             return $encoder($message);
         }
         return $message;
+
     }
     
     /**

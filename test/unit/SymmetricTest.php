@@ -22,7 +22,7 @@ class SymmetricTest extends TestCase
      */
     public function testAuthenticate()
     {
-        $key = new AuthenticationKey(new HiddenString(\str_repeat('A', 32)), true);
+        $key = new AuthenticationKey(new HiddenString(\str_repeat('A', 32)));
         $message = 'test message';
         $mac = Symmetric::authenticate($message, $key);
         $this->assertTrue(
@@ -67,6 +67,7 @@ class SymmetricTest extends TestCase
 
     /**
      * @covers Symmetric::encrypt()
+     * @covers Symmetric::decrypt()
      */
     public function testEncrypt()
     {
@@ -82,6 +83,37 @@ class SymmetricTest extends TestCase
 
         $plain = Symmetric::decrypt($message, $key);
         $this->assertSame($plain->getString(), 'test message');
+    }
+
+    /**
+     * @covers Symmetric::encryptWithAd()
+     * @covers Symmetric::decryptWithAd()
+     */
+    public function testEncryptWithAd()
+    {
+        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $message = Symmetric::encryptWithAd(
+            new HiddenString('test message'),
+            $key,
+            'test'
+        );
+        $this->assertSame(
+            \strpos($message, Halite::VERSION_PREFIX),
+            0
+        );
+
+        $plain = Symmetric::decryptWithAd($message, $key, 'test');
+        $this->assertSame($plain->getString(), 'test message');
+
+        try {
+            Symmetric::decryptWithAd($message, $key, 'wrong');
+            $this->fail('AD did not change MAC');
+        } catch (CryptoException\InvalidMessage $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
     }
 
     /**

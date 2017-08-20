@@ -31,12 +31,14 @@ final class Password
      * @param HiddenString $password    The user's password
      * @param EncryptionKey $secretKey  The master key for all passwords
      * @param string $level             The security level for this password
+     * @param string $additionalData    Additional authenticated data
      * @return string                   An encrypted hash to store
      */
     public static function hash(
         HiddenString $password,
         EncryptionKey $secretKey,
-        string $level = KeyFactory::INTERACTIVE
+        string $level = KeyFactory::INTERACTIVE,
+        string $additionalData = ''
     ): string {
         $kdfLimits = KeyFactory::getSecurityLevels($level);
         // First, let's calculate the hash
@@ -47,9 +49,10 @@ final class Password
         );
         
         // Now let's encrypt the result
-        return Crypto::encrypt(
+        return Crypto::encryptWithAd(
             new HiddenString($hashed),
-            $secretKey
+            $secretKey,
+            $additionalData
         );
     }
 
@@ -59,6 +62,7 @@ final class Password
      * @param string $stored            Encrypted password hash
      * @param EncryptionKey $secretKey  The master key for all passwords
      * @param string $level             The security level for this password
+     * @param string $additionalData    Additional authenticated data (if used to encrypt, mandatory)
      * @return bool                     Do we need to regenerate the hash or
      *                                  ciphertext?
      * @throws InvalidMessage
@@ -66,7 +70,8 @@ final class Password
     public static function needsRehash(
         string $stored,
         EncryptionKey $secretKey,
-        string $level = KeyFactory::INTERACTIVE
+        string $level = KeyFactory::INTERACTIVE,
+        string $additionalData = ''
     ): bool {
         $config = self::getConfig($stored);
         if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 4 / 3)) {
@@ -74,9 +79,10 @@ final class Password
         }
 
         // First let's decrypt the hash
-        $hash_str = Crypto::decrypt(
+        $hash_str = Crypto::decryptWithAd(
             $stored,
             $secretKey,
+            $additionalData,
             $config->ENCODING
         )->getString();
 
@@ -151,13 +157,15 @@ final class Password
      * @param HiddenString $password    The user's password
      * @param string $stored            The encrypted password hash
      * @param EncryptionKey $secretKey  The master key for all passwords
+     * @param string $additionalData    Additional authenticated data (needed to decrypt)
      * @return bool                     Is this password valid?
      * @throws InvalidMessage
      */
     public static function verify(
         HiddenString $password,
         string $stored,
-        EncryptionKey $secretKey
+        EncryptionKey $secretKey,
+        string $additionalData = ''
     ): bool {
         $config = self::getConfig($stored);
         // Base64-urlsafe encoded, so 4/3 the size of raw binary
@@ -167,7 +175,7 @@ final class Password
             );
         }
         // First let's decrypt the hash
-        $hash_str = Crypto::decrypt($stored, $secretKey, $config->ENCODING);
+        $hash_str = Crypto::decryptWithAd($stored, $secretKey, $additionalData, $config->ENCODING);
         // Upon successful decryption, verify the password is correct
         return \sodium_crypto_pwhash_str_verify(
             $hash_str->getString(),

@@ -25,7 +25,7 @@ versions of Halite are briefly highlighted below.
 |                                                            | PHP   | libsodium | PECL libsodium |
 |------------------------------------------------------------|-------|-----------|----------------|
 | Halite 4                                                   | 7.2.0 | 1.0.13    | N/A (standard) |
-| [Halite 3](https://github.com/paragonie/halite/tree/v3.x)  | 7.0.0 | 1.0.9     | 1.0.6          |
+| [Halite 3](https://github.com/paragonie/halite/tree/v3.x)  | 7.0.0 | 1.0.9     | 1.0.6 / 2.0.4  |
 | [Halite 2](https://github.com/paragonie/halite/tree/v2.2)  | 7.0.0 | 1.0.9     | 1.0.6          |
 
 If you need a version of Halite before 4.0, see the documentation relevant to that

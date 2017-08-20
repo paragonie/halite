@@ -133,28 +133,13 @@ final class Halite
      */
     public static function isLibsodiumSetupCorrectly(bool $echo = false): bool
     {
-        // Require libsodium 1.0.9
+        // Require libsodium 1.0.13
         $major = \SODIUM_LIBRARY_MAJOR_VERSION;
         $minor = \SODIUM_LIBRARY_MINOR_VERSION;
-        if ($major < 9 || ($major === 9 && $minor < 2)) {
+        if ($major < 9 || ($major === 9 && $minor < 5)) {
             if ($echo) {
-                echo 'Halite needs libsodium 1.0.9 or higher. You have: ',
-                SODIUM_LIBRARY_VERSION, "\n";
-            }
-            return false;
-        }
-
-        // Added in version 1.0.3 of the PHP extension
-        if (!\is_callable('sodium_crypto_pwhash_str')) {
-            if ($echo) {
-                echo 'Halite needs version 1.0.6 or higher of the PHP extension installed.', "\n";
-            }
-            return false;
-        }
-
-        if (!\is_callable('sodium_crypto_box_seal')) {
-            if ($echo) {
-                echo 'crypto_box_seal() is not available.', "\n";
+                echo 'Halite needs libsodium 1.0.13 or higher. You have: ',
+                \SODIUM_LIBRARY_VERSION, "\n";
             }
             return false;
         }

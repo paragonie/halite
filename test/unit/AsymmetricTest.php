@@ -25,7 +25,7 @@ class AsymmetricTest extends TestCase
     {
         $alice = KeyFactory::generateEncryptionKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
-        
+
         $message = Asymmetric::encrypt(
             new HiddenString('test message'),
             $alice->getSecretKey(),
@@ -35,14 +35,74 @@ class AsymmetricTest extends TestCase
             \strpos($message, Halite::VERSION_PREFIX),
             0
         );
-        
+
         $plain = Asymmetric::decrypt(
             $message,
             $bob->getSecretKey(),
             $alice->getPublicKey()
         );
-        
+
         $this->assertSame($plain->getString(), 'test message');
+    }
+
+    /**
+     * @covers Asymmetric::encryptWithAd()
+     * @covers Asymmetric::decryptWithAd()
+     */
+    public function testEncryptWithAd()
+    {
+        $alice = KeyFactory::generateEncryptionKeyPair();
+        $bob = KeyFactory::generateEncryptionKeyPair();
+
+        $random = \random_bytes(32);
+
+        $message = Asymmetric::encryptWithAd(
+            new HiddenString('test message'),
+            $alice->getSecretKey(),
+            $bob->getPublicKey(),
+            $random
+        );
+        $this->assertSame(
+            \strpos($message, Halite::VERSION_PREFIX),
+            0
+        );
+
+        $plain = Asymmetric::decryptWithAd(
+            $message,
+            $bob->getSecretKey(),
+            $alice->getPublicKey(),
+            $random
+        );
+        $this->assertSame($plain->getString(), 'test message');
+
+        try {
+            Asymmetric::decrypt(
+                $message,
+                $bob->getSecretKey(),
+                $alice->getPublicKey()
+            );
+            $this->fail('AD did not change MAC');
+        } catch (CryptoException\InvalidMessage $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
+
+        try {
+            Asymmetric::decryptWithAd(
+                $message,
+                $bob->getSecretKey(),
+                $alice->getPublicKey(),
+                'wrong'
+            );
+            $this->fail('AD did not change MAC');
+        } catch (CryptoException\InvalidMessage $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
     }
 
     /**

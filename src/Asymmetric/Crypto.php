@@ -56,6 +56,33 @@ final class Crypto
         EncryptionPublicKey $theirPublicKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
+        return static::encryptWithAd(
+            $plaintext,
+            $ourPrivateKey,
+            $theirPublicKey,
+            '',
+            $encoding
+        );
+    }
+
+    /**
+     * Encrypt with additional associated data.
+     *
+     * @param HiddenString $plaintext
+     * @param EncryptionSecretKey $ourPrivateKey
+     * @param EncryptionPublicKey $theirPublicKey
+     * @param string $additionalData
+     * @param string $encoding
+     * @return string
+     * @throws \TypeError
+     */
+    public static function encryptWithAd(
+        HiddenString $plaintext,
+        EncryptionSecretKey $ourPrivateKey,
+        EncryptionPublicKey $theirPublicKey,
+        string $additionalData = '',
+        $encoding = Halite::ENCODE_BASE64URLSAFE
+    ): string {
         $ss = self::getSharedSecret(
             $ourPrivateKey,
             $theirPublicKey
@@ -64,15 +91,16 @@ final class Crypto
             throw new \TypeError();
         }
         $sharedSecretKey = new EncryptionKey($ss);
-        $ciphertext = SymmetricCrypto::encrypt(
+        $ciphertext = SymmetricCrypto::encryptWithAd(
             $plaintext,
             $sharedSecretKey,
+            $additionalData,
             $encoding
         );
         unset($sharedSecretKey);
         return $ciphertext;
     }
-    
+
     /**
      * Decrypt a string using asymmetric cryptography
      * Wraps SymmetricCrypto::decrypt()
@@ -90,6 +118,33 @@ final class Crypto
         EncryptionPublicKey $theirPublicKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
+        return static::decryptWithAd(
+            $ciphertext,
+            $ourPrivateKey,
+            $theirPublicKey,
+            '',
+            $encoding
+        );
+    }
+
+    /**
+     *
+     *
+     * @param string $ciphertext
+     * @param EncryptionSecretKey $ourPrivateKey
+     * @param EncryptionPublicKey $theirPublicKey
+     * @param string $additionalData
+     * @param string $encoding
+     * @return HiddenString
+     * @throws \TypeError
+     */
+    public static function decryptWithAd(
+        string $ciphertext,
+        EncryptionSecretKey $ourPrivateKey,
+        EncryptionPublicKey $theirPublicKey,
+        string $additionalData = '',
+        $encoding = Halite::ENCODE_BASE64URLSAFE
+    ): HiddenString {
         $ss = self::getSharedSecret(
             $ourPrivateKey,
             $theirPublicKey
@@ -98,9 +153,10 @@ final class Crypto
             throw new \TypeError();
         }
         $sharedSecretKey = new EncryptionKey($ss);
-        $plaintext = SymmetricCrypto::decrypt(
+        $plaintext = SymmetricCrypto::decryptWithAd(
             $ciphertext,
             $sharedSecretKey,
+            $additionalData,
             $encoding
         );
         unset($sharedSecretKey);

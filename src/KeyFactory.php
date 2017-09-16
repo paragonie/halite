@@ -611,7 +611,7 @@ final class KeyFactory
     /**
      * Export a cryptography key to a string (with a checksum)
      *
-     * @param $key
+     * @param Key|KeyPair $key
      * @return HiddenString
      * @throws \TypeError
      */

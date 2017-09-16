@@ -44,13 +44,13 @@ class MutableFile implements StreamInterface
 
     /**
      * MutableFile constructor.
-     * @param $file
+     * @param string|resource $file
      * @throws CryptoException\InvalidType
      * @throws CryptoException\FileAccessDenied
      */
     public function __construct($file)
     {
-        if (is_string($file)) {
+        if (\is_string($file)) {
             $fp = \fopen($file, 'wb');
             if (!\is_resource($fp)) {
                 throw new CryptoException\FileAccessDenied(
@@ -61,7 +61,7 @@ class MutableFile implements StreamInterface
             $this->closeAfter = true;
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
-        } elseif (is_resource($file)) {
+        } elseif (\is_resource($file)) {
             $this->fp = $file;
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);

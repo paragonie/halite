@@ -16,6 +16,10 @@ It's released under the GPLv3 license. [Commercial licenses are available](https
 Paragon Initiative Enterprises if you wish to implement Halite in an application
 without making your source code available under a GPL-compatible license.
 
+If you are satisfied with the terms of GPLv3 software for backend web applications
+but would like to purchase a support contract for your application that uses Halite,
+those are also offered by Paragon Initiative Enterprises.
+
 ## Installing Halite
 
 Before you can use Halite, you must choose a version that fits the requirements 

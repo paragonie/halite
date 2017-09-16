@@ -13,7 +13,7 @@ using X25519 (Elliptic Curve Diffie Hellman key agreement over Curve25519).
 
 ### `encrypt()`
 
-> `public` encrypt(`HiddenString $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `string`
+> `public` encrypt(`HiddenString $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `string`
 
 This method will:
 
@@ -29,7 +29,7 @@ This method will:
 
 ### `decrypt()`
 
-> `public` decrypt(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `boolean $raw = false`) : `HiddenString`
+> `public` decrypt(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `HiddenString`
 
 This method will:
 
@@ -44,9 +44,21 @@ This method will:
    key (step 4).
 7. Return what should be the original plaintext.
 
+### `encryptWithAd()`
+
+> `public` encryptWithAd(`HiddenString $plaintext`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `string`
+
+This is similar to `encrypt()`, except the `$additionalData` string is prepended to the ciphertext (after the nonce) when calculating the Message Authentication Code (MAC).
+
+### `decryptWithAd()`
+
+> `public` decryptWithAd(`string $ciphertext`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `HiddenString`
+
+This is similar to `decrypt()`, except the `$additionalData` string is prepended to the ciphertext (after the nonce) when calculating the Message Authentication Code (MAC).
+
 ### `seal()`
 
-> `public` seal(`HiddenString $source`,  [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `boolean $raw = false`) : `string`
+> `public` seal(`HiddenString $source`,  [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `string`
 
 Anonymous public-key encryption. Encrypt a message with your recipient's public
 key and they can use their secret key to decrypt it.
@@ -55,7 +67,7 @@ The actual underlying protocol is [`sodium_crypto_box_seal()`](https://paragonie
 
 ### `unseal()`
 
-> `public` unseal(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$secretKey`, `boolean $raw = false`) : `HiddenString`
+> `public` unseal(`string $source`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$secretKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `HiddenString`
 
 Anonymous public-key decryption. Decrypt a sealed message with your secret key.
 
@@ -63,12 +75,12 @@ The actual underlying protocol is [`sodium_crypto_box_seal_open()`](https://para
 
 ### `sign()`
 
-> `public` sign(`string $message`, [`SignatureSecretKey`](SignatureSecretKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+> `public` sign(`string $message`, [`SignatureSecretKey`](SignatureSecretKey.md) `$secretKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `string`
 
 Calculates a digital signature of `$message`, using [`sodium_crypto_sign()`](https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md#crypto-sign).
 
 ### `verify()`
 
-> `public` verify(`string $message`, [`SignaturePublicKey`](SignaturePublicKey.md) `$secretKey`, `string $signature`, `boolean $raw = false`) : `boolean`
+> `public` verify(`string $message`, [`SignaturePublicKey`](SignaturePublicKey.md) `$secretKey`, `string $signature`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `boolean`
 
 Does the signature match the contents of the message, for the given public key?

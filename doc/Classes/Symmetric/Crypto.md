@@ -6,13 +6,13 @@
 
 ### `authenticate()`
 
-> `public` authenticate(`string $message`, [`AuthenticationKey`](AuthenticationKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+> `public` authenticate(`string $message`, [`AuthenticationKey`](AuthenticationKey.md) `$secretKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `string`
 
 Calculate a MAC for a given message, using a secret authentication key.
 
 ### `encrypt()`
 
-> `public` encrypt(`HiddenString $plaintext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `string`
+> `public` encrypt(`HiddenString $plaintext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `string`
 
 Encrypt-then-authenticate a message. This method will:
 
@@ -27,7 +27,7 @@ Encrypt-then-authenticate a message. This method will:
 
 ### `decrypt()`
 
-> `public` decrypt(`string $ciphertext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `boolean $raw = false`) : `HiddenString`
+> `public` decrypt(`string $ciphertext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `HiddenString`
 
 Verify-then-decrypt a message. This method will:
 
@@ -41,8 +41,20 @@ Verify-then-decrypt a message. This method will:
    key (step 3).
 6. Return what should be the original plaintext.
 
+### `encryptWithAd()`
+
+> `public` encryptWithAd(`HiddenString $plaintext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `string`
+
+This is similar to `encrypt()`, except the `$additionalData` string is prepended to the ciphertext (after the nonce) when calculating the Message Authentication Code (MAC).
+
+### `decryptWithAd()`
+
+> `public` decryptWithAd(`string $ciphertext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `HiddenString`
+
+This is similar to `decrypt()`, except the `$additionalData` string is prepended to the ciphertext (after the nonce) when calculating the Message Authentication Code (MAC).
+
 ### `verify()`
 
-> `public` verify(`string $message`, [`AuthenticationKey`](AuthenticationKey.md) `$secretKey`, `string $mac` `boolean $raw = false`) : `boolean`
+> `public` verify(`string $message`, [`AuthenticationKey`](AuthenticationKey.md) `$secretKey`, `string $mac`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `boolean`
 
 Verify the MAC for a given message and secret authentication key.

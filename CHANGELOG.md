@@ -1,9 +1,15 @@
 # Changelog
 
-## Version 4.0.0 (Not released)
+## Version 4.0.0 (2017-09-16)
 
-* Bump minimum PHP version to 7.2.0.
-* 
+* Bump minimum PHP version to **7.2.0**, which will be available before the end of 2017
+* New methods: `encryptWithAd()` and `decryptWithAd()`, for satisfying true AEAD needs
+* Encrypted password hashing through our `Password` class can also accept an optional, 
+  additional data parameter
+* `HiddenString` objects can now be directly compared
+  * `$hiddenString->equals($otherHiddenString)`
+* Added Psalm to our Continuous Integration to assure Halite is fully type-safe
+* Updated unit tests to be compatible with PHPUnit 6
 
 ## Version 3.2.0 (2016-12-08)
 

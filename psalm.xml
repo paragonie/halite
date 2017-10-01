@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<psalm
+    name="Halite v1.x"
+    stopOnFirstError="false"
+    useDocblockTypes="true"
+    totallyTyped="true"
+>
+    <projectFiles>
+        <directory name="src" />
+    </projectFiles>
+
+    <issueHandlers>
+        <UndefinedFunction errorLevel="info" />
+        <UndefinedConstant errorLevel="info" />
+        <TooFewArguments errorLevel="suppress" /> <!-- \Sodium\memzero() -->
+        <PropertyNotSetInConstructor errorLevel="suppress" />
+    </issueHandlers>
+</psalm>

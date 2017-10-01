@@ -24,10 +24,11 @@ final class EncryptionSecretKey extends SecretKey
     /**
      * See the appropriate derived class.
      * 
-     * @return SignaturePublicKey
+     * @return EncryptionPublicKey
      */
     public function derivePublicKey()
     {
+        /** @var string $publicKey */
         $publicKey = \Sodium\crypto_box_publickey_from_secretkey(
             $this->get()
         );

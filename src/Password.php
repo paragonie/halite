@@ -34,6 +34,7 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
             );
         }
         // First, let's calculate the hash
+        /** @var string $hashed */
         $hashed = \Sodium\crypto_pwhash_scryptsalsa208sha256_str(
             $password,
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
@@ -41,7 +42,9 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
         );
         
         // Now let's encrypt the result
-        return Crypto::encrypt($hashed, $secret_key);
+        /** @var string $encrypted */
+        $encrypted = Crypto::encrypt($hashed, $secret_key);
+        return (string) $encrypted;
     }
 
     /**
@@ -74,6 +77,6 @@ abstract class Password implements \ParagonIE\Halite\Contract\PasswordInterface
         // First let's decrypt the hash
         $hash_str = Crypto::decrypt($stored, $secret_key);
         // Upon successful decryption, verify the password is correct
-        return \Sodium\crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $password);
+        return (bool) \Sodium\crypto_pwhash_scryptsalsa208sha256_str_verify($hash_str, $password);
     }
 }

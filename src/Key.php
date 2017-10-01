@@ -25,10 +25,17 @@ abstract class Key implements Contract\KeyInterface
     const CRYPTO_AUTH      =  9;
     const CRYPTO_BOX       = 20;
     const CRYPTO_SIGN      = 24;
-    
+
+    /** @var bool $is_public_key */
     private $is_public_key = false;
+
+    /** @var bool $is_signing_key */
     private $is_signing_key = false;
+
+    /** @var bool $is_asymmetric_key */
     private $is_asymmetric_key = false;
+
+    /** @var string $key_material */
     private $key_material = '';
     
     /**
@@ -52,20 +59,20 @@ abstract class Key implements Contract\KeyInterface
         ...$args
     ) {
         // Workaround: Inherited classes have simpler constructors:
-        $public = \count($args) >= 1 ? $args[0] : false;
-        $signing = \count($args) >= 2 ? $args[1] : false;
-        $asymmetric = \count($args) >= 3 ? $args[2] : false;
+        $public = (bool) (\count($args) >= 1 ? $args[0] : false);
+        $signing = (bool) (\count($args) >= 2 ? $args[1] : false);
+        $asymmetric = (bool) (\count($args) >= 3 ? $args[2] : false);
         
         // String concatenation used to undo a PHP 7 optimization that causes
         // the wrong memory to get overwritten by \Sodium\memzero:
         $this->key_material .= $keyMaterial;
-        $this->is_public_key = $public;
-        $this->is_signing_key = $signing;
+        $this->is_public_key = !empty($public);
+        $this->is_signing_key = !empty($signing);
         if ($public && !$asymmetric) {
             // This is implied.
             $asymmetric = true;
         }
-        $this->is_asymmetric_key = $asymmetric;
+        $this->is_asymmetric_key = !empty($asymmetric);
     }
     
     /**
@@ -90,7 +97,7 @@ abstract class Key implements Contract\KeyInterface
     {
         if (!$this->is_public_key) {
             \Sodium\memzero($this->key_material);
-            $this->key_material = null;
+            $this->key_material = '';
         }
     }
     
@@ -117,6 +124,8 @@ abstract class Key implements Contract\KeyInterface
     
     /**
      * We rename this in version 2. Keep this for now.
+     *
+     * @return string
      */
     public function get()
     {

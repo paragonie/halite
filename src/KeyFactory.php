@@ -1,6 +1,7 @@
 <?php
 namespace ParagonIE\Halite;
 
+use ParagonIE\Halite\Alerts\CannotPerformOperation;
 use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
 use \ParagonIE\Halite\Asymmetric\EncryptionSecretKey;
 use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
@@ -19,12 +20,13 @@ abstract class KeyFactory
     /**
      * Generate an an authentication key (symmetric-key cryptography)
      * 
-     * @param &string $secret_key
+     * @param string $secret_key
      * @return AuthenticationKey
      */
     public static function generateAuthenticationKey(&$secret_key = null)
     {
-        $secret_key = \Sodium\randombytes_buf(
+        /** @var string $secret_key */
+        $secret_key = \random_bytes(
             \Sodium\CRYPTO_AUTH_KEYBYTES
         );
         return new AuthenticationKey($secret_key);
@@ -33,12 +35,13 @@ abstract class KeyFactory
     /**
      * Generate an an encryption key (symmetric-key cryptography)
      * 
-     * @param &string $secret_key
+     * @param string $secret_key
      * @return EncryptionKey
      */
     public static function generateEncryptionKey(&$secret_key = null)
     {
-        $secret_key = \Sodium\randombytes_buf(
+        /** @var string $secret_key */
+        $secret_key = \random_bytes(
             \Sodium\CRYPTO_SECRETBOX_KEYBYTES
         );
         return new EncryptionKey($secret_key);
@@ -47,39 +50,47 @@ abstract class KeyFactory
     /**
      * Generate a key pair for public key encryption
      * 
-     * @param type $secret_key
-     * @return \ParagonIE\Halite\EncryptionKeyPair
+     * @param string $secret_key
+     * @return EncryptionKeyPair
      */
     public static function generateEncryptionKeyPair(&$secret_key = null)
     {
         // Encryption keypair
+        /** @var string $kp */
         $kp = \Sodium\crypto_box_keypair();
+        /** @var string $secret_key */
         $secret_key = \Sodium\crypto_box_secretkey($kp);
         
         // Let's wipe our $kp variable
         \Sodium\memzero($kp);
-        return new EncryptionKeyPair(
+        /** @var EncryptionKeyPair $return */
+        $return = new EncryptionKeyPair(
             new EncryptionSecretKey($secret_key)
         );
+        return $return;
     }
     
     /**
      * Generate a key pair for public key digital signatures
      * 
-     * @param type $secret_key
-     * @return \ParagonIE\Halite\EncryptionKeyPair
+     * @param string $secret_key
+     * @return SignatureKeyPair
      */
     public static function generateSignatureKeyPair(&$secret_key = null)
     {
         // Encryption keypair
+        /** @var string $kp */
         $kp = \Sodium\crypto_sign_keypair();
+        /** @var string $secret_key */
         $secret_key = \Sodium\crypto_sign_secretkey($kp);
         
         // Let's wipe our $kp variable
         \Sodium\memzero($kp);
-        return new SignatureKeyPair(
+        /** @var SignatureKeyPair $return */
+        $return = new SignatureKeyPair(
             new SignatureSecretKey($secret_key)
         );
+        return $return;
     }
     
     
@@ -94,6 +105,7 @@ abstract class KeyFactory
         $password,
         $salt
     ) {
+        /** @var string $secret_key */
         $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
             \Sodium\CRYPTO_AUTH_KEYBYTES,
             $password,
@@ -101,20 +113,24 @@ abstract class KeyFactory
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
         );
-        return new AuthenticationKey($secret_key);
+        /** @var AuthenticationKey $return */
+        $return = new AuthenticationKey($secret_key);
+        return $return;
     }
     
     /**
      * Derive an encryption key (symmetric-key cryptography) from a password
      * and salt
-     * 
-     * @param &string $secret_key
+     *
+     * @param string $password
+     * @param string $salt
      * @return EncryptionKey
      */
     public static function deriveEncryptionKey(
         $password,
         $salt
     ) {
+        /** @var string $secret_key */
         $secret_key = \Sodium\crypto_pwhash_scryptsalsa208sha256(
             \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
             $password,
@@ -122,13 +138,16 @@ abstract class KeyFactory
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
         );
-        return new EncryptionKey($secret_key);
+        /** @var EncryptionKey $return */
+        $return = new EncryptionKey($secret_key);
+        return $return;
     }
     
     /**
      * Derive a key pair for public key encryption from a password and salt
-     * 
-     * @param string $secret_key
+     *
+     * @param string $password
+     * @param string $salt
      * @return EncryptionKeyPair
      */
     public static function deriveEncryptionKeyPair(
@@ -136,6 +155,7 @@ abstract class KeyFactory
         $salt
     ) {
         // Digital signature keypair
+        /** @var string $seed */
         $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
             \Sodium\CRYPTO_SIGN_SEEDBYTES,
             $password,
@@ -143,27 +163,32 @@ abstract class KeyFactory
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
         );
+        /** @var string $keypair */
         $keypair = \Sodium\crypto_box_seed_keypair($seed);
+        /** @var string $secret_key */
         $secret_key = \Sodium\crypto_box_secretkey($keypair);
         
         // Let's wipe our $kp variable
         \Sodium\memzero($keypair);
-        return new EncryptionKeyPair(
+        /** @var EncryptionKeyPair $return */
+        $return = new EncryptionKeyPair(
             new EncryptionSecretKey($secret_key)
         );
+        return $return;
     }
-    
+
     /**
      * Derive a key pair for public key signatures from a password and salt
-     * 
-     * @param type $secret_key
-     * @return \ParagonIE\Halite\EncryptionKeyPair
+     * @param string $password
+     * @param string $salt
+     * @return SignatureKeyPair
      */
     public static function deriveSignatureKeyPair(
         $password,
         $salt
     ) {
         // Digital signature keypair
+        /** @var string $seed */
         $seed = \Sodium\crypto_pwhash_scryptsalsa208sha256(
             \Sodium\CRYPTO_SIGN_SEEDBYTES,
             $password,
@@ -171,21 +196,26 @@ abstract class KeyFactory
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_OPSLIMIT_INTERACTIVE,
             \Sodium\CRYPTO_PWHASH_SCRYPTSALSA208SHA256_MEMLIMIT_INTERACTIVE
         );
+        /** @var string $keypair */
         $keypair = \Sodium\crypto_sign_seed_keypair($seed);
+        /** @var string $secret_key */
         $secret_key = \Sodium\crypto_sign_secretkey($keypair);
         
         // Let's wipe our $kp variable
         \Sodium\memzero($keypair);
-        return new SignatureKeyPair(
+        /** @var SignatureKeyPair $return */
+        $return = new SignatureKeyPair(
             new SignatureSecretKey($secret_key)
         );
+        return $return;
     }
     
     /**
      * Load a symmetric authentication key from a file
      * 
      * @param string $filePath
-     * @return EncryptionKey
+     * @return AuthenticationKey
+     * @throws CannotPerformOperation
      */
     public static function loadAuthenticationKey($filePath)
     {
@@ -204,6 +234,7 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return EncryptionKey
+     * @throws CannotPerformOperation
      */
     public static function loadEncryptionKey($filePath)
     {
@@ -222,6 +253,7 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @return EncryptionPublicKey
+     * @throws CannotPerformOperation
      */
     public static function loadEncryptionPublicKey($filePath)
     {
@@ -334,7 +366,7 @@ abstract class KeyFactory
      * 
      * @param Key|KeyPair $key
      * @param string $filename
-     * @return int|boolean
+     * @return bool
      */
     public static function save($key, $filename = '')
     {
@@ -359,9 +391,9 @@ abstract class KeyFactory
                 'Cannot load key from file: '. $filePath
             );
         }
-        $data = \Sodium\hex2bin($filedata);
+        $data = (string) \Sodium\hex2bin($filedata);
         \Sodium\memzero($filedata);
-        return self::getKeyDataFromString($data);
+        return (string) self::getKeyDataFromString($data);
     }
     
     /**
@@ -385,6 +417,7 @@ abstract class KeyFactory
             -\Sodium\CRYPTO_GENERICHASH_BYTES_MAX,
             \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
         );
+        /** @var string $calc */
         $calc = \Sodium\crypto_generichash(
             $vtag . $kdat, 
             null,
@@ -407,11 +440,11 @@ abstract class KeyFactory
      * 
      * @param string $filePath
      * @param string $keyData
-     * @return int|bool
+     * @return bool
      */
     protected static function saveKeyFile($filePath, $keyData)
     {
-        return \file_put_contents(
+        $put = \file_put_contents(
             $filePath,
             \Sodium\bin2hex(
                 Halite::HALITE_VERSION_KEYS . $keyData . 
@@ -422,5 +455,6 @@ abstract class KeyFactory
                 )
             )
         );
+        return $put !== false;
     }
 }

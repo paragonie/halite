@@ -12,6 +12,7 @@ class PublicKey extends Key implements Contract\KeyInterface
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
+        /** @var bool $signing */
         $signing = \count($args) >= 1
             ? $args[0]
             : false;

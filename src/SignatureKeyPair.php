@@ -15,6 +15,9 @@ final class SignatureKeyPair extends KeyPair
      * Pass it a secret key, it will automatically generate a public key
      * 
      * @param ...Key $keys
+     * @throws CryptoException\InvalidKey
+     * @throws \InvalidArgumentException
+     * @throws \TypeError
      */
     public function __construct(Key ...$keys)
     {
@@ -50,6 +53,7 @@ final class SignatureKeyPair extends KeyPair
                         );
                     }
                     // crypto_sign - Ed25519
+                    /** @var string $pub */
                     $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                         $keys[1]->get()
                     );
@@ -71,6 +75,7 @@ final class SignatureKeyPair extends KeyPair
                         );
                     }
                     // crypto_sign - Ed25519
+                    /** @var string $pub */
                     $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                         $keys[0]->get()
                     );
@@ -109,6 +114,7 @@ final class SignatureKeyPair extends KeyPair
                     );
                 }
                 // We need to calculate the public key from the secret key
+                /** @var string $pub */
                 $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                     $keys[0]->get()
                 );
@@ -119,6 +125,9 @@ final class SignatureKeyPair extends KeyPair
                 throw new \InvalidArgumentException(
                     'Halite\\EncryptionKeyPair expects 1 or 2 keys'
                 );
+        }
+        if (false) {
+            parent::__construct(...$keys);
         }
     }
     /**
@@ -133,19 +142,22 @@ final class SignatureKeyPair extends KeyPair
             'publicKey' => '**protected**'
         ];
     }
+
     /**
      * Derive an encryption key from a password and a salt
-     * 
+     *
      * @param string $password
      * @param string $salt
      * @param int $type
-     * @return array|\ParagonIE\Halite\Key
-     * @throws CryptoException\InvalidFlags
+     * @return KeyPair
+     * @throws Alerts\InvalidFlags
+     * @return EncryptionKeyPair
+     * @throws Alerts\InvalidKey
      */
     public static function deriveFromPassword(
         $password,
         $salt,
-        $type = self::CRYPTO_SIGN
+        $type = Key::CRYPTO_SIGN
     ) { 
         if (Key::doesNotHaveFlag($type, Key::ASYMMETRIC)) {
             throw new CryptoException\InvalidKey(
@@ -153,13 +165,10 @@ final class SignatureKeyPair extends KeyPair
             );
         }
         if (Key::hasFlag($type, Key::SIGNATURE)) {
-            $key = SignatureSecretKey::deriveFromPassword(
+            return KeyFactory::deriveSignatureKeyPair(
                 $password,
-                $salt,
-                Key::CRYPTO_SIGN
+                $salt
             );
-            $keypair = new SignatureKeyPair($key[0]);
-            return $keypair;
         }
         throw new CryptoException\InvalidKey(
             'You must specify encryption or authentication flags.'
@@ -170,9 +179,10 @@ final class SignatureKeyPair extends KeyPair
      * Generate a new keypair
      * 
      * @param int $type Key flags
-     * @param &string $secret_key - Reference to optional variable to store secret key in
+     * @param string $secret_key - Reference to optional variable to store secret key in
      * @return KeyPair
      * @throws CryptoException\InvalidKey
+     * @psalm-suppress ConflictingReferenceConstraint
      */
     public static function generate($type = Key::CRYPTO_SIGN, &$secret_key = null)
     {
@@ -182,9 +192,7 @@ final class SignatureKeyPair extends KeyPair
             );
         }
         if (Key::hasFlag($type, Key::SIGNATURE)) {
-            $key = SignatureSecretKey::generate(Key::CRYPTO_SIGN, $secret_key);
-            $keypair = new SignatureKeyPair(...$key);
-            return $keypair;
+            return KeyFactory::generateSignatureKeyPair($secret_key);
         }
         throw new CryptoException\InvalidKey(
             'You must specify encryption or authentication flags.'
@@ -220,25 +228,20 @@ final class SignatureKeyPair extends KeyPair
      * 
      * @throws CryptoException\InvalidFlags
      */
-    public static function fromFile(
-        $filePath,
-        $type = Key::CRYPTO_SIGN
-    ) {
-        $keys = SignatureSecretKey::fromFile(
-            $filePath,
-            ($type | Key::ASYMMETRIC | Key::ENCRYPTION)
-        );
-        return new SignatureKeyPair(...$keys);
+    public static function fromFile($filePath)
+    {
+        return KeyFactory::loadSignatureKeyPair($filePath);
     }
     
     /**
      * Save a copy of the secret key to a file
      *
      * @param string $filePath
-     * @return bool|int
+     * @return bool
      */
     public function saveToFile($filePath)
     {
-        return $this->secret_key->saveToFile($filePath);
+        $saved = KeyFactory::save($this->secret_key, $filePath);
+        return !empty($saved);
     }
 }

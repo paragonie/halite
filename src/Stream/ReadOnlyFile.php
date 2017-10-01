@@ -8,19 +8,38 @@ use \ParagonIE\Halite\Util;
 class ReadOnlyFile implements StreamInterface
 {
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
-    
+
+    /** @var resource */
     private $fp;
+
+    /** @var string */
     private $hash;
+
+    /** @var int */
     private $pos;
+
+    /** @var array */
     private $stat = [];
-    
+
+    /**
+     * ReadOnlyFile constructor.
+     *
+     * @param string|resource $file
+     * @throws CryptoException\InvalidType
+     * @throws CryptoException\FileAccessDenied
+     */
     public function __construct($file)
     {
-        if (is_string($file)) {
-            $this->fp = \fopen($file, 'rb');
+        if (\is_string($file)) {
+            /** @var resource $fp */
+            $fp = \fopen($file, 'rb');
+            if (!\is_resource($fp)) {
+                throw new CryptoException\FileAccessDenied('Cannot open file');
+            }
+            $this->fp = $fp;
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
-        } elseif (is_resource($file)) {
+        } elseif (\is_resource($file)) {
             $this->fp = $file;
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
@@ -39,7 +58,7 @@ class ReadOnlyFile implements StreamInterface
      */
     public function getPos()
     {
-        return $this->pos;
+        return (int) $this->pos;
     }
     /**
      * How big is this buffer?
@@ -48,7 +67,7 @@ class ReadOnlyFile implements StreamInterface
      */
     public function getSize()
     {
-        return $this->stat['size'];
+        return (int) $this->stat['size'];
     }
     
     /**
@@ -85,7 +104,7 @@ class ReadOnlyFile implements StreamInterface
                 break;
             }
             $read = \fread($this->fp, $remaining);
-            if ($read === false) {
+            if (!\is_string($read)) {
                 throw new CryptoException\FileAccessDenied(
                     'Could not read from the file'
                 );
@@ -105,7 +124,7 @@ class ReadOnlyFile implements StreamInterface
      */
     public function remainingBytes()
     {
-        return (PHP_INT_MAX & ($this->stat['size'] - $this->pos));
+        return (int) (PHP_INT_MAX & ((int) $this->stat['size'] - $this->pos));
     }
     
     /**
@@ -113,6 +132,7 @@ class ReadOnlyFile implements StreamInterface
      * 
      * @param string $buf
      * @param int $num (number of bytes)
+     * @return void
      * @throws CryptoException\FileAccessDenied
      */
     public function writeBytes($buf, $num = null)
@@ -153,13 +173,14 @@ class ReadOnlyFile implements StreamInterface
         \fseek($this->fp, 0, SEEK_SET);
         
         // Create a hash context:
+        /** @var string $h */
         $h = \Sodium\crypto_generichash_init(
             null,
             \Sodium\CRYPTO_GENERICHASH_BYTES_MAX
         );
         for ($i = 0; $i < $this->stat['size']; $i += self::CHUNK) {
             if (($i + self::CHUNK) > $this->stat['size']) {
-                $c = \fread($this->fp, ($this->stat['size'] - $i));
+                $c = \fread($this->fp, ((int) $this->stat['size'] - $i));
             } else {
                 $c = \fread($this->fp, self::CHUNK);
             }
@@ -167,7 +188,7 @@ class ReadOnlyFile implements StreamInterface
         }
         // Reset the file pointer's internal cursor to where it was:
         \fseek($this->fp, $init, SEEK_SET);
-        return \Sodium\crypto_generichash_final($h);
+        return (string) \Sodium\crypto_generichash_final($h);
     }
     
     /**
@@ -176,7 +197,7 @@ class ReadOnlyFile implements StreamInterface
      * size matches their values when the file was first opened.
      * 
      * @throws CryptoException\FileModified
-     * @return true
+     * @return bool
      */
     public function toctouTest()
     {
@@ -191,5 +212,6 @@ class ReadOnlyFile implements StreamInterface
                 'Read-only file has been modified since it was opened for reading'
             );
         }
+        return true;
     }
 }

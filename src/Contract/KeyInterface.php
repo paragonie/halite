@@ -61,4 +61,18 @@ interface KeyInterface
      * @return bool
      */
     public function isSigningKey();
+
+    /**
+     * We rename this in version 2. Keep this for now.
+     *
+     * @return string
+     */
+    public function get();
+
+    /**
+     * Get the actual key material
+     *
+     * @return string
+     */
+    public function getRawKeyMaterial();
 }

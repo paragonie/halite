@@ -65,8 +65,8 @@ interface FileInterface
     /**
      * Encrypt a (file handle)
      * 
-     * @param $input
-     * @param $output
+     * @param resource $input
+     * @param resource $output
      * @param SymmetricKey $key
      */
     public static function encryptResource(
@@ -78,8 +78,8 @@ interface FileInterface
     /**
      * Decrypt a (file handle)
      * 
-     * @param $input
-     * @param $output
+     * @param resource $input
+     * @param resource $output
      * @param SymmetricKey $key
      */
     public static function decryptResource(
@@ -91,8 +91,8 @@ interface FileInterface
     /**
      * Seal a (file handle)
      * 
-     * @param $input
-     * @param $output
+     * @param resource $input
+     * @param resource $output
      * @param PublicKey $publickey
      */
     public static function sealResource(
@@ -104,8 +104,8 @@ interface FileInterface
     /**
      * Unseal a (file handle)
      * 
-     * @param $input
-     * @param $output
+     * @param resource $input
+     * @param resource $output
      * @param SecretKey $secretkey
      */
     public static function unsealResource(
@@ -134,7 +134,7 @@ interface FileInterface
     /**
      * Calculate a BLAHE2b checksum of a file
      * 
-     * @param string $fileHandle The file you'd like to checksum
+     * @param resource $fileHandle The file you'd like to checksum
      * @param SymmetricKey $key An optional BLAKE2b key
      * @param bool $raw Set to true if you don't want hex
      * 

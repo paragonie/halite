@@ -6,17 +6,20 @@ use \ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
 use \ParagonIE\Halite\Asymmetric\SignatureSecretKey;
 use \ParagonIE\Halite\Asymmetric\SignaturePublicKey;
 use \ParagonIE\Halite\Alerts as CryptoException;
+use Psr\Log\InvalidArgumentException;
 
 /**
  * Describes a pair of secret and public keys
  */
 class KeyPair
 {
-    protected  $secret_key;
-    protected  $public_key;
+    /** @var EncryptionSecretKey|SignatureSecretKey|Key */
+    protected $secret_key;
+
+    /** @var EncryptionPublicKey|SignaturePublicKey|Key */
+    protected $public_key;
     
     /**
-     * 
      * Pass it a secret key, it will automatically generate a public key
      * 
      * @param ...Key $keys
@@ -52,6 +55,7 @@ class KeyPair
                             : new SignatureSecretKey(
                                 $keys[1]->get()
                             );
+                        /** @var string $pub */
                         $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                             $keys[1]->get()
                         );
@@ -64,6 +68,7 @@ class KeyPair
                                 $keys[1]->get()
                             );
                         // crypto_box - Curve25519
+                        /** @var string $pub */
                         $pub = \Sodium\crypto_box_publickey_from_secretkey(
                             $keys[1]->get()
                         );
@@ -80,6 +85,7 @@ class KeyPair
                                 $keys[0]->get()
                             );
                         // crypto_sign - Ed25519
+                        /** @var string $pub */
                         $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                             $keys[0]->get()
                         );
@@ -92,6 +98,7 @@ class KeyPair
                                 $keys[0]->get()
                             );
                         // crypto_box - Curve25519
+                        /** @var string $pub */
                         $pub = \Sodium\crypto_box_publickey_from_secretkey(
                             $keys[0]->get()
                         );
@@ -127,6 +134,7 @@ class KeyPair
                             $keys[0]->get()
                         );
                     // crypto_sign - Ed25519
+                    /** @var string $pub */
                     $pub = \Sodium\crypto_sign_publickey_from_secretkey(
                         $keys[0]->get()
                     );
@@ -139,6 +147,7 @@ class KeyPair
                             $keys[0]->get()
                         );
                     // crypto_box - Curve25519
+                    /** @var string $pub */
                     $pub = \Sodium\crypto_box_publickey_from_secretkey(
                         $keys[0]->get()
                     );
@@ -190,10 +199,11 @@ class KeyPair
      * Save a copy of the secret key to a file
      *
      * @param string $filePath
-     * @return bool|int
+     * @return bool
+     * @throws InvalidArgumentException
      */
     public function saveToFile($filePath)
     {
-        return $this->secret_key->saveToFile($filePath);
+        throw new InvalidArgumentException('Not implemented in base class');
     }
 }

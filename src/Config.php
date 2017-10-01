@@ -8,6 +8,7 @@ use ParagonIE\Halite\Alerts as CryptoException;
  */
 class Config
 {
+    /** @var array */
     private $config;
     
     public function __construct(array $set = [])

@@ -11,18 +11,34 @@ use \ParagonIE\Halite\Util;
 class MutableFile implements StreamInterface
 {
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
-    
+
+    /** @var resource $fp */
     private $fp;
+
+    /** @var int $pos*/
     private $pos;
+
+    /** @var array */
     private $stat = [];
-    
+
+    /**
+     * MutableFile constructor.
+     *
+     * @param string|resource $file
+     * @throws CryptoException\InvalidType
+     * @throws CryptoException\FileAccessDenied
+     */
     public function __construct($file)
     {
-        if (is_string($file)) {
-            $this->fp = \fopen($file, 'wb');
+        if (\is_string($file)) {
+            $fp = \fopen($file, 'wb');
+            if (!\is_resource($fp)) {
+                throw new CryptoException\FileAccessDenied('Cannot open file');
+            }
+            $this->fp = $fp;
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
-        } elseif (is_resource($file)) {
+        } elseif (\is_resource($file)) {
             $this->fp = $file;
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
@@ -107,6 +123,35 @@ class MutableFile implements StreamInterface
             $remaining -= $written;
         } while ($remaining > 0);
         return $num;
+    }
+
+    /**
+     * Where are we in the buffer?
+     *
+     * @return int
+     */
+    public function getPos()
+    {
+        return (int) $this->pos;
+    }
+    /**
+     * How big is this buffer?
+     *
+     * @return int
+     */
+    public function getSize()
+    {
+        return (int) $this->stat['size'];
+    }
+
+    /**
+     * Get number of bytes remaining
+     *
+     * @return int
+     */
+    public function remainingBytes()
+    {
+        return (int) (PHP_INT_MAX & ((int) $this->stat['size'] - $this->pos));
     }
     
     /**

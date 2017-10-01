@@ -90,6 +90,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         $ecdh = new EncryptionKey(
             self::getSharedSecret($ourPrivateKey, $theirPublicKey)
         );
+        /** @var string $ciphertext */
         $ciphertext = SymmetricCrypto::decrypt($source, $ecdh, $raw);
         unset($ecdh);
         return $ciphertext;
@@ -132,7 +133,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
                 )
             );
         }
-        return \Sodium\crypto_scalarmult(
+        return (string) \Sodium\crypto_scalarmult(
             $privateKey->get(),
             $publicKey->get()
         );
@@ -171,12 +172,13 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
                 'crypto_box_seal is not available'
             );
         }
-        
+
+        /** @var string $sealed */
         $sealed = \Sodium\crypto_box_seal($source, $publicKey->get());
         if ($raw) {
-            return $sealed;
+            return (string) $sealed;
         }
-        return \Sodium\bin2hex($sealed);
+        return (string) \Sodium\bin2hex($sealed);
     }
     
     /**
@@ -206,14 +208,15 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
                 'Argument 2: Expected an instance of SignatureSecretKey'
             );
         }
+        /** @var string $signed */
         $signed = \Sodium\crypto_sign_detached(
             $message,
             $privateKey->get()
         );
         if ($raw) {
-            return $signed;
+            return (string) $signed;
         }
-        return \Sodium\bin2hex($signed);
+        return (string) \Sodium\bin2hex($signed);
     }
     
     /**
@@ -245,6 +248,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
             );
         }
         if (!$raw) {
+            /** @var string $source */
             $source = \Sodium\hex2bin($source);
         }
         if (!\is_callable('\\Sodium\\crypto_box_seal_open')) {
@@ -254,8 +258,12 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         }
 
         // Get a box keypair (needed by crypto_box_seal_open)
+
+        /** @var string $secret_key */
         $secret_key = $privateKey->get();
+        /** @var string $public_key */
         $public_key = \Sodium\crypto_box_publickey_from_secretkey($secret_key);
+        /** @var string $kp */
         $kp = \Sodium\crypto_box_keypair_from_secretkey_and_publickey(
             $secret_key,
             $public_key
@@ -266,6 +274,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
         \Sodium\memzero($public_key);
         
         // Now let's open that sealed box
+        /** @var string $message */
         $message = \Sodium\crypto_box_seal_open($source, $kp);
 
         // Always memzero after retrieving a value
@@ -288,7 +297,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
      * @param string $signature
      * @param boolean $raw Don't hex decode the input?
      * 
-     * @return boolean
+     * @return bool
      *
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidType
@@ -317,6 +326,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
             );
         }
         if (!$raw) {
+            /** @var string $signature */
             $signature = \Sodium\hex2bin($signature);
         }
         if (CryptoUtil::safeStrlen($signature) !== \Sodium\CRYPTO_SIGN_BYTES) {
@@ -325,7 +335,7 @@ abstract class Crypto implements Contract\AsymmetricKeyCryptoInterface
             );
         }
         
-        return \Sodium\crypto_sign_verify_detached(
+        return (bool) \Sodium\crypto_sign_verify_detached(
             $signature,
             $message,
             $publicKey->get()

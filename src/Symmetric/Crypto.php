@@ -15,7 +15,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * 
      * @param string $message
      * @param AuthenticationKey $secretKey
-     * @param boolean $raw
+     * @param bool $raw
      * @return string
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidType
@@ -35,12 +35,11 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
                 'Argument 2: Expected an instnace of AuthenticationKey'
             );
         }
-        $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'auth');
-        $mac = self::calculateMAC($message, $secretKey->get(), $config);
+        $mac = self::calculateMAC($message, $secretKey->get());
         if ($raw) {
             return $mac;
         }
-        return \Sodium\bin2hex($mac);
+        return (string) \Sodium\bin2hex($mac);
     }
     
     /**
@@ -49,6 +48,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
      * @param boolean $raw Don't hex decode the input?
+     * @return string
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidType
@@ -70,22 +70,35 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
         }
         if (!$raw) {
             // We were given hex data:
+            /** @var string $ciphertext */
             $ciphertext = \Sodium\hex2bin($ciphertext);
         }
+        $version = '';
+        $config = null;
+        $eKey = '';
+        $aKey = '';
+        $salt = '';
+        $nonce = '';
+        $xored = '';
+        $auth = '';
+
         list($version, $config, $salt, $nonce, $xored, $auth) = 
             self::unpackMessageForDecryption($ciphertext);
+        if (!($config instanceof Config)) {
+            throw new \TypeError();
+        }
         
         // Split our keys
-        list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
+        list($eKey, $aKey) = self::splitKeys($secretKey, (string) $salt, $config);
         
         // Check the MAC first
         if (!self::verifyMAC(
-            $auth, 
-            $version . $salt . $nonce . $xored,
-            $aKey
+            (string) $auth,
+            (string) $version . (string) $salt . (string) $nonce . (string) $xored,
+            (string) $aKey
         )) {
             throw new CryptoException\InvalidMessage(
-                'Invalid message authenticaiton code'
+                'Invalid message authentication code'
             );
         }
         
@@ -93,10 +106,11 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
         // need to upgrade our protocol.
         
         // Add version logic above
-        $plaintext = \Sodium\crypto_stream_xor($xored, $nonce, $eKey);
-        if ($plaintext === false) {
+        /** @var string $plaintext */
+        $plaintext = \Sodium\crypto_stream_xor((string) $xored, (string) $nonce, (string) $eKey);
+        if (!\is_string($plaintext)) {
             throw new CryptoException\InvalidMessage(
-                'Invalid message authenticaiton code'
+                'Decrpytion failed'
             );
         }
         return $plaintext;
@@ -131,25 +145,29 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
         
         // Generate a nonce and HKDF salt:
+        /** @var string $nonce */
         $nonce = \Sodium\randombytes_buf(\Sodium\CRYPTO_SECRETBOX_NONCEBYTES);
+        /** @var string $salt */
         $salt = \Sodium\randombytes_buf($config->HKDF_SALT_LEN);
         
         // Split our keys according to the HKDF salt:
         list($eKey, $aKey) = self::splitKeys($secretKey, $salt, $config);
         
         // Encrypt our message with the encryption key:
+        /** @var string $xored */
         $xored = \Sodium\crypto_stream_xor($plaintext, $nonce, $eKey);
         
         // Calculate an authentication tag:
+        /** @var string $auth */
         $auth = self::calculateMAC(
             Halite::HALITE_VERSION . $salt . $nonce . $xored,
-            $aKey
+            (string) $aKey
         );
         
         \Sodium\memzero($eKey);
         \Sodium\memzero($aKey);
         if (!$raw) {
-            return \Sodium\bin2hex(
+            return (string) \Sodium\bin2hex(
                 Halite::HALITE_VERSION . $salt . $nonce . $xored . $auth
             );
         }
@@ -165,32 +183,39 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
      * @param Config $config
      * @return array
      * @throws CryptoException\InvalidType
+     * @throws \TypeError
      */
     public static function splitKeys(
         Contract\KeyInterface $master,
         $salt = null,
         Config $config = null
     ) {
+        if (!($config instanceof Config)) {
+            throw new \TypeError();
+        }
         if (!empty($salt) && !is_string($salt)) {
             throw new CryptoException\InvalidType(
                 'Argument 2: Expected the salt as a string'
             );
         }
+        /** @var string $binary */
         $binary = $master->get();
-        return [
+        /** @var array $return */
+        $return = [
             CryptoUtil::hkdfBlake2b(
                 $binary,
-                \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
-                $config->HKDF_SBOX,
+                (int) \Sodium\CRYPTO_SECRETBOX_KEYBYTES,
+                (string) $config->HKDF_SBOX,
                 $salt
             ),
             CryptoUtil::hkdfBlake2b(
                 $binary,
-                \Sodium\CRYPTO_AUTH_KEYBYTES,
-                $config->HKDF_AUTH, 
+                (int) \Sodium\CRYPTO_AUTH_KEYBYTES,
+                (string) $config->HKDF_AUTH,
                 $salt
             )
         ];
+        return $return;
     }
     
     /**
@@ -210,32 +235,34 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
         // The HKDF is used for key splitting
         $salt = CryptoUtil::safeSubstr(
             $ciphertext,
-            Halite::VERSION_TAG_LEN,
-            $config->HKDF_SALT_LEN
+            (int) Halite::VERSION_TAG_LEN,
+            (int) $config->HKDF_SALT_LEN
         );
         
         // This is the nonce (we authenticated it):
         $nonce = CryptoUtil::safeSubstr(
             $ciphertext, 
             // 36:
-            Halite::VERSION_TAG_LEN + $config->HKDF_SALT_LEN,
+            ((int) Halite::VERSION_TAG_LEN + (int) $config->HKDF_SALT_LEN),
             // 24:
-            \Sodium\CRYPTO_STREAM_NONCEBYTES
+            (int) \Sodium\CRYPTO_STREAM_NONCEBYTES
         );
         
         // This is the crypto_stream_xor()ed ciphertext
         $xored = CryptoUtil::safeSubstr(
             $ciphertext, 
             // 60:
-                Halite::VERSION_TAG_LEN +
-                $config->HKDF_SALT_LEN +
-                \Sodium\CRYPTO_STREAM_NONCEBYTES,
+                (int) (
+                    (int) Halite::VERSION_TAG_LEN +
+                    (int) $config->HKDF_SALT_LEN +
+                    (int) \Sodium\CRYPTO_STREAM_NONCEBYTES
+                ),
             // $length - 92:
-            $length - (
-                Halite::VERSION_TAG_LEN +
-                $config->HKDF_SALT_LEN +
-                \Sodium\CRYPTO_STREAM_NONCEBYTES +
-                \Sodium\CRYPTO_AUTH_BYTES
+            $length - (int) (
+                (int) Halite::VERSION_TAG_LEN +
+                (int) $config->HKDF_SALT_LEN +
+                (int) \Sodium\CRYPTO_STREAM_NONCEBYTES +
+                (int) \Sodium\CRYPTO_AUTH_BYTES
             )
         );
         
@@ -250,11 +277,11 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
     /**
      * Verify a MAC, given a MAC key
      * 
-     * @param string $message
+     * @param string            $message
      * @param AuthenticationKey $secretKey
-     * @param string $mac
-     * @param boolean $raw
-     * @return boolean
+     * @param string            $mac
+     * @param bool              $raw
+     * @return bool
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidType
      */
@@ -280,13 +307,16 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
             );
         }
         if (!$raw) {
+            /** @var string $mac */
             $mac = \Sodium\hex2bin($mac);
         }
-        return self::verifyMAC(
+        /** @var bool $return */
+        $return = self::verifyMAC(
             $mac,
             $message,
-            $secretKey->get()
+            (string) $secretKey->get()
         );
+        return !empty($return);
     }
     
     /**
@@ -300,7 +330,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
         $message,
         $authKey
     ) {
-        return \Sodium\crypto_auth(
+        return (string) \Sodium\crypto_auth(
             $message,
             $authKey
         );
@@ -325,7 +355,7 @@ abstract class Crypto implements Contract\SymmetricKeyCryptoInterface
                 'Message Authentication Code is not the correct length; is it encoded?'
             );
         }
-        return \Sodium\crypto_auth_verify(
+        return (bool) \Sodium\crypto_auth_verify(
             $mac, 
             $message,
             $aKey

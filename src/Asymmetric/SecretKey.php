@@ -13,6 +13,7 @@ class SecretKey extends Key implements Contract\KeyInterface
      */
     public function __construct($keyMaterial = '', ...$args) 
     {
+        /** @var bool $signing */
         $signing = \count($args) >= 1
             ? $args[0]
             : false;
@@ -21,6 +22,8 @@ class SecretKey extends Key implements Contract\KeyInterface
     
     /**
      * See the appropriate derived class.
+     * @throws CannotPerformOperation
+     * @return void
      */
     public function derivePublicKey()
     {

@@ -4,13 +4,14 @@ php:
 
 - 5.6
 - 7.0
+- 7.1
 
 before_install:
 - sudo apt-get update
 - sudo apt-get install make build-essential automake php5-dev php-pear
 - git clone git://github.com/jedisct1/libsodium.git
 - cd libsodium
-- git checkout 1.0.4
+- git checkout 1.0.14
 - ./autogen.sh
 - ./configure && make check
 - sudo make install
@@ -25,4 +26,7 @@ install:
 - composer update
 - chmod +x ./test/phpunit.sh
 
-script: ./test/phpunit.sh
+script:
+
+- vendor/bin/phpunit --bootstrap autoload.php test/unit
+- vendor/bin/psalm

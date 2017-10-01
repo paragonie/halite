@@ -41,6 +41,7 @@ abstract class Util
         // HKDF-Extract:
         // PRK = HMAC-Hash(salt, IKM)
         // The salt is the HMAC key.
+        /** @var string $prk */
         $prk = \Sodium\crypto_generichash($ikm, $salt);
 
         // HKDF-Expand:
@@ -55,6 +56,7 @@ abstract class Util
         $last_block = '';
         for ($block_index = 1; self::safeStrlen($t) < $length; ++$block_index) {
             // T(i) = HMAC-Hash(PRK, T(i-1) | info | 0x??)
+            /** @var string $last_block */
             $last_block = \Sodium\crypto_generichash(
                 $last_block . $info . \chr($block_index),
                 $prk
@@ -94,16 +96,18 @@ abstract class Util
             );
         }
         if ($exists) {
+            /** @var int $length */
             $length = \mb_strlen($str, '8bit');
-            if ($length === false) {
+            if (!\is_int($length)) {
                 throw new Alerts\CannotPerformOperation(
                     'mb_strlen() failed unexpectedly'
                 );
             }
         } else {
             // If we reached here, we can rely on strlen to count bytes:
+            /** @var int $length */
             $length = \strlen($str);
-            if ($length === false) {
+            if (!\is_int($length)) {
                 throw new Alerts\CannotPerformOperation(
                     'strlen() failed unexpectedly'
                 );

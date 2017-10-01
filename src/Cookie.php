@@ -9,6 +9,7 @@ use \ParagonIE\Halite\Alerts\InvalidMessage;
 
 final class Cookie 
 {
+    /** @var KeyInterface|EncryptionKey */
     protected $key;
     
     public function __construct(KeyInterface $key)
@@ -50,13 +51,14 @@ final class Cookie
             return null;
         }
         try {
-            $decrypted = Crypto::decrypt($_COOKIE[$name], $this->key);
+            /** @var string $decrypted */
+            $decrypted = Crypto::decrypt((string) $_COOKIE[$name], $this->key);
             if (empty($decrypted)) {
                 return null;
             }
-            return \json_decode($decrypted, true);
+            return (string) \json_decode($decrypted, true);
         } catch (InvalidMessage $e) {
-            return;
+            return null;
         }
     }
     
@@ -67,7 +69,7 @@ final class Cookie
      * @param mixed $value
      * @param int $expire    (defaults to 0)
      * @param string $path   (defaults to '/')
-     * @param string $domain (defaults to NULL)
+     * @param string $domain (defaults to '')
      * @param bool $secure   (defaults to TRUE)
      * @param bool $httponly (defaults to TRUE)
      * @return bool
@@ -78,7 +80,7 @@ final class Cookie
         $value,
         $expire = 0,
         $path = '/',
-        $domain = null,
+        $domain = '',
         $secure = true,
         $httponly = true
     ) {
@@ -90,7 +92,7 @@ final class Cookie
         return \setcookie(
             $name,
             Crypto::encrypt(
-                \json_encode($value),
+                (string) \json_encode($value),
                 $this->key
             ),
             $expire,

@@ -21,7 +21,6 @@ before_install:
 - sudo make install
 - cd ..
 - pecl install libsodium
-- sudo apt-get install php7.2-sodium
 
 install:
 

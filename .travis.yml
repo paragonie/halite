@@ -25,10 +25,8 @@ before_install:
 
 install:
 
-- composer install
 - composer self-update
 - composer update
-- chmod +x ./test/phpunit.sh
 
 script:
 - vendor/bin/phpunit

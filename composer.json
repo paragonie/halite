@@ -15,7 +15,7 @@
         "phpunit/phpunit": "^6",
         "vimeo/psalm": "^0|^1"
     },
-    "license": "GPL3",
+    "license": "MPL-2.0",
     "authors": [
         {
             "name": "Paragon Initiative Enterprises",

@@ -12,13 +12,17 @@ Halite was created by [Paragon Initiative Enterprises](https://paragonie.com) as
 a result of our continued efforts to improve the ecosystem and make [cryptography in PHP](https://paragonie.com/blog/2015/09/state-cryptography-in-php)
 safer and easier to implement.
 
-It's released under the GPLv3 license. [Commercial licenses are available](https://paragonie.com/contact) from
-Paragon Initiative Enterprises if you wish to implement Halite in an application
-without making your source code available under a GPL-compatible license.
+Halite is released under Mozilla Public License 2.0. [Commercial licenses are available](https://paragonie.com/contact)
+from Paragon Initiative Enterprises if you wish to extend Halite without making your
+derivative works available under the terms of the MPL.
 
-If you are satisfied with the terms of GPLv3 software for backend web applications
+If you are satisfied with the terms of MPL software for backend web applications
 but would like to purchase a support contract for your application that uses Halite,
 those are also offered by Paragon Initiative Enterprises.
+
+**Important:** Earlier versions of Halite were available under the GNU Public License
+version 3 (GPLv3). Only Halite 4.0.1 and newer are available under the Mozille Public
+License terms.
 
 ## Installing Halite
 

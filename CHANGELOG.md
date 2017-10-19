@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.0.1 (2017-10-19)
+
+* Prompted by [#67](https://github.com/paragonie/halite/issues/67), Halite is now available
+  under the terms of the Mozilla Public License 2.0 (MPL-2.0). Using Halite to build products
+  that restrict user freedom (such as DRM) is highly discouraged, but not forbidden.
+
 ## Version 4.0.0 (2017-09-16)
 
 * Bump minimum PHP version to **7.2.0**, which will be available before the end of 2017

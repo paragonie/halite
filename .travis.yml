@@ -20,7 +20,7 @@ before_install:
 - ./configure && make check
 - sudo make install
 - cd ..
-- pecl install libsodium
+- pecl install libsodium-2.0.4
 
 install:
 

@@ -21,6 +21,7 @@ before_install:
 - sudo make install
 - cd ..
 - pecl install libsodium
+- phpenmod sodium
 
 install:
 

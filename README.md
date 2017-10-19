@@ -21,7 +21,7 @@ but would like to purchase a support contract for your application that uses Hal
 those are also offered by Paragon Initiative Enterprises.
 
 **Important:** Earlier versions of Halite were available under the GNU Public License
-version 3 (GPLv3). Only Halite 4.0.1 and newer are available under the Mozille Public
+version 3 (GPLv3). Only Halite 4.0.1 and newer are available under the Mozilla Public
 License terms.
 
 ## Installing Halite

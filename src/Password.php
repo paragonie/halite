@@ -141,6 +141,7 @@ final class Password
                 ||
             \hash_equals(Util::safeSubstr($stored, 0, 5), Halite::VERSION_OLD_PREFIX)
         ) {
+            /** @var string $decoded */
             $decoded = Base64UrlSafe::decode($stored);
             if (!\is_string($decoded)) {
                 \sodium_memzero($stored);

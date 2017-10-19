@@ -101,6 +101,7 @@ final class Cookie
             );
         }
         if (\hash_equals(Util::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
+            /** @var string $decoded */
             $decoded = Base64UrlSafe::decode($stored);
             if (!\is_string($decoded)) {
                 \sodium_memzero($stored);
@@ -140,7 +141,7 @@ final class Cookie
             $name,
             Crypto::encrypt(
                 new HiddenString(
-                    \json_encode($value)
+                    (string) \json_encode($value)
                 ),
                 $this->key
             ),

@@ -335,7 +335,7 @@ final class Crypto
             );
         }
         
-        return \sodium_crypto_sign_verify_detached(
+        return (bool) \sodium_crypto_sign_verify_detached(
             $signature,
             $message,
             $publicKey->getRawKeyMaterial()

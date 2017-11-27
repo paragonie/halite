@@ -1063,7 +1063,7 @@ final class File
      * Recalculate and verify the HMAC of the input file
      *
      * @param ReadOnlyFile $input  The file we are verifying
-     * @param resource|string $mac (hash context)
+     * @param string $mac (hash context)
      * @param Config $config       Version-specific settings
      *
      * @return array               Hashes of various chunks

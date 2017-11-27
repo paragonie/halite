@@ -134,6 +134,9 @@ class ReadOnlyFile implements StreamInterface
             } else {
                 $c = \fread($this->fp, self::CHUNK);
             }
+            if (!\is_string($c)) {
+                throw new \Error('Could not read file');
+            }
             \sodium_crypto_generichash_update($h, $c);
         }
         // Reset the file pointer's internal cursor to where it was:

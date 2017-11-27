@@ -148,12 +148,13 @@ final class Crypto
         \sodium_memzero($authKey);
 
         // crypto_stream_xor() can be used to encrypt and decrypt
+        /** @var string $plaintext */
         $plaintext = \sodium_crypto_stream_xor(
             $encrypted,
             $nonce,
             $encKey
         );
-        if ($plaintext === false) {
+        if (!\is_string($plaintext)) {
             throw new InvalidMessage(
                 'Invalid message authentication code'
             );
@@ -216,6 +217,7 @@ final class Crypto
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
 
         // Encrypt our message with the encryption key:
+        /** @var string $encrypted */
         $encrypted = \sodium_crypto_stream_xor(
             $plaintext->getString(),
             $nonce,

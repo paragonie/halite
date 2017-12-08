@@ -34,7 +34,7 @@ class SecretKey extends Key
     /**
      * See the appropriate derived class.
      * @throws CannotPerformOperation
-     * @return void
+     * @return mixed
      */
     public function derivePublicKey()
     {

@@ -47,6 +47,8 @@ You may or may not need the PHP extension. For most people, this means running..
 
 ...or an equivalent command for your operating system and PHP version.
 
+If you're stuck, [this step-by-step guide contributed by @aolko](docs/Install-Ubuntu.md) may be helpful.
+
 ## Using Halite in Your Project
 
 Check out the [documentation](doc). The basic Halite API is designed for simplicity:

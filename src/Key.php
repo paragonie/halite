@@ -4,7 +4,9 @@ namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Alerts\{
     CannotCloneKey,
-    CannotSerializeKey
+    CannotPerformOperation,
+    CannotSerializeKey,
+    InvalidType
 };
 
 /**
@@ -59,6 +61,8 @@ class Key
      * You probably should not be using this directly.
      *
      * @param HiddenString $keyMaterial - The actual key data
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public function __construct(HiddenString $keyMaterial)
     {
@@ -93,6 +97,7 @@ class Key
 
     /**
      * Don't allow this object to ever be serialized
+     * @throws CannotSerializeKey
      */
     public function __sleep()
     {
@@ -101,6 +106,7 @@ class Key
 
     /**
      * Don't allow this object to ever be unserialized
+     * @throws CannotSerializeKey
      */
     public function __wakeup()
     {
@@ -124,6 +130,8 @@ class Key
      * Get the actual key material
      *
      * @return string
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public function getRawKeyMaterial(): string
     {

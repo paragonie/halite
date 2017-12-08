@@ -4,11 +4,16 @@ namespace ParagonIE\Halite;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\ConstantTime\Hex;
-use ParagonIE\Halite\{
-    Alerts\InvalidMessage,
-    Symmetric\Config as SymmetricConfig,
-    Symmetric\Crypto,
-    Symmetric\EncryptionKey
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidDigestLength,
+    InvalidMessage,
+    InvalidType
+};
+use ParagonIE\Halite\Symmetric\{
+    Config as SymmetricConfig,
+    Crypto,
+    EncryptionKey
 };
 
 /**
@@ -37,6 +42,11 @@ final class Password
      * @param string $level             The security level for this password
      * @param string $additionalData    Additional authenticated data
      * @return string                   An encrypted hash to store
+     *
+     * @throws InvalidDigestLength
+     * @throws CannotPerformOperation
+     * @throws InvalidMessage
+     * @throws InvalidType
      */
     public static function hash(
         HiddenString $password,
@@ -69,7 +79,12 @@ final class Password
      * @param string $additionalData    Additional authenticated data (if used to encrypt, mandatory)
      * @return bool                     Do we need to regenerate the hash or
      *                                  ciphertext?
+     *
+     * @throws Alerts\InvalidSignature
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
      * @throws InvalidMessage
+     * @throws InvalidType
      */
     public static function needsRehash(
         string $stored,
@@ -78,7 +93,7 @@ final class Password
         string $additionalData = ''
     ): bool {
         $config = self::getConfig($stored);
-        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 4 / 3)) {
+        if (Util::safeStrlen($stored) < ((int) $config->SHORTEST_CIPHERTEXT_LENGTH * 4 / 3)) {
             throw new InvalidMessage('Encrypted password hash is too short.');
         }
 
@@ -126,6 +141,8 @@ final class Password
      * @param string $stored   A stored password hash
      * @return SymmetricConfig
      * @throws InvalidMessage
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     protected static function getConfig(string $stored): SymmetricConfig
     {
@@ -164,7 +181,12 @@ final class Password
      * @param EncryptionKey $secretKey  The master key for all passwords
      * @param string $additionalData    Additional authenticated data (needed to decrypt)
      * @return bool                     Is this password valid?
+     *
+     * @throws Alerts\InvalidSignature
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
      * @throws InvalidMessage
+     * @throws InvalidType
      */
     public static function verify(
         HiddenString $password,
@@ -174,7 +196,7 @@ final class Password
     ): bool {
         $config = self::getConfig($stored);
         // Base64-urlsafe encoded, so 4/3 the size of raw binary
-        if (Util::safeStrlen($stored) < ($config->SHORTEST_CIPHERTEXT_LENGTH * 4/3)) {
+        if (Util::safeStrlen($stored) < ((int) $config->SHORTEST_CIPHERTEXT_LENGTH * 4/3)) {
             throw new InvalidMessage(
                 'Encrypted password hash is too short.'
             );

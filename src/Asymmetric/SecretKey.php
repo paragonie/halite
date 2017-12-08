@@ -1,9 +1,12 @@
 <?php
 namespace ParagonIE\Halite\Asymmetric;
 
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidType
+};
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Key;
-use ParagonIE\Halite\Alerts\CannotPerformOperation;
 
 /**
  * Class SecretKey
@@ -16,7 +19,11 @@ use ParagonIE\Halite\Alerts\CannotPerformOperation;
 class SecretKey extends Key
 {
     /**
+     * SecretKey constructor.
      * @param HiddenString $keyMaterial - The actual key data
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public function __construct(HiddenString $keyMaterial)
     {
@@ -27,7 +34,7 @@ class SecretKey extends Key
     /**
      * See the appropriate derived class.
      * @throws CannotPerformOperation
-     * @return void
+     * @return mixed
      */
     public function derivePublicKey()
     {

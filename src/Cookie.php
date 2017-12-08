@@ -6,11 +6,17 @@ use ParagonIE\ConstantTime\{
     Base64UrlSafe,
     Hex
 };
-use ParagonIE\Halite\{
-    Alerts\InvalidMessage,
-    Symmetric\Config as SymmetricConfig,
-    Symmetric\Crypto,
-    Symmetric\EncryptionKey
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidDigestLength,
+    InvalidMessage,
+    InvalidSignature,
+    InvalidType
+};
+use ParagonIE\Halite\Symmetric\{
+    Config as SymmetricConfig,
+    Crypto,
+    EncryptionKey
 };
 
 /**
@@ -55,12 +61,19 @@ final class Cookie
             'key' => 'private'
         ];
     }
-    
+
     /**
      * Store a value in an encrypted cookie
-     * 
+     *
      * @param string $name
      * @return mixed (typically an array)
+     *
+     * @param string $name
+     * @return mixed|null
+     * @throws InvalidDigestLength
+     * @throws InvalidSignature
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public function fetch(string $name)
     {
@@ -68,8 +81,12 @@ final class Cookie
             return null;
         }
         try {
+            /** @var string $stored */
             $stored = $_COOKIE[$name];
-            $config = self::getConfig($stored);
+            if (!\is_string($stored)) {
+                throw new InvalidType('Cookie value is not a string');
+            }
+            $config = self::getConfig((string) $stored);
             $decrypted = Crypto::decrypt(
                 $stored,
                 $this->key,
@@ -89,7 +106,10 @@ final class Cookie
      *
      * @param string $stored   A stored password hash
      * @return SymmetricConfig
+     *
+     * @throws CannotPerformOperation
      * @throws InvalidMessage
+     * @throws InvalidType
      */
     protected static function getConfig(string $stored): SymmetricConfig
     {
@@ -115,10 +135,10 @@ final class Cookie
         $v = Hex::decode(Util::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
     }
-    
+
     /**
      * Store a value in an encrypted cookie
-     * 
+     *
      * @param string $name
      * @param mixed $value
      * @param int $expire    (defaults to 0)
@@ -127,6 +147,11 @@ final class Cookie
      * @param bool $secure   (defaults to TRUE)
      * @param bool $httpOnly (defaults to TRUE)
      * @return bool
+     *
+     * @throws InvalidDigestLength
+     * @throws CannotPerformOperation
+     * @throws InvalidMessage
+     * @throws InvalidType
      */
     public function store(
         string $name,

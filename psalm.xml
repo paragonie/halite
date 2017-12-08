@@ -3,7 +3,7 @@
     name="Example Psalm config with recommended defaults"
     stopOnFirstError="false"
     useDocblockTypes="true"
-    totallyTyped="false"
+    totallyTyped="true"
 >
     <projectFiles>
         <directory name="src" />

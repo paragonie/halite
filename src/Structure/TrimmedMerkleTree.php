@@ -2,6 +2,10 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidDigestLength
+};
 use ParagonIE\Halite\Util;
 
 /**
@@ -32,6 +36,7 @@ class TrimmedMerkleTree extends MerkleTree
      * to protect against second-preimage attacks
      *
      * @return string
+     * @throws CannotPerformOperation
      */
     protected function calculateRoot(): string
     {
@@ -86,6 +91,7 @@ class TrimmedMerkleTree extends MerkleTree
      *
      * @param array<int, Node> $nodes
      * @return TrimmedMerkleTree
+     * @throws InvalidDigestLength
      */
     public function getExpandedTree(Node ...$nodes): MerkleTree
     {

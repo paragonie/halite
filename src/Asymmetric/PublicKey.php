@@ -2,6 +2,10 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidType
+};
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Key;
 
@@ -16,7 +20,11 @@ use ParagonIE\Halite\Key;
 class PublicKey extends Key
 {
     /**
+     * PublicKey constructor.
      * @param HiddenString $keyMaterial - The actual key data
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public function __construct(HiddenString $keyMaterial)
     {

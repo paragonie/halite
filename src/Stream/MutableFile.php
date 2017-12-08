@@ -3,7 +3,11 @@ declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
 use ParagonIE\Halite\Contract\StreamInterface;
-use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    FileAccessDenied,
+    InvalidType
+};
 use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
@@ -49,15 +53,15 @@ class MutableFile implements StreamInterface
     /**
      * MutableFile constructor.
      * @param string|resource $file
-     * @throws CryptoException\InvalidType
-     * @throws CryptoException\FileAccessDenied
+     * @throws InvalidType
+     * @throws FileAccessDenied
      */
     public function __construct($file)
     {
         if (\is_string($file)) {
             $fp = \fopen($file, 'wb');
             if (!\is_resource($fp)) {
-                throw new CryptoException\FileAccessDenied(
+                throw new FileAccessDenied(
                     'Could not open file for reading'
                 );
             }
@@ -70,7 +74,7 @@ class MutableFile implements StreamInterface
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
         } else {
-            throw new CryptoException\InvalidType(
+            throw new InvalidType(
                 'Argument 1: Expected a filename or resource'
             );
         }
@@ -114,7 +118,7 @@ class MutableFile implements StreamInterface
     public function getSize(): int
     {
         $stat = \fstat($this->fp);
-        return $stat['size'];
+        return (int) $stat['size'];
     }
 
     /**
@@ -123,18 +127,18 @@ class MutableFile implements StreamInterface
      * @param int $num
      * @param bool $skipTests
      * @return string
-     * @throws CryptoException\CannotPerformOperation
-     * @throws CryptoException\FileAccessDenied
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
      */
     public function readBytes(int $num, bool $skipTests = false): string
     {
         if ($num < 0) {
-            throw new CryptoException\CannotPerformOperation('num < 0');
+            throw new CannotPerformOperation('num < 0');
         } elseif ($num === 0) {
             return '';
         }
         if (($this->pos + $num) > $this->stat['size']) {
-            throw new CryptoException\CannotPerformOperation('Out-of-bounds read');
+            throw new CannotPerformOperation('Out-of-bounds read');
         }
         $buf = '';
         $remaining = $num;
@@ -145,7 +149,7 @@ class MutableFile implements StreamInterface
             /** @var string $read */
             $read = \fread($this->fp, $remaining);
             if (!\is_string($read)) {
-                throw new CryptoException\FileAccessDenied(
+                throw new FileAccessDenied(
                     'Could not read from the file'
                 );
             }
@@ -164,9 +168,15 @@ class MutableFile implements StreamInterface
      */
     public function remainingBytes(): int
     {
+        /** @var array $stat */
         $stat = \fstat($this->fp);
+        /** @var int $pos */
         $pos = \ftell($this->fp);
-        return (PHP_INT_MAX & ($stat['size'] - $pos));
+        return (int) (
+            PHP_INT_MAX & (
+                (int) $stat['size'] - $pos
+            )
+        );
     }
     
     /**
@@ -174,7 +184,7 @@ class MutableFile implements StreamInterface
      * 
      * @param int $i
      * @return bool
-     * @throws CryptoException\CannotPerformOperation
+     * @throws CannotPerformOperation
      */
     public function reset(int $i = 0): bool
     {
@@ -182,7 +192,7 @@ class MutableFile implements StreamInterface
         if (\fseek($this->fp, $i, SEEK_SET) === 0) {
             return true;
         }
-        throw new CryptoException\CannotPerformOperation(
+        throw new CannotPerformOperation(
             'fseek() failed'
         );
     }
@@ -193,8 +203,10 @@ class MutableFile implements StreamInterface
      * @param string $buf
      * @param int $num (number of bytes)
      * @return int
-     * @throws CryptoException\FileAccessDenied
-     * @throws CryptoException\CannotPerformOperation
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws InvalidType
      */
     public function writeBytes(string $buf, int $num = null): int
     {
@@ -203,7 +215,7 @@ class MutableFile implements StreamInterface
             $num = $bufSize;
         }
         if ($num < 0) {
-            throw new CryptoException\CannotPerformOperation('num < 0');
+            throw new CannotPerformOperation('num < 0');
         }
         $remaining = $num;
         do {
@@ -212,7 +224,7 @@ class MutableFile implements StreamInterface
             }
             $written = \fwrite($this->fp, $buf, $remaining);
             if ($written === false) {
-                throw new CryptoException\FileAccessDenied(
+                throw new FileAccessDenied(
                     'Could not write to the file'
                 );
             }

@@ -2,10 +2,14 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\{
-    Alerts as CryptoException,
-    Asymmetric\SignaturePublicKey,
-    Asymmetric\SignatureSecretKey
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidKey,
+    InvalidType
+};
+use ParagonIE\Halite\Asymmetric\{
+    SignaturePublicKey,
+    SignatureSecretKey
 };
 
 /**
@@ -40,7 +44,10 @@ final class SignatureKeyPair extends KeyPair
      * Pass it a secret key, it will automatically generate a public key
      * 
      * @param array<int, Key> $keys
-     * @throws CryptoException\InvalidKey
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      * @throws \InvalidArgumentException
      */
     public function __construct(Key ...$keys)
@@ -52,13 +59,13 @@ final class SignatureKeyPair extends KeyPair
              */
             case 2:
                 if (!$keys[0]->isAsymmetricKey() || !$keys[1]->isAsymmetricKey()) {
-                    throw new CryptoException\InvalidKey(
+                    throw new InvalidKey(
                         'Only keys intended for asymmetric cryptography can be used in a KeyPair object'
                     );
                 }
                 if ($keys[0]->isPublicKey()) {
                     if ($keys[1]->isPublicKey()) {
-                        throw new CryptoException\InvalidKey(
+                        throw new InvalidKey(
                             'Both keys cannot be public keys'
                         );
                     }
@@ -78,7 +85,7 @@ final class SignatureKeyPair extends KeyPair
                             )
                     );
                 } else {
-                    throw new CryptoException\InvalidKey(
+                    throw new InvalidKey(
                         'Both keys cannot be secret keys'
                     );
                 }
@@ -88,13 +95,13 @@ final class SignatureKeyPair extends KeyPair
              */
             case 1:
                 if (!$keys[0]->isAsymmetricKey()) {
-                    throw new CryptoException\InvalidKey(
+                    throw new InvalidKey(
                         'Only keys intended for asymmetric cryptography can be used in a KeyPair object'
                     );
                 }
                 if ($keys[0]->isPublicKey()) {
                     // Ever heard of the Elliptic Curve Discrete Logarithm Problem?
-                    throw new CryptoException\InvalidKey(
+                    throw new InvalidKey(
                         'We cannot generate a valid keypair given only a public key; we can given only a secret key, however.'
                     );
                 }

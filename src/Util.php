@@ -29,6 +29,7 @@ final class Util
 {
     /**
      * Don't allow this to be instantiated.
+     * @throws \Error
      */
     final private function __construct()
     {
@@ -40,6 +41,7 @@ final class Util
      *
      * @param string $chr
      * @return int
+     * @throws CannotPerformOperation
      * @throws \RangeException
      */
     public static function chrToInt(string $chr): int
@@ -59,6 +61,7 @@ final class Util
      * @param string $input
      * @param int $length
      * @return string
+     * @throws CannotPerformOperation
      */
     public static function hash(
         string $input,
@@ -77,6 +80,7 @@ final class Util
      * @param string $input
      * @param int $length
      * @return string
+     * @throws CannotPerformOperation
      */
     public static function raw_hash(
         string $input,
@@ -102,6 +106,7 @@ final class Util
      * @return string
      * @throws CannotPerformOperation
      * @throws InvalidDigestLength
+     * @throws InvalidType
      */
     public static function hkdfBlake2b(
         string $ikm,
@@ -195,6 +200,7 @@ final class Util
      * @param string $key
      * @param int $length
      * @return string
+     * @throws CannotPerformOperation
      */
     public static function keyed_hash(
         string $input,
@@ -289,6 +295,7 @@ final class Util
      * @param int $start
      * @param int $length
      * @return string
+     * @throws CannotPerformOperation
      * @throws InvalidType
      */
     public static function safeSubstr(
@@ -338,11 +345,13 @@ final class Util
      * @param string $string
      * @return string
      * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public static function safeStrcpy(string $string): string
     {
         $length = self::safeStrlen($string);
         $return = '';
+        /** @var int $chunk */
         $chunk = $length >> 1;
         for ($i = 0; $i < $length; $i += $chunk) {
             $return .= self::safeSubstr($string, $i, $chunk);
@@ -375,6 +384,7 @@ final class Util
      * @param string $left
      * @param string $right
      * @return string
+     * @throws CannotPerformOperation
      * @throws InvalidType
      */
     public static function xorStrings(string $left, string $right): string

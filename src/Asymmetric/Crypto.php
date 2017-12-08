@@ -4,9 +4,11 @@ namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
+    InvalidDigestLength,
     InvalidKey,
     InvalidMessage,
-    InvalidSignature
+    InvalidSignature,
+    InvalidType
 };
 use ParagonIE\Halite\{
     Util as CryptoUtil,
@@ -37,6 +39,8 @@ final class Crypto
 {
     /**
      * Don't allow this to be instantiated.
+     *
+     * @throws \Error
      */
     final private function __construct()
     {
@@ -50,8 +54,13 @@ final class Crypto
      * @param HiddenString $plaintext              The message to encrypt
      * @param EncryptionSecretKey $ourPrivateKey   Our private key
      * @param EncryptionPublicKey $theirPublicKey  Their public key
-     * @param mixed $encoding                      Which encoding scheme to use?
+     * @param string|bool $encoding                Which encoding scheme to use?
      * @return string                              Ciphertext
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidMessage
+     * @throws InvalidDigestLength
+     * @throws InvalidType
      * @throws \TypeError
      */
     public static function encrypt(
@@ -76,8 +85,13 @@ final class Crypto
      * @param EncryptionSecretKey $ourPrivateKey
      * @param EncryptionPublicKey $theirPublicKey
      * @param string $additionalData
-     * @param string $encoding
+     * @param string|bool $encoding
      * @return string
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidMessage
+     * @throws InvalidDigestLength
+     * @throws InvalidType
      * @throws \TypeError
      */
     public static function encryptWithAd(
@@ -112,8 +126,14 @@ final class Crypto
      * @param string $ciphertext                  The message to decrypt
      * @param EncryptionSecretKey $ourPrivateKey  Our private key
      * @param EncryptionPublicKey $theirPublicKey Their public key
-     * @param mixed $encoding                     Which encoding scheme to use?
+     * @param string|bool $encoding               Which encoding scheme to use?
      * @return HiddenString                       The decrypted message
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
+     * @throws InvalidMessage
+     * @throws InvalidSignature
+     * @throws InvalidType
      * @throws \TypeError
      */
     public static function decrypt(
@@ -132,14 +152,20 @@ final class Crypto
     }
 
     /**
-     *
+     * Decrypt with additional associated data.
      *
      * @param string $ciphertext
      * @param EncryptionSecretKey $ourPrivateKey
      * @param EncryptionPublicKey $theirPublicKey
      * @param string $additionalData
-     * @param string $encoding
+     * @param string|bool $encoding
      * @return HiddenString
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
+     * @throws InvalidMessage
+     * @throws InvalidSignature
+     * @throws InvalidType
      * @throws \TypeError
      */
     public static function decryptWithAd(
@@ -166,23 +192,26 @@ final class Crypto
         unset($sharedSecretKey);
         return $plaintext;
     }
-    
+
     /**
      * Diffie-Hellman, ECDHE, etc.
-     * 
+     *
      * Get a shared secret from a private key you possess and a public key for
      * the intended message recipient
      *
-     * @param EncryptionSecretKey $privateKey
-     * @param EncryptionPublicKey $publicKey
-     * @param bool $get_as_object Get as a Key object?
+     * @param EncryptionSecretKey $privateKey Private key (yours)
+     * @param EncryptionPublicKey $publicKey  Public key (theirs)
+     * @param bool $get_as_object             Get as a Key object?
      * @return HiddenString|Key
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public static function getSharedSecret(
         EncryptionSecretKey $privateKey,
         EncryptionPublicKey $publicKey,
         bool $get_as_object = false
-    ) {
+    ): object {
         if ($get_as_object) {
             return new EncryptionKey(
                 new HiddenString(
@@ -200,7 +229,7 @@ final class Crypto
             )
         );
     }
-    
+
     /**
      * Encrypt a message with a target users' public key
      *
@@ -208,8 +237,9 @@ final class Crypto
      * @param EncryptionPublicKey $publicKey Public encryption key
      * @param mixed $encoding                Which encoding scheme to use?
      * @return string                        Ciphertext
+     *
      * @throws CannotPerformOperation
-     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function seal(
         HiddenString $plaintext,
@@ -222,18 +252,21 @@ final class Crypto
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($sealed);
+            return (string) $encoder($sealed);
         }
-        return $sealed;
+        return (string) $sealed;
     }
-    
+
     /**
      * Sign a message with our private key
      *
-     * @param string $message Message to sign
-     * @param SignatureSecretKey $privateKey
-     * @param mixed $encoding Which encoding scheme to use?
+     * @param string $message                Message to sign
+     * @param SignatureSecretKey $privateKey Private signing key
+     * @param mixed $encoding                Which encoding scheme to use?
      * @return string Signature (detached)
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public static function sign(
         string $message,
@@ -246,20 +279,23 @@ final class Crypto
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($signed);
+            return (string) $encoder($signed);
         }
-        return $signed;
+        return (string) $signed;
     }
-    
+
     /**
      * Decrypt a sealed message with our private key
      *
-     * @param string $ciphertext Encrypted message
-     * @param EncryptionSecretKey $privateKey
-     * @param mixed $encoding Which encoding scheme to use?
+     * @param string $ciphertext              Encrypted message
+     * @param EncryptionSecretKey $privateKey Private decryption key
+     * @param mixed $encoding                 Which encoding scheme to use?
      * @return HiddenString
+     *
+     * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws InvalidMessage
+     * @throws InvalidType
      */
     public static function unseal(
         string $ciphertext,
@@ -270,6 +306,7 @@ final class Crypto
         if ($decoder) {
             // We were given hex data:
             try {
+                /** @var string $ciphertext */
                 $ciphertext = $decoder($ciphertext);
             } catch (\RangeException $ex) {
                 throw new InvalidMessage(
@@ -307,16 +344,19 @@ final class Crypto
         // We have our encrypted message here
         return new HiddenString($message);
     }
-    
+
     /**
      * Verify a signed message with the correct public key
      *
-     * @param string $message Message to verify
-     * @param SignaturePublicKey $publicKey
-     * @param string $signature
-     * @param mixed $encoding Which encoding scheme to use?
+     * @param string $message               Message to verify
+     * @param SignaturePublicKey $publicKey Public key
+     * @param string $signature             Signature
+     * @param mixed $encoding               Which encoding scheme to use?
      * @return bool
+     *
+     * @throws CannotPerformOperation
      * @throws InvalidSignature
+     * @throws InvalidType
      */
     public static function verify(
         string $message,
@@ -327,6 +367,7 @@ final class Crypto
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given hex data:
+            /** @var string $signature */
             $signature = $decoder($signature);
         }
         if (CryptoUtil::safeStrlen($signature) !== SODIUM_CRYPTO_SIGN_BYTES) {

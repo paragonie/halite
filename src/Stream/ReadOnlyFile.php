@@ -3,7 +3,13 @@ declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
 use ParagonIE\Halite\Contract\StreamInterface;
-use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    FileAccessDenied,
+    FileError,
+    FileModified,
+    InvalidType,
+};
 use ParagonIE\Halite\Key;
 use ParagonIE\Halite\Util as CryptoUtil;
 
@@ -56,19 +62,21 @@ class ReadOnlyFile implements StreamInterface
     private $stat = [];
 
     /**
-     * ReadOnlyFile constructor
+     * ReadOnlyFile constructor.
      *
      * @param string|resource $file
      * @param Key|null $key
-     * @throws CryptoException\InvalidType
-     * @throws CryptoException\FileAccessDenied
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws InvalidType
      */
     public function __construct($file, Key $key = null)
     {
         if (\is_string($file)) {
             $fp = \fopen($file, 'rb');
             if (!\is_resource($fp)) {
-                throw new CryptoException\FileAccessDenied(
+                throw new FileAccessDenied(
                     'Could not open file for reading'
                 );
             }
@@ -82,7 +90,7 @@ class ReadOnlyFile implements StreamInterface
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
         } else {
-            throw new CryptoException\InvalidType(
+            throw new InvalidType(
                 'Argument 1: Expected a filename or resource'
             );
         }
@@ -117,6 +125,7 @@ class ReadOnlyFile implements StreamInterface
      * Calculate a BLAKE2b hash of a file
      *
      * @return string
+     * @throws
      */
     public function getHash(): string
     {
@@ -130,12 +139,12 @@ class ReadOnlyFile implements StreamInterface
         );
         for ($i = 0; $i < $this->stat['size']; $i += self::CHUNK) {
             if (($i + self::CHUNK) > $this->stat['size']) {
-                $c = \fread($this->fp, ($this->stat['size'] - $i));
+                $c = \fread($this->fp, ((int) $this->stat['size'] - $i));
             } else {
                 $c = \fread($this->fp, self::CHUNK);
             }
             if (!\is_string($c)) {
-                throw new \Error('Could not read file');
+                throw new FileError('Could not read file');
             }
             \sodium_crypto_generichash_update($h, $c);
         }
@@ -161,7 +170,7 @@ class ReadOnlyFile implements StreamInterface
      */
     public function getSize(): int
     {
-        return $this->stat['size'];
+        return (int) $this->stat['size'];
     }
     
     /**
@@ -175,18 +184,19 @@ class ReadOnlyFile implements StreamInterface
      *                           that you don't want to defend against TOCTOU /
      *                           race condition attacks on the filesystem!
      * @return string
-     * @throws CryptoException\FileAccessDenied
-     * @throws CryptoException\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
      */
     public function readBytes(int $num, bool $skipTests = false): string
     {
         if ($num < 0) {
-            throw new CryptoException\CannotPerformOperation('num < 0');
+            throw new CannotPerformOperation('num < 0');
         } elseif ($num === 0) {
             return '';
         }
         if (($this->pos + $num) > $this->stat['size']) {
-            throw new CryptoException\CannotPerformOperation('Out-of-bounds read');
+            throw new CannotPerformOperation('Out-of-bounds read');
         }
         $buf = '';
         $remaining = $num;
@@ -200,7 +210,7 @@ class ReadOnlyFile implements StreamInterface
             /** @var string $read */
             $read = \fread($this->fp, $remaining);
             if (!\is_string($read)) {
-                throw new CryptoException\FileAccessDenied(
+                throw new FileAccessDenied(
                     'Could not read from the file'
                 );
             }
@@ -219,7 +229,11 @@ class ReadOnlyFile implements StreamInterface
      */
     public function remainingBytes(): int
     {
-        return (PHP_INT_MAX & ($this->stat['size'] - $this->pos));
+        return (int) (
+            PHP_INT_MAX & (
+                (int) $this->stat['size'] - $this->pos
+            )
+        );
     }
 
     /**
@@ -227,7 +241,7 @@ class ReadOnlyFile implements StreamInterface
      *
      * @param int $position
      * @return bool
-     * @throws CryptoException\CannotPerformOperation
+     * @throws CannotPerformOperation
      */
     public function reset(int $position = 0): bool
     {
@@ -235,7 +249,7 @@ class ReadOnlyFile implements StreamInterface
         if (\fseek($this->fp, $position, SEEK_SET) === 0) {
             return true;
         }
-        throw new CryptoException\CannotPerformOperation(
+        throw new CannotPerformOperation(
             'fseek() failed'
         );
     }
@@ -245,19 +259,19 @@ class ReadOnlyFile implements StreamInterface
      * verifying that the hash matches and the current cursor position/file
      * size matches their values when the file was first opened.
      *
-     * @throws CryptoException\FileModified
+     * @throws FileModified
      * @return void
      */
     public function toctouTest()
     {
         if (\ftell($this->fp) !== $this->pos) {
-            throw new CryptoException\FileModified(
+            throw new FileModified(
                 'Read-only file has been modified since it was opened for reading'
             );
         }
         $stat = \fstat($this->fp);
         if ($stat['size'] !== $this->stat['size']) {
-            throw new CryptoException\FileModified(
+            throw new FileModified(
                 'Read-only file has been modified since it was opened for reading'
             );
         }
@@ -269,13 +283,13 @@ class ReadOnlyFile implements StreamInterface
      * @param string $buf
      * @param int $num (number of bytes)
      * @return int
-     * @throws CryptoException\FileAccessDenied
+     * @throws FileAccessDenied
      */
     public function writeBytes(string $buf, int $num = null): int
     {
         unset($buf);
         unset($num);
-        throw new CryptoException\FileAccessDenied(
+        throw new FileAccessDenied(
             'This is a read-only file handle.'
         );
     }

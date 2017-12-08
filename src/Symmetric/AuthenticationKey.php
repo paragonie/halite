@@ -2,7 +2,11 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
-use ParagonIE\Halite\Alerts\InvalidKey;
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidKey,
+    InvalidType
+};
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Util as CryptoUtil;
 
@@ -17,8 +21,12 @@ use ParagonIE\Halite\Util as CryptoUtil;
 final class AuthenticationKey extends SecretKey
 {
     /**
+     * AuthenticationKey constructor.
      * @param HiddenString $keyMaterial - The actual key data
+     *
      * @throws InvalidKey
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public function __construct(HiddenString $keyMaterial)
     {

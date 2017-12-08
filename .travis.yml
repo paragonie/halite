@@ -6,8 +6,10 @@ matrix:
   fast_finish: true
   include:
     - php: "7.2"
+    - php: "master"
     - php: "nightly"
   allow_failures:
+    - php: "master"
     - php: "nightly"
 
 before_install:
@@ -20,7 +22,7 @@ before_install:
 - ./configure && make check
 - sudo make install
 - cd ..
-- sudo apt-get install php7.2-sodium
+- pecl install libsodium
 
 install:
 

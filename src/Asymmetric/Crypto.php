@@ -3,7 +3,12 @@ declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\Alerts\{
-    CannotPerformOperation, InvalidDigestLength, InvalidKey, InvalidMessage, InvalidSalt, InvalidSignature, InvalidType
+    CannotPerformOperation,
+    InvalidDigestLength,
+    InvalidKey,
+    InvalidMessage,
+    InvalidSignature,
+    InvalidType
 };
 use ParagonIE\Halite\{
     Util as CryptoUtil,

@@ -40,6 +40,13 @@ versions of Halite are briefly highlighted below.
 If you need a version of Halite before 4.0, see the documentation relevant to that
 particular branch.
 
+To install Halite, you first need to [install libsodium](https://paragonie.com/book/pecl-libsodium/read/00-intro.md#installing-libsodium).
+You may or may not need the PHP extension. For most people, this means running...
+
+    sudo apt-get install php7.2-sodium
+
+...or an equivalent command for your operating system and PHP version.
+
 ## Using Halite in Your Project
 
 Check out the [documentation](doc). The basic Halite API is designed for simplicity:
@@ -97,6 +104,14 @@ This should produce something similar to:
 
     MUIDAEpQznohvNlQ-ZRk-ZZ59Mmox75D_FgAIrXY2cUfStoeL-GIeAe0m-uaeURQdPsVmc5XxRw3-2x5ZAsZH_es37qqFuLFjUI-XK9uG0s30YTsorWfpHdbnqzhRuUOI09c-cKrfMQkNBNm0dDDwZazjTC48zWikRHSHXg8NXerVDebzng1aufc_S-osI_zQuLbZDODujEnpbPZhMMcm4-SWuyVXcBPdGZolJyT
 
+#### Cryptographic Keys in Halite
+
+> **Important**: Halite works with `Key` objects, not strings.
+
+If you attempt to `var_dump()` a key object, you will get an empty string
+rather than its contents. You must nvoke `$obj->getRawKeyMaterial()`
+explicitly if you want to inspect a key's raw binary contents. This is not
+recommended for most use cases.
 
 ### Example: Generating a key from a password
 

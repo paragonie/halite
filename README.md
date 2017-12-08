@@ -47,6 +47,8 @@ You may or may not need the PHP extension. For most people, this means running..
 
 ...or an equivalent command for your operating system and PHP version.
 
+If you're stuck, [this step-by-step guide contributed by @aolko](doc/Install-Guides/Ubuntu.md) may be helpful.
+
 Once you have the prerequisites installed, install Halite through [Composer](https://getcomposer.org/doc/00-intro.md):
 
     composer require paragonie/halite:^4

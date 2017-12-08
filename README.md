@@ -47,6 +47,10 @@ You may or may not need the PHP extension. For most people, this means running..
 
 ...or an equivalent command for your operating system and PHP version.
 
+Once you have the prerequisites installed, install Halite through [Composer](https://getcomposer.org/doc/00-intro.md):
+
+    composer require paragonie/halite:^4
+
 ## Using Halite in Your Project
 
 Check out the [documentation](doc). The basic Halite API is designed for simplicity:
@@ -97,7 +101,7 @@ $ciphertext = Symmetric::encrypt($message, $encryptionKey);
 
 $decrypted = Symmetric::decrypt($ciphertext, $encryptionKey);
 
-var_dump($decrypted === $message); // bool(true)
+var_dump($decrypted->getString() === $message->getString()); // bool(true)
 ```
 
 This should produce something similar to:

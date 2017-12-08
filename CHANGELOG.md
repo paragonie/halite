@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.0.2 (2017-12-08)
+
+This is mostly a boyscouting/documentation release. However, we now pass Psalm under the
+strictest setting (`totallyTyped = true`). This means that not only is our public interface
+totally type-safe, but Halite's internals are as well.
+
 ## Version 4.0.1 (2017-10-19)
 
 * Prompted by [#67](https://github.com/paragonie/halite/issues/67), Halite is now available

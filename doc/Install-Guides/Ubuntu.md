@@ -1,3 +1,5 @@
+# Installing Halite on Ubuntu 16.04 and newer
+
 Assuming that you don't have build utils, php7 devtools, git, pear&pecl, composer (fresh install)
 
 ## Libsodium

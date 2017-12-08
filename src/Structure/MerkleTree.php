@@ -3,8 +3,11 @@ declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
 use ParagonIE\ConstantTime\Hex;
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidDigestLength
+};
 use ParagonIE\Halite\Util;
-use ParagonIE\Halite\Alerts\InvalidDigestLength;
 
 /**
  * Class MerkleTree
@@ -69,6 +72,7 @@ class MerkleTree
      * @param bool $raw - Do we want a raw string instead of a hex string?
      * 
      * @return string
+     * @throws CannotPerformOperation
      */
     public function getRoot(bool $raw = false): string
     {
@@ -85,6 +89,7 @@ class MerkleTree
      *
      * @param array<int, Node> $nodes
      * @return MerkleTree
+     * @throws InvalidDigestLength
      */
     public function getExpandedTree(Node ...$nodes): MerkleTree
     {
@@ -148,6 +153,7 @@ class MerkleTree
      * Explicitly recalculate the Merkle root
      *
      * @return self
+     * @throws CannotPerformOperation
      */
     public function triggerRootCalculation(): self
     {
@@ -161,6 +167,7 @@ class MerkleTree
      * to protect against second-preimage attacks
      *
      * @return string
+     * @throws CannotPerformOperation
      */
     protected function calculateRoot(): string
     {

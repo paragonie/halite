@@ -6,8 +6,10 @@ use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     FileAccessDenied,
     FileModified,
+    InvalidDigestLength,
     InvalidKey,
     InvalidMessage,
+    InvalidSignature,
     InvalidType
 };
 use ParagonIE\Halite\{
@@ -43,6 +45,8 @@ final class File
 {
     /**
      * Don't allow this to be instantiated.
+     *
+     * @throws \Error
      */
     final private function __construct()
     {
@@ -59,6 +63,11 @@ final class File
      *                         AuthenticationKey)
      * @param mixed $encoding Which encoding scheme to use for the checksum?
      * @return string         The checksum
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws InvalidKey
+     * @throws InvalidMessage
      * @throws InvalidType
      */
     public static function checksum(
@@ -88,6 +97,13 @@ final class File
      * @param string|resource $output File name or file handle
      * @param EncryptionKey $key      Symmetric encryption key
      * @return int                    Number of bytes written
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
+     * @throws InvalidDigestLength
+     * @throws InvalidKey
+     * @throws InvalidMessage
      * @throws InvalidType
      */
     public static function encrypt(
@@ -97,7 +113,7 @@ final class File
     ): int {
         if (
             (\is_resource($input) || \is_string($input))
-                &&
+            &&
             (\is_resource($output) || \is_string($output))
         ) {
             $readOnly = new ReadOnlyFile($input);
@@ -123,6 +139,13 @@ final class File
      * @param string|resource $output File name or file handle
      * @param EncryptionKey $key      Symmetric encryption key
      * @return bool                   TRUE if successful
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
+     * @throws InvalidDigestLength
+     * @throws InvalidKey
+     * @throws InvalidMessage
      * @throws InvalidType
      */
     public static function decrypt(
@@ -132,7 +155,7 @@ final class File
     ): bool {
         if (
             (\is_resource($input) || \is_string($input))
-                &&
+            &&
             (\is_resource($output) || \is_string($output))
         ) {
             try {
@@ -161,8 +184,16 @@ final class File
      * @param string|resource $input         File name or file handle
      * @param string|resource $output        File name or file handle
      * @param EncryptionPublicKey $publicKey Recipient's encryption public key
-     * @return int                           Number of bytes written
-     * @throws Alerts\InvalidType
+     * @return int
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
+     * @throws InvalidDigestLength
+     * @throws InvalidMessage
+     * @throws InvalidType
+     * @throws \Exception
+     * @throws \TypeError
      */
     public static function seal(
         $input,
@@ -171,7 +202,7 @@ final class File
     ): int {
         if (
             (\is_resource($input) || \is_string($input))
-                &&
+            &&
             (\is_resource($output) || \is_string($output))
         ) {
             $readOnly = new ReadOnlyFile($input);
@@ -198,7 +229,14 @@ final class File
      * @param string|resource $output        File name or file handle
      * @param EncryptionSecretKey $secretKey Recipient's encryption secret key
      * @return bool                          TRUE on success
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
+     * @throws InvalidDigestLength
+     * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function unseal(
         $input,
@@ -207,7 +245,7 @@ final class File
     ): bool {
         if (
             (\is_resource($input) || \is_string($input))
-                &&
+            &&
             (\is_resource($output) || \is_string($output))
         ) {
             $readOnly = new ReadOnlyFile($input);
@@ -241,7 +279,11 @@ final class File
      * @param SignatureSecretKey $secretKey Secret key for digital signatures
      * @param mixed $encoding               Which encoding scheme to use for the signature?
      * @return string                       Detached signature for the file
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
      * @throws InvalidKey
+     * @throws InvalidMessage
      * @throws InvalidType
      */
     public static function sign(
@@ -273,6 +315,11 @@ final class File
      * @param mixed $encoding               Which encoding scheme to use for the signature?
      *
      * @return bool
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidSignature
      * @throws InvalidType
      */
     public static function verify(
@@ -304,7 +351,12 @@ final class File
      * @param Key $key
      * @param mixed $encoding Which encoding scheme to use for the checksum?
      * @return string
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
      * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidType
      */
     protected static function checksumData(
         StreamInterface $fileStream,
@@ -376,6 +428,14 @@ final class File
      * @param $output
      * @param EncryptionKey $key
      * @return int
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
+     * @throws InvalidDigestLength
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidType
      */
     protected static function encryptData(
         ReadOnlyFile $input,
@@ -385,8 +445,12 @@ final class File
         $config = self::getConfig(Halite::HALITE_VERSION_FILE, 'encrypt');
 
         // Generate a nonce and HKDF salt
-        $firstNonce = \random_bytes($config->NONCE_BYTES);
-        $hkdfSalt = \random_bytes($config->HKDF_SALT_LEN);
+        try {
+            $firstNonce = \random_bytes($config->NONCE_BYTES);
+            $hkdfSalt = \random_bytes($config->HKDF_SALT_LEN);
+        } catch (\Throwable $ex) {
+            throw new CannotPerformOperation($ex->getMessage());
+        }
 
         // Let's split our key
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
@@ -433,7 +497,14 @@ final class File
      * @param $output
      * @param EncryptionKey $key
      * @return bool
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
+     * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
+     * @throws InvalidType
      */
     protected static function decryptData(
         ReadOnlyFile $input,
@@ -510,6 +581,15 @@ final class File
      * @param MutableFile $output
      * @param EncryptionPublicKey $publicKey
      * @return int
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
+     * @throws InvalidDigestLength
+     * @throws InvalidMessage
+     * @throws InvalidType
+     * @throws \Exception
+     * @throws \TypeError
      */
     protected static function sealData(
         ReadOnlyFile $input,
@@ -600,8 +680,14 @@ final class File
      * @param MutableFile $output
      * @param EncryptionSecretKey $secretKey
      * @return bool
+     *
      * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
+     * @throws InvalidDigestLength
      * @throws InvalidMessage
+     * @throws InvalidType
+     * @throws \TypeError
      */
     protected static function unsealData(
         ReadOnlyFile $input,
@@ -702,6 +788,12 @@ final class File
      * @param SignatureSecretKey $secretKey
      * @param mixed $encoding Which encoding scheme to use for the signature?
      * @return string
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidType
      */
     protected static function signData(
         ReadOnlyFile $input,
@@ -729,6 +821,13 @@ final class File
      * @param mixed $encoding Which encoding scheme to use for the signature?
      *
      * @return bool
+     *
+     * @throws InvalidSignature
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidType
      */
     protected static function verifyData(
         ReadOnlyFile $input,
@@ -898,6 +997,10 @@ final class File
      * @param string $salt
      * @param Config $config
      * @return array<int, string>
+     *
+     * @throws InvalidDigestLength
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     protected static function splitKeys(
         Key $master,
@@ -933,9 +1036,10 @@ final class File
      *
      * @return int (number of bytes)
      *
+     * @throws CannotPerformOperation
      * @throws FileAccessDenied
      * @throws FileModified
-     * @throws InvalidKey
+     * @throws InvalidType
      */
     final private static function streamEncrypt(
         ReadOnlyFile $input,
@@ -993,11 +1097,11 @@ final class File
      *
      * @return bool
      *
-     * @throws FileAccessDenied
      * @throws CannotPerformOperation
+     * @throws FileAccessDenied
      * @throws FileModified
-     * @throws InvalidKey
      * @throws InvalidMessage
+     * @throws InvalidType
      */
     final private static function streamDecrypt(
         ReadOnlyFile $input,
@@ -1069,7 +1173,10 @@ final class File
      * @return array               Hashes of various chunks
      *
      * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileModified
      * @throws InvalidMessage
+     * @throws InvalidType
      */
     final private static function streamVerify(
         ReadOnlyFile $input,

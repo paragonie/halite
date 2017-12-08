@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Alerts\ConfigDirectiveNotFound;
 
 /**
  * Class Config
@@ -38,17 +38,17 @@ class Config
     
     /**
      * Getter
-     * 
+     *
      * @param string $key
      * @return mixed
-     * @throws CryptoException\ConfigDirectiveNotFound
+     * @throws ConfigDirectiveNotFound
      */
     public function __get(string $key)
     {
         if (\array_key_exists($key, $this->config)) {
             return $this->config[$key];
         }
-        throw new CryptoException\ConfigDirectiveNotFound($key);
+        throw new ConfigDirectiveNotFound($key);
     }
     
     /**

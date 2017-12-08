@@ -4,11 +4,15 @@ namespace ParagonIE\Halite;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\ConstantTime\Hex;
-use ParagonIE\Halite\{
-    Alerts\InvalidMessage,
-    Symmetric\Config as SymmetricConfig,
-    Symmetric\Crypto,
-    Symmetric\EncryptionKey
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidMessage,
+    InvalidType
+};
+use ParagonIE\Halite\Symmetric\{
+    Config as SymmetricConfig,
+    Crypto,
+    EncryptionKey
 };
 
 /**
@@ -37,6 +41,8 @@ final class Password
      * @param string $level             The security level for this password
      * @param string $additionalData    Additional authenticated data
      * @return string                   An encrypted hash to store
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public static function hash(
         HiddenString $password,
@@ -70,6 +76,8 @@ final class Password
      * @return bool                     Do we need to regenerate the hash or
      *                                  ciphertext?
      * @throws InvalidMessage
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public static function needsRehash(
         string $stored,
@@ -126,6 +134,8 @@ final class Password
      * @param string $stored   A stored password hash
      * @return SymmetricConfig
      * @throws InvalidMessage
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     protected static function getConfig(string $stored): SymmetricConfig
     {
@@ -165,6 +175,8 @@ final class Password
      * @param string $additionalData    Additional authenticated data (needed to decrypt)
      * @return bool                     Is this password valid?
      * @throws InvalidMessage
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public static function verify(
         HiddenString $password,

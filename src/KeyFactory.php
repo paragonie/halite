@@ -3,7 +3,12 @@ declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\ConstantTime\Hex;
-use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidKey,
+    InvalidSalt,
+    InvalidType
+};
 use ParagonIE\Halite\{
     Asymmetric\EncryptionPublicKey,
     Asymmetric\EncryptionSecretKey,
@@ -41,10 +46,15 @@ final class KeyFactory
      * 
      * @param string &$secretKey
      * @return AuthenticationKey
+     * @throws CannotPerformOperation
      */
     public static function generateAuthenticationKey(string &$secretKey = ''): AuthenticationKey
     {
-        $secretKey = \random_bytes(\SODIUM_CRYPTO_AUTH_KEYBYTES);
+        try {
+            $secretKey = \random_bytes(\SODIUM_CRYPTO_AUTH_KEYBYTES);
+        } catch (\Throwable $ex) {
+            throw new CannotPerformOperation($ex->getMessage());
+        }
         return new AuthenticationKey(
             new HiddenString($secretKey)
         );
@@ -55,10 +65,15 @@ final class KeyFactory
      * 
      * @param string &$secretKey
      * @return EncryptionKey
+     * @throws CannotPerformOperation
      */
     public static function generateEncryptionKey(string &$secretKey = ''): EncryptionKey
     {
-        $secretKey = \random_bytes(\SODIUM_CRYPTO_STREAM_KEYBYTES);
+        try {
+            $secretKey = \random_bytes(\SODIUM_CRYPTO_STREAM_KEYBYTES);
+        } catch (\Throwable $ex) {
+            throw new CannotPerformOperation($ex->getMessage());
+        }
         return new EncryptionKey(
             new HiddenString($secretKey)
         );
@@ -115,7 +130,9 @@ final class KeyFactory
      * @param string $level Security level for KDF
      * 
      * @return AuthenticationKey
-     * @throws CryptoException\InvalidSalt
+     * @throws CannotPerformOperation
+     * @throws InvalidSalt
+     * @throws InvalidType
      */
     public static function deriveAuthenticationKey(
         HiddenString $password,
@@ -125,7 +142,7 @@ final class KeyFactory
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
-            throw new CryptoException\InvalidSalt(
+            throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
@@ -150,7 +167,9 @@ final class KeyFactory
      * @param string $level Security level for KDF
      * 
      * @return EncryptionKey
-     * @throws CryptoException\InvalidSalt
+     * @throws CannotPerformOperation
+     * @throws InvalidSalt
+     * @throws InvalidType
      */
     public static function deriveEncryptionKey(
         HiddenString $password,
@@ -160,7 +179,7 @@ final class KeyFactory
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
-            throw new CryptoException\InvalidSalt(
+            throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
@@ -184,7 +203,9 @@ final class KeyFactory
      * @param string $level Security level for KDF
      * 
      * @return EncryptionKeyPair
-     * @throws CryptoException\InvalidSalt
+     * @throws CannotPerformOperation
+     * @throws InvalidSalt
+     * @throws InvalidType
      */
     public static function deriveEncryptionKeyPair(
         HiddenString $password,
@@ -194,7 +215,7 @@ final class KeyFactory
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
-            throw new CryptoException\InvalidSalt(
+            throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
@@ -226,7 +247,10 @@ final class KeyFactory
      * @param string $level Security level for KDF
      *
      * @return SignatureKeyPair
-     * @throws CryptoException\InvalidSalt
+     * @throws InvalidSalt
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function deriveSignatureKeyPair(
         HiddenString $password,
@@ -236,7 +260,7 @@ final class KeyFactory
         $kdfLimits = self::getSecurityLevels($level);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
-            throw new CryptoException\InvalidSalt(
+            throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
@@ -265,7 +289,7 @@ final class KeyFactory
      *
      * @param string $level
      * @return int[]
-     * @throws CryptoException\InvalidType
+     * @throws InvalidType
      */
     public static function getSecurityLevels(string $level = self::INTERACTIVE): array
     {
@@ -286,7 +310,7 @@ final class KeyFactory
                     \SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE
                 ];
             default:
-                throw new CryptoException\InvalidType(
+                throw new InvalidType(
                     'Invalid security level for Argon2i'
                 );
         }
@@ -298,7 +322,9 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return AuthenticationKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function importAuthenticationKey(HiddenString $keyData): AuthenticationKey
     {
@@ -317,7 +343,9 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function importEncryptionKey(HiddenString $keyData): EncryptionKey
     {
@@ -336,7 +364,9 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionPublicKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function importEncryptionPublicKey(HiddenString $keyData): EncryptionPublicKey
     {
@@ -355,7 +385,9 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionSecretKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function importEncryptionSecretKey(HiddenString $keyData): EncryptionSecretKey
     {
@@ -374,7 +406,9 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return SignaturePublicKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function importSignaturePublicKey(HiddenString $keyData): SignaturePublicKey
     {
@@ -393,7 +427,9 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return SignatureSecretKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function importSignatureSecretKey(HiddenString $keyData): SignatureSecretKey
     {
@@ -412,7 +448,9 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionKeyPair
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function importEncryptionKeyPair(HiddenString $keyData): EncryptionKeyPair
     {
@@ -433,7 +471,9 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return SignatureKeyPair
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function importSignatureKeyPair(HiddenString $keyData): SignatureKeyPair
     {
@@ -454,12 +494,14 @@ final class KeyFactory
      * @param string $filePath
      * @return AuthenticationKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function loadAuthenticationKey(string $filePath): AuthenticationKey
     {
         if (!\is_readable($filePath)) {
-            throw new Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'Cannot read keyfile: '. $filePath
             );
         }
@@ -474,12 +516,14 @@ final class KeyFactory
      * @param string $filePath
      * @return EncryptionKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function loadEncryptionKey(string $filePath): EncryptionKey
     {
         if (!\is_readable($filePath)) {
-            throw new Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'Cannot read keyfile: '. $filePath
             );
         }
@@ -494,12 +538,14 @@ final class KeyFactory
      * @param string $filePath
      * @return EncryptionPublicKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function loadEncryptionPublicKey(string $filePath): EncryptionPublicKey
     {
         if (!\is_readable($filePath)) {
-            throw new Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'Cannot read keyfile: '. $filePath
             );
         }
@@ -514,12 +560,14 @@ final class KeyFactory
      * @param string $filePath
      * @return EncryptionSecretKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function loadEncryptionSecretKey(string $filePath): EncryptionSecretKey
     {
         if (!\is_readable($filePath)) {
-            throw new Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'Cannot read keyfile: '. $filePath
             );
         }
@@ -534,12 +582,14 @@ final class KeyFactory
      * @param string $filePath
      * @return SignaturePublicKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function loadSignaturePublicKey(string $filePath): SignaturePublicKey
     {
         if (!\is_readable($filePath)) {
-            throw new Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'Cannot read keyfile: '. $filePath
             );
         }
@@ -554,12 +604,14 @@ final class KeyFactory
      * @param string $filePath
      * @return SignatureSecretKey
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function loadSignatureSecretKey(string $filePath): SignatureSecretKey
     {
         if (!\is_readable($filePath)) {
-            throw new Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'Cannot read keyfile: '. $filePath
             );
         }
@@ -574,12 +626,14 @@ final class KeyFactory
      * @param string $filePath
      * @return EncryptionKeyPair
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function loadEncryptionKeyPair(string $filePath): EncryptionKeyPair
     {
         if (!\is_readable($filePath)) {
-            throw new Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'Cannot read keyfile: '. $filePath
             );
         }
@@ -596,12 +650,14 @@ final class KeyFactory
      * @param string $filePath
      * @return SignatureKeyPair
      *
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function loadSignatureKeyPair(string $filePath): SignatureKeyPair
     {
         if (!\is_readable($filePath)) {
-            throw new Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'Cannot read keyfile: '. $filePath
             );
         }
@@ -664,13 +720,15 @@ final class KeyFactory
      * 
      * @param string $filePath
      * @return HiddenString
-     * @throws Alerts\CannotPerformOperation
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     protected static function loadKeyFile(string $filePath): HiddenString
     {
         $fileData = \file_get_contents($filePath);
         if ($fileData === false) {
-            throw new Alerts\CannotPerformOperation(
+            throw new CannotPerformOperation(
                 'Cannot load key from file: '. $filePath
             );
         }
@@ -687,7 +745,8 @@ final class KeyFactory
      * 
      * @param string $data
      * @return string
-     * @throws Alerts\InvalidKey
+     * @throws InvalidKey
+     * @throws InvalidType
      */
     public static function getKeyDataFromString(string $data): string
     {
@@ -708,7 +767,7 @@ final class KeyFactory
             \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
         if (!\hash_equals($calc, $checksum)) {
-            throw new Alerts\InvalidKey(
+            throw new InvalidKey(
                 'Checksum validation fail'
             );
         }

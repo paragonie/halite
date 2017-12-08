@@ -2,7 +2,11 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
-use ParagonIE\Halite\Alerts\InvalidKey;
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidKey,
+    InvalidType
+};
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Util as CryptoUtil;
 
@@ -17,8 +21,13 @@ use ParagonIE\Halite\Util as CryptoUtil;
 final class SignatureSecretKey extends SecretKey
 {
     /**
+     * SignatureSecretKey constructor.
+     *
      * @param HiddenString $keyMaterial - The actual key data
+     *
      * @throws InvalidKey
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public function __construct(HiddenString $keyMaterial)
     {
@@ -35,6 +44,8 @@ final class SignatureSecretKey extends SecretKey
      * See the appropriate derived class.
      * 
      * @return SignaturePublicKey
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public function derivePublicKey()
     {

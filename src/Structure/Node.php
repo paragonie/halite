@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
+use ParagonIE\Halite\Alerts\CannotPerformOperation;
 use ParagonIE\Halite\Util;
 
 /**
@@ -54,6 +55,7 @@ class Node
      * @param string $personalization
      *
      * @return string
+     * @throws CannotPerformOperation
      */
     public function getHash(
         bool $raw = false,

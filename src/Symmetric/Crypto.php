@@ -3,9 +3,12 @@ declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
 use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidDigestLength,
     InvalidKey,
     InvalidMessage,
-    InvalidSignature
+    InvalidSignature,
+    InvalidType
 };
 use ParagonIE\Halite\{
     Config as BaseConfig,
@@ -35,6 +38,8 @@ final class Crypto
 {
     /**
      * Don't allow this to be instantiated.
+     *
+     * @throws \Error
      */
     final private function __construct()
     {
@@ -43,12 +48,15 @@ final class Crypto
 
     /**
      * Authenticate a string
-     * 
+     *
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param mixed $encoding
-     * @throws InvalidKey
      * @return string
+     *
+     * @throws InvalidMessage
+     * @throws CannotPerformOperation
+     * @throws InvalidType
      */
     public static function authenticate(
         string $message,
@@ -78,7 +86,12 @@ final class Crypto
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
      * @return HiddenString
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
      * @throws InvalidMessage
+     * @throws InvalidSignature
+     * @throws InvalidType
      */
     public static function decrypt(
         string $ciphertext,
@@ -100,7 +113,12 @@ final class Crypto
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
      * @return HiddenString
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
      * @throws InvalidMessage
+     * @throws InvalidSignature
+     * @throws InvalidType
      */
     public static function decryptWithAd(
         string $ciphertext,
@@ -175,6 +193,11 @@ final class Crypto
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
      * @return string
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
+     * @throws InvalidMessage
+     * @throws InvalidType
      */
     public static function encrypt(
         HiddenString $plaintext,
@@ -195,6 +218,11 @@ final class Crypto
      * @param string $additionalData
      * @param string $encoding
      * @return string
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
+     * @throws InvalidMessage
+     * @throws InvalidType
      */
     public static function encryptWithAd(
         HiddenString $plaintext,
@@ -205,8 +233,12 @@ final class Crypto
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
 
         // Generate a nonce and HKDF salt:
-        $nonce = \random_bytes(\SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $salt = \random_bytes($config->HKDF_SALT_LEN);
+        try {
+            $nonce = \random_bytes(\SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+            $salt = \random_bytes($config->HKDF_SALT_LEN);
+        } catch (\Throwable $ex) {
+            throw new CannotPerformOperation($ex->getMessage());
+        }
 
         /* Split our key into two keys: One for encryption, the other for
            authentication. By using separate keys, we can reasonably dismiss
@@ -248,14 +280,18 @@ final class Crypto
         return $message;
 
     }
-    
+
     /**
      * Split a key (using HKDF-BLAKE2b instead of HKDF-HMAC-*)
-     * 
+     *
      * @param EncryptionKey $master
      * @param string $salt
      * @param BaseConfig $config
      * @return string[]
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidType
+     * @throws InvalidDigestLength
      */
     public static function splitKeys(
         EncryptionKey $master,
@@ -278,15 +314,18 @@ final class Crypto
             )
         ];
     }
-    
+
     /**
      * Unpack a message string into an array (assigned to variables via list()).
      *
      * Should return exactly 6 elements.
-     * 
+     *
      * @param string $ciphertext
      * @return array<int, mixed>
+     *
+     * @throws CannotPerformOperation
      * @throws InvalidMessage
+     * @throws InvalidType
      */
     public static function unpackMessageForDecryption(string $ciphertext): array
     {
@@ -357,16 +396,20 @@ final class Crypto
         // Now we return the pieces in a specific order:
         return [$version, $config, $salt, $nonce, $encrypted, $auth];
     }
-    
+
     /**
      * Verify the authenticity of a message, given a shared MAC key
-     * 
+     *
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param string $mac
      * @param mixed $encoding
      * @param SymmetricConfig $config
      * @return bool
+     * @throws CannotPerformOperation
+     * @throws InvalidMessage
+     * @throws InvalidSignature
+     * @throws InvalidType
      */
     public static function verify(
         string $message,
@@ -420,16 +463,18 @@ final class Crypto
             'Invalid Halite version'
         );
     }
-    
+
     /**
      * Verify a Message Authentication Code (MAC) of a message, with a shared
      * key.
-     * 
+     *
      * @param string $mac             Message Authentication Code
      * @param string $message         The message to verify
      * @param string $authKey         Authentication key (symmetric)
      * @param SymmetricConfig $config Configuration object
      * @return bool
+     *
+     * @throws CannotPerformOperation
      * @throws InvalidMessage
      * @throws InvalidSignature
      */

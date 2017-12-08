@@ -2,8 +2,11 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidMessage
+};
 use ParagonIE\Halite\{
-    Alerts as CryptoException,
     Config as BaseConfig,
     Halite,
     Util
@@ -29,23 +32,25 @@ final class Config extends BaseConfig
 {
     /**
      * Get the configuration
-     * 
+     *
      * @param string $header
      * @param string $mode
      * @return self
-     * @throws CryptoException\InvalidMessage
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidMessage
      */
     public static function getConfig(
         string $header,
         string $mode = 'encrypt'
     ): self {
         if (Util::safeStrlen($header) < Halite::VERSION_TAG_LEN) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 'Invalid version tag'
             );
         }
         if (\ord($header[0]) !== 49 || \ord($header[1]) !== 66) {
-            throw new CryptoException\InvalidMessage(
+            throw new InvalidMessage(
                 'Invalid version tag'
             );
         }
@@ -60,7 +65,7 @@ final class Config extends BaseConfig
                 self::getConfigAuth($major, $minor)
             );
         }
-        throw new CryptoException\InvalidMessage(
+        throw new InvalidMessage(
             'Invalid configuration mode: '.$mode
         );
     }
@@ -71,7 +76,7 @@ final class Config extends BaseConfig
      * @param int $major
      * @param int $minor
      * @return array
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidMessage
      */
     public static function getConfigEncrypt(int $major, int $minor): array
     {
@@ -90,7 +95,7 @@ final class Config extends BaseConfig
                     ];
             }
         }
-        throw new CryptoException\InvalidMessage(
+        throw new InvalidMessage(
             'Invalid version tag'
         );
     }
@@ -101,7 +106,7 @@ final class Config extends BaseConfig
      * @param int $major
      * @param int $minor
      * @return array
-     * @throws CryptoException\InvalidMessage
+     * @throws InvalidMessage
      */
     public static function getConfigAuth(int $major, int $minor): array
     {
@@ -118,7 +123,7 @@ final class Config extends BaseConfig
                     ];
             }
         }
-        throw new CryptoException\InvalidMessage(
+        throw new InvalidMessage(
             'Invalid version tag'
         );
     }

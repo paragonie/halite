@@ -54,7 +54,7 @@ final class Crypto
      * @param HiddenString $plaintext              The message to encrypt
      * @param EncryptionSecretKey $ourPrivateKey   Our private key
      * @param EncryptionPublicKey $theirPublicKey  Their public key
-     * @param mixed $encoding                      Which encoding scheme to use?
+     * @param string|bool $encoding                Which encoding scheme to use?
      * @return string                              Ciphertext
      *
      * @throws CannotPerformOperation
@@ -85,7 +85,7 @@ final class Crypto
      * @param EncryptionSecretKey $ourPrivateKey
      * @param EncryptionPublicKey $theirPublicKey
      * @param string $additionalData
-     * @param string $encoding
+     * @param string|bool $encoding
      * @return string
      *
      * @throws CannotPerformOperation
@@ -126,7 +126,7 @@ final class Crypto
      * @param string $ciphertext                  The message to decrypt
      * @param EncryptionSecretKey $ourPrivateKey  Our private key
      * @param EncryptionPublicKey $theirPublicKey Their public key
-     * @param mixed $encoding                     Which encoding scheme to use?
+     * @param string|bool $encoding               Which encoding scheme to use?
      * @return HiddenString                       The decrypted message
      *
      * @throws CannotPerformOperation
@@ -158,7 +158,7 @@ final class Crypto
      * @param EncryptionSecretKey $ourPrivateKey
      * @param EncryptionPublicKey $theirPublicKey
      * @param string $additionalData
-     * @param string $encoding
+     * @param string|bool $encoding
      * @return HiddenString
      *
      * @throws CannotPerformOperation
@@ -252,9 +252,9 @@ final class Crypto
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($sealed);
+            return (string) $encoder($sealed);
         }
-        return $sealed;
+        return (string) $sealed;
     }
 
     /**
@@ -279,9 +279,9 @@ final class Crypto
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($signed);
+            return (string) $encoder($signed);
         }
-        return $signed;
+        return (string) $signed;
     }
 
     /**
@@ -306,6 +306,7 @@ final class Crypto
         if ($decoder) {
             // We were given hex data:
             try {
+                /** @var string $ciphertext */
                 $ciphertext = $decoder($ciphertext);
             } catch (\RangeException $ex) {
                 throw new InvalidMessage(
@@ -366,6 +367,7 @@ final class Crypto
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given hex data:
+            /** @var string $signature */
             $signature = $decoder($signature);
         }
         if (CryptoUtil::safeStrlen($signature) !== SODIUM_CRYPTO_SIGN_BYTES) {

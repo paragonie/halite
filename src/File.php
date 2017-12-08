@@ -373,13 +373,13 @@ final class File
             // AuthenticationKey is for HMAC, but we can use it for keyed hashes too
             $state = \sodium_crypto_generichash_init(
                 $key->getRawKeyMaterial(),
-                $config->HASH_LEN
+                (int) $config->HASH_LEN
             );
         } elseif($config->CHECKSUM_PUBKEY && ($key instanceof SignaturePublicKey)) {
             // In version 2, we use the public key as a hash key
             $state = \sodium_crypto_generichash_init(
                 $key->getRawKeyMaterial(),
-                $config->HASH_LEN
+                (int) $config->HASH_LEN
             );
         } elseif (isset($key)) {
             throw new InvalidKey(
@@ -388,7 +388,7 @@ final class File
         } else {
             $state = \sodium_crypto_generichash_init(
                 '',
-                $config->HASH_LEN
+                (int) $config->HASH_LEN
             );
         }
 
@@ -396,10 +396,12 @@ final class File
         $size = $fileStream->getSize();
         while ($fileStream->remainingBytes() > 0) {
             // Don't go past the file size even if $config->BUFFER is not an even multiple of it:
-            if (($fileStream->getPos() + $config->BUFFER) > $size) {
+            if (($fileStream->getPos() + (int) $config->BUFFER) > $size) {
+                /** @var int $amount_to_read */
                 $amount_to_read = ($size - $fileStream->getPos());
             } else {
-                $amount_to_read = $config->BUFFER;
+                /** @var int $amount_to_read */
+                $amount_to_read = (int) $config->BUFFER;
             }
             $read = $fileStream->readBytes($amount_to_read);
             \sodium_crypto_generichash_update($state, $read);
@@ -408,16 +410,16 @@ final class File
         // 3. Do we want a raw checksum?
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder(
+            return (string) $encoder(
                 \sodium_crypto_generichash_final(
                     $state,
-                    $config->HASH_LEN
+                    (int) $config->HASH_LEN
                 )
             );
         }
-        return \sodium_crypto_generichash_final(
+        return (string) \sodium_crypto_generichash_final(
             $state,
-            $config->HASH_LEN
+            (int) $config->HASH_LEN
         );
     }
 
@@ -446,8 +448,8 @@ final class File
 
         // Generate a nonce and HKDF salt
         try {
-            $firstNonce = \random_bytes($config->NONCE_BYTES);
-            $hkdfSalt = \random_bytes($config->HKDF_SALT_LEN);
+            $firstNonce = \random_bytes((int) $config->NONCE_BYTES);
+            $hkdfSalt = \random_bytes((int) $config->HKDF_SALT_LEN);
         } catch (\Throwable $ex) {
             throw new CannotPerformOperation($ex->getMessage());
         }
@@ -466,7 +468,7 @@ final class File
         );
         $output->writeBytes(
             $hkdfSalt,
-            $config->HKDF_SALT_LEN
+            (int) $config->HKDF_SALT_LEN
         );
 
         // VERSION 2+ uses BMAC
@@ -534,8 +536,8 @@ final class File
         }
 
         // Let's grab the first nonce and salt
-        $firstNonce = $input->readBytes($config->NONCE_BYTES);
-        $hkdfSalt = $input->readBytes($config->HKDF_SALT_LEN);
+        $firstNonce = $input->readBytes((int) $config->NONCE_BYTES);
+        $hkdfSalt = $input->readBytes((int) $config->HKDF_SALT_LEN);
 
         // Split our keys, begin the HMAC instance
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
@@ -625,7 +627,7 @@ final class File
         );
 
         // Generate a random HKDF salt
-        $hkdfSalt = \random_bytes($config->HKDF_SALT_LEN);
+        $hkdfSalt = \random_bytes((int) $config->HKDF_SALT_LEN);
 
         // Split the keys
         list ($encKey, $authKey) = self::splitKeys($sharedSecretKey, $hkdfSalt, $config);
@@ -641,7 +643,7 @@ final class File
         );
         $output->writeBytes(
             $hkdfSalt,
-            $config->HKDF_SALT_LEN
+            (int) $config->HKDF_SALT_LEN
         );
 
         // VERSION 2+
@@ -719,8 +721,8 @@ final class File
             );
         }
         // Let's grab the public key and salt
-        $ephPublic = $input->readBytes($config->PUBLICKEY_BYTES);
-        $hkdfSalt = $input->readBytes($config->HKDF_SALT_LEN);
+        $ephPublic = $input->readBytes((int) $config->PUBLICKEY_BYTES);
+        $hkdfSalt = $input->readBytes((int) $config->HKDF_SALT_LEN);
 
         // Generate the same nonce, as per sealData()
         $nonce = \sodium_crypto_generichash(
@@ -1012,13 +1014,13 @@ final class File
             Util::hkdfBlake2b(
                 $binary,
                 \SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
-                $config->HKDF_SBOX,
+                (string) $config->HKDF_SBOX,
                 $salt
             ),
             Util::hkdfBlake2b(
                 $binary,
                 \SODIUM_CRYPTO_AUTH_KEYBYTES,
-                $config->HKDF_AUTH,
+                (string) $config->HKDF_AUTH,
                 $salt
             )
         ];
@@ -1055,9 +1057,9 @@ final class File
         $written = 0;
         while ($input->remainingBytes() > 0) {
             $read = $input->readBytes(
-                ($input->getPos() + $config->BUFFER) > $size
+                ($input->getPos() + (int) $config->BUFFER) > $size
                     ? ($size - $input->getPos())
-                    : $config->BUFFER
+                    : (int) $config->BUFFER
             );
 
             $encrypted = \sodium_crypto_stream_xor(
@@ -1078,8 +1080,8 @@ final class File
             );
         }
         $written += $output->writeBytes(
-            \sodium_crypto_generichash_final($mac, $config->MAC_SIZE),
-            $config->MAC_SIZE
+            \sodium_crypto_generichash_final($mac, (int) $config->MAC_SIZE),
+            (int) $config->MAC_SIZE
         );
         return $written;
     }
@@ -1113,27 +1115,28 @@ final class File
         array &$chunk_macs
     ): bool {
         $start = $input->getPos();
-        $cipher_end = $input->getSize() - $config->MAC_SIZE;
+        /** @var int $cipher_end */
+        $cipher_end = $input->getSize() - (int) $config->MAC_SIZE;
         // Begin the streaming decryption
         $input->reset($start);
 
-        while ($input->remainingBytes() > $config->MAC_SIZE) {
+        while ($input->remainingBytes() > (int) $config->MAC_SIZE) {
             /**
              * Would a full BUFFER read put it past the end of the
              * ciphertext? If so, only return a portion of the file.
              */
-            if (($input->getPos() + $config->BUFFER) > $cipher_end) {
+            if (($input->getPos() + (int) $config->BUFFER) > $cipher_end) {
                 $read = $input->readBytes(
                     $cipher_end - $input->getPos()
                 );
             } else {
-                $read = $input->readBytes($config->BUFFER);
+                $read = $input->readBytes((int) $config->BUFFER);
             }
 
             // Version 2+ uses a keyed BLAKE2b hash instead of HMAC
             \sodium_crypto_generichash_update($mac, $read);
             $calcMAC = Util::safeStrcpy($mac);
-            $calc = \sodium_crypto_generichash_final($calcMAC, $config->MAC_SIZE);
+            $calc = \sodium_crypto_generichash_final($calcMAC, (int) $config->MAC_SIZE);
 
             if (empty($chunk_macs)) {
                 // Someone attempted to add a chunk at the end.
@@ -1141,6 +1144,7 @@ final class File
                     'Invalid message authentication code'
                 );
             } else {
+                /** @var string $chunkMAC */
                 $chunkMAC = \array_shift($chunk_macs);
                 if (!\hash_equals($chunkMAC, $calc)) {
                     // This chunk was altered after the original MAC was verified
@@ -1186,9 +1190,10 @@ final class File
         $start = $input->getPos();
 
         // Grab the stored MAC:
-        $cipher_end = $input->getSize() - $config->MAC_SIZE;
+        /** @var int $cipher_end */
+        $cipher_end = $input->getSize() - (int) $config->MAC_SIZE;
         $input->reset($cipher_end);
-        $stored_mac = $input->readBytes($config->MAC_SIZE);
+        $stored_mac = $input->readBytes((int) $config->MAC_SIZE);
         $input->reset($start);
 
         $chunkMACs = [];
@@ -1199,11 +1204,11 @@ final class File
              * Would a full BUFFER read put it past the end of the
              * ciphertext? If so, only return a portion of the file.
              */
-            if (($input->getPos() + $config->BUFFER) >= $cipher_end) {
+            if (($input->getPos() + (int) $config->BUFFER) >= $cipher_end) {
                 $break = true;
                 $read = $input->readBytes($cipher_end - $input->getPos());
             } else {
-                $read = $input->readBytes($config->BUFFER);
+                $read = $input->readBytes((int) $config->BUFFER);
             }
 
             /**
@@ -1211,10 +1216,11 @@ final class File
              */
             \sodium_crypto_generichash_update($mac, $read);
             // Copy the hash state then store the MAC of this chunk
+            /** @var string $chunkMAC */
             $chunkMAC = Util::safeStrcpy($mac);
             $chunkMACs []= \sodium_crypto_generichash_final(
                 $chunkMAC,
-                $config->MAC_SIZE
+                (int) $config->MAC_SIZE
             );
         }
 
@@ -1223,7 +1229,7 @@ final class File
          */
         $finalHMAC = \sodium_crypto_generichash_final(
             $mac,
-            $config->MAC_SIZE
+            (int) $config->MAC_SIZE
         );
 
         /**

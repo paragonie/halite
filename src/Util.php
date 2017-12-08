@@ -351,6 +351,7 @@ final class Util
     {
         $length = self::safeStrlen($string);
         $return = '';
+        /** @var int $chunk */
         $chunk = $length >> 1;
         for ($i = 0; $i < $length; $i += $chunk) {
             $return .= self::safeSubstr($string, $i, $chunk);

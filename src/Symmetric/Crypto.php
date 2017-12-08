@@ -5,7 +5,6 @@ namespace ParagonIE\Halite\Symmetric;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
-    InvalidKey,
     InvalidMessage,
     InvalidSignature,
     InvalidType
@@ -67,6 +66,7 @@ final class Crypto
             Halite::HALITE_VERSION,
             'auth'
         );
+        /** @var string $mac */
         $mac = self::calculateMAC(
             $message,
             $secretKey->getRawKeyMaterial(),
@@ -74,14 +74,14 @@ final class Crypto
         );
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($mac);
+            return (string) $encoder($mac);
         }
-        return $mac;
+        return (string) $mac;
     }
-    
+
     /**
      * Decrypt a message using the Halite encryption protocol
-     * 
+     *
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
      * @param mixed $encoding
@@ -133,6 +133,7 @@ final class Crypto
         if ($decoder) {
             // We were given encoded data:
             try {
+                /** @var string $ciphertext */
                 $ciphertext = $decoder($ciphertext);
             } catch (\RangeException $ex) {
                 throw new InvalidMessage(
@@ -143,18 +144,28 @@ final class Crypto
         list($version, $config, $salt, $nonce, $encrypted, $auth) =
             self::unpackMessageForDecryption($ciphertext);
 
+        if (!($config instanceof Config)) {
+            throw new CannotPerformOperation(
+                'Config is not an instance of Config. This should not happen.'
+            );
+        }
+
         /* Split our key into two keys: One for encryption, the other for
            authentication. By using separate keys, we can reasonably dismiss
            likely cross-protocol attacks.
 
            This uses salted HKDF to split the keys, which is why we need the
            salt in the first place. */
-        list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
+        list($encKey, $authKey) = self::splitKeys($secretKey, (string) $salt, $config);
 
         // Check the MAC first
         if (!self::verifyMAC(
-            $auth,
-            $version . $salt . $nonce . $additionalData . $encrypted,
+            (string) $auth,
+            (string) $version .
+                (string) $salt .
+                (string) $nonce .
+                (string) $additionalData .
+                (string) $encrypted,
             $authKey,
             $config
         )) {
@@ -168,9 +179,9 @@ final class Crypto
         // crypto_stream_xor() can be used to encrypt and decrypt
         /** @var string $plaintext */
         $plaintext = \sodium_crypto_stream_xor(
-            $encrypted,
-            $nonce,
-            $encKey
+            (string) $encrypted,
+            (string) $nonce,
+            (string) $encKey
         );
         if (!\is_string($plaintext)) {
             throw new InvalidMessage(
@@ -182,7 +193,7 @@ final class Crypto
         \sodium_memzero($encKey);
         return new HiddenString($plaintext);
     }
-    
+
     /**
      * Encrypt a message using the Halite encryption protocol
      *
@@ -191,7 +202,7 @@ final class Crypto
      *
      * @param HiddenString $plaintext
      * @param EncryptionKey $secretKey
-     * @param mixed $encoding
+     * @param string|bool $encoding
      * @return string
      *
      * @throws CannotPerformOperation
@@ -216,7 +227,7 @@ final class Crypto
      * @param HiddenString $plaintext
      * @param EncryptionKey $secretKey
      * @param string $additionalData
-     * @param string $encoding
+     * @param string|bool $encoding
      * @return string
      *
      * @throws CannotPerformOperation
@@ -235,7 +246,7 @@ final class Crypto
         // Generate a nonce and HKDF salt:
         try {
             $nonce = \random_bytes(\SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-            $salt = \random_bytes($config->HKDF_SALT_LEN);
+            $salt = \random_bytes((int) $config->HKDF_SALT_LEN);
         } catch (\Throwable $ex) {
             throw new CannotPerformOperation($ex->getMessage());
         }
@@ -265,6 +276,7 @@ final class Crypto
         );
         \sodium_memzero($authKey);
 
+        /** @var string $message */
         $message = Halite::HALITE_VERSION . $salt . $nonce . $encrypted . $auth;
 
         // Wipe every superfluous piece of data from memory
@@ -275,9 +287,9 @@ final class Crypto
 
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
-            return $encoder($message);
+            return (string) $encoder($message);
         }
-        return $message;
+        return (string) $message;
 
     }
 
@@ -303,13 +315,13 @@ final class Crypto
             CryptoUtil::hkdfBlake2b(
                 $binary,
                 \SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
-                $config->HKDF_SBOX,
+                (string) $config->HKDF_SBOX,
                 $salt
             ),
             CryptoUtil::hkdfBlake2b(
                 $binary,
                 \SODIUM_CRYPTO_AUTH_KEYBYTES,
-                $config->HKDF_AUTH, 
+                (string) $config->HKDF_AUTH,
                 $salt
             )
         ];
@@ -337,7 +349,7 @@ final class Crypto
                 'Message is too short'
             );
         }
-        
+
         // The first 4 bytes are reserved for the version size
         $version = CryptoUtil::safeSubstr(
             $ciphertext,
@@ -351,45 +363,45 @@ final class Crypto
                 'Message is too short'
             );
         }
-        
+
         // The salt is used for key splitting (via HKDF)
         $salt = CryptoUtil::safeSubstr(
             $ciphertext,
             Halite::VERSION_TAG_LEN,
-            $config->HKDF_SALT_LEN
+            (int) $config->HKDF_SALT_LEN
         );
-        
+
         // This is the nonce (we authenticated it):
         $nonce = CryptoUtil::safeSubstr(
-            $ciphertext, 
+            $ciphertext,
             // 36:
-            Halite::VERSION_TAG_LEN + $config->HKDF_SALT_LEN,
+            Halite::VERSION_TAG_LEN + (int) $config->HKDF_SALT_LEN,
             // 24:
             \SODIUM_CRYPTO_STREAM_NONCEBYTES
         );
-        
+
         // This is the crypto_stream_xor()ed ciphertext
         $encrypted = CryptoUtil::safeSubstr(
-            $ciphertext, 
+            $ciphertext,
             // 60:
-                Halite::VERSION_TAG_LEN +
-                $config->HKDF_SALT_LEN +
-                \SODIUM_CRYPTO_STREAM_NONCEBYTES,
+            Halite::VERSION_TAG_LEN +
+            (int) $config->HKDF_SALT_LEN +
+            \SODIUM_CRYPTO_STREAM_NONCEBYTES,
             // $length - 124
             $length - (
                 Halite::VERSION_TAG_LEN +
-                $config->HKDF_SALT_LEN +
+                (int) $config->HKDF_SALT_LEN +
                 \SODIUM_CRYPTO_STREAM_NONCEBYTES +
-                $config->MAC_SIZE
+                (int) $config->MAC_SIZE
             )
         );
-        
+
         // $auth is the last 32 bytes
         $auth = CryptoUtil::safeSubstr(
             $ciphertext,
-            $length - $config->MAC_SIZE
+            $length - (int) $config->MAC_SIZE
         );
-        
+
         // We don't need this anymore.
         \sodium_memzero($ciphertext);
 
@@ -421,6 +433,7 @@ final class Crypto
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
             // We were given hex data:
+            /** @var string $mac */
             $mac = $decoder($mac);
         }
         if ($config === null) {
@@ -430,17 +443,21 @@ final class Crypto
                 'auth'
             );
         }
-        return self::verifyMAC(
-            $mac,
-            $message,
-            $secretKey->getRawKeyMaterial(),
-            $config
-        );
+        try {
+            return self::verifyMAC(
+                $mac,
+                $message,
+                $secretKey->getRawKeyMaterial(),
+                $config
+            );
+        } catch (InvalidMessage $ex) {
+            return false;
+        }
     }
-    
+
     /**
      * Calculate a MAC. This is used internally.
-     * 
+     *
      * @param string $message
      * @param string $authKey
      * @param SymmetricConfig $config
@@ -456,7 +473,7 @@ final class Crypto
             return \sodium_crypto_generichash(
                 $message,
                 $authKey,
-                $config->MAC_SIZE
+                (int) $config->MAC_SIZE
             );
         }
         throw new InvalidMessage(
@@ -493,7 +510,7 @@ final class Crypto
             $calc = \sodium_crypto_generichash(
                 $message,
                 $authKey,
-                $config->MAC_SIZE
+                (int) $config->MAC_SIZE
             );
             $res = \hash_equals($mac, $calc);
             \sodium_memzero($calc);

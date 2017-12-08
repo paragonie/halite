@@ -139,7 +139,7 @@ class ReadOnlyFile implements StreamInterface
         );
         for ($i = 0; $i < $this->stat['size']; $i += self::CHUNK) {
             if (($i + self::CHUNK) > $this->stat['size']) {
-                $c = \fread($this->fp, ($this->stat['size'] - $i));
+                $c = \fread($this->fp, ((int) $this->stat['size'] - $i));
             } else {
                 $c = \fread($this->fp, self::CHUNK);
             }
@@ -170,7 +170,7 @@ class ReadOnlyFile implements StreamInterface
      */
     public function getSize(): int
     {
-        return $this->stat['size'];
+        return (int) $this->stat['size'];
     }
     
     /**
@@ -229,7 +229,11 @@ class ReadOnlyFile implements StreamInterface
      */
     public function remainingBytes(): int
     {
-        return (PHP_INT_MAX & ($this->stat['size'] - $this->pos));
+        return (int) (
+            PHP_INT_MAX & (
+                (int) $this->stat['size'] - $this->pos
+            )
+        );
     }
 
     /**

@@ -81,8 +81,12 @@ final class Cookie
             return null;
         }
         try {
+            /** @var string $stored */
             $stored = $_COOKIE[$name];
-            $config = self::getConfig($stored);
+            if (!\is_string($stored)) {
+                throw new InvalidType('Cookie value is not a string');
+            }
+            $config = self::getConfig((string) $stored);
             $decrypted = Crypto::decrypt(
                 $stored,
                 $this->key,

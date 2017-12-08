@@ -118,7 +118,7 @@ class MutableFile implements StreamInterface
     public function getSize(): int
     {
         $stat = \fstat($this->fp);
-        return $stat['size'];
+        return (int) $stat['size'];
     }
 
     /**
@@ -168,9 +168,15 @@ class MutableFile implements StreamInterface
      */
     public function remainingBytes(): int
     {
+        /** @var array $stat */
         $stat = \fstat($this->fp);
+        /** @var int $pos */
         $pos = \ftell($this->fp);
-        return (PHP_INT_MAX & ($stat['size'] - $pos));
+        return (int) (
+            PHP_INT_MAX & (
+                (int) $stat['size'] - $pos
+            )
+        );
     }
     
     /**

@@ -114,10 +114,13 @@ This should produce something similar to:
 
 > **Important**: Halite works with `Key` objects, not strings.
 
-If you attempt to `var_dump()` a key object, you will get an empty string
-rather than its contents. You must nvoke `$obj->getRawKeyMaterial()`
-explicitly if you want to inspect a key's raw binary contents. This is not
-recommended for most use cases.
+If you attempt to `echo` a key object, you will get an empty string
+rather than its contents. If you attempt to `var_dump()` a key object,
+you will just get some facts about the type of key it is.
+ 
+You must invoke `$obj->getRawKeyMaterial()` explicitly if you want
+to inspect a key's raw binary contents. This is not recommended for
+most use cases.
 
 ### Example: Generating a key from a password
 

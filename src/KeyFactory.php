@@ -43,12 +43,11 @@ final class KeyFactory
 
     /**
      * Generate an an authentication key (symmetric-key cryptography)
-     * 
-     * @param string &$secretKey
+     *
      * @return AuthenticationKey
      * @throws CannotPerformOperation
      */
-    public static function generateAuthenticationKey(string &$secretKey = ''): AuthenticationKey
+    public static function generateAuthenticationKey(): AuthenticationKey
     {
         try {
             $secretKey = \random_bytes(\SODIUM_CRYPTO_AUTH_KEYBYTES);
@@ -62,12 +61,11 @@ final class KeyFactory
     
     /**
      * Generate an an encryption key (symmetric-key cryptography)
-     * 
-     * @param string &$secretKey
+     *
      * @return EncryptionKey
      * @throws CannotPerformOperation
      */
-    public static function generateEncryptionKey(string &$secretKey = ''): EncryptionKey
+    public static function generateEncryptionKey(): EncryptionKey
     {
         try {
             $secretKey = \random_bytes(\SODIUM_CRYPTO_STREAM_KEYBYTES);
@@ -81,11 +79,10 @@ final class KeyFactory
     
     /**
      * Generate a key pair for public key encryption
-     * 
-     * @param string &$secretKey
+     *
      * @return \ParagonIE\Halite\EncryptionKeyPair
      */
-    public static function generateEncryptionKeyPair(string &$secretKey = ''): EncryptionKeyPair
+    public static function generateEncryptionKeyPair(): EncryptionKeyPair
     {
         // Encryption keypair
         $kp = \sodium_crypto_box_keypair();
@@ -102,11 +99,10 @@ final class KeyFactory
     
     /**
      * Generate a key pair for public key digital signatures
-     * 
-     * @param string &$secretKey
+     *
      * @return SignatureKeyPair
      */
-    public static function generateSignatureKeyPair(string &$secretKey = ''): SignatureKeyPair
+    public static function generateSignatureKeyPair(): SignatureKeyPair
     {
         // Encryption keypair
         $kp = \sodium_crypto_sign_keypair();

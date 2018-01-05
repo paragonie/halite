@@ -12,6 +12,17 @@ use PHPUnit\Framework\TestCase;
  */
 class PasswordTest extends TestCase
 {
+    /**
+     * @covers Password::hash()
+     * @covers Password::verify()
+     *
+     *
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
+     * @throws \ParagonIE\Halite\Alerts\InvalidMessage
+     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
     public function testEncrypt()
     {
         $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
@@ -38,6 +49,12 @@ class PasswordTest extends TestCase
 
     /**
      * @covers Password::hash()
+     *
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
+     * @throws \ParagonIE\Halite\Alerts\InvalidMessage
+     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
     public function testEncryptWithAd()
     {
@@ -84,6 +101,13 @@ class PasswordTest extends TestCase
         );
     }
 
+    /**
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
+     * @throws \ParagonIE\Halite\Alerts\InvalidMessage
+     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
     public function testRehash()
     {
         $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
@@ -128,6 +152,9 @@ class PasswordTest extends TestCase
         );
 
         $hash = Password::hash(new HiddenString('test password'), $key);
-        $this->assertFalse(Password::needsRehash($hash, $key));
+        $this->assertFalse(
+            Password::needsRehash($hash, $key),
+            'Failure: Password always needs a rehash'
+        );
     }
 }

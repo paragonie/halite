@@ -37,6 +37,7 @@ class TrimmedMerkleTree extends MerkleTree
      *
      * @return string
      * @throws CannotPerformOperation
+     * @psalm-suppress EmptyArrayAccess Psalm is misreading array elements
      */
     protected function calculateRoot(): string
     {
@@ -59,12 +60,13 @@ class TrimmedMerkleTree extends MerkleTree
 
         // Calculation (Use self::MERKLE_BRANCH as a prefix)
         do {
+            /** @var array<int, string> $tmp */
             $tmp = [];
             $j = 0;
             for ($i = 0; $i < $size; $i += 2) {
                 if (empty($hash[$i + 1])) {
                     $tmp[$j] = $hash[$i];
-                } else {
+                } elseif(!empty($hash[$i])) {
                     $tmp[$j] = Util::raw_hash(
                         self::MERKLE_BRANCH .
                         $this->personalization .
@@ -75,6 +77,7 @@ class TrimmedMerkleTree extends MerkleTree
                 }
                 ++$j;
             }
+            /** @var array<int, string> $hash */
             $hash = $tmp;
             $size >>= 1;
         } while ($size > 1);

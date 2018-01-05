@@ -176,6 +176,7 @@ class MerkleTree
             return '';
         }
         $order = self::getSizeRoundedUp($size);
+        /** @var array<int, string> $hash */
         $hash = [];
         // Population (Use self::MERKLE_LEAF as a prefix)
         for ($i = 0; $i < $order; ++$i) {
@@ -200,23 +201,29 @@ class MerkleTree
 
         // Calculation (Use self::MERKLE_BRANCH as a prefix)
         do {
+            /** @var array<int, string> $tmp */
             $tmp = [];
             $j = 0;
             for ($i = 0; $i < $order; $i += 2) {
+                /** @var string $prev */
+                $curr = (string) ($hash[$i] ?? '');
                 if (empty($hash[$i + 1])) {
                     $tmp[$j] = Util::raw_hash(
                         self::MERKLE_BRANCH .
                             $this->personalization .
-                            $hash[$i] .
-                            $hash[$i],
+                            $curr .
+                            $curr,
                         $this->outputSize
                     );
                 } else {
+                    /** @var string $curr */
+                    $curr = (string) ($hash[$i] ?? '');
+                    /** @var string $next */
+                    $next = (string) ($hash[$i + 1] ?? '');
                     $tmp[$j] = Util::raw_hash(
                         self::MERKLE_BRANCH .
                             $this->personalization .
-                            $hash[$i] .
-                            $hash[$i + 1],
+                            $curr . $next,
                         $this->outputSize
                     );
                 }

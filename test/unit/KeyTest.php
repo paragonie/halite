@@ -16,21 +16,27 @@ use PHPUnit\Framework\TestCase;
  */
 class KeyTest extends TestCase
 {
+    /**
+     * @throws InvalidType
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     */
     public function testDerive()
     {
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
-            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
+            KeyFactory::INTERACTIVE
         );
         $this->assertSame(
             $key->getRawKeyMaterial(),
-            "\x79\x12\x36\xc1\xf0\x6b\x73\xbd\xaa\x88\x89\x80\xe3\x2c\x4b\xdb".
-            "\x25\xd1\xf9\x39\xe5\xf7\x13\x30\x5c\xd8\x4c\x50\x22\xcc\x96\x6e"
+            "\x3a\x16\x68\xc1\x45\x8a\x4f\x59\x9c\x36\x4e\xa4\x7f\xae\xfa\xe1" .
+            "\xee\xa3\xa6\xd0\x34\x26\x35\xc9\xb4\x79\xee\xab\xf4\x71\x86\xaa"
         );
         $salt = sodium_hex2bin(
             '762ce4cabd543065172236de1027536a'
         );
-        
+
         // Issue #10
         $enc_secret = KeyFactory::deriveEncryptionKey(
             new HiddenString('correct horse battery staple'),
@@ -41,6 +47,45 @@ class KeyTest extends TestCase
         );
     }
 
+    /**
+     * @throws InvalidType
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     */
+    public function testDeriveOldArgon2i()
+    {
+        $key = KeyFactory::deriveEncryptionKey(
+            new HiddenString('apple'),
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
+            KeyFactory::INTERACTIVE,
+            SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
+        );
+        $this->assertSame(
+            $key->getRawKeyMaterial(),
+            "\x79\x12\x36\xc1\xf0\x6b\x73\xbd\xaa\x88\x89\x80\xe3\x2c\x4b\xdb".
+            "\x25\xd1\xf9\x39\xe5\xf7\x13\x30\x5c\xd8\x4c\x50\x22\xcc\x96\x6e"
+        );
+        $salt = sodium_hex2bin(
+            '762ce4cabd543065172236de1027536a'
+        );
+
+        // Issue #10
+        $enc_secret = KeyFactory::deriveEncryptionKey(
+            new HiddenString('correct horse battery staple'),
+            $salt
+        );
+        $this->assertTrue(
+            $enc_secret->isEncryptionKey()
+        );
+    }
+
+    /**
+     * @throws InvalidType
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     */
     public function testDeriveSigningKey()
     {
         $keypair = KeyFactory::deriveSignatureKeyPair(
@@ -49,10 +94,48 @@ class KeyTest extends TestCase
         );
         $sign_secret = $keypair->getSecretKey();
         $sign_public = $keypair->getPublicKey();
-        
+
         $this->assertTrue($sign_secret instanceof SignatureSecretKey);
         $this->assertTrue($sign_public instanceof SignaturePublicKey);
-        
+
+        // Can this be used?
+        $message = 'This is a test message';
+        $signed = Asymmetric::sign(
+            $message,
+            $sign_secret
+        );
+        $this->assertTrue(
+            Asymmetric::verify($message, $sign_public, $signed)
+        );
+
+        $this->assertSame(
+            $sign_public->getRawKeyMaterial(),
+            "\x9a\xce\x92\x8f\x6a\x27\x93\x8e\x87\xac\x9b\x97\xfb\xe2\x50\x6b" .
+            "\x67\xd5\x8b\x68\xeb\x37\xc2\x2d\x31\xdb\xcf\x7e\x8d\xa0\xcb\x17"
+        );
+    }
+
+    /**
+     * @throws InvalidType
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     */
+    public function testDeriveSigningKeyOldArgon2i()
+    {
+        $keypair = KeyFactory::deriveSignatureKeyPair(
+            new HiddenString('apple'),
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
+            KeyFactory::INTERACTIVE,
+            SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
+        );
+        $sign_secret = $keypair->getSecretKey();
+        $sign_public = $keypair->getPublicKey();
+
+        $this->assertTrue($sign_secret instanceof SignatureSecretKey);
+        $this->assertTrue($sign_public instanceof SignaturePublicKey);
+
         // Can this be used?        
         $message = 'This is a test message';
         $signed = Asymmetric::sign(
@@ -62,7 +145,7 @@ class KeyTest extends TestCase
         $this->assertTrue(
             Asymmetric::verify($message, $sign_public, $signed)
         );
-        
+
         $this->assertSame(
             $sign_public->getRawKeyMaterial(),
             "\x88\x9c\xc0\x7a\x90\xb8\x98\xf4\x6b\x47\xfe\xcc\x91\x42\x58\x45".
@@ -70,6 +153,9 @@ class KeyTest extends TestCase
         );
     }
 
+    /**
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     */
     public function testKeyTypes()
     {
         $key = KeyFactory::generateAuthenticationKey();
@@ -116,7 +202,14 @@ class KeyTest extends TestCase
             $this->assertTrue($sign_public->isSigningKey());
             $this->assertTrue($sign_public->isPublicKey());
     }
-    
+
+    /**
+     * @throws InvalidType
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     */
     public function testEncKeyStorage()
     {
         $enc_keypair = KeyFactory::deriveEncryptionKeyPair(
@@ -155,7 +248,14 @@ class KeyTest extends TestCase
         \unlink($file_secret);
         \unlink($file_public);
     }
-    
+
+    /**
+     * @throws InvalidType
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     */
     public function testSignKeyStorage()
     {
         $sign_keypair = KeyFactory::deriveSignatureKeyPair(
@@ -195,6 +295,10 @@ class KeyTest extends TestCase
         \unlink($file_public);
     }
 
+    /**
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     */
     public function testInvalidKeyLevels()
     {
         try {
@@ -211,19 +315,22 @@ class KeyTest extends TestCase
             );
         }
     }
-
+    /**
+     * @throws InvalidType
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     */
     public function testKeyLevels()
     {
         $this->markTestSkipped('This is a very slow test. Feel free to enable it to verify correctness.');
-
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
             KeyFactory::MODERATE
         );
         $this->assertSame(
-            sodium_bin2hex($key->getRawKeyMaterial()),
-            '227817a188e55a679ddc8b1ca51f7aba4d1086f0512f9e3eb547c2392d49bde9'
+            'b5b21bb729b14cecca8e9d8e5811a09f0b4cb3fd4271ebf6f416ec855b6cd286',
+            sodium_bin2hex($key->getRawKeyMaterial())
         );
 
         $key = KeyFactory::deriveEncryptionKey(
@@ -232,8 +339,40 @@ class KeyTest extends TestCase
             KeyFactory::SENSITIVE
         );
         $this->assertSame(
-            sodium_bin2hex($key->getRawKeyMaterial()),
-            'c5e8ac6e81ffd5c4f9f985e5c49e2b66d760167e739f424b346b1d747e711446'
+            'd2d76bb8f27dadcc2820515dee41e2e3946f489e5e0635c987815c06c3baee95',
+            sodium_bin2hex($key->getRawKeyMaterial())
+        );
+    }
+
+    /**
+     * @throws InvalidType
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     */
+    public function testKeyLevelsOldArgon2i()
+    {
+        $this->markTestSkipped('This is a very slow test. Feel free to enable it to verify correctness.');
+
+        $key = KeyFactory::deriveEncryptionKey(
+            new HiddenString('apple'),
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
+            KeyFactory::MODERATE,
+            SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
+        );
+        $this->assertSame(
+            '227817a188e55a679ddc8b1ca51f7aba4d1086f0512f9e3eb547c2392d49bde9',
+            sodium_bin2hex($key->getRawKeyMaterial())
+        );
+
+        $key = KeyFactory::deriveEncryptionKey(
+            new HiddenString('apple'),
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
+            KeyFactory::SENSITIVE
+        );
+        $this->assertSame(
+            'd2d76bb8f27dadcc2820515dee41e2e3946f489e5e0635c987815c06c3baee95',
+            sodium_bin2hex($key->getRawKeyMaterial())
+
         );
     }
 }

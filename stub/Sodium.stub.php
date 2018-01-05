@@ -468,6 +468,7 @@ if (!\extension_loaded('libsodium')) {
      * @param string $salt
      * @param int $opslimit
      * @param int $memlimit
+     * @param int $alg
      * @return string
      */
     function crypto_pwhash(
@@ -475,10 +476,11 @@ if (!\extension_loaded('libsodium')) {
         string $passwd,
         string $salt,
         int $opslimit,
-        int $memlimit
+        int $memlimit,
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
     ): string {
         if (\extension_loaded('sodium')) {
-            return \sodium_crypto_pwhash($out_len, $passwd, $salt, $opslimit, $memlimit);
+            return \sodium_crypto_pwhash($out_len, $passwd, $salt, $opslimit, $memlimit, $alg);
         }
         return '';
     }

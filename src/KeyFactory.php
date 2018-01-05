@@ -124,30 +124,36 @@ final class KeyFactory
      * @param HiddenString $password
      * @param string $salt
      * @param string $level Security level for KDF
+     * @param int $alg      Which Argon2 variant to use?
+     *                      (You can safely use the default)
      * 
      * @return AuthenticationKey
      * @throws CannotPerformOperation
      * @throws InvalidSalt
      * @throws InvalidType
+     * @psalm-suppress MixedInferredReturnType
      */
     public static function deriveAuthenticationKey(
         HiddenString $password,
         string $salt,
-        string $level = self::INTERACTIVE
+        string $level = self::INTERACTIVE,
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
     ): AuthenticationKey {
-        $kdfLimits = self::getSecurityLevels($level);
+        $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
-        $secretKey = \sodium_crypto_pwhash(
+        /** @var string $secretKey */
+        $secretKey = @\sodium_crypto_pwhash(
             \SODIUM_CRYPTO_AUTH_KEYBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
-            $kdfLimits[1]
+            $kdfLimits[1],
+            $alg
         );
         return new AuthenticationKey(
             new HiddenString($secretKey)
@@ -161,30 +167,36 @@ final class KeyFactory
      * @param HiddenString $password
      * @param string $salt
      * @param string $level Security level for KDF
+     * @param int $alg      Which Argon2 variant to use?
+     *                      (You can safely use the default)
      * 
      * @return EncryptionKey
      * @throws CannotPerformOperation
      * @throws InvalidSalt
      * @throws InvalidType
+     * @psalm-suppress MixedInferredReturnType
      */
     public static function deriveEncryptionKey(
         HiddenString $password,
         string $salt,
-        string $level = self::INTERACTIVE
+        string $level = self::INTERACTIVE,
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
     ): EncryptionKey {
-        $kdfLimits = self::getSecurityLevels($level);
+        $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Util::safeStrlen($salt)
             );
         }
-        $secretKey = \sodium_crypto_pwhash(
+        /** @var string $secretKey */
+        $secretKey = @\sodium_crypto_pwhash(
             \SODIUM_CRYPTO_STREAM_KEYBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
-            $kdfLimits[1]
+            $kdfLimits[1],
+            $alg
         );
         return new EncryptionKey(
             new HiddenString($secretKey)
@@ -197,6 +209,8 @@ final class KeyFactory
      * @param HiddenString $password
      * @param string $salt
      * @param string $level Security level for KDF
+     * @param int $alg      Which Argon2 variant to use?
+     *                      (You can safely use the default)
      * 
      * @return EncryptionKeyPair
      * @throws CannotPerformOperation
@@ -206,9 +220,10 @@ final class KeyFactory
     public static function deriveEncryptionKeyPair(
         HiddenString $password,
         string $salt,
-        string $level = self::INTERACTIVE
+        string $level = self::INTERACTIVE,
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
     ): EncryptionKeyPair {
-        $kdfLimits = self::getSecurityLevels($level);
+        $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new InvalidSalt(
@@ -216,12 +231,14 @@ final class KeyFactory
             );
         }
         // Diffie Hellman key exchange key pair
-        $seed = \sodium_crypto_pwhash(
+        /** @var string $seed */
+        $seed = @\sodium_crypto_pwhash(
             \SODIUM_CRYPTO_BOX_SEEDBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
-            $kdfLimits[1]
+            $kdfLimits[1],
+            $alg
         );
         $keyPair = \sodium_crypto_box_seed_keypair($seed);
         $secretKey = \sodium_crypto_box_secretkey($keyPair);
@@ -241,6 +258,8 @@ final class KeyFactory
      * @param HiddenString $password
      * @param string $salt
      * @param string $level Security level for KDF
+     * @param int $alg      Which Argon2 variant to use?
+     *                      (You can safely use the default)
      *
      * @return SignatureKeyPair
      * @throws InvalidSalt
@@ -251,9 +270,10 @@ final class KeyFactory
     public static function deriveSignatureKeyPair(
         HiddenString $password,
         string $salt,
-        string $level = self::INTERACTIVE
+        string $level = self::INTERACTIVE,
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
     ): SignatureKeyPair {
-        $kdfLimits = self::getSecurityLevels($level);
+        $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
             throw new InvalidSalt(
@@ -261,12 +281,14 @@ final class KeyFactory
             );
         }
         // Digital signature keypair
-        $seed = \sodium_crypto_pwhash(
+        /** @var string $seed */
+        $seed = @\sodium_crypto_pwhash(
             \SODIUM_CRYPTO_SIGN_SEEDBYTES,
             $password->getString(),
             $salt,
             $kdfLimits[0],
-            $kdfLimits[1]
+            $kdfLimits[1],
+            $alg
         );
         $keyPair = \sodium_crypto_sign_seed_keypair($seed);
         $secretKey = \sodium_crypto_sign_secretkey($keyPair);
@@ -284,23 +306,38 @@ final class KeyFactory
      * Returns a 2D array [OPSLIMIT, MEMLIMIT] for the appropriate security level.
      *
      * @param string $level
+     * @param int $alg
      * @return int[]
      * @throws InvalidType
      */
-    public static function getSecurityLevels(string $level = self::INTERACTIVE): array
-    {
+    public static function getSecurityLevels(
+        string $level = self::INTERACTIVE,
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
+    ): array {
         switch ($level) {
             case self::INTERACTIVE:
+                if ($alg === SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13) {
+                    // legacy opslimit and memlimit
+                    return [4, 33554432];
+                }
                 return [
                     \SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
                     \SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
                 ];
             case self::MODERATE:
+                if ($alg === SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13) {
+                    // legacy opslimit and memlimit
+                    return [6, 134217728];
+                }
                 return [
                     \SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE,
                     \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE
                 ];
             case self::SENSITIVE:
+                if ($alg === SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13) {
+                    // legacy opslimit and memlimit
+                    return [8, 536870912];
+                }
                 return [
                     \SODIUM_CRYPTO_PWHASH_OPSLIMIT_SENSITIVE,
                     \SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE

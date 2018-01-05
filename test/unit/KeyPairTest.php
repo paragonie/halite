@@ -16,11 +16,61 @@ use PHPUnit\Framework\TestCase;
  */
 class KeyPairTest extends TestCase
 {
+    /**
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
     public function testDeriveSigningKey()
     {
         $keypair = KeyFactory::deriveSignatureKeyPair(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+        );
+        $sign_secret = $keypair->getSecretKey();
+        $sign_public = $keypair->getPublicKey();
+
+        $this->assertTrue($sign_secret instanceof SignatureSecretKey);
+        $this->assertTrue($sign_public instanceof SignaturePublicKey);
+
+        // Can this be used?
+        $message = 'This is a test message';
+        $signed = Asymmetric::sign(
+            $message,
+            $sign_secret
+        );
+        $this->assertTrue(
+            Asymmetric::verify(
+                $message,
+                $sign_public,
+                $signed
+            )
+        );
+
+        $this->assertSame(
+            $sign_public->getRawKeyMaterial(),
+            "\x9a\xce\x92\x8f\x6a\x27\x93\x8e\x87\xac\x9b\x97\xfb\xe2\x50\x6b" .
+            "\x67\xd5\x8b\x68\xeb\x37\xc2\x2d\x31\xdb\xcf\x7e\x8d\xa0\xcb\x17",
+            KeyFactory::INTERACTIVE
+        );
+    }
+
+    /**
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
+    public function testDeriveSigningKeyOldArgon2i()
+    {
+        $keypair = KeyFactory::deriveSignatureKeyPair(
+            new HiddenString('apple'),
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
+            KeyFactory::INTERACTIVE,
+            SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
         );
         $sign_secret = $keypair->getSecretKey();
         $sign_public = $keypair->getPublicKey();
@@ -48,7 +98,12 @@ class KeyPairTest extends TestCase
             "\x41\xcf\x4b\x5c\x6a\x82\x2d\xdc\xc6\x8b\x87\xbc\x08\x2f\xfe\x95"
         );
     }
-    
+
+    /**
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
     public function testFileStorage()
     {
         $filename = \tempnam(__DIR__.'/tmp/', 'key');
@@ -63,10 +118,13 @@ class KeyPairTest extends TestCase
         );
         \unlink($filename);
     }
-    
+
     /**
      * @covers \ParagonIE\Halite\Asymmetric\EncryptionSecretKey::derivePublicKey()
      * @covers \ParagonIE\Halite\Asymmetric\SignatureSecretKey::derivePublicKey()
+     *
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
     public function testPublicDerivation()
     {

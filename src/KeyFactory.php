@@ -137,7 +137,7 @@ final class KeyFactory
         HiddenString $password,
         string $salt,
         string $level = self::INTERACTIVE,
-        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13
     ): AuthenticationKey {
         $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
@@ -180,7 +180,7 @@ final class KeyFactory
         HiddenString $password,
         string $salt,
         string $level = self::INTERACTIVE,
-        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13
     ): EncryptionKey {
         $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
@@ -221,7 +221,7 @@ final class KeyFactory
         HiddenString $password,
         string $salt,
         string $level = self::INTERACTIVE,
-        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13
     ): EncryptionKeyPair {
         $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
@@ -271,7 +271,7 @@ final class KeyFactory
         HiddenString $password,
         string $salt,
         string $level = self::INTERACTIVE,
-        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13
     ): SignatureKeyPair {
         $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
@@ -312,7 +312,7 @@ final class KeyFactory
      */
     public static function getSecurityLevels(
         string $level = self::INTERACTIVE,
-        int $alg = SODIUM_CRYPTO_PWHASH_ALG_DEFAULT
+        int $alg = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13
     ): array {
         switch ($level) {
             case self::INTERACTIVE:

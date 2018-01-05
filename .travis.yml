@@ -17,7 +17,7 @@ before_install:
 - sudo apt-get install make build-essential automake
 - git clone git://github.com/jedisct1/libsodium.git
 - cd libsodium
-- git checkout 1.0.13
+- git checkout 1.0.15
 - ./autogen.sh
 - ./configure && make check
 - sudo make install

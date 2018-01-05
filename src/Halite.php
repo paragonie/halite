@@ -36,7 +36,7 @@ use ParagonIE\Halite\Alerts\InvalidType;
  */
 final class Halite
 {
-    const VERSION              = '4.0.0';
+    const VERSION              = '4.1.0';
 
     const HALITE_VERSION_KEYS  = "\x31\x40\x04\x00";
     const HALITE_VERSION_FILE  = "\x31\x41\x04\x00";
@@ -148,10 +148,9 @@ final class Halite
 
         // Require libsodium 1.0.13
         $major = \SODIUM_LIBRARY_MAJOR_VERSION;
-        $minor = \SODIUM_LIBRARY_MINOR_VERSION;
-        if ($major < 9 || ($major === 9 && $minor < 5)) {
+        if ($major < 10) {
             if ($echo) {
-                echo 'Halite needs libsodium 1.0.13 or higher. You have: ',
+                echo 'Halite needs libsodium 1.0.15 or higher. You have: ',
                 \SODIUM_LIBRARY_VERSION, "\n";
             }
             return false;

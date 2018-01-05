@@ -31,11 +31,12 @@ Before you can use Halite, you must choose a version that fits the requirements
 of your project. The differences between the requirements for the available 
 versions of Halite are briefly highlighted below.
 
-|                                                            | PHP   | libsodium | PECL libsodium |
-|------------------------------------------------------------|-------|-----------|----------------|
-| Halite 4                                                   | 7.2.0 | 1.0.13    | N/A (standard) |
-| [Halite 3](https://github.com/paragonie/halite/tree/v3.x)  | 7.0.0 | 1.0.9     | 1.0.6 / 2.0.4  |
-| [Halite 2](https://github.com/paragonie/halite/tree/v2.2)  | 7.0.0 | 1.0.9     | 1.0.6          |
+|                                                             | PHP   | libsodium | PECL libsodium |
+|-------------------------------------------------------------|-------|-----------|----------------|
+| Halite 4.1 and newer                                        | 7.2.0 | 1.0.15    | N/A (standard) |
+| [Halite 4.0](https://github.com/paragonie/halite/tree/v4.0) | 7.2.0 | 1.0.13    | N/A (standard) |
+| [Halite 3](https://github.com/paragonie/halite/tree/v3.x)   | 7.0.0 | 1.0.9     | 1.0.6 / 2.0.4  |
+| [Halite 2](https://github.com/paragonie/halite/tree/v2.2)   | 7.0.0 | 1.0.9     | 1.0.6          |
 
 If you need a version of Halite before 4.0, see the documentation relevant to that
 particular branch.

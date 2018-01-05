@@ -1,5 +1,37 @@
 # Changelog
 
+## Version 4.1.0 (2018-01-05)
+
+Added support for libsodium 1.0.15, which was previously broken in 4.0.x.
+
+Passwords should be autoamtically migrated, but if keys were being generated via
+`KeyFactory::derive______Key()` (fill in the blank), you'll need to change your
+usage of this API to get the same key as previously. Namely, you'll need to pass
+the `SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13` constant to the fourth argument after the
+password, salt, and security level.
+
+```diff
+        $key = KeyFactory::deriveEncryptionKey(
+            new HiddenString('correct horse barry staple'),
+-             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
++             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
++             KeyFactory::INTERACTIVE,
++             SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
+        );
+```
+
+If you previously specified a security level, your diff might look like this:
+
+```diff
+        $key = KeyFactory::deriveEncryptionKey(
+            new HiddenString('correct horse barry staple'),
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
+-             KeyFactory::SENSITIVE
++             KeyFactory::SENSITIVE,
++             SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
+        );
+```
+
 ## Version 4.0.2 (2017-12-08)
 
 This is mostly a boyscouting/documentation release. However, we now pass Psalm under the

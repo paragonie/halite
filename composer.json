@@ -19,7 +19,7 @@
         "BLAKE2b",
         "Argon2",
         "Argon2i",
-        "ext/sodium"
+        "ext-sodium"
     ],
     "type": "library",
     "require": {

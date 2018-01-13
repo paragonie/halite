@@ -54,4 +54,22 @@ final class SignatureSecretKey extends SecretKey
         );
         return new SignaturePublicKey(new HiddenString($publicKey));
     }
+
+    /**
+     * Get an encryption secret key from a signing secret key.
+     *
+     * @return EncryptionSecretKey
+     * @throws CannotPerformOperation
+     * @throws InvalidType
+     */
+    public function getEncryptionSecretKey(): EncryptionSecretKey
+    {
+        $ed25519_sk = $this->getRawKeyMaterial();
+        $x25519_sk = \sodium_crypto_sign_ed25519_sk_to_curve25519(
+            $ed25519_sk
+        );
+        return new EncryptionSecretKey(
+            new HiddenString($x25519_sk)
+        );
+    }
 }

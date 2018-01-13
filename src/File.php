@@ -426,8 +426,8 @@ final class File
     /**
      * Encrypt the contents of a file.
      *
-     * @param $input
-     * @param $output
+     * @param ReadOnlyFile $input
+     * @param MutableFile $output
      * @param EncryptionKey $key
      * @return int
      *
@@ -495,8 +495,8 @@ final class File
     /**
      * Decrypt the contents of a file.
      *
-     * @param $input
-     * @param $output
+     * @param ReadOnlyFile $input
+     * @param MutableFile $output
      * @param EncryptionKey $key
      * @return bool
      *
@@ -523,6 +523,7 @@ final class File
             );
         }
         // Parse the header, ensuring we get 4 bytes
+        /** @var string $header */
         $header = $input->readBytes(Halite::VERSION_TAG_LEN);
 
         // Load the config
@@ -536,7 +537,9 @@ final class File
         }
 
         // Let's grab the first nonce and salt
+        /** @var string $firstNonce */
         $firstNonce = $input->readBytes((int) $config->NONCE_BYTES);
+        /** @var string $hkdfSalt */
         $hkdfSalt = $input->readBytes((int) $config->HKDF_SALT_LEN);
 
         // Split our keys, begin the HMAC instance

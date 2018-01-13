@@ -1,9 +1,11 @@
 <?php
 declare(strict_types=1);
 
+use ParagonIE\ConstantTime\Hex;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Asymmetric\{
     Crypto as Asymmetric,
+    EncryptionSecretKey,
     SignatureSecretKey,
     SignaturePublicKey
 };
@@ -120,8 +122,28 @@ class KeyPairTest extends TestCase
     }
 
     /**
-     * @covers \ParagonIE\Halite\Asymmetric\EncryptionSecretKey::derivePublicKey()
-     * @covers \ParagonIE\Halite\Asymmetric\SignatureSecretKey::derivePublicKey()
+     * @covers SignatureSecretKey::getEncryptionSecretKey()
+     * @covers SignaturePublicKey::getEncryptionPublicKey()
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
+    public function testMutation()
+    {
+        $sign_kp = KeyFactory::generateSignatureKeyPair();
+        $sign_sk = $sign_kp->getSecretKey();
+        $sign_pk = $sign_kp->getPublicKey();
+
+        $enc_sk = $sign_sk->getEncryptionSecretKey();
+        $enc_pk = $sign_pk->getEncryptionPublicKey();
+        $this->assertSame(
+            Hex::encode($enc_pk->getRawKeyMaterial()),
+            Hex::encode($enc_sk->derivePublicKey()->getRawKeyMaterial())
+        );
+    }
+
+    /**
+     * @covers EncryptionSecretKey::derivePublicKey()
+     * @covers SignatureSecretKey::derivePublicKey()
      *
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidType

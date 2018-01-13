@@ -92,9 +92,6 @@ final class Cookie
                 $this->key,
                 $config->ENCODING
             );
-            if (empty($decrypted)) {
-                return null;
-            }
             return \json_decode($decrypted->getString(), true);
         } catch (InvalidMessage $e) {
             return null;

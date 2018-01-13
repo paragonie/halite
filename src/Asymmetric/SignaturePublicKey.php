@@ -39,4 +39,22 @@ final class SignaturePublicKey extends PublicKey
         parent::__construct($keyMaterial);
         $this->isSigningKey = true;
     }
+
+    /**
+     * Get an encryption public key from a signing public key.
+     *
+     * @return EncryptionPublicKey
+     * @throws CannotPerformOperation
+     * @throws InvalidType
+     */
+    public function getEncryptionPublicKey(): EncryptionPublicKey
+    {
+        $ed25519_pk = $this->getRawKeyMaterial();
+        $x25519_pk = \sodium_crypto_sign_ed25519_pk_to_curve25519(
+            $ed25519_pk
+        );
+        return new EncryptionPublicKey(
+            new HiddenString($x25519_pk)
+        );
+    }
 }

@@ -66,10 +66,7 @@ final class Cookie
      * Store a value in an encrypted cookie
      *
      * @param string $name
-     * @return mixed (typically an array)
-     *
-     * @param string $name
-     * @return mixed|null
+     * @return mixed|null (typically an array)
      * @throws InvalidDigestLength
      * @throws InvalidSignature
      * @throws CannotPerformOperation

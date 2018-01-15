@@ -2,8 +2,10 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\ConstantTime\Binary;
-use ParagonIE\ConstantTime\Hex;
+use ParagonIE\ConstantTime\{
+    Binary,
+    Hex
+};
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
@@ -42,7 +44,6 @@ final class Util
      *
      * @param string $chr
      * @return int
-     * @throws CannotPerformOperation
      * @throws \RangeException
      */
     public static function chrToInt(string $chr): int

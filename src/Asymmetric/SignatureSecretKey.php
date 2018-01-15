@@ -26,8 +26,7 @@ final class SignatureSecretKey extends SecretKey
      * @param HiddenString $keyMaterial - The actual key data
      *
      * @throws InvalidKey
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(HiddenString $keyMaterial)
     {
@@ -44,8 +43,7 @@ final class SignatureSecretKey extends SecretKey
      * See the appropriate derived class.
      * 
      * @return SignaturePublicKey
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function derivePublicKey()
     {
@@ -59,8 +57,7 @@ final class SignatureSecretKey extends SecretKey
      * Get an encryption secret key from a signing secret key.
      *
      * @return EncryptionSecretKey
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function getEncryptionSecretKey(): EncryptionSecretKey
     {

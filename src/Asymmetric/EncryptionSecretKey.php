@@ -23,9 +23,8 @@ final class EncryptionSecretKey extends SecretKey
     /**
      * EncryptionSecretKey constructor.
      * @param HiddenString $keyMaterial - The actual key data
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(HiddenString $keyMaterial)
     {
@@ -42,8 +41,7 @@ final class EncryptionSecretKey extends SecretKey
      *
      * @return EncryptionPublicKey
      *
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function derivePublicKey()
     {

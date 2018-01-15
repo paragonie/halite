@@ -49,6 +49,7 @@ final class EncryptionKeyPair extends KeyPair
      * @throws InvalidType
      * @throws InvalidKey
      * @throws \InvalidArgumentException
+     * @throws \TypeError
      */
     public function __construct(Key ...$keys)
     {

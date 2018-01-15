@@ -204,8 +204,7 @@ final class Crypto
      * @param bool $get_as_object             Get as a Key object?
      * @return HiddenString|Key
      *
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public static function getSharedSecret(
         EncryptionSecretKey $privateKey,
@@ -238,8 +237,8 @@ final class Crypto
      * @param mixed $encoding                Which encoding scheme to use?
      * @return string                        Ciphertext
      *
-     * @throws CannotPerformOperation
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function seal(
         HiddenString $plaintext,
@@ -265,8 +264,8 @@ final class Crypto
      * @param mixed $encoding                Which encoding scheme to use?
      * @return string Signature (detached)
      *
-     * @throws CannotPerformOperation
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function sign(
         string $message,
@@ -292,9 +291,10 @@ final class Crypto
      * @param PublicKey $recipientPublicKey   Public encryption key
      * @param mixed $encoding                 Which encoding scheme to use?
      * @return string
-     * @throws CannotPerformOperation
+     *
      * @throws InvalidKey
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function signAndEncrypt(
         HiddenString $message,
@@ -324,10 +324,10 @@ final class Crypto
      * @param mixed $encoding                 Which encoding scheme to use?
      * @return HiddenString
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function unseal(
         string $ciphertext,
@@ -386,9 +386,9 @@ final class Crypto
      * @param mixed $encoding               Which encoding scheme to use?
      * @return bool
      *
-     * @throws CannotPerformOperation
      * @throws InvalidSignature
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function verify(
         string $message,
@@ -424,7 +424,6 @@ final class Crypto
      * @param mixed $encoding                      Which encoding scheme to use?
      * @return HiddenString
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidSignature

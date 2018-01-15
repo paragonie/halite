@@ -50,6 +50,7 @@ final class Password
      * @throws CannotPerformOperation
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function hash(
         HiddenString $password,

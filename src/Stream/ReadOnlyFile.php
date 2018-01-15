@@ -67,9 +67,10 @@ class ReadOnlyFile implements StreamInterface
      * @param string|resource $file
      * @param Key|null $key
      *
-     * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct($file, Key $key = null)
     {

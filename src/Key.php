@@ -61,8 +61,7 @@ class Key
      * You probably should not be using this directly.
      *
      * @param HiddenString $keyMaterial - The actual key data
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(HiddenString $keyMaterial)
     {
@@ -130,8 +129,7 @@ class Key
      * Get the actual key material
      *
      * @return string
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function getRawKeyMaterial(): string
     {

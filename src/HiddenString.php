@@ -2,11 +2,6 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts\{
-    CannotPerformOperation,
-    InvalidType
-};
-
 /**
  * Class HiddenString
  *
@@ -57,8 +52,7 @@ final class HiddenString
      * @param bool $disallowInline
      * @param bool $disallowSerialization
      *
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(
         string $value,
@@ -73,8 +67,7 @@ final class HiddenString
     /**
      * @param HiddenString $other
      * @return bool
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function equals(HiddenString $other)
     {
@@ -112,8 +105,7 @@ final class HiddenString
      * Explicit invocation -- get the raw string value
      *
      * @return string
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function getString(): string
     {
@@ -125,8 +117,7 @@ final class HiddenString
      * Optionally, it can return an empty string.
      *
      * @return string
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __toString(): string
     {

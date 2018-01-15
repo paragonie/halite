@@ -131,10 +131,9 @@ final class KeyFactory
      *                      (You can safely use the default)
      * 
      * @return AuthenticationKey
-     * @throws CannotPerformOperation
      * @throws InvalidSalt
      * @throws InvalidType
-     * @psalm-suppress MixedInferredReturnType
+     * @throws \TypeError
      */
     public static function deriveAuthenticationKey(
         HiddenString $password,
@@ -174,10 +173,9 @@ final class KeyFactory
      *                      (You can safely use the default)
      * 
      * @return EncryptionKey
-     * @throws CannotPerformOperation
      * @throws InvalidSalt
      * @throws InvalidType
-     * @psalm-suppress MixedInferredReturnType
+     * @throws \TypeError
      */
     public static function deriveEncryptionKey(
         HiddenString $password,
@@ -216,9 +214,9 @@ final class KeyFactory
      *                      (You can safely use the default)
      * 
      * @return EncryptionKeyPair
-     * @throws CannotPerformOperation
      * @throws InvalidSalt
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function deriveEncryptionKeyPair(
         HiddenString $password,
@@ -266,8 +264,8 @@ final class KeyFactory
      *
      * @return SignatureKeyPair
      * @throws InvalidSalt
-     * @throws CannotPerformOperation
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function deriveSignatureKeyPair(
         HiddenString $password,
@@ -357,9 +355,7 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return AuthenticationKey
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importAuthenticationKey(HiddenString $keyData): AuthenticationKey
@@ -379,9 +375,7 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionKey
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importEncryptionKey(HiddenString $keyData): EncryptionKey
@@ -401,9 +395,7 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionPublicKey
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importEncryptionPublicKey(HiddenString $keyData): EncryptionPublicKey
@@ -423,9 +415,7 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionSecretKey
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importEncryptionSecretKey(HiddenString $keyData): EncryptionSecretKey
@@ -445,9 +435,7 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return SignaturePublicKey
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importSignaturePublicKey(HiddenString $keyData): SignaturePublicKey
@@ -467,9 +455,7 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return SignatureSecretKey
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importSignatureSecretKey(HiddenString $keyData): SignatureSecretKey
@@ -489,9 +475,7 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionKeyPair
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importEncryptionKeyPair(HiddenString $keyData): EncryptionKeyPair
@@ -513,9 +497,7 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return SignatureKeyPair
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importSignatureKeyPair(HiddenString $keyData): SignatureKeyPair
@@ -749,8 +731,7 @@ final class KeyFactory
      * @param Key|KeyPair $key
      * @param string $filename
      * @return bool
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public static function save($key, string $filename = ''): bool
     {

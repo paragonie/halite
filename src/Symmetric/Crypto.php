@@ -55,8 +55,8 @@ final class Crypto
      * @return string
      *
      * @throws InvalidMessage
-     * @throws CannotPerformOperation
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function authenticate(
         string $message,
@@ -324,7 +324,6 @@ final class Crypto
      * @return string[]
      *
      * @throws CannotPerformOperation
-     * @throws InvalidType
      * @throws InvalidDigestLength
      * @throws \TypeError
      */
@@ -440,10 +439,11 @@ final class Crypto
      * @param mixed $encoding
      * @param SymmetricConfig $config
      * @return bool
-     * @throws CannotPerformOperation
+     *
      * @throws InvalidMessage
      * @throws InvalidSignature
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function verify(
         string $message,

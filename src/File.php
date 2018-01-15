@@ -5,6 +5,7 @@ namespace ParagonIE\Halite;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     FileAccessDenied,
+    FileError,
     FileModified,
     InvalidDigestLength,
     InvalidKey,
@@ -66,9 +67,11 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function checksum(
         $filePath,
@@ -100,11 +103,12 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
-     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function encrypt(
         $input,
@@ -142,11 +146,12 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
-     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function decrypt(
         $input,
@@ -232,6 +237,7 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
      * @throws InvalidMessage
@@ -282,9 +288,11 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function sign(
         $filename,
@@ -317,10 +325,12 @@ final class File
      * @return bool
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidSignature
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function verify(
         $filename,
@@ -354,9 +364,11 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     protected static function checksumData(
         StreamInterface $fileStream,
@@ -433,11 +445,12 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
-     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     protected static function encryptData(
         ReadOnlyFile $input,
@@ -502,11 +515,12 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
-     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     protected static function decryptData(
         ReadOnlyFile $input,
@@ -689,6 +703,7 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
      * @throws InvalidMessage
@@ -798,9 +813,11 @@ final class File
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     protected static function signData(
         ReadOnlyFile $input,
@@ -832,9 +849,11 @@ final class File
      * @throws InvalidSignature
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
+     * @throws FileError
      * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     protected static function verifyData(
         ReadOnlyFile $input,
@@ -1007,7 +1026,7 @@ final class File
      *
      * @throws InvalidDigestLength
      * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     protected static function splitKeys(
         Key $master,
@@ -1043,10 +1062,11 @@ final class File
      *
      * @return int (number of bytes)
      *
+     * @throws FileError
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
      * @throws FileModified
-     * @throws InvalidType
+     * @throws \TypeError
      */
     final private static function streamEncrypt(
         ReadOnlyFile $input,
@@ -1104,11 +1124,12 @@ final class File
      *
      * @return bool
      *
+     * @throws FileError
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
      * @throws FileModified
      * @throws InvalidMessage
-     * @throws InvalidType
+     * @throws \TypeError
      */
     final private static function streamDecrypt(
         ReadOnlyFile $input,
@@ -1185,7 +1206,7 @@ final class File
      * @throws FileAccessDenied
      * @throws FileModified
      * @throws InvalidMessage
-     * @throws InvalidType
+     * @throws \TypeError
      */
     final private static function streamVerify(
         ReadOnlyFile $input,

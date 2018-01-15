@@ -22,8 +22,7 @@ class SecretKey extends Key
      * SecretKey constructor.
      * @param HiddenString $keyMaterial - The actual key data
      *
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(HiddenString $keyMaterial)
     {

@@ -147,6 +147,7 @@ final class Cookie
      * @throws CannotPerformOperation
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public function store(
         string $name,

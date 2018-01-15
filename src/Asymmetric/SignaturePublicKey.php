@@ -26,8 +26,7 @@ final class SignaturePublicKey extends PublicKey
      * @param HiddenString $keyMaterial - The actual key data
      *
      * @throws InvalidKey
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(HiddenString $keyMaterial)
     {
@@ -44,8 +43,7 @@ final class SignaturePublicKey extends PublicKey
      * Get an encryption public key from a signing public key.
      *
      * @return EncryptionPublicKey
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function getEncryptionPublicKey(): EncryptionPublicKey
     {

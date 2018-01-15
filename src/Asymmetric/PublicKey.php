@@ -23,8 +23,7 @@ class PublicKey extends Key
      * PublicKey constructor.
      * @param HiddenString $keyMaterial - The actual key data
      *
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(HiddenString $keyMaterial)
     {

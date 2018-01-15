@@ -25,9 +25,8 @@ final class EncryptionPublicKey extends PublicKey
      *
      * @param HiddenString $keyMaterial - The actual key data
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(HiddenString $keyMaterial)
     {

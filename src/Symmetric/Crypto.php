@@ -142,8 +142,20 @@ final class Crypto
                 );
             }
         }
-        list($version, $config, $salt, $nonce, $encrypted, $auth) =
-            self::unpackMessageForDecryption($ciphertext);
+        /** @var array $pieces */
+        $pieces = self::unpackMessageForDecryption($ciphertext);
+        /** @var string $version */
+        $version = $pieces[0];
+        /** @var Config $config */
+        $config = $pieces[1];
+        /** @var string $salt */
+        $salt = $pieces[2];
+        /** @var string $nonce */
+        $nonce = $pieces[3];
+        /** @var string $encrypted */
+        $encrypted = $pieces[4];
+        /** @var string $auth */
+        $auth = $pieces[5];
 
         if (!($config instanceof Config)) {
             throw new CannotPerformOperation(
@@ -158,10 +170,13 @@ final class Crypto
            This uses salted HKDF to split the keys, which is why we need the
            salt in the first place. */
         /**
+         * @var array<int, string> $split
          * @var string $encKey
          * @var string $authKey
          */
-        list($encKey, $authKey) = self::splitKeys($secretKey, (string) $salt, $config);
+        $split = self::splitKeys($secretKey, (string) $salt, $config);
+        $encKey = $split[0];
+        $authKey = $split[1];
 
         // Check the MAC first
         if (!self::verifyMAC(

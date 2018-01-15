@@ -12,7 +12,6 @@ use ParagonIE\Halite\Alerts\{
     InvalidType
 };
 use ParagonIE\Halite\{
-    Util as CryptoUtil,
     Halite,
     HiddenString,
     Key,
@@ -403,7 +402,7 @@ final class Crypto
             /** @var string $signature */
             $signature = $decoder($signature);
         }
-        if (CryptoUtil::safeStrlen($signature) !== SODIUM_CRYPTO_SIGN_BYTES) {
+        if (Binary::safeStrlen($signature) !== SODIUM_CRYPTO_SIGN_BYTES) {
             throw new InvalidSignature(
                 'Signature is not the correct length; is it encoded?'
             );

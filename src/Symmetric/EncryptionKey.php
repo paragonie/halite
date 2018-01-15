@@ -2,13 +2,13 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidKey,
     InvalidType
 };
 use ParagonIE\Halite\HiddenString;
-use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
  * Class EncryptionKey
@@ -29,7 +29,7 @@ final class EncryptionKey extends SecretKey
      */
     public function __construct(HiddenString $keyMaterial)
     {
-        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_STREAM_KEYBYTES) {
+        if (Binary::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_STREAM_KEYBYTES) {
             throw new InvalidKey(
                 'Encryption key must be CRYPTO_STREAM_KEYBYTES bytes long'
             );

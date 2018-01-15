@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Contract\StreamInterface;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
@@ -11,7 +12,6 @@ use ParagonIE\Halite\Alerts\{
     InvalidType,
 };
 use ParagonIE\Halite\Key;
-use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
  * Class ReadOnlyFile
@@ -215,7 +215,7 @@ class ReadOnlyFile implements StreamInterface
                 );
             }
             $buf .= $read;
-            $readSize = CryptoUtil::safeStrlen($read);
+            $readSize = Binary::safeStrlen($read);
             $this->pos += $readSize;
             $remaining -= $readSize;
         } while ($remaining > 0);

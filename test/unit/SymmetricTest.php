@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Symmetric\Crypto as Symmetric;
 use ParagonIE\Halite\Symmetric\AuthenticationKey;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Halite;
 use ParagonIE\Halite\HiddenString;
-use ParagonIE\Halite\Util;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -194,22 +194,22 @@ class SymmetricTest extends TestCase
         $unpacked = Symmetric::unpackMessageForDecryption($message);
         
         // Now to test our expected results!
-        $this->assertSame(Util::safeStrlen($unpacked[0]), Halite::VERSION_TAG_LEN);
+        $this->assertSame(Binary::safeStrlen($unpacked[0]), Halite::VERSION_TAG_LEN);
         $this->assertTrue($unpacked[1] instanceof \ParagonIE\Halite\Symmetric\Config);
         $config = $unpacked[1];
         if ($config instanceof \ParagonIE\Halite\Symmetric\Config) {
-            $this->assertSame(Util::safeStrlen($unpacked[2]), $config->HKDF_SALT_LEN);
-            $this->assertSame(Util::safeStrlen($unpacked[3]), SODIUM_CRYPTO_STREAM_NONCEBYTES);
+            $this->assertSame(Binary::safeStrlen($unpacked[2]), $config->HKDF_SALT_LEN);
+            $this->assertSame(Binary::safeStrlen($unpacked[3]), SODIUM_CRYPTO_STREAM_NONCEBYTES);
             $this->assertSame(
-                Util::safeStrlen($unpacked[4]),
-                Util::safeStrlen($message) - (
+                Binary::safeStrlen($unpacked[4]),
+                Binary::safeStrlen($message) - (
                     Halite::VERSION_TAG_LEN +
                     $config->HKDF_SALT_LEN +
                     SODIUM_CRYPTO_STREAM_NONCEBYTES +
                     $config->MAC_SIZE
                 )
             );
-            $this->assertSame(Util::safeStrlen($unpacked[5]), $config->MAC_SIZE);
+            $this->assertSame(Binary::safeStrlen($unpacked[5]), $config->MAC_SIZE);
         } else {
             $this->fail('Cannot continue');
         }

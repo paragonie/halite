@@ -4,6 +4,7 @@ namespace ParagonIE\Halite;
 
 use ParagonIE\ConstantTime\{
     Base64UrlSafe,
+    Binary,
     Hex
 };
 use ParagonIE\Halite\Alerts\{
@@ -71,6 +72,7 @@ final class Cookie
      * @throws InvalidSignature
      * @throws CannotPerformOperation
      * @throws InvalidType
+     * @throws \TypeError
      */
     public function fetch(string $name)
     {
@@ -101,20 +103,19 @@ final class Cookie
      * @param string $stored   A stored password hash
      * @return SymmetricConfig
      *
-     * @throws CannotPerformOperation
      * @throws InvalidMessage
-     * @throws InvalidType
+     * @throws \TypeError
      */
     protected static function getConfig(string $stored): SymmetricConfig
     {
-        $length = Util::safeStrlen($stored);
+        $length = Binary::safeStrlen($stored);
         // This doesn't even have a header.
         if ($length < 8) {
             throw new InvalidMessage(
                 'Encrypted password hash is way too short.'
             );
         }
-        if (\hash_equals(Util::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
+        if (\hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
             /** @var string $decoded */
             $decoded = Base64UrlSafe::decode($stored);
             if (!\is_string($decoded)) {
@@ -126,7 +127,7 @@ final class Cookie
                 'encrypt'
             );
         }
-        $v = Hex::decode(Util::safeSubstr($stored, 0, 8));
+        $v = Hex::decode(Binary::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
     }
 

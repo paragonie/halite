@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
@@ -92,6 +93,7 @@ final class Crypto
      * @throws InvalidMessage
      * @throws InvalidSignature
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function decrypt(
         string $ciphertext,
@@ -111,6 +113,7 @@ final class Crypto
      *
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
+     * @param string $additionalData
      * @param mixed $encoding
      * @return HiddenString
      *
@@ -119,6 +122,7 @@ final class Crypto
      * @throws InvalidMessage
      * @throws InvalidSignature
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function decryptWithAd(
         string $ciphertext,
@@ -126,11 +130,8 @@ final class Crypto
         string $additionalData = '',
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
-        $encKey = '';
-        $authKey = '';
-
         $decoder = Halite::chooseEncoder($encoding, true);
-        if ($decoder) {
+        if (\is_callable($decoder)) {
             // We were given encoded data:
             try {
                 /** @var string $ciphertext */
@@ -156,6 +157,10 @@ final class Crypto
 
            This uses salted HKDF to split the keys, which is why we need the
            salt in the first place. */
+        /**
+         * @var string $encKey
+         * @var string $authKey
+         */
         list($encKey, $authKey) = self::splitKeys($secretKey, (string) $salt, $config);
 
         // Check the MAC first
@@ -209,6 +214,7 @@ final class Crypto
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function encrypt(
         HiddenString $plaintext,
@@ -234,6 +240,7 @@ final class Crypto
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function encryptWithAd(
         HiddenString $plaintext,
@@ -304,6 +311,7 @@ final class Crypto
      * @throws CannotPerformOperation
      * @throws InvalidType
      * @throws InvalidDigestLength
+     * @throws \TypeError
      */
     public static function splitKeys(
         EncryptionKey $master,
@@ -335,13 +343,12 @@ final class Crypto
      * @param string $ciphertext
      * @return array<int, mixed>
      *
-     * @throws CannotPerformOperation
      * @throws InvalidMessage
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public static function unpackMessageForDecryption(string $ciphertext): array
     {
-        $length = CryptoUtil::safeStrlen($ciphertext);
+        $length = Binary::safeStrlen($ciphertext);
 
         // Fail fast on invalid messages
         if ($length < Halite::VERSION_TAG_LEN) {
@@ -351,7 +358,7 @@ final class Crypto
         }
 
         // The first 4 bytes are reserved for the version size
-        $version = CryptoUtil::safeSubstr(
+        $version = Binary::safeSubstr(
             $ciphertext,
             0,
             Halite::VERSION_TAG_LEN
@@ -365,14 +372,14 @@ final class Crypto
         }
 
         // The salt is used for key splitting (via HKDF)
-        $salt = CryptoUtil::safeSubstr(
+        $salt = Binary::safeSubstr(
             $ciphertext,
             Halite::VERSION_TAG_LEN,
             (int) $config->HKDF_SALT_LEN
         );
 
         // This is the nonce (we authenticated it):
-        $nonce = CryptoUtil::safeSubstr(
+        $nonce = Binary::safeSubstr(
             $ciphertext,
             // 36:
             Halite::VERSION_TAG_LEN + (int) $config->HKDF_SALT_LEN,
@@ -381,7 +388,7 @@ final class Crypto
         );
 
         // This is the crypto_stream_xor()ed ciphertext
-        $encrypted = CryptoUtil::safeSubstr(
+        $encrypted = Binary::safeSubstr(
             $ciphertext,
             // 60:
             Halite::VERSION_TAG_LEN +
@@ -397,7 +404,7 @@ final class Crypto
         );
 
         // $auth is the last 32 bytes
-        $auth = CryptoUtil::safeSubstr(
+        $auth = Binary::safeSubstr(
             $ciphertext,
             $length - (int) $config->MAC_SIZE
         );
@@ -491,7 +498,6 @@ final class Crypto
      * @param SymmetricConfig $config Configuration object
      * @return bool
      *
-     * @throws CannotPerformOperation
      * @throws InvalidMessage
      * @throws InvalidSignature
      */
@@ -501,7 +507,7 @@ final class Crypto
         string $authKey,
         SymmetricConfig $config
     ): bool {
-        if (CryptoUtil::safeStrlen($mac) !== $config->MAC_SIZE) {
+        if (Binary::safeStrlen($mac) !== $config->MAC_SIZE) {
             throw new InvalidSignature(
                 'Argument 1: Message Authentication Code is not the correct length; is it encoded?'
             );

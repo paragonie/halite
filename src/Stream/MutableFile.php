@@ -2,13 +2,13 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Contract\StreamInterface;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     FileAccessDenied,
     InvalidType
 };
-use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
  * Class MutableFile
@@ -154,7 +154,7 @@ class MutableFile implements StreamInterface
                 );
             }
             $buf .= $read;
-            $readSize = CryptoUtil::safeStrlen($read);
+            $readSize = Binary::safeStrlen($read);
             $this->pos += $readSize;
             $remaining -= $readSize;
         } while ($remaining > 0);
@@ -206,11 +206,11 @@ class MutableFile implements StreamInterface
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function writeBytes(string $buf, int $num = null): int
     {
-        $bufSize = CryptoUtil::safeStrlen($buf);
+        $bufSize = Binary::safeStrlen($buf);
         if ($num === null || $num > $bufSize) {
             $num = $bufSize;
         }
@@ -228,7 +228,7 @@ class MutableFile implements StreamInterface
                     'Could not write to the file'
                 );
             }
-            $buf = CryptoUtil::safeSubstr($buf, $written, null);
+            $buf = Binary::safeSubstr($buf, $written, null);
             $this->pos += $written;
             $this->stat = \fstat($this->fp);
             $remaining -= $written;

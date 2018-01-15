@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\ConstantTime\Hex;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
@@ -46,7 +47,7 @@ final class Util
      */
     public static function chrToInt(string $chr): int
     {
-        if (self::safeStrlen($chr) !== 1) {
+        if (Binary::safeStrlen($chr) !== 1) {
             throw new \RangeException('Must be a string with a length of 1');
         }
         $result = \unpack('C', $chr);
@@ -92,11 +93,11 @@ final class Util
     /**
      * Use a derivative of HKDF to derive multiple keys from one.
      * http://tools.ietf.org/html/rfc5869
-     * 
+     *
      * This is a variant from hash_hkdf() and instead uses BLAKE2b provided by
      * libsodium.
-     * 
-     * Important: instead of a true HKDF (from HMAC) construct, this uses the 
+     *
+     * Important: instead of a true HKDF (from HMAC) construct, this uses the
      * crypto_generichash() key parameter. This is *probably* okay.
      * 
      * @param string $ikm Initial Keying Material
@@ -106,7 +107,7 @@ final class Util
      * @return string
      * @throws CannotPerformOperation
      * @throws InvalidDigestLength
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public static function hkdfBlake2b(
         string $ikm,
@@ -132,7 +133,7 @@ final class Util
 
         // HKDF-Expand:
         // This check is useless, but it serves as a reminder to the spec.
-        if (self::safeStrlen($prk) < \SODIUM_CRYPTO_GENERICHASH_KEYBYTES) {
+        if (Binary::safeStrlen($prk) < \SODIUM_CRYPTO_GENERICHASH_KEYBYTES) {
             throw new CannotPerformOperation(
                 'An unknown error has occurred'
             );
@@ -140,7 +141,7 @@ final class Util
         // T(0) = ''
         $t = '';
         $last_block = '';
-        for ($block_index = 1; self::safeStrlen($t) < $length; ++$block_index) {
+        for ($block_index = 1; Binary::safeStrlen($t) < $length; ++$block_index) {
             // T(i) = HMAC-Hash(PRK, T(i-1) | info | 0x??)
             $last_block = self::raw_keyed_hash(
                 $last_block . $info . \chr($block_index),
@@ -151,7 +152,7 @@ final class Util
         }
         // ORM = first L octets of T
         /** @var string $orm */
-        $orm = self::safeSubstr($t, 0, $length);
+        $orm = Binary::safeSubstr($t, 0, $length);
 
         if (!\is_string($orm)) {
             throw new CannotPerformOperation(
@@ -247,96 +248,6 @@ final class Util
         }
         return \sodium_crypto_generichash($input, $key, $length);
     }
-    
-    /**
-     * Safe string length
-     * 
-     * @ref mbstring.func_overload
-     *
-     * @static bool $exists
-     * @param string $str
-     * @return int
-     * @throws CannotPerformOperation
-     */
-    public static function safeStrlen(string $str): int
-    {
-        static $exists = null;
-        if ($exists === null) {
-            $exists = \is_callable('\\mb_strlen');
-        }
-
-        if ($exists) {
-            $length = \mb_strlen($str, '8bit');
-            if ($length === false) {
-                throw new CannotPerformOperation(
-                    'mb_strlen() failed unexpectedly'
-                );
-            }
-        } else {
-            // If we reached here, we can rely on strlen to count bytes:
-            /** @var int $length */
-            $length = \strlen($str);
-            if (!\is_int($length)) {
-                throw new CannotPerformOperation(
-                    'strlen() failed unexpectedly'
-                );
-            }
-        }
-        return $length;
-    }
-    
-    /**
-     * Safe substring
-     *
-     * @ref mbstring.func_overload
-     *
-     * @static bool $exists
-     * @param string $str
-     * @param int $start
-     * @param int $length
-     * @return string
-     * @throws CannotPerformOperation
-     * @throws InvalidType
-     */
-    public static function safeSubstr(
-        string $str,
-        int $start = 0,
-        $length = null
-    ): string {
-        static $exists = null;
-        if ($exists === null) {
-            $exists = \is_callable('\\mb_substr');
-        }
-        if ($exists) {
-            // mb_substr($str, 0, NULL, '8bit') returns an empty string on PHP
-            // 5.3, so we have to find the length ourselves.
-            if ($length === null) {
-                if ($start >= 0) {
-                    $length = self::safeStrlen($str) - $start;
-                } else {
-                    $length = -$start;
-                }
-            } elseif (!\is_int($length)) {
-                throw new InvalidType(
-                    'Argument 3: integer expected'
-                );
-            }
-            // $length calculation above might result in a 0-length string
-            if ($length === 0 || $start > self::safeStrlen($str)) {
-                return '';
-            }
-            return \mb_substr($str, $start, $length, '8bit');
-        }
-        if ($length === 0) {
-            return '';
-        }
-        // Unlike mb_substr(), substr() doesn't accept NULL for length
-        if ($length !== null) {
-            return \substr($str, $start, $length);
-        } else {
-            return \substr($str, $start);
-        }
-    }
 
     /**
      * PHP 7 uses interned strings. We don't want altering this one to alter
@@ -344,17 +255,16 @@ final class Util
      *
      * @param string $string
      * @return string
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public static function safeStrcpy(string $string): string
     {
-        $length = self::safeStrlen($string);
+        $length = Binary::safeStrlen($string);
         $return = '';
         /** @var int $chunk */
         $chunk = $length >> 1;
         for ($i = 0; $i < $length; $i += $chunk) {
-            $return .= self::safeSubstr($string, $i, $chunk);
+            $return .= Binary::safeSubstr($string, $i, $chunk);
         }
         return $return;
     }
@@ -384,13 +294,12 @@ final class Util
      * @param string $left
      * @param string $right
      * @return string
-     * @throws CannotPerformOperation
      * @throws InvalidType
      */
     public static function xorStrings(string $left, string $right): string
     {
-        $length = self::safeStrlen($left);
-        if ($length !== self::safeStrlen($right)) {
+        $length = Binary::safeStrlen($left);
+        if ($length !== Binary::safeStrlen($right)) {
             throw new InvalidType(
                 'Both strings must be the same length'
             );

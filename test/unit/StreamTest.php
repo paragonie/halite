@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Stream\ReadOnlyFile;
-use ParagonIE\Halite\Util;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -47,7 +47,7 @@ class StreamTest extends TestCase
         
         \file_put_contents(
             $filename,
-            Util::safeSubstr($buf, 0, 32768) . 'x' . Util::safeSubstr($buf, 32768)
+            Binary::safeSubstr($buf, 0, 32768) . 'x' . Binary::safeSubstr($buf, 32768)
         );
         
         try {

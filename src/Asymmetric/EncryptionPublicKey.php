@@ -2,13 +2,13 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidKey,
     InvalidType
 };
 use ParagonIE\Halite\HiddenString;
-use ParagonIE\Halite\Util as CryptoUtil;
 
 /**
  * Class EncryptionPublicKey
@@ -31,7 +31,7 @@ final class EncryptionPublicKey extends PublicKey
      */
     public function __construct(HiddenString $keyMaterial)
     {
-        if (CryptoUtil::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES) {
+        if (Binary::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES) {
             throw new InvalidKey(
                 'Encryption public key must be CRYPTO_BOX_PUBLICKEYBYTES bytes long'
             );

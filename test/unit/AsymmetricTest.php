@@ -20,6 +20,14 @@ class AsymmetricTest extends TestCase
 {
     /**
      * @covers Asymmetric::encrypt()
+     * @covers Asymmetric::decrypt()
+     *
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
      */
     public function testEncrypt()
     {
@@ -48,6 +56,13 @@ class AsymmetricTest extends TestCase
     /**
      * @covers Asymmetric::encryptWithAd()
      * @covers Asymmetric::decryptWithAd()
+     *
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
      */
     public function testEncryptWithAd()
     {
@@ -108,6 +123,13 @@ class AsymmetricTest extends TestCase
     /**
      * @covers Asymmetric::encrypt()
      * @covers Asymmetric::decrypt()
+     *
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
      */
     public function testEncryptEmpty()
     {
@@ -172,6 +194,11 @@ class AsymmetricTest extends TestCase
     /**
      * @covers Asymmetric::seal()
      * @covers Asymmetric::unseal()
+     *
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
      */
     public function testSeal()
     {
@@ -226,6 +253,9 @@ class AsymmetricTest extends TestCase
     /**
      * @covers Asymmetric::seal()
      * @covers Asymmetric::unseal()
+     *
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidType
      */
     public function testSealFail()
     {
@@ -263,24 +293,104 @@ class AsymmetricTest extends TestCase
     /**
      * @covers Asymmetric::sign()
      * @covers Asymmetric::verify()
+     *
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
      */
     public function testSign()
     {
         $alice = KeyFactory::generateSignatureKeyPair();
-        
+
         $message = 'test message';
         $signature = Asymmetric::sign($message, $alice->getSecretKey());
-        
+
         $this->assertTrue(strlen($signature) === 88);
-        
+
         $this->assertTrue(
             Asymmetric::verify($message, $alice->getPublicKey(), $signature)
         );
     }
 
     /**
+     * @covers Asymmetric::signAndEncrypt()
+     * @covers Asymmetric::verifyAndDecrypt()
+     *
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
+    public function testSignEncrypt()
+    {
+        $alice = KeyFactory::generateSignatureKeyPair();
+        $bob = KeyFactory::generateEncryptionKeyPair();
+
+        // http://time.com/4261796/tim-cook-transcript/
+        $message = new HiddenString(
+            'When I think of civil liberties I think of the founding principles of the country. ' .
+            'The freedoms that are in the First Amendment. But also the fundamental right to privacy.'
+        );
+
+        $encrypted = Asymmetric::signAndEncrypt($message, $alice->getSecretKey(), $bob->getPublicKey());
+        $decrypted = Asymmetric::verifyAndDecrypt($encrypted, $alice->getPublicKey(), $bob->getSecretKey());
+
+        $this->assertSame(
+            $message->getString(),
+            $decrypted->getString()
+        );
+
+        // Now with a signature key pair:
+        $bob = KeyFactory::generateSignatureKeyPair();
+
+        $encrypted = Asymmetric::signAndEncrypt($message, $alice->getSecretKey(), $bob->getPublicKey());
+        $decrypted = Asymmetric::verifyAndDecrypt($encrypted, $alice->getPublicKey(), $bob->getSecretKey());
+        $this->assertSame(
+            $message->getString(),
+            $decrypted->getString()
+        );
+    }
+
+    /**
+     * @covers Asymmetric::signAndEncrypt()
+     * @covers Asymmetric::verifyAndDecrypt()
+     *
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
+    public function testSignEncryptFail()
+    {
+        $alice = KeyFactory::generateSignatureKeyPair();
+        $bob = KeyFactory::generateEncryptionKeyPair();
+
+        // http://time.com/4261796/tim-cook-transcript/
+        $junk = new HiddenString(
+            // Instead of a signature, it's 64 random bytes
+            random_bytes(SODIUM_CRYPTO_SIGN_BYTES) .
+            'When I think of civil liberties I think of the founding principles of the country. ' .
+            'The freedoms that are in the First Amendment. But also the fundamental right to privacy.'
+        );
+        $sealed = Asymmetric::seal($junk, $bob->getPublicKey());
+        try {
+            $plaintext = Asymmetric::verifyAndDecrypt($sealed, $alice->getPublicKey(), $bob->getSecretKey());
+            $this->fail('Invalid signature was accepted.');
+        } catch (CryptoException\InvalidSignature $ex) {
+            $this->assertTrue(true);
+        }
+    }
+
+    /**
      * @covers Asymmetric::sign()
      * @covers Asymmetric::verify()
+     *
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
      */
     public function testSignFail()
     {

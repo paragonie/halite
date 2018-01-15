@@ -601,9 +601,6 @@ final class File
         MutableFile $output,
         EncryptionPublicKey $publicKey
     ): int {
-        $encKey = '';
-        $authKey = '';
-
         // Generate a new keypair for this encryption
         $ephemeralKeyPair = KeyFactory::generateEncryptionKeyPair();
         $ephSecret = $ephemeralKeyPair->getSecretKey();
@@ -633,6 +630,10 @@ final class File
         $hkdfSalt = \random_bytes((int) $config->HKDF_SALT_LEN);
 
         // Split the keys
+        /**
+         * @var string $encKey
+         * @var string $authKey
+         */
         list ($encKey, $authKey) = self::splitKeys($sharedSecretKey, $hkdfSalt, $config);
 
         // Write the header:
@@ -699,9 +700,6 @@ final class File
         MutableFile $output,
         EncryptionSecretKey $secretKey
     ): bool {
-        $encKey = '';
-        $authKey = '';
-
         $publicKey = $secretKey
             ->derivePublicKey();
 
@@ -749,6 +747,10 @@ final class File
         }
         unset($ephemeral);
 
+        /**
+         * @var string $encKey
+         * @var string $authKey
+         */
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
         // We no longer need the original key after we split it
         unset($key);

@@ -89,47 +89,6 @@ class UtilTest extends TestCase
         $testSalt = Util::hkdfBlake2b($ikm, $len, $info, $saltB);
         $this->assertNotEquals($test, $testSalt);
     }
-    
-    /**
-     * @covers Util::safeStrlen()
-     */
-    public function testSafeStrlen()
-    {
-        $valid = "\xF0\x9D\x92\xB3"; // One 4-byte UTF-8 character
-        $this->assertSame(Util::safeStrlen($valid), 4);
-    }
-    
-    /**
-     * test safeStrlen() with illegal parameter. We expect to see an exception
-     * @return void
-     * @throws CannotPerformOperation
-     * @expectedException \TypeError
-     * 
-     * @covers Util::safeStrlen()
-     */
-    public function testSafeStrlenFail()
-    {
-        $teststring = []; // is not a string, will provoke a warning
-
-        /** @noinspection PhpStrictTypeCheckingInspection */
-        Util::safeStrlen($teststring);
-    }
-    
-    /**
-     * Verify that safeSubstr() operates over binary data.
-     * 
-     * @covers Util::safeSubstr()
-     */
-    public function testSafeSubstr()
-    {
-        $string = \str_repeat("\xF0\x9D\x92\xB3", 4);
-        $this->assertSame(Util::safeSubstr($string, 0, 1), "\xF0");
-        $this->assertSame(Util::safeSubstr($string, 1, 1), "\x9D");
-        $this->assertSame(Util::safeSubstr($string, 2, 1), "\x92");
-        $this->assertSame(Util::safeSubstr($string, 3, 1), "\xB3");
-        $this->assertSame(Util::safeSubstr($string, 0, 2), "\xF0\x9D");
-        $this->assertSame(Util::safeSubstr($string, 2, 2), "\x92\xB3");
-    }
 
     /**
      * Verify that safeStrcpy() doesn't fall prey to interned strings.

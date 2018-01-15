@@ -2,14 +2,11 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
-use ParagonIE\Halite\Alerts\{
-    CannotPerformOperation,
-    InvalidMessage
-};
+use ParagonIE\ConstantTime\Binary;
+use ParagonIE\Halite\Alerts\InvalidMessage;
 use ParagonIE\Halite\{
     Config as BaseConfig,
-    Halite,
-    Util
+    Halite
 };
 
 /**
@@ -37,14 +34,13 @@ final class Config extends BaseConfig
      * @param string $mode
      * @return self
      *
-     * @throws CannotPerformOperation
      * @throws InvalidMessage
      */
     public static function getConfig(
         string $header,
         string $mode = 'encrypt'
     ): self {
-        if (Util::safeStrlen($header) < Halite::VERSION_TAG_LEN) {
+        if (Binary::safeStrlen($header) < Halite::VERSION_TAG_LEN) {
             throw new InvalidMessage(
                 'Invalid version tag'
             );

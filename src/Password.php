@@ -2,8 +2,11 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\ConstantTime\Base64UrlSafe;
-use ParagonIE\ConstantTime\Hex;
+use ParagonIE\ConstantTime\{
+    Base64UrlSafe,
+    Binary,
+    Hex
+};
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
@@ -85,6 +88,7 @@ final class Password
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function needsRehash(
         string $stored,
@@ -93,7 +97,7 @@ final class Password
         string $additionalData = ''
     ): bool {
         $config = self::getConfig($stored);
-        if (Util::safeStrlen($stored) < ((int) $config->SHORTEST_CIPHERTEXT_LENGTH * 4 / 3)) {
+        if (Binary::safeStrlen($stored) < ((int) $config->SHORTEST_CIPHERTEXT_LENGTH * 4 / 3)) {
             throw new InvalidMessage('Encrypted password hash is too short.');
         }
 
@@ -107,7 +111,7 @@ final class Password
 
         // Upon successful decryption, verify that we're using Argon2i
         if (!\hash_equals(
-            Util::safeSubstr($hash_str, 0, 10),
+            Binary::safeSubstr($hash_str, 0, 10),
             \SODIUM_CRYPTO_PWHASH_STRPREFIX
         )) {
             return true;
@@ -118,17 +122,17 @@ final class Password
             case KeyFactory::INTERACTIVE:
                 return !\hash_equals(
                     '$argon2id$v=19$m=65536,t=2,p=1$',
-                    Util::safeSubstr($hash_str, 0, 31)
+                    Binary::safeSubstr($hash_str, 0, 31)
                 );
             case KeyFactory::MODERATE:
                 return !\hash_equals(
                     '$argon2id$v=19$m=262144,t=3,p=1$',
-                    Util::safeSubstr($hash_str, 0, 32)
+                    Binary::safeSubstr($hash_str, 0, 32)
                 );
             case KeyFactory::SENSITIVE:
                 return !\hash_equals(
                     '$argon2id$v=19$m=1048576,t=4,p=1$',
-                    Util::safeSubstr($hash_str, 0, 33)
+                    Binary::safeSubstr($hash_str, 0, 33)
                 );
             default:
                 return true;
@@ -141,12 +145,11 @@ final class Password
      * @param string $stored   A stored password hash
      * @return SymmetricConfig
      * @throws InvalidMessage
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     protected static function getConfig(string $stored): SymmetricConfig
     {
-        $length = Util::safeStrlen($stored);
+        $length = Binary::safeStrlen($stored);
         // This doesn't even have a header.
         if ($length < 8) {
             throw new InvalidMessage(
@@ -154,9 +157,9 @@ final class Password
             );
         }
         if (
-            \hash_equals(Util::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)
+            \hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)
                 ||
-            \hash_equals(Util::safeSubstr($stored, 0, 5), Halite::VERSION_OLD_PREFIX)
+            \hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_OLD_PREFIX)
         ) {
             /** @var string $decoded */
             $decoded = Base64UrlSafe::decode($stored);
@@ -169,7 +172,7 @@ final class Password
                 'encrypt'
             );
         }
-        $v = Hex::decode(Util::safeSubstr($stored, 0, 8));
+        $v = Hex::decode(Binary::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
     }
 
@@ -187,6 +190,7 @@ final class Password
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \TypeError
      */
     public static function verify(
         HiddenString $password,
@@ -196,7 +200,7 @@ final class Password
     ): bool {
         $config = self::getConfig($stored);
         // Base64-urlsafe encoded, so 4/3 the size of raw binary
-        if (Util::safeStrlen($stored) < ((int) $config->SHORTEST_CIPHERTEXT_LENGTH * 4/3)) {
+        if (Binary::safeStrlen($stored) < ((int) $config->SHORTEST_CIPHERTEXT_LENGTH * 4/3)) {
             throw new InvalidMessage(
                 'Encrypted password hash is too short.'
             );

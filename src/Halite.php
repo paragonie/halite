@@ -146,7 +146,7 @@ final class Halite
             return false;
         }
 
-        // Require libsodium 1.0.13
+        // Require libsodium 1.0.15
         $major = \SODIUM_LIBRARY_MAJOR_VERSION;
         if ($major < 10) {
             if ($echo) {

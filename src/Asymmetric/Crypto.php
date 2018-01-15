@@ -292,7 +292,10 @@ final class Crypto
      * @param mixed $encoding                 Which encoding scheme to use?
      * @return string
      *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
      * @throws InvalidKey
+     * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
      */
@@ -313,7 +316,8 @@ final class Crypto
         $plaintext = new HiddenString($signature . $message->getString());
         \sodium_memzero($signature);
 
-        return self::seal($plaintext, $publicKey, $encoding);
+        $myEncKey = $secretKey->getEncryptionSecretKey();
+        return self::encrypt($plaintext, $myEncKey, $publicKey, $encoding);
     }
 
     /**
@@ -424,6 +428,8 @@ final class Crypto
      * @param mixed $encoding                      Which encoding scheme to use?
      * @return HiddenString
      *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
      * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidSignature
@@ -443,9 +449,10 @@ final class Crypto
         } else {
             throw new InvalidKey('An invalid key type was provided');
         }
-        $unsealed = self::unseal($ciphertext, $secretKey, $encoding);
-        $signature = Binary::safeSubstr($unsealed->getString(), 0, SODIUM_CRYPTO_SIGN_BYTES);
-        $message = Binary::safeSubstr($unsealed->getString(), SODIUM_CRYPTO_SIGN_BYTES);
+        $senderEncKey = $senderPublicKey->getEncryptionPublicKey();
+        $decrypted = self::decrypt($ciphertext, $secretKey, $senderEncKey, $encoding);
+        $signature = Binary::safeSubstr($decrypted->getString(), 0, SODIUM_CRYPTO_SIGN_BYTES);
+        $message = Binary::safeSubstr($decrypted->getString(), SODIUM_CRYPTO_SIGN_BYTES);
         if (!self::verify($message, $senderPublicKey, $signature, true)) {
             throw new InvalidSignature('Invalid signature for decrypted message');
         }

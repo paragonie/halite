@@ -358,6 +358,7 @@ class AsymmetricTest extends TestCase
      * @covers Asymmetric::verifyAndDecrypt()
      *
      * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidType
@@ -375,9 +376,17 @@ class AsymmetricTest extends TestCase
             'When I think of civil liberties I think of the founding principles of the country. ' .
             'The freedoms that are in the First Amendment. But also the fundamental right to privacy.'
         );
-        $sealed = Asymmetric::seal($junk, $bob->getPublicKey());
+        $sealed = Asymmetric::encrypt(
+            $junk,
+            $alice->getSecretKey()->getEncryptionSecretKey(),
+            $bob->getPublicKey()
+        );
         try {
-            $plaintext = Asymmetric::verifyAndDecrypt($sealed, $alice->getPublicKey(), $bob->getSecretKey());
+            $plaintext = Asymmetric::verifyAndDecrypt(
+                $sealed,
+                $alice->getPublicKey(),
+                $bob->getSecretKey()
+            );
             $this->fail('Invalid signature was accepted.');
         } catch (CryptoException\InvalidSignature $ex) {
             $this->assertTrue(true);
@@ -388,9 +397,9 @@ class AsymmetricTest extends TestCase
      * @covers Asymmetric::sign()
      * @covers Asymmetric::verify()
      *
-     * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
+     * @throws TypeError
      */
     public function testSignFail()
     {

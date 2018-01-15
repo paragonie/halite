@@ -267,14 +267,38 @@ class AsymmetricTest extends TestCase
     public function testSign()
     {
         $alice = KeyFactory::generateSignatureKeyPair();
-        
+
         $message = 'test message';
         $signature = Asymmetric::sign($message, $alice->getSecretKey());
-        
+
         $this->assertTrue(strlen($signature) === 88);
-        
+
         $this->assertTrue(
             Asymmetric::verify($message, $alice->getPublicKey(), $signature)
+        );
+    }
+
+    /**
+     * @covers Asymmetric::sign()
+     * @covers Asymmetric::verify()
+     */
+    public function testSignEncrypt()
+    {
+        $alice = KeyFactory::generateSignatureKeyPair();
+        $bob = KeyFactory::generateSignatureKeyPair();
+
+        // http://time.com/4261796/tim-cook-transcript/
+        $message = new HiddenString(
+            'When I think of civil liberties I think of the founding principles of the country. ' .
+            'The freedoms that are in the First Amendment. But also the fundamental right to privacy.'
+        );
+
+        $encrypted = Asymmetric::signAndEncrypt($message, $alice->getSecretKey(), $bob->getPublicKey());
+        $decrypted = Asymmetric::verifyAndDecrypt($encrypted, $alice->getPublicKey(), $bob->getSecretKey());
+
+        $this->assertSame(
+            $message->getString(),
+            $decrypted->getString()
         );
     }
 

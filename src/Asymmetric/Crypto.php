@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
@@ -285,6 +286,38 @@ final class Crypto
     }
 
     /**
+     * Sign a message then encrypt it with the recipient's public key.
+     *
+     * @param HiddenString $message           Plaintext message to sign and encrypt
+     * @param SignatureSecretKey $secretKey   Private signing key
+     * @param PublicKey $recipientPublicKey   Public encryption key
+     * @param mixed $encoding                 Which encoding scheme to use?
+     * @return string
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
+     */
+    public static function signAndEncrypt(
+        HiddenString $message,
+        SignatureSecretKey $secretKey,
+        PublicKey $recipientPublicKey,
+        $encoding = Halite::ENCODE_BASE64URLSAFE
+    ): string {
+        if ($recipientPublicKey instanceof SignaturePublicKey) {
+            $publicKey = $recipientPublicKey->getEncryptionPublicKey();
+        } elseif ($recipientPublicKey instanceof EncryptionPublicKey) {
+            $publicKey = $recipientPublicKey;
+        } else {
+            throw new InvalidKey('An invalid key type was provided');
+        }
+        $signature = self::sign($message->getString(), $secretKey, true);
+        $plaintext = new HiddenString($signature . $message->getString());
+        \sodium_memzero($signature);
+
+        return self::seal($plaintext, $publicKey, $encoding);
+    }
+
+    /**
      * Decrypt a sealed message with our private key
      *
      * @param string $ciphertext              Encrypted message
@@ -381,5 +414,43 @@ final class Crypto
             $message,
             $publicKey->getRawKeyMaterial()
         );
+    }
+
+    /**
+     * Decrypt a message, then verify its signature.
+     *
+     * @param string $ciphertext                   Plaintext message to sign and encrypt
+     * @param SignaturePublicKey $senderPublicKey  Private signing key
+     * @param SecretKey $givenSecretKey            Public encryption key
+     * @param mixed $encoding                      Which encoding scheme to use?
+     * @return HiddenString
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidSignature
+     * @throws InvalidType
+     * @throws \TypeError
+     */
+    public static function verifyAndDecrypt(
+        string $ciphertext,
+        SignaturePublicKey $senderPublicKey,
+        SecretKey $givenSecretKey,
+        $encoding = Halite::ENCODE_BASE64URLSAFE
+    ): HiddenString {
+        if ($givenSecretKey instanceof SignatureSecretKey) {
+            $secretKey = $givenSecretKey->getEncryptionSecretKey();
+        } elseif ($givenSecretKey instanceof EncryptionSecretKey) {
+            $secretKey = $givenSecretKey;
+        } else {
+            throw new InvalidKey('An invalid key type was provided');
+        }
+        $unsealed = self::unseal($ciphertext, $secretKey, $encoding);
+        $signature = Binary::safeSubstr($unsealed->getString(), 0, SODIUM_CRYPTO_SIGN_BYTES);
+        $message = Binary::safeSubstr($unsealed->getString(), SODIUM_CRYPTO_SIGN_BYTES);
+        if (!self::verify($message, $senderPublicKey, $signature, true)) {
+            throw new InvalidSignature('Invalid signature for decrypted message');
+        }
+        return new HiddenString($message);
     }
 }

@@ -19,7 +19,7 @@ before_install:
 - cd libsodium
 - git checkout 1.0.15
 - ./autogen.sh
-- ./configure && make check
+- ./configure
 - sudo make install
 - cd ..
 - pecl install libsodium

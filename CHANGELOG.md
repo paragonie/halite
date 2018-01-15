@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 4.2.0 (2018-01-15)
+
+* Implemented `Asymmetric::signAndEncrypt()` and `Asymmetric::verifyAndDecrypt()`,
+  which facilitates the GPG use-case of signed-then-encrypted messages between
+  two parties' Ed25519 keypairs. Encryption is facilitated using birationally
+  equivalent X25519 keys.
+* Removed our in-house implementations of binary-safe `substr` and `strlen` in
+  favor of using the ones in the constant-time encoding library.
+
 ## Version 4.1.0 (2018-01-05)
 
 Added support for libsodium 1.0.15, which was previously broken in 4.0.x.

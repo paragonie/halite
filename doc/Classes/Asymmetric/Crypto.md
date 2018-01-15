@@ -84,3 +84,15 @@ Calculates a digital signature of `$message`, using [`sodium_crypto_sign()`](htt
 > `public` verify(`string $message`, [`SignaturePublicKey`](SignaturePublicKey.md) `$secretKey`, `string $signature`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `boolean`
 
 Does the signature match the contents of the message, for the given public key?
+
+### `signAndEncrypt()`
+
+> `public` signAndEncrypt(`HiddenString $message`, [`SignatureSecretKey`](SignatureSecretKey.md) `$secretKey`, [`PublicKey`](PublicKey.md) `$recipientPublicKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `string`
+
+Signs and encrypts a message. Note that a `SignaturePublicKey` or `EncryptionPublicKey`
+is acceptable for the third argument. This is intended to facilitate the GPG use-case.
+
+> `public` verifyAndDecrypt(`string $message`, [`SignaturePublicKey`](SignaturePublicKey.md) `$secretKey`, [`SecretKey`](SecretKey.md) `$mySecretKey`, `$encoding = Halite::ENCODE_BASE64URLSAFE`) : `HiddenString`
+
+Decrypts and verifies a message. Note that a `SignatureSecretKey` or `EncryptionSecretKey`
+is acceptable for the third argument. This is intended to facilitate the GPG use-case.

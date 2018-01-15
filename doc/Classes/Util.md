@@ -51,20 +51,6 @@ Returns a copy of a string without triggering PHP's optimizations. The
 string returned by this method can safely be used with `sodium_memzero()`
 without corrupting other copies of the same string.
 
-### `safeStrlen()`
-
-> `public static` safeStrlen(`string $str`): `int`
-
-Designed to withstand `mbstring.func_overload`, this function will always return
-the number of bytes in a string rather than UTF-8 characters.
-
-### `safeSubstr()`
-
-> `public static` safeSubstr(`string $str`, `int $start`, `int $length = null`): `string`
-
-Get a substring of raw binary data (immune to being broken by 
-`mbstring.func_overload`).
-
 ### `xorStrings()`
 
 > `public static` xorStrings(`string $left`, `string $right`): `string`

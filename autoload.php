@@ -30,7 +30,7 @@ if (\file_exists(__DIR__.'/vendor/autoload.php')) {
             ).'.php';
 
         // If the file exists, require it
-        if (\file_exists($file) && \strpos(realpath($file), $base_dir) === 0) {
+        if (\file_exists($file) && \strpos(\realpath($file), $base_dir) === 0) {
             require $file;
         }
     });

@@ -289,7 +289,7 @@ final class Crypto
      * @param HiddenString $message           Plaintext message to sign and encrypt
      * @param SignatureSecretKey $secretKey   Private signing key
      * @param PublicKey $recipientPublicKey   Public encryption key
-     * @param mixed $encoding                 Which encoding scheme to use?
+     * @param string|bool $encoding           Which encoding scheme to use?
      * @return string
      *
      * @throws CannotPerformOperation
@@ -425,7 +425,7 @@ final class Crypto
      * @param string $ciphertext                   Plaintext message to sign and encrypt
      * @param SignaturePublicKey $senderPublicKey  Private signing key
      * @param SecretKey $givenSecretKey            Public encryption key
-     * @param mixed $encoding                      Which encoding scheme to use?
+     * @param string|bool $encoding                Which encoding scheme to use?
      * @return HiddenString
      *
      * @throws CannotPerformOperation

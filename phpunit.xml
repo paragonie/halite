@@ -15,8 +15,7 @@
          processIsolation="false"
          stopOnError="false"
          stopOnFailure="false"
-         verbose="true"
-         bootstrap="tests/bootstrap.php">
+         verbose="true">
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>

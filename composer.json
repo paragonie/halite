@@ -46,7 +46,8 @@
         "vimeo/psalm": "^0|^1"
     },
     "scripts": {
-        "test": "./vendor/bin/phpunit"
+        "test": "./vendor/bin/phpunit",
+        "src": "./vendor/bin/psalm"
     },
     "config": {
         "preferred-install": "dist",

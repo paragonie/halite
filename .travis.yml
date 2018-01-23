@@ -5,6 +5,8 @@ php:
 os:
     - windows
     - linux
+allow_failures:
+    - nightly
 cache:
     directories:
         - vendor

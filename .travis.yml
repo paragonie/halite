@@ -5,14 +5,14 @@ php:
 os:
     - windows
     - linux
-allow_failures:
-    - nightly
 cache:
     directories:
         - vendor
         - $HOME/.cache/composer
 matrix:
     fast_finish: true
+    allow_failures:
+        - php: nightly
 sudo: false
 branches:
     only: master

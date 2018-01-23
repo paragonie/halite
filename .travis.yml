@@ -1,34 +1,38 @@
 language: php
-sudo: true
-dist: trusty
-
+php:
+    - 7.2
+    - nightly
+os:
+    - windows
+    - linux
+cache:
+    directories:
+        - vendor
+        - $HOME/.cache/composer
 matrix:
-  fast_finish: true
-  include:
-    - php: "7.2"
-    - php: "master"
-    - php: "nightly"
-  allow_failures:
-    - php: "master"
-    - php: "nightly"
-
+    fast_finish: true
+    allow_failures:
+        - php: nightly
+sudo: false
+branches:
+    only: master
+os:
+    - windows
+    - linux
 before_install:
-- sudo apt-get update
-- sudo apt-get install make build-essential automake
-- git clone git://github.com/jedisct1/libsodium.git
-- cd libsodium
-- git checkout 1.0.15
-- ./autogen.sh
-- ./configure
-- sudo make install
-- cd ..
-- pecl install libsodium
-
+    - git clone -b stable https://github.com/jedisct1/libsodium.git
+    - cd libsodium && sudo ./configure && sudo make check && sudo make install && cd ..
 install:
-
-- composer self-update
-- composer update
-
+    - pecl install libsodium
+    - echo "extension=sodium.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+    - travis_retry composer install --no-interaction
+before_script:
+    - mkdir -p build/logs
+    - ls -al
 script:
-- vendor/bin/phpunit
-- vendor/bin/psalm
+    - vendor/bin/phpunit
+    - vendor/bin/psalm
+notifications:
+    email:
+        on_success: never
+        on_failure: never

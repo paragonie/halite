@@ -21,7 +21,7 @@
         "Argon2i",
         "ext-sodium"
     ],
-    "description": "High-level cryptography interface powered by libsodium",
+    "description": "High-level cryptography interface powered by libsodium.",
     "homepage": "https://github.com/paragonie/halite",
     "license": "MPL-2.0",
     "authors": [

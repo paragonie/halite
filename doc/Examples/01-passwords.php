@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
-use \ParagonIE\Halite\HiddenString;
-use \ParagonIE\Halite\Password;
-use \ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\HiddenString;
+use ParagonIE\Halite\Password;
+use ParagonIE\Halite\KeyFactory;
 
 try {
     // First, manage the keys
-    if (!\file_exists('01-secret-key.txt')) {
+    if (!file_exists('01-secret-key.txt')) {
         $secretKey = KeyFactory::generateEncryptionKey();
         KeyFactory::save($secretKey, '01-secret-key.txt');
     } else {
@@ -22,7 +22,7 @@ try {
         echo 'Access DENIED!', "\n";
         exit(255);
     }
-} catch (\Throwable $ex) {
+} catch (Throwable $ex) {
     echo $ex->getMessage(), PHP_EOL;
     echo $ex->getTraceAsString(), PHP_EOL;
     exit(127);

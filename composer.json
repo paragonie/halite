@@ -28,7 +28,7 @@
         {
             "name": "Paragon Initiative Enterprises",
             "email": "info@paragonie.com",
-            "homepage": "https://paragonie.com",
+            "homepage": "https://paragonie.com"
         }
     ],
     "require": {

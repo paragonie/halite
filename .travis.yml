@@ -25,10 +25,19 @@ before_install:
 - pecl install libsodium
 
 install:
-
 - composer self-update
 - composer update
+- wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
+- chmod +x coveralls.phar
+- php coveralls.phar --version
+
+before_script:
+- mkdir -p build/logs
+- ls -al
 
 script:
-- vendor/bin/phpunit
+- vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 - vendor/bin/psalm
+
+after_success:
+- travis_retry php coveralls.phar -v

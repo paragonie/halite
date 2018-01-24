@@ -1,34 +1,37 @@
 language: php
 sudo: true
 dist: trusty
-
 matrix:
-  fast_finish: true
-  include:
-    - php: "7.2"
-    - php: "master"
-    - php: "nightly"
-  allow_failures:
-    - php: "master"
-    - php: "nightly"
-
+    fast_finish: true
+    include:
+        - php: "7.2"
+        - php: "master"
+        - php: "nightly"
+    allow_failures:
+        - php: "master"
+        - php: "nightly"
 before_install:
-- sudo apt-get update
-- sudo apt-get install make build-essential automake
-- git clone git://github.com/jedisct1/libsodium.git
-- cd libsodium
-- git checkout 1.0.15
-- ./autogen.sh
-- ./configure
-- sudo make install
-- cd ..
-- pecl install libsodium
-
-install:
-
-- composer self-update
-- composer update
-
+    - sudo apt-get update
+    - sudo apt-get install make build-essential automake
+    - git clone git://github.com/jedisct1/libsodium.git
+    - cd libsodium
+    - git checkout 1.0.15
+    - ./autogen.sh
+    - ./configure
+    - sudo make install
+    - cd ..
+    - pecl install libsodium
+before_script:
+    - mkdir -p build/logs
+    - ls -al
 script:
-- vendor/bin/phpunit
-- vendor/bin/psalm
+    - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+    - vendor/bin/psalm
+install:
+    - composer self-update
+    - composer update
+    - wget -c -nc --retry-connrefused --tries=0 https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
+    - chmod +x coveralls.phar
+    - php coveralls.phar --version
+
+

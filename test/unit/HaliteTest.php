@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class HaliteTest extends TestCase
+final class HaliteTest extends TestCase
 {
     public function testLibsodiumDetection()
     {
@@ -26,7 +26,7 @@ class HaliteTest extends TestCase
 
     public function testEncoding()
     {
-        $random_bytes = \random_bytes(31);
+        $random_bytes = random_bytes(31);
 
         // Backwards compatibility:
         $encoder = Halite::chooseEncoder(false);

@@ -2,12 +2,12 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidKey,
     InvalidType
 };
-use ParagonIE\Halite\Asymmetric\{
+use \ParagonIE\Halite\Asymmetric\{
     EncryptionPublicKey,
     EncryptionSecretKey
 };

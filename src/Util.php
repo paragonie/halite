@@ -126,7 +126,9 @@ final class Util
         }
         // "If [salt] not provided, is set to a string of HashLen zeroes."
         if (empty($salt)) {
+            // @codeCoverageIgnoreStart
             $salt = \str_repeat("\x00", \SODIUM_CRYPTO_GENERICHASH_KEYBYTES);
+            // @codeCoverageIgnoreEnd
         }
 
         // HKDF-Extract:
@@ -157,11 +159,13 @@ final class Util
         /** @var string $orm */
         $orm = Binary::safeSubstr($t, 0, $length);
 
+        // @codeCoverageIgnoreStart
         if (!\is_string($orm)) {
             throw new CannotPerformOperation(
                 'An unknown error has occurred'
             );
         }
+        // @codeCoverageIgnoreEnd
         return $orm;
     }
 

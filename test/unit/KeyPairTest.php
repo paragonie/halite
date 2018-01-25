@@ -193,6 +193,15 @@ final class KeyPairTest extends TestCase
             Hex::encode($second->getPublicKey()->getRawKeyMaterial()),
             'Public keys differ'
         );
+
+        try {
+            new SignatureKeyPair(
+                $signPublic,
+                $signPublic
+            );
+            $this->fail('Two public keys was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
     }
 
     /**

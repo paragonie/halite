@@ -8,6 +8,12 @@ use PHPUnit\Framework\TestCase;
 
 final class StreamTest extends TestCase
 {
+    /**
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testFileHash()
     {
         $filename = tempnam('/tmp', 'x');
@@ -25,14 +31,68 @@ final class StreamTest extends TestCase
         );
         fclose($fp);
     }
-    
+
+    /**
+     * @throws CryptoException\FileError
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
+    public function testUnreadableFile()
+    {
+        $filename = tempnam('/tmp', 'x');
+        $buf = random_bytes(65537);
+        file_put_contents($filename, $buf);
+        chmod($filename, 0000);
+
+        try {
+            new ReadOnlyFile($filename);
+            $this->fail('File should not be readable');
+        } catch (CryptoException\FileAccessDenied $ex) {
+            $this->assertSame('Could not open file for reading', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Stream\MutableFile($filename);
+            $this->fail('File should not be readable');
+        } catch (CryptoException\FileAccessDenied $ex) {
+            $this->assertSame('Could not open file for reading', $ex->getMessage());
+        }
+
+        chmod($filename, 0444);
+        try {
+            new \ParagonIE\Halite\Stream\MutableFile($filename);
+            $this->fail('File should not be writeable');
+        } catch (CryptoException\FileAccessDenied $ex) {
+            $this->assertSame('Could not open file for writing', $ex->getMessage());
+        }
+    }
+
+    public function testResource()
+    {
+        $filename = tempnam('/tmp', 'x');
+        $buf = random_bytes(65537);
+        file_put_contents($filename, $buf);
+
+        $file = \fopen($filename, 'rb');
+        $stream = new ReadOnlyFile($file);
+        $this->assertInstanceOf(ReadOnlyFile::class, $stream);
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
+     */
     public function testFileRead()
     {
         $filename = tempnam('/tmp', 'x');
         
         $buf = random_bytes(65537);
         file_put_contents($filename, $buf);
-        
+
         $fStream = new ReadOnlyFile($filename);
         
         $this->assertSame(

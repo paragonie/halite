@@ -42,12 +42,13 @@ final class SignatureKeyPair extends KeyPair
 
     /**
      * Pass it a secret key, it will automatically generate a public key
-     * 
+     *
      * @param array<int, Key> $keys
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(Key ...$keys)
     {

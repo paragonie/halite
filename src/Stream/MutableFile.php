@@ -59,6 +59,16 @@ class MutableFile implements StreamInterface
     public function __construct($file)
     {
         if (\is_string($file)) {
+            if (!\is_readable($file)) {
+                throw new FileAccessDenied(
+                    'Could not open file for reading'
+                );
+            }
+            if (!\is_writable($file)) {
+                throw new FileAccessDenied(
+                    'Could not open file for writing'
+                );
+            }
             $fp = \fopen($file, 'wb');
             if (!\is_resource($fp)) {
                 throw new FileAccessDenied(

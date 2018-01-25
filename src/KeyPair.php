@@ -53,6 +53,7 @@ class KeyPair
      * Get a Key object for the public key
      * 
      * @return PublicKey
+     * @codeCoverageIgnore
      */
     public function getPublicKey()
     {
@@ -63,6 +64,7 @@ class KeyPair
      * Get a Key object for the secret key
      * 
      * @return SecretKey
+     * @codeCoverageIgnore
      */
     public function getSecretKey()
     {

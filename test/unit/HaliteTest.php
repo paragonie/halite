@@ -11,10 +11,6 @@ use ParagonIE\ConstantTime\{
 use ParagonIE\Halite\Halite;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 final class HaliteTest extends TestCase
 {
     public function testLibsodiumDetection()

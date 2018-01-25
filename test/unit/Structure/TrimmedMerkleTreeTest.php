@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class TrimmedMerkleTreeTest extends TestCase
+final class TrimmedMerkleTreeTest extends TestCase
 {
 
     public function testExpectedBehavior()
@@ -132,7 +132,7 @@ class TrimmedMerkleTreeTest extends TestCase
             $treeB->getRoot()
         );
 
-        $personal = \random_bytes(32);
+        $personal = random_bytes(32);
         $treeA->setPersonalizationString($personal);
         $treeB->setPersonalizationString($personal);
         $this->assertSame(

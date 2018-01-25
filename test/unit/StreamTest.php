@@ -95,6 +95,8 @@ final class StreamTest extends TestCase
         }
 
         $writable = \fopen($filename, 'wb');
+        $wstream = new MutableFile($writable);
+        $this->assertInstanceOf(MutableFile::class, $wstream);
         try {
             new ReadOnlyFile($writable);
         } catch (CryptoException\FileAccessDenied $ex) {

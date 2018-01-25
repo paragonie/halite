@@ -45,6 +45,7 @@
         "vimeo/psalm": "^0|^1"
     },
     "config": {
+        "preferred-install": "dist",
         "optimize-autoloader": true
     },
     "minimum-stability": "stable",

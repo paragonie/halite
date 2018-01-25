@@ -4,13 +4,15 @@ declare(strict_types=1);
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Password;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
+use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\Alerts\InvalidMessage;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class PasswordTest extends TestCase
+final class PasswordTest extends TestCase
 {
     /**
      * @covers Password::hash()
@@ -25,10 +27,10 @@ class PasswordTest extends TestCase
      */
     public function testEncrypt()
     {
-        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
 
         $hash = Password::hash(new HiddenString('test password'), $key);
-        $this->assertTrue(\is_string($hash));
+        $this->assertTrue(is_string($hash));
 
         $this->assertTrue(
             Password::verify(
@@ -58,16 +60,16 @@ class PasswordTest extends TestCase
      */
     public function testEncryptWithAd()
     {
-        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         $aad = '{"userid":12}';
 
         $hash = Password::hash(
             new HiddenString('test password'),
             $key,
-            \ParagonIE\Halite\KeyFactory::INTERACTIVE,
+            KeyFactory::INTERACTIVE,
             $aad
         );
-        $this->assertTrue(\is_string($hash));
+        $this->assertTrue(is_string($hash));
 
         $this->assertTrue(
             Password::verify(
@@ -84,7 +86,7 @@ class PasswordTest extends TestCase
                 $key
             );
             $this->fail('AD did not change MAC');
-        } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
+        } catch (InvalidMessage $ex) {
             $this->assertSame(
                 'Invalid message authentication code',
                 $ex->getMessage()
@@ -110,7 +112,7 @@ class PasswordTest extends TestCase
      */
     public function testRehash()
     {
-        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
 
         try {
             // Sorry version 1, you get no love from us anymore.
@@ -120,7 +122,7 @@ class PasswordTest extends TestCase
                 'SLnKtpUTU_YoudA4vchbPh05YqexJKmV9PAEtTORzLN3eRiucIixaEJrm4T6rLRrqjMaaOCbUu8' .
                 'oPyA==';
             Password::needsRehash($legacyHash, $key);
-        } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
+        } catch (InvalidMessage $ex) {
             $this->assertSame(
                 'Invalid version tag',
                 $ex->getMessage()
@@ -134,7 +136,7 @@ class PasswordTest extends TestCase
                 'SLnKtpUTU_YoudA4vchbPh05YqexJKmV9PAEtTORzLN3eRiucIixaEJrm4T6rLRrqjMaaOCbUu8' .
                 'oPyB==';
             Password::needsRehash($legacyHash, $key);
-        } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
+        } catch (InvalidMessage $ex) {
             $this->assertSame(
                 'Invalid message authentication code',
                 $ex->getMessage()

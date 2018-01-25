@@ -8,13 +8,14 @@ use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Halite;
 use ParagonIE\Halite\HiddenString;
+use ParagonIE\Halite\Symmetric\Config;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class SymmetricTest extends TestCase
+final class SymmetricTest extends TestCase
 {
     /**
      * @covers Symmetric::authenticate()
@@ -22,7 +23,7 @@ class SymmetricTest extends TestCase
      */
     public function testAuthenticate()
     {
-        $key = new AuthenticationKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new AuthenticationKey(new HiddenString(str_repeat('A', 32)));
         $message = 'test message';
         $mac = Symmetric::authenticate($message, $key);
         $this->assertTrue(
@@ -36,7 +37,7 @@ class SymmetricTest extends TestCase
      */
     public function testAuthenticateFail()
     {
-        $key = new AuthenticationKey(new HiddenString(\str_repeat('A', 32), true));
+        $key = new AuthenticationKey(new HiddenString(str_repeat('A', 32), true));
         $message = 'test message';
         $mac = Symmetric::authenticate($message, $key, true);
         
@@ -45,11 +46,11 @@ class SymmetricTest extends TestCase
             Symmetric::verify('othermessage', $key, $mac, true)
         );
         
-        $r = random_int(0, \mb_strlen($mac, '8bit') - 1);
+        $r = random_int(0, mb_strlen($mac, '8bit') - 1);
         
         $_mac = $mac;
-        $_mac[$r] = \chr(
-            \ord($_mac[$r])
+        $_mac[$r] = chr(
+            ord($_mac[$r])
                 ^
             1 << random_int(0, 7)
         );
@@ -71,13 +72,13 @@ class SymmetricTest extends TestCase
      */
     public function testEncrypt()
     {
-        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         $message = Symmetric::encrypt(
             new HiddenString('test message'),
             $key
         );
         $this->assertSame(
-            \strpos($message, Halite::VERSION_PREFIX),
+            strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -91,14 +92,14 @@ class SymmetricTest extends TestCase
      */
     public function testEncryptWithAd()
     {
-        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         $message = Symmetric::encryptWithAd(
             new HiddenString('test message'),
             $key,
             'test'
         );
         $this->assertSame(
-            \strpos($message, Halite::VERSION_PREFIX),
+            strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -121,10 +122,10 @@ class SymmetricTest extends TestCase
      */
     public function testEncryptEmpty()
     {
-        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         $message = Symmetric::encrypt(new HiddenString(''), $key);
         $this->assertSame(
-            \strpos($message, Halite::VERSION_PREFIX),
+            strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -137,7 +138,7 @@ class SymmetricTest extends TestCase
      */
     public function testRawEncrypt()
     {
-        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         $message = Symmetric::encrypt(new HiddenString('test message'), $key, true);
         $this->assertTrue(strpos($message, Halite::HALITE_VERSION) === 0);
         
@@ -150,16 +151,16 @@ class SymmetricTest extends TestCase
      */
     public function testEncryptFail()
     {
-        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         $message = Symmetric::encrypt(
             new HiddenString('test message'),
             $key,
             true
         );
 
-        $r = random_int(0, \mb_strlen($message, '8bit') - 1);
-        $message[$r] = \chr(
-            \ord($message[$r])
+        $r = random_int(0, mb_strlen($message, '8bit') - 1);
+        $message[$r] = chr(
+            ord($message[$r])
                 ^
             1 << random_int(0, 7)
         );
@@ -179,11 +180,11 @@ class SymmetricTest extends TestCase
      */
     public function testUnpack()
     {
-        $key = new EncryptionKey(new HiddenString(\str_repeat('A', 32)));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         
         // Randomly sized plaintext
         $size = random_int(1, 1024);
-        $plaintext = \random_bytes($size);
+        $plaintext = random_bytes($size);
         $message = Symmetric::encrypt(
             new HiddenString($plaintext),
             $key,
@@ -195,9 +196,9 @@ class SymmetricTest extends TestCase
         
         // Now to test our expected results!
         $this->assertSame(Binary::safeStrlen($unpacked[0]), Halite::VERSION_TAG_LEN);
-        $this->assertTrue($unpacked[1] instanceof \ParagonIE\Halite\Symmetric\Config);
+        $this->assertTrue($unpacked[1] instanceof Config);
         $config = $unpacked[1];
-        if ($config instanceof \ParagonIE\Halite\Symmetric\Config) {
+        if ($config instanceof Config) {
             $this->assertSame(Binary::safeStrlen($unpacked[2]), $config->HKDF_SALT_LEN);
             $this->assertSame(Binary::safeStrlen($unpacked[3]), SODIUM_CRYPTO_STREAM_NONCEBYTES);
             $this->assertSame(

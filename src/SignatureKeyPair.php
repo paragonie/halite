@@ -68,19 +68,23 @@ final class SignatureKeyPair extends KeyPair
                         );
                     }
                     $this->setupKeyPair(
+                        // @codeCoverageIgnoreStart
                         $keys[1] instanceof SignatureSecretKey
                             ? $keys[1]
                             : new SignatureSecretKey(
                                 new HiddenString($keys[1]->getRawKeyMaterial())
                             )
+                        // @codeCoverageIgnoreEnd
                     );
                 } elseif ($keys[1]->isPublicKey()) {
                     $this->setupKeyPair(
+                    // @codeCoverageIgnoreStart
                         $keys[0] instanceof SignatureSecretKey
                             ? $keys[0]
                             : new SignatureSecretKey(
                                 new HiddenString($keys[0]->getRawKeyMaterial())
                             )
+                    // @codeCoverageIgnoreEnd
                     );
                 } else {
                     throw new InvalidKey(

@@ -167,6 +167,7 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidKey
      */
     public function testSignatureKeyPair()
@@ -191,6 +192,39 @@ final class KeyPairTest extends TestCase
             Hex::encode($second->getPublicKey()->getRawKeyMaterial()),
             'Public keys differ'
         );
+
+        $third = new SignatureKeyPair(
+            $signSecret,
+            $signPublic
+        );
+        $this->assertSame(
+            Hex::encode($signSecret->getRawKeyMaterial()),
+            Hex::encode($third->getSecretKey()->getRawKeyMaterial()),
+            'Secret keys differ'
+        );
+        $this->assertSame(
+            Hex::encode($signPublic->getRawKeyMaterial()),
+            Hex::encode($third->getPublicKey()->getRawKeyMaterial()),
+            'Public keys differ'
+        );
+
+        try {
+            new SignatureKeyPair(
+                $signSecret,
+                KeyFactory::generateAuthenticationKey()
+            );
+            $this->fail('Symmetric key was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+
+        try {
+            new SignatureKeyPair(
+                $signSecret,
+                $signSecret
+            );
+            $this->fail('Two secret keys was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
 
         try {
             new SignatureKeyPair(

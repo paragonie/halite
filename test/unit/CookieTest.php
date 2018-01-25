@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\Halite\{
-    Symmetric\EncryptionKey;
-    HiddenString;
-    Cookie;
+    Symmetric\EncryptionKey,
+    HiddenString,
+    Cookie
 };
 use PHPUnit\Framework\TestCase;
 

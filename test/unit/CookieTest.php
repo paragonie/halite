@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use ParagonIE\ConstantTime\Base64UrlSafe
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\Halite\{
     Symmetric\EncryptionKey;
     HiddenString;

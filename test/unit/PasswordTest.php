@@ -8,17 +8,9 @@ use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Alerts\InvalidMessage;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 final class PasswordTest extends TestCase
 {
     /**
-     * @covers Password::hash()
-     * @covers Password::verify()
-     *
-     *
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
      * @throws \ParagonIE\Halite\Alerts\InvalidMessage
@@ -50,8 +42,6 @@ final class PasswordTest extends TestCase
     }
 
     /**
-     * @covers Password::hash()
-     *
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
      * @throws \ParagonIE\Halite\Alerts\InvalidMessage

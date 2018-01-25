@@ -6,10 +6,6 @@ use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Stream\ReadOnlyFile;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 final class StreamTest extends TestCase
 {
     public function testFileHash()

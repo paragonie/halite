@@ -108,11 +108,13 @@ final class SignatureKeyPair extends KeyPair
                     );
                 }
                 $this->setupKeyPair(
+                // @codeCoverageIgnoreStart
                     $keys[0] instanceof SignatureSecretKey
                         ? $keys[0]
                         : new SignatureSecretKey(
                             new HiddenString($keys[0]->getRawKeyMaterial())
                         )
+                // @codeCoverageIgnoreEnd
                 );
                 break;
             default:

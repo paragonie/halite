@@ -25,7 +25,12 @@
             </exclude>
         </whitelist>
     </filter>
-    <testsuite>
-        <directory suffix="Test.php">./test/unit</directory>
+    <logging>
+        <log type="coverage-clover" target="./build/logs/clover.xml"/>
+    </logging>
+    <testsuites>
+        <testsuite>
+            <directory suffix="Test.php">./test/unit</directory>
+        </testsuite>
     </testsuite>
 </phpunit>

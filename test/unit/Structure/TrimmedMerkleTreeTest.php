@@ -49,8 +49,8 @@ final class TrimmedMerkleTreeTest extends TestCase
             new Node('e')
         );
         $this->assertSame(
-            \get_class($treeB),
-            \get_class($treeC)
+            get_class($treeB),
+            get_class($treeC)
         );
         $this->assertSame(
             $treeB->getRoot(),

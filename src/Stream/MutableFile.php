@@ -2,9 +2,9 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
-use ParagonIE\ConstantTime\Binary;
-use ParagonIE\Halite\Contract\StreamInterface;
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\ConstantTime\Binary;
+use \ParagonIE\Halite\Contract\StreamInterface;
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     FileAccessDenied,
     InvalidType
@@ -66,7 +66,7 @@ class MutableFile implements StreamInterface
                 );
             }
             $this->fp = $fp;
-            $this->closeAfter = true;
+            $this->closeAfter = \true;
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
         } elseif (\is_resource($file)) {
@@ -86,7 +86,7 @@ class MutableFile implements StreamInterface
     public function close(): void
     {
         if ($this->closeAfter) {
-            $this->closeAfter = false;
+            $this->closeAfter = \false;
             \fclose($this->fp);
             \clearstatcache();
         }
@@ -190,7 +190,7 @@ class MutableFile implements StreamInterface
     {
         $this->pos = $i;
         if (\fseek($this->fp, $i, SEEK_SET) === 0) {
-            return true;
+            return \true;
         }
         throw new CannotPerformOperation(
             'fseek() failed'
@@ -211,7 +211,7 @@ class MutableFile implements StreamInterface
     public function writeBytes(string $buf, int $num = null): int
     {
         $bufSize = Binary::safeStrlen($buf);
-        if ($num === null || $num > $bufSize) {
+        if ($num === \null || $num > $bufSize) {
             $num = $bufSize;
         }
         if ($num < 0) {
@@ -223,12 +223,12 @@ class MutableFile implements StreamInterface
                 break;
             }
             $written = \fwrite($this->fp, $buf, $remaining);
-            if ($written === false) {
+            if ($written === \false) {
                 throw new FileAccessDenied(
                     'Could not write to the file'
                 );
             }
-            $buf = Binary::safeSubstr($buf, $written, null);
+            $buf = Binary::safeSubstr($buf, $written, \null);
             $this->pos += $written;
             $this->stat = \fstat($this->fp);
             $remaining -= $written;

@@ -8,10 +8,6 @@ use ParagonIE\Halite\Structure\{
 };
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 final class TrimmedMerkleTreeTest extends TestCase
 {
 

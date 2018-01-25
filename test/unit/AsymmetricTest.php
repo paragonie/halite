@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  * @backupGlobals disabled
  * @backupStaticAttributes disabled
  */
-class AsymmetricTest extends TestCase
+final class AsymmetricTest extends TestCase
 {
     /**
      * @covers Asymmetric::encrypt()
@@ -40,7 +40,7 @@ class AsymmetricTest extends TestCase
             $bob->getPublicKey()
         );
         $this->assertSame(
-            \strpos($message, Halite::VERSION_PREFIX),
+            strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -69,7 +69,7 @@ class AsymmetricTest extends TestCase
         $alice = KeyFactory::generateEncryptionKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
 
-        $random = \random_bytes(32);
+        $random = random_bytes(32);
 
         $message = Asymmetric::encryptWithAd(
             new HiddenString('test message'),
@@ -78,7 +78,7 @@ class AsymmetricTest extends TestCase
             $random
         );
         $this->assertSame(
-            \strpos($message, Halite::VERSION_PREFIX),
+            strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -143,7 +143,7 @@ class AsymmetricTest extends TestCase
         );
 
         $this->assertSame(
-            \strpos($message, Halite::VERSION_PREFIX),
+            strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -171,9 +171,9 @@ class AsymmetricTest extends TestCase
             $bob->getPublicKey(),
             true
         );
-        $r = random_int(0, \mb_strlen($message, '8bit') - 1);
+        $r = random_int(0, mb_strlen($message, '8bit') - 1);
         $amt = random_int(0, 7);
-        $message[$r] = \chr(\ord($message[$r]) ^ 1 << $amt);
+        $message[$r] = chr(ord($message[$r]) ^ 1 << $amt);
         
         try {
             $plain = Asymmetric::decrypt(
@@ -272,9 +272,9 @@ class AsymmetricTest extends TestCase
         $sealed = Asymmetric::seal($message, $alice->getPublicKey(), true);
         
         // Let's flip one bit, randomly:
-        $r = random_int(0, \mb_strlen($sealed, '8bit') - 1);
+        $r = random_int(0, mb_strlen($sealed, '8bit') - 1);
         $amt = 1 << random_int(0, 7);
-        $sealed[$r] = \chr(\ord($sealed[$r]) ^ $amt);
+        $sealed[$r] = chr(ord($sealed[$r]) ^ $amt);
         
         // This should throw an exception
         try {
@@ -419,9 +419,9 @@ class AsymmetricTest extends TestCase
         
         $_signature = $signature;
         // Let's flip one bit, randomly:
-        $r = random_int(0, \mb_strlen($_signature, '8bit') - 1);
-        $_signature[$r] = \chr(
-            \ord($_signature[$r])
+        $r = random_int(0, mb_strlen($_signature, '8bit') - 1);
+        $_signature[$r] = chr(
+            ord($_signature[$r])
                 ^
             1 << random_int(0, 7)
         );

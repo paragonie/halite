@@ -555,6 +555,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadAuthenticationKey(string $filePath): AuthenticationKey
     {
@@ -577,6 +578,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadEncryptionKey(string $filePath): EncryptionKey
     {
@@ -599,6 +601,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadEncryptionPublicKey(string $filePath): EncryptionPublicKey
     {
@@ -621,6 +624,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadEncryptionSecretKey(string $filePath): EncryptionSecretKey
     {
@@ -643,6 +647,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadSignaturePublicKey(string $filePath): SignaturePublicKey
     {
@@ -665,6 +670,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadSignatureSecretKey(string $filePath): SignatureSecretKey
     {
@@ -688,6 +694,7 @@ final class KeyFactory
      * @throws InvalidKey
      * @throws InvalidType
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadEncryptionKeyPair(string $filePath): EncryptionKeyPair
     {
@@ -712,6 +719,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadSignatureKeyPair(string $filePath): SignatureKeyPair
     {
@@ -756,7 +764,9 @@ final class KeyFactory
                 )
             );
         }
+        // @codeCoverageIgnoreStart
         throw new \TypeError('Expected a Key.');
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -791,9 +801,11 @@ final class KeyFactory
     {
         $fileData = \file_get_contents($filePath);
         if ($fileData === false) {
+            // @codeCoverageIgnoreStart
             throw new CannotPerformOperation(
                 'Cannot load key from file: '. $filePath
             );
+            // @codeCoverageIgnoreEnd
         }
         $data = Hex::decode($fileData);
         \sodium_memzero($fileData);
@@ -830,9 +842,11 @@ final class KeyFactory
             \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
         if (!\hash_equals($calc, $checksum)) {
+            // @codeCoverageIgnoreStart
             throw new InvalidKey(
                 'Checksum validation fail'
             );
+            // @codeCoverageIgnoreEnd
         }
         \sodium_memzero($data);
         \sodium_memzero($versionTag);

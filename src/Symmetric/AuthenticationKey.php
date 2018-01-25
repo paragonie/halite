@@ -2,13 +2,13 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
-use ParagonIE\ConstantTime\Binary;
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\ConstantTime\Binary;
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidKey,
     InvalidType
 };
-use ParagonIE\Halite\HiddenString;
+use \ParagonIE\Halite\HiddenString;
 
 /**
  * Class AuthenticationKey
@@ -35,6 +35,6 @@ final class AuthenticationKey extends SecretKey
             );
         }
         parent::__construct($keyMaterial);
-        $this->isSigningKey = true;
+        $this->isSigningKey = \true;
     }
 }

@@ -95,8 +95,9 @@ class ReadOnlyFile implements StreamInterface
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
         } elseif (\is_resource($file)) {
+            /** @var array<string, string> $metadata */
             $metadata = \stream_get_meta_data($file);
-            if (!\in_array($metadata['mode'], static::ALLOWED_MODES, true)) {
+            if (!\in_array($metadata['mode'], self::ALLOWED_MODES, true)) {
                 throw new FileAccessDenied(
                     'Resource is in ' . $metadata['mode'] . ' mode, which is not allowed.'
                 );

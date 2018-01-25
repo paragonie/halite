@@ -15,7 +15,9 @@
         <directory>./src</directory>
         <exclude>
             <directory>./vendor</directory>
-            <directory>./tests</directory>
+            <directory>./stub</directory>
+            <directory>./test</directory>
+            <directory>./doc</directory>
         </exclude>
     </filter>
 </phpunit>

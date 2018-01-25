@@ -32,7 +32,7 @@ install:
 - php coveralls.phar --version
 
 script:
-- vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+- ./vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 - vendor/bin/psalm
 
 after_success:

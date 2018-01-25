@@ -11,13 +11,15 @@
         <directory suffix="Test.php">test/unit</directory>
     </testsuite>
     <filter>
-        <directory>./src</directory>
-        <exclude>
-            <directory>./libsodium</directory>
-            <directory>./vendor</directory>
-            <directory>./stub</directory>
-            <directory>./test</directory>
-            <directory>./doc</directory>
-        </exclude>
+        <whitelist>
+            <directory>./src</directory>
+            <exclude>
+                <directory>./libsodium</directory>
+                <directory>./vendor</directory>
+                <directory>./stub</directory>
+                <directory>./test</directory>
+                <directory>./doc</directory>
+            </exclude>
+        </whitelist>
     </filter>
 </phpunit>

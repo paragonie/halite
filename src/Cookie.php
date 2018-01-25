@@ -7,17 +7,15 @@ use \ParagonIE\ConstantTime\{
     Binary,
     Hex
 };
-use \ParagonIE\Halite\Alerts\{
-    CannotPerformOperation,
-    InvalidDigestLength,
-    InvalidMessage,
-    InvalidSignature,
-    InvalidType
-};
-use \ParagonIE\Halite\Symmetric\{
-    Config as SymmetricConfig,
-    Crypto,
-    EncryptionKey
+use \ParagonIE\Halite\{
+    Alerts\CannotPerformOperation,
+    Alerts\InvalidDigestLength,
+    Alerts\InvalidMessage,
+    Alerts\InvalidSignature,
+    Alerts\InvalidType,
+    Symmetric\Config as SymmetricConfig,
+    Symmetric\Crypto,
+    Symmetric\EncryptionKey
 };
 
 /**

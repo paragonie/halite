@@ -48,6 +48,7 @@ final class File
      * Don't allow this to be instantiated.
      *
      * @throws \Error
+     * @codeCoverageIgnore
      */
     final private function __construct()
     {
@@ -412,8 +413,10 @@ final class File
                 /** @var int $amount_to_read */
                 $amount_to_read = ($size - $fileStream->getPos());
             } else {
+                // @codeCoverageIgnoreStart
                 /** @var int $amount_to_read */
                 $amount_to_read = (int) $config->BUFFER;
+                // @codeCoverageIgnoreEnd
             }
             $read = $fileStream->readBytes($amount_to_read);
             \sodium_crypto_generichash_update($state, $read);
@@ -436,8 +439,6 @@ final class File
     }
 
     /**
-     * Encrypt the contents of a file.
-     *
      * @param ReadOnlyFile $input
      * @param MutableFile $output
      * @param EncryptionKey $key
@@ -448,6 +449,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
@@ -460,12 +462,14 @@ final class File
         $config = self::getConfig(Halite::HALITE_VERSION_FILE, 'encrypt');
 
         // Generate a nonce and HKDF salt
+        // @codeCoverageIgnoreStart
         try {
             $firstNonce = \random_bytes((int) $config->NONCE_BYTES);
             $hkdfSalt = \random_bytes((int) $config->HKDF_SALT_LEN);
         } catch (\Throwable $ex) {
             throw new CannotPerformOperation($ex->getMessage());
         }
+        // @codeCoverageIgnoreEnd
 
         // Let's split our key
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
@@ -518,6 +522,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
@@ -623,9 +628,11 @@ final class File
 
         // Calculate the shared secret key
         $sharedSecretKey = AsymmetricCrypto::getSharedSecret($ephSecret, $publicKey, true);
+        // @codeCoverageIgnoreStart
         if (!($sharedSecretKey instanceof EncryptionKey)) {
-            throw new \TypeError();
+            throw new \TypeError('Shared secret is the wrong key type.');
         }
+        // @codeCoverageIgnoreEnd
 
         // Destroy the secret key after we have the shared secret
         unset($ephSecret);
@@ -757,9 +764,11 @@ final class File
             $ephemeral,
             true
         );
-        if (!($key instanceof Key)) {
+        // @codeCoverageIgnoreStart
+        if (!($key instanceof EncryptionKey)) {
             throw new \TypeError();
         }
+        // @codeCoverageIgnoreEnd
         unset($ephemeral);
 
         /**
@@ -884,9 +893,11 @@ final class File
         string $mode = 'encrypt'
     ): Config {
         if (\ord($header[0]) !== 49 || \ord($header[1]) !== 65) {
+            // @codeCoverageIgnoreStart
             throw new InvalidMessage(
                 'Invalid version tag'
             );
+            // @codeCoverageIgnoreEnd
         }
         $major = \ord($header[2]);
         $minor = \ord($header[3]);
@@ -944,9 +955,11 @@ final class File
             }
         }
         // If we reach here, we've got an invalid version tag:
+        // @codeCoverageIgnoreStart
         throw new InvalidMessage(
             'Invalid version tag'
         );
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -986,9 +999,11 @@ final class File
                     ];
             }
         }
+        // @codeCoverageIgnoreStart
         throw new InvalidMessage(
             'Invalid version tag'
         );
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -1011,9 +1026,11 @@ final class File
                     ];
             }
         }
+        // @codeCoverageIgnoreStart
         throw new InvalidMessage(
             'Invalid version tag'
         );
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -1100,9 +1117,11 @@ final class File
 
         // Check that our input file was not modified before we MAC it
         if (!\hash_equals($input->getHash(), $initHash)) {
+            // @codeCoverageIgnoreStart
             throw new FileModified(
                 'Read-only file has been modified since it was opened for reading'
             );
+            // @codeCoverageIgnoreEnd
         }
         $written += $output->writeBytes(
             \sodium_crypto_generichash_final($mac, (int) $config->MAC_SIZE),
@@ -1165,18 +1184,22 @@ final class File
             $calc = \sodium_crypto_generichash_final($calcMAC, (int) $config->MAC_SIZE);
 
             if (empty($chunk_macs)) {
+                // @codeCoverageIgnoreStart
                 // Someone attempted to add a chunk at the end.
                 throw new InvalidMessage(
                     'Invalid message authentication code'
                 );
+                // @codeCoverageIgnoreEnd
             } else {
                 /** @var string $chunkMAC */
                 $chunkMAC = \array_shift($chunk_macs);
                 if (!\hash_equals($chunkMAC, $calc)) {
                     // This chunk was altered after the original MAC was verified
+                    // @codeCoverageIgnoreStart
                     throw new InvalidMessage(
                         'Invalid message authentication code'
                     );
+                    // @codeCoverageIgnoreEnd
                 }
             }
 
@@ -1234,7 +1257,9 @@ final class File
                 $break = true;
                 $read = $input->readBytes($cipher_end - $input->getPos());
             } else {
+                // @codeCoverageIgnoreStart
                 $read = $input->readBytes((int) $config->BUFFER);
+                // @codeCoverageIgnoreEnd
             }
 
             /**

@@ -7,6 +7,33 @@ use PHPUnit\Framework\TestCase;
 
 final class HiddenStringTest extends TestCase
 {
+    /**
+     * @throws TypeError
+     */
+    public function testEquals()
+    {
+        $A = new HiddenString(Base64UrlSafe::encode(random_bytes(32)));
+        $B = new HiddenString(Base64UrlSafe::encode(random_bytes(32)));
+        $C = new HiddenString($A->getString());
+        $D = new HiddenString($B->getString());
+
+        $this->assertFalse($A->equals($B));
+        $this->assertTrue($A->equals($C));
+        $this->assertFalse($A->equals($D));
+        $this->assertFalse($B->equals($A));
+        $this->assertFalse($B->equals($C));
+        $this->assertTrue($B->equals($D));
+        $this->assertTrue($C->equals($A));
+        $this->assertFalse($C->equals($B));
+        $this->assertFalse($C->equals($D));
+        $this->assertFalse($D->equals($A));
+        $this->assertTrue($D->equals($B));
+        $this->assertFalse($D->equals($C));
+    }
+
+    /**
+     * @throws TypeError
+     */
     public function testRandomString()
     {
         $str = Base64UrlSafe::encode(random_bytes(32));

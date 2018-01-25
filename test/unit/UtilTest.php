@@ -47,10 +47,18 @@ final class UtilTest extends TestCase
         );
     }
 
-    public function testIntArrayToSring()
+    public function testIntArrayToString()
     {
         $this->assertSame("\x00\x01\x03\x04", Util::intArrayToString([0,1,3,4]), 'Unexpected result');
         $this->assertSame("\x00\x01\x03\x04", Util::intArrayToString([256,257,259,260]), 'Masking failed');
+    }
+
+    /**
+     * @throws TypeError
+     */
+    public function testStringToIntArray()
+    {
+        $this->assertSame([0,1,3,4], Util::stringToIntArray("\x00\x01\x03\x04"), 'Unexpected result');
     }
 
     /**

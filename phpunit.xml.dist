@@ -23,7 +23,7 @@
             </exclude>
         </whitelist>
     </filter>
-    <testsuite name="Paragonie/Halite Test Suite">
+    <testsuite>
         <directory suffix="Test.php">./test/unit</directory>
     </testsuite>
 </phpunit>

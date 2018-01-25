@@ -32,6 +32,8 @@ final class StreamTest extends TestCase
             $fileOne->getHash(),
             $fileTwo->getHash()
         );
+        $this->assertSame(65537, $fileOne->getSize());
+
         fclose($fp);
     }
 
@@ -94,14 +96,14 @@ final class StreamTest extends TestCase
             );
         }
 
-        $writable = \fopen($filename, 'wb');
+        $writable = \fopen($filename, 'w+b');
         $wstream = new MutableFile($writable);
         $this->assertInstanceOf(MutableFile::class, $wstream);
         try {
             new ReadOnlyFile($writable);
         } catch (CryptoException\FileAccessDenied $ex) {
             $this->assertSame(
-                'Resource is in wb mode, which is not allowed.',
+                'Resource is in w+b mode, which is not allowed.',
                 $ex->getMessage()
             );
         }
@@ -141,6 +143,17 @@ final class StreamTest extends TestCase
             $buf
         );
         $fStream->reset(0);
+
+        try {
+            $fStream->readBytes(-1);
+            $this->fail('Allowed to read -1 bytes');
+        } catch (CryptoException\CannotPerformOperation $ex) {
+        }
+        try {
+            $fStream->readBytes(65538);
+            $this->fail('Allowed to read more bytes than the file contains');
+        } catch (CryptoException\CannotPerformOperation $ex) {
+        }
         
         file_put_contents(
             $filename,
@@ -154,6 +167,17 @@ final class StreamTest extends TestCase
             $this->assertTrue(
                 $ex instanceof CryptoException\FileModified
             );
+        }
+        foreach ([255, 65537] as $size) {
+            $buffer = random_bytes($size);
+            $fileWrite = tempnam('/tmp', 'x');
+            $mStream = new MutableFile($fileWrite);
+            $mStream->writeBytes($buffer);
+            $mStream->reset(0);
+
+            $this->assertSame(0, $mStream->getPos());
+            $this->assertSame($size, $mStream->getSize());
+            $this->assertSame(bin2hex($buffer), bin2hex($mStream->readBytes($size)));
         }
     }
 }

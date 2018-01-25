@@ -28,7 +28,7 @@ use ParagonIE\Halite\Alerts\{
  */
 class MutableFile implements StreamInterface
 {
-    const ALLOWED_MODES = ['r+b', 'wb', 'w+b', 'cb', 'c+b'];
+    const ALLOWED_MODES = ['r+b', 'w+b', 'cb', 'c+b'];
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
 
     /**
@@ -70,7 +70,7 @@ class MutableFile implements StreamInterface
                     'Could not open file for writing'
                 );
             }
-            $fp = \fopen($file, 'wb');
+            $fp = \fopen($file, 'w+b');
             // @codeCoverageIgnoreStart
             if (!\is_resource($fp)) {
                 throw new FileAccessDenied(
@@ -166,8 +166,10 @@ class MutableFile implements StreamInterface
             if ($remaining <= 0) {
                 break;
             }
+            /** @var int $bufSize */
+            $bufSize = \min($remaining, self::CHUNK);
             /** @var string $read */
-            $read = \fread($this->fp, $remaining);
+            $read = \fread($this->fp, $bufSize);
             if (!\is_string($read)) {
                 throw new FileAccessDenied(
                     'Could not read from the file'

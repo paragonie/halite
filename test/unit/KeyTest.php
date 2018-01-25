@@ -480,11 +480,37 @@ class KeyTest extends TestCase
             new \ParagonIE\Halite\Symmetric\AuthenticationKey(new HiddenString(''));
             $this->fail('Invalid key size accepted');
         } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Authentication key must be CRYPTO_AUTH_KEYBYTES bytes long', $ex->getMessage());
         }
         try {
             new \ParagonIE\Halite\Symmetric\EncryptionKey(new HiddenString(''));
             $this->fail('Invalid key size accepted');
         } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Encryption key must be CRYPTO_STREAM_KEYBYTES bytes long', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Asymmetric\EncryptionSecretKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES bytes long', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Encryption public key must be CRYPTO_BOX_PUBLICKEYBYTES bytes long', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Asymmetric\SignatureSecretKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES bytes long', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Asymmetric\SignaturePublicKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Signature public key must be CRYPTO_SIGN_PUBLICKEYBYTES bytes long', $ex->getMessage());
         }
     }
 }

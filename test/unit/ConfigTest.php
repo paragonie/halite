@@ -28,26 +28,31 @@ class ConfigTest extends TestCase
             $config = SymmetricConfig::getConfig('');
             $this->fail('Invalid header allowed');
         } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
+            $this->assertSame('Invalid version tag', $ex->getMessage());
         }
         try {
             $config = SymmetricConfig::getConfig('abcd');
             $this->fail('Invalid header allowed');
         } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
+            $this->assertSame('Invalid version tag', $ex->getMessage());
         }
         try {
             $config = SymmetricConfig::getConfig("\x31\x42\x00\x00", 'seal');
             $this->fail('Invalid mode allowed');
         } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
+            $this->assertSame('Invalid configuration mode: seal', $ex->getMessage());
         }
         try {
             $config = SymmetricConfig::getConfigEncrypt(1, 0);
             $this->fail('Unsupported mode allowed');
         } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
+            $this->assertSame('Invalid version tag', $ex->getMessage());
         }
         try {
             $config = SymmetricConfig::getConfigAuth(1, 0);
             $this->fail('Unsupported mode allowed');
         } catch (\ParagonIE\Halite\Alerts\InvalidMessage $ex) {
+            $this->assertSame('Invalid version tag', $ex->getMessage());
         }
     }
 }

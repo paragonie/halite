@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use ParagonIE\Halite\Alerts\CannotPerformOperation;
+use ParagonIE\Halite\Alerts\InvalidDigestLength;
 use ParagonIE\Halite\Util;
 use ParagonIE\Halite\Alerts\InvalidType;
 use PHPUnit\Framework\TestCase;
@@ -19,11 +20,16 @@ final class UtilTest extends TestCase
 {
     /**
      * @expectedException \Error
+     *
+     * @throws Error
+     * @throws InvalidType
      */
     public function testConstructorFail()
     {
         // Please ignore IDE errors here.
+        /** @noinspection Annotator */
         $x = new Util();
+        $this->assertSame('', $x::xorStrings('', ''));
     }
 
     public function testChrToInt()
@@ -49,6 +55,8 @@ final class UtilTest extends TestCase
 
     /**
      * BLAKE2b hash
+     *
+     * @throws CannotPerformOperation
      */
     public function testHash()
     {
@@ -66,6 +74,8 @@ final class UtilTest extends TestCase
 
     /**
      * BLAKE2b hash
+     *
+     * @throws CannotPerformOperation
      */
     public function testKeyedHash()
     {
@@ -84,6 +94,10 @@ final class UtilTest extends TestCase
 
     /**
      * Test our HKDF-esque construct built atop BLAKE2b
+     *
+     * @throws CannotPerformOperation
+     * @throws TypeError
+     * @throws InvalidDigestLength
      */
     public function testBlake2bKDF()
     {
@@ -122,6 +136,8 @@ final class UtilTest extends TestCase
 
     /**
      * Verify that safeStrcpy() doesn't fall prey to interned strings.
+     *
+     * @throws TypeError
      */
     public function testSafeStrcpy()
     {
@@ -134,6 +150,8 @@ final class UtilTest extends TestCase
 
     /**
      * Verify that xorStrings() produces the expected result.
+     *
+     * @throws InvalidType
      */
     public function testXorStrings()
     {

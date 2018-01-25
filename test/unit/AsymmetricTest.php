@@ -12,16 +12,9 @@ use ParagonIE\Halite\Halite;
 use ParagonIE\Halite\HiddenString;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 final class AsymmetricTest extends TestCase
 {
     /**
-     * @covers Asymmetric::encrypt()
-     * @covers Asymmetric::decrypt()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidMessage
@@ -54,9 +47,6 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::encryptWithAd()
-     * @covers Asymmetric::decryptWithAd()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidMessage
@@ -121,9 +111,6 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::encrypt()
-     * @covers Asymmetric::decrypt()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidMessage
@@ -192,9 +179,6 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::seal()
-     * @covers Asymmetric::unseal()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
@@ -251,9 +235,6 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::seal()
-     * @covers Asymmetric::unseal()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidType
      */
@@ -291,9 +272,6 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::sign()
-     * @covers Asymmetric::verify()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
@@ -313,9 +291,6 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::signAndEncrypt()
-     * @covers Asymmetric::verifyAndDecrypt()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
@@ -354,9 +329,6 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::signAndEncrypt()
-     * @covers Asymmetric::verifyAndDecrypt()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidKey
@@ -394,9 +366,6 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::sign()
-     * @covers Asymmetric::verify()
-     *
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
      * @throws TypeError

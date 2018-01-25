@@ -82,11 +82,13 @@ class ReadOnlyFile implements StreamInterface
                 );
             }
             $fp = \fopen($file, 'rb');
+            // @codeCoverageIgnoreStart
             if (!\is_resource($fp)) {
                 throw new FileAccessDenied(
                     'Could not open file for reading'
                 );
             }
+            // @codeCoverageIgnoreEnd
             $this->fp = $fp;
 
             $this->closeAfter = true;
@@ -107,9 +109,11 @@ class ReadOnlyFile implements StreamInterface
                 'Argument 1: Expected a filename or resource'
             );
         }
-        $this->hashKey = !empty($key) 
+        // @codeCoverageIgnoreStart
+        $this->hashKey = !empty($key)
             ? $key->getRawKeyMaterial()
             : '';
+        // @codeCoverageIgnoreEnd
         $this->hash = $this->getHash();
     }
 
@@ -157,7 +161,9 @@ class ReadOnlyFile implements StreamInterface
                 $c = \fread($this->fp, self::CHUNK);
             }
             if (!\is_string($c)) {
+                // @codeCoverageIgnoreStart
                 throw new FileError('Could not read file');
+                // @codeCoverageIgnoreEnd
             }
             \sodium_crypto_generichash_update($h, $c);
         }
@@ -218,14 +224,18 @@ class ReadOnlyFile implements StreamInterface
         }
         do {
             if ($remaining <= 0) {
+                // @codeCoverageIgnoreStart
                 break;
+                // @codeCoverageIgnoreEnd
             }
             /** @var string $read */
             $read = \fread($this->fp, $remaining);
             if (!\is_string($read)) {
+                // @codeCoverageIgnoreStart
                 throw new FileAccessDenied(
                     'Could not read from the file'
                 );
+                // @codeCoverageIgnoreEnd
             }
             $buf .= $read;
             $readSize = Binary::safeStrlen($read);
@@ -262,9 +272,11 @@ class ReadOnlyFile implements StreamInterface
         if (\fseek($this->fp, $position, SEEK_SET) === 0) {
             return true;
         }
+        // @codeCoverageIgnoreStart
         throw new CannotPerformOperation(
             'fseek() failed'
         );
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -278,9 +290,11 @@ class ReadOnlyFile implements StreamInterface
     public function toctouTest()
     {
         if (\ftell($this->fp) !== $this->pos) {
+            // @codeCoverageIgnoreStart
             throw new FileModified(
                 'Read-only file has been modified since it was opened for reading'
             );
+            // @codeCoverageIgnoreEnd
         }
         $stat = \fstat($this->fp);
         if ($stat['size'] !== $this->stat['size']) {

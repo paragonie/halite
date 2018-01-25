@@ -71,11 +71,13 @@ class MutableFile implements StreamInterface
                 );
             }
             $fp = \fopen($file, 'wb');
+            // @codeCoverageIgnoreStart
             if (!\is_resource($fp)) {
                 throw new FileAccessDenied(
                     'Could not open file for reading'
                 );
             }
+            // @codeCoverageIgnoreEnd
             $this->fp = $fp;
             $this->closeAfter = true;
             $this->pos = 0;

@@ -45,9 +45,7 @@ final class SignatureKeyPair extends KeyPair
      *
      * @param array<int, Key> $keys
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public function __construct(Key ...$keys)
@@ -126,8 +124,7 @@ final class SignatureKeyPair extends KeyPair
      * @param SignatureSecretKey $secret
      * @return void
      *
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     protected function setupKeyPair(SignatureSecretKey $secret): void
     {

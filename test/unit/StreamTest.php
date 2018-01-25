@@ -105,6 +105,17 @@ final class StreamTest extends TestCase
                 $ex->getMessage()
             );
         }
+
+        try {
+            new ReadOnlyFile(12345);
+            $this->fail('Invalid file type accepted');
+        } catch (CryptoException\InvalidType $ex) {
+        }
+        try {
+            new MutableFile(12345);
+            $this->fail('Invalid file type accepted');
+        } catch (CryptoException\InvalidType $ex) {
+        }
     }
 
     /**

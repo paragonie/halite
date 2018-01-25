@@ -167,9 +167,7 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
     public function testSignatureKeyPair()
     {

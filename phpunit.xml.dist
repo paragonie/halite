@@ -7,9 +7,6 @@
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTodoAnnotatedTests="true"
          verbose="true">
-    <testsuite name="Paragonie/Halite Test Suite">
-        <directory suffix="Test.php">test/unit</directory>
-    </testsuite>
     <filter>
         <whitelist>
             <directory>./src</directory>
@@ -22,4 +19,7 @@
             </exclude>
         </whitelist>
     </filter>
+    <testsuite name="Paragonie/Halite Test Suite">
+        <directory suffix="Test.php">test/unit</directory>
+    </testsuite>
 </phpunit>

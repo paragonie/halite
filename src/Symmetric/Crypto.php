@@ -2,15 +2,15 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
-use ParagonIE\ConstantTime\Binary;
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\ConstantTime\Binary;
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
     InvalidMessage,
     InvalidSignature,
     InvalidType
 };
-use ParagonIE\Halite\{
+use \ParagonIE\Halite\{
     Config as BaseConfig,
     Halite,
     HiddenString,
@@ -130,7 +130,7 @@ final class Crypto
         string $additionalData = '',
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
-        $decoder = Halite::chooseEncoder($encoding, true);
+        $decoder = Halite::chooseEncoder($encoding, \true);
         if (\is_callable($decoder)) {
             // We were given encoded data:
             try {
@@ -452,13 +452,13 @@ final class Crypto
         $encoding = Halite::ENCODE_BASE64URLSAFE,
         SymmetricConfig $config = null
     ): bool {
-        $decoder = Halite::chooseEncoder($encoding, true);
+        $decoder = Halite::chooseEncoder($encoding, \true);
         if ($decoder) {
             // We were given hex data:
             /** @var string $mac */
             $mac = $decoder($mac);
         }
-        if ($config === null) {
+        if ($config === \null) {
             // Default to the current version
             $config = SymmetricConfig::getConfig(
                 Halite::HALITE_VERSION,
@@ -473,7 +473,7 @@ final class Crypto
                 $config
             );
         } catch (InvalidMessage $ex) {
-            return false;
+            return \false;
         }
     }
 

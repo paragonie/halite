@@ -14,9 +14,9 @@ final class CookieTest extends TestCase
     public function test__debugInfo()
     {
         $str = Base64UrlSafe::encode(random_bytes(32));
-        $cookie = new Cookie(new EncryptionKey(new HiddenString()));
+        $cookie = new Cookie(new EncryptionKey(new HiddenString($str)));
         $this->assertEquals([ 'key' => 'private' ], $cookie->__debugInfo());
-        $this->assertTrue([ 'key' => $str ] !== $cookie->__debugInfo());
+        $this->assertTrue(is_array($cookie->__debugInfo()));
     }
 
 }

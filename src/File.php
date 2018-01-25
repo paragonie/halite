@@ -411,7 +411,9 @@ final class File
                 $key->getRawKeyMaterial(),
                 (int) $config->HASH_LEN
             );
+        // @codeCoverageIgnoreStart
         } elseif (isset($key)) {
+        // @codeCoverageIgnoreEnd
             throw new InvalidKey(
                 'Argument 2: Expected an instance of AuthenticationKey or SignaturePublicKey'
             );

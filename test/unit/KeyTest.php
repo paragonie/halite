@@ -474,6 +474,9 @@ class KeyTest extends TestCase
         );
     }
 
+    /**
+     * @throws TypeError
+     */
     public function testInvalidSizes()
     {
         try {

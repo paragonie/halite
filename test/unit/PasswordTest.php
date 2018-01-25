@@ -11,9 +11,11 @@ use PHPUnit\Framework\TestCase;
 final class PasswordTest extends TestCase
 {
     /**
+     * @throws InvalidMessage
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
-     * @throws \ParagonIE\Halite\Alerts\InvalidMessage
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
      * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
@@ -42,9 +44,11 @@ final class PasswordTest extends TestCase
     }
 
     /**
+     * @throws InvalidMessage
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
-     * @throws \ParagonIE\Halite\Alerts\InvalidMessage
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
      * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
@@ -91,12 +95,57 @@ final class PasswordTest extends TestCase
                 $aad
             )
         );
+
+        $passwd = new HiddenString('test' . random_bytes(32));
+        try {
+            $hash = 'MUIEA';
+            Password::verify($passwd, $hash, $key);
+        } catch (InvalidMessage $ex) {
+            $this->assertSame(
+                'Encrypted password hash is way too short.',
+                $ex->getMessage()
+            );
+        }
+        try {
+            $hash = 'MUIEAPHyUoOjV7zXTOF7nPRJP5KQTw_xOge4F9ytBnm_nqz-oKQ-yjxMRhrRLdM0XoPyB==';
+            Password::verify($passwd, $hash, $key);
+        } catch (InvalidMessage $ex) {
+            $this->assertSame(
+                'Encrypted password hash is too short.',
+                $ex->getMessage()
+            );
+        }
     }
 
     /**
+     * @throws InvalidMessage
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
-     * @throws \ParagonIE\Halite\Alerts\InvalidMessage
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
+    public function testKeyLevels()
+    {
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
+        $aad = '{"userid":12}';
+
+        $passwd = new HiddenString('test password');
+        foreach ([KeyFactory::INTERACTIVE, KeyFactory::MODERATE, KeyFactory::SENSITIVE] as $level) {
+            $hash = Password::hash($passwd, $key, $level, $aad);
+            $this->assertTrue(is_string($hash));
+            $this->assertFalse(Password::needsRehash($hash, $key, $level, $aad));
+            $this->assertTrue(Password::verify($passwd, $hash, $key, $aad));
+        }
+    }
+
+    /**
+     * @throws InvalidMessage
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
      * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
@@ -115,6 +164,25 @@ final class PasswordTest extends TestCase
         } catch (InvalidMessage $ex) {
             $this->assertSame(
                 'Invalid version tag',
+                $ex->getMessage()
+            );
+        }
+        try {
+            $legacyHash = 'MUIDAPHyUoOjV7zXTOF7nPRJP5KQTw_xOge4F9ytBnm_nqz-oKQ-yjxMRhrRLdM0X' .
+                'oPyB==';
+            Password::needsRehash($legacyHash, $key);
+        } catch (InvalidMessage $ex) {
+            $this->assertSame(
+                'Encrypted password hash is too short.',
+                $ex->getMessage()
+            );
+        }
+        try {
+            $legacyHash = 'MUIEAPH';
+            Password::needsRehash($legacyHash, $key);
+        } catch (InvalidMessage $ex) {
+            $this->assertSame(
+                'Encrypted password hash is way too short.',
                 $ex->getMessage()
             );
         }

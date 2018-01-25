@@ -39,6 +39,7 @@ class KeyPair
      * Hide this from var_dump(), etc.
      * 
      * @return array
+     * @codeCoverageIgnore
      */
     public function __debugInfo()
     {

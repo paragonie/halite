@@ -18,7 +18,7 @@ class KeyTest extends TestCase
 {
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testDerive()
@@ -49,7 +49,7 @@ class KeyTest extends TestCase
 
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testDeriveOldArgon2i()
@@ -81,8 +81,7 @@ class KeyTest extends TestCase
 
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
      */
@@ -117,8 +116,7 @@ class KeyTest extends TestCase
 
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
      */
@@ -296,7 +294,7 @@ class KeyTest extends TestCase
     }
 
     /**
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testInvalidKeyLevels()
@@ -315,14 +313,14 @@ class KeyTest extends TestCase
             );
         }
     }
+
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testKeyLevels()
     {
-        $this->markTestSkipped('This is a very slow test. Feel free to enable it to verify correctness.');
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
@@ -346,13 +344,11 @@ class KeyTest extends TestCase
 
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testKeyLevelsOldArgon2i()
     {
-        $this->markTestSkipped('This is a very slow test. Feel free to enable it to verify correctness.');
-
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",

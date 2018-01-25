@@ -2,10 +2,13 @@
 declare(strict_types=1);
 
 use ParagonIE\ConstantTime\Hex;
-use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\{
+    EncryptionKeyPair,
+    KeyFactory,
+    SignatureKeyPair
+};
 use ParagonIE\Halite\Asymmetric\{
     Crypto as Asymmetric,
-    EncryptionSecretKey,
     SignatureSecretKey,
     SignaturePublicKey
 };
@@ -15,8 +18,7 @@ use PHPUnit\Framework\TestCase;
 final class KeyPairTest extends TestCase
 {
     /**
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
      * @throws \ParagonIE\Halite\Alerts\InvalidType
@@ -56,8 +58,7 @@ final class KeyPairTest extends TestCase
     }
 
     /**
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
      * @throws \ParagonIE\Halite\Alerts\InvalidType
@@ -98,9 +99,39 @@ final class KeyPairTest extends TestCase
     }
 
     /**
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
+    public function testEncryptionKeyPair()
+    {
+        $boxKeypair = KeyFactory::generateEncryptionKeyPair();
+        $boxSecret = $boxKeypair->getSecretKey();
+        $boxPublic = $boxKeypair->getPublicKey();
+        $this->assertInstanceOf(\ParagonIE\Halite\Asymmetric\SecretKey::class, $boxSecret);
+        $this->assertInstanceOf(\ParagonIE\Halite\Asymmetric\PublicKey::class, $boxPublic);
+
+        $second = new EncryptionKeyPair(
+            $boxPublic,
+            $boxSecret
+        );
+        $this->assertSame(
+            Hex::encode($boxSecret->getRawKeyMaterial()),
+            Hex::encode($second->getSecretKey()->getRawKeyMaterial()),
+            'Secret keys differ'
+        );
+        $this->assertSame(
+            Hex::encode($boxPublic->getRawKeyMaterial()),
+            Hex::encode($second->getPublicKey()->getRawKeyMaterial()),
+            'Public keys differ'
+        );
+    }
+
+    /**
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      */
     public function testFileStorage()
     {
@@ -118,8 +149,7 @@ final class KeyPairTest extends TestCase
     }
 
     /**
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws TypeError
      */
     public function testMutation()
     {
@@ -136,8 +166,37 @@ final class KeyPairTest extends TestCase
     }
 
     /**
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
+    public function testSignatureKeyPair()
+    {
+        $signKeypair = KeyFactory::generateSignatureKeyPair();
+        $signSecret = $signKeypair->getSecretKey();
+        $signPublic = $signKeypair->getPublicKey();
+        $this->assertInstanceOf(\ParagonIE\Halite\Asymmetric\SecretKey::class, $signSecret);
+        $this->assertInstanceOf(\ParagonIE\Halite\Asymmetric\PublicKey::class, $signPublic);
+
+        $second = new SignatureKeyPair(
+            $signPublic,
+            $signSecret
+        );
+        $this->assertSame(
+            Hex::encode($signSecret->getRawKeyMaterial()),
+            Hex::encode($second->getSecretKey()->getRawKeyMaterial()),
+            'Secret keys differ'
+        );
+        $this->assertSame(
+            Hex::encode($signPublic->getRawKeyMaterial()),
+            Hex::encode($second->getPublicKey()->getRawKeyMaterial()),
+            'Public keys differ'
+        );
+    }
+
+    /**
+     * @throws TypeError
      */
     public function testPublicDerivation()
     {

@@ -20,8 +20,6 @@ final class UtilTest extends TestCase
 
     /**
      * BLAKE2b hash
-     *
-     * @covers Util::hash()
      */
     public function testHash()
     {
@@ -39,8 +37,6 @@ final class UtilTest extends TestCase
 
     /**
      * BLAKE2b hash
-     *
-     * @covers Util::keyed_hash()
      */
     public function testKeyedHash()
     {
@@ -59,8 +55,6 @@ final class UtilTest extends TestCase
 
     /**
      * Test our HKDF-esque construct built atop BLAKE2b
-     * 
-     * @covers Util::hkdfBlake2b()
      */
     public function testBlake2bKDF()
     {
@@ -93,8 +87,6 @@ final class UtilTest extends TestCase
 
     /**
      * Verify that safeStrcpy() doesn't fall prey to interned strings.
-     *
-     * @covers Util::safeStrcpy()
      */
     public function testSafeStrcpy()
     {
@@ -107,8 +99,6 @@ final class UtilTest extends TestCase
 
     /**
      * Verify that xorStrings() produces the expected result.
-     *
-     * @covers Util::xorStrings()
      */
     public function testXorStrings()
     {

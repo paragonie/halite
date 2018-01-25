@@ -9,16 +9,8 @@ use ParagonIE\Halite\Util;
 use ParagonIE\Halite\Alerts as CryptoException;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 final class FileTest extends TestCase
 {
-    /**
-     * @covers File::encrypt()
-     * @covers File::decrypt()
-     */
     public function testEncrypt()
     {
         touch(__DIR__.'/tmp/paragon_avatar.encrypted.png');
@@ -49,10 +41,6 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/paragon_avatar.decrypted.png');
     }
 
-    /**
-     * @covers File::encrypt()
-     * @covers File::decrypt()
-     */
     public function testEncryptEmpty()
     {
         file_put_contents(__DIR__.'/tmp/empty.txt', '');
@@ -82,10 +70,6 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/empty.decrypted.txt');
     }
 
-    /**
-     * @covers File::encrypt()
-     * @covers File::decrypt()
-     */
     public function testEncryptFail()
     {
         touch(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png');
@@ -122,10 +106,6 @@ final class FileTest extends TestCase
         }
     }
 
-    /**
-     * @covers File::encrypt()
-     * @covers File::decrypt()
-     */
     public function testEncryptSmallFail()
     {
         $msg = 'Input file is too small to have been encrypted by Halite.';
@@ -183,10 +163,6 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/empty.decrypted.txt');
     }
 
-    /**
-     * @covers File::seal()
-     * @covers File::unseal()
-     */
     public function testSeal()
     {
         touch(__DIR__.'/tmp/paragon_avatar.sealed.png');
@@ -219,10 +195,6 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/paragon_avatar.opened.png');
     }
 
-    /**
-     * @covers File::seal()
-     * @covers File::unseal()
-     */
     public function testSealEmpty()
     {
         file_put_contents(__DIR__.'/tmp/empty.txt', '');
@@ -254,10 +226,6 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/empty.unsealed.txt');
     }
 
-    /**
-     * @covers File::seal()
-     * @covers File::unseal()
-     */
     public function testSealFail()
     {
         touch(__DIR__.'/tmp/paragon_avatar.seal_fail.png');
@@ -295,10 +263,6 @@ final class FileTest extends TestCase
         }
     }
 
-    /**
-     * @covers File::seal()
-     * @covers File::unseal()
-     */
     public function testSealSmallFail()
     {
         $msg = 'Input file is too small to have been encrypted by Halite.';
@@ -337,10 +301,6 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/empty.unsealed.txt');
     }
 
-    /**
-     * @covers File::sign()
-     * @covers File::verify()
-     */
     public function testSign()
     {
         $keypair = KeyFactory::generateSignatureKeyPair();

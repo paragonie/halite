@@ -11,16 +11,8 @@ use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Symmetric\Config;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 final class SymmetricTest extends TestCase
 {
-    /**
-     * @covers Symmetric::authenticate()
-     * @covers Symmetric::verify()
-     */
     public function testAuthenticate()
     {
         $key = new AuthenticationKey(new HiddenString(str_repeat('A', 32)));
@@ -31,10 +23,6 @@ final class SymmetricTest extends TestCase
         );
     }
     
-    /**
-     * @covers Symmetric::authenticate()
-     * @covers Symmetric::verify()
-     */
     public function testAuthenticateFail()
     {
         $key = new AuthenticationKey(new HiddenString(str_repeat('A', 32), true));
@@ -66,10 +54,6 @@ final class SymmetricTest extends TestCase
         );
     }
 
-    /**
-     * @covers Symmetric::encrypt()
-     * @covers Symmetric::decrypt()
-     */
     public function testEncrypt()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -86,10 +70,6 @@ final class SymmetricTest extends TestCase
         $this->assertSame($plain->getString(), 'test message');
     }
 
-    /**
-     * @covers Symmetric::encryptWithAd()
-     * @covers Symmetric::decryptWithAd()
-     */
     public function testEncryptWithAd()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -117,9 +97,6 @@ final class SymmetricTest extends TestCase
         }
     }
 
-    /**
-     * @covers Symmetric::encrypt()
-     */
     public function testEncryptEmpty()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -133,9 +110,6 @@ final class SymmetricTest extends TestCase
         $this->assertSame($plain->getString(), '');
     }
     
-    /**
-     * @covers Symmetric::encrypt()
-     */
     public function testRawEncrypt()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -146,9 +120,6 @@ final class SymmetricTest extends TestCase
         $this->assertSame($plain->getString(), 'test message');
     }
     
-    /**
-     * @covers Symmetric::encrypt()
-     */
     public function testEncryptFail()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -175,9 +146,6 @@ final class SymmetricTest extends TestCase
         }
     }
     
-    /**
-     * @covers Symmetric::unpackMessageForDecryption()
-     */
     public function testUnpack()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));

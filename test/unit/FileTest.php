@@ -321,9 +321,6 @@ final class FileTest extends TestCase
         );
     }
 
-    /**
-     * @covers File::checksum()
-     */
     public function testChecksum()
     {
         $csum = File::checksum(__DIR__.'/tmp/paragon_avatar.png', null, false);

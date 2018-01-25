@@ -2,9 +2,9 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
-use ParagonIE\ConstantTime\Binary;
-use ParagonIE\Halite\Alerts\InvalidMessage;
-use ParagonIE\Halite\{
+use \ParagonIE\ConstantTime\Binary;
+use \ParagonIE\Halite\Alerts\InvalidMessage;
+use \ParagonIE\Halite\{
     Config as BaseConfig,
     Halite
 };

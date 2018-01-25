@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     FileAccessDenied,
     FileError,
@@ -13,7 +13,7 @@ use ParagonIE\Halite\Alerts\{
     InvalidSignature,
     InvalidType
 };
-use ParagonIE\Halite\{
+use \ParagonIE\Halite\{
     Asymmetric\Crypto as AsymmetricCrypto,
     Asymmetric\EncryptionPublicKey,
     Asymmetric\EncryptionSecretKey,

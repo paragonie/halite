@@ -2,11 +2,11 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength
 };
-use ParagonIE\Halite\Util;
+use \ParagonIE\Halite\Util;
 
 /**
  * Class TrimmedMerkleTree
@@ -83,7 +83,7 @@ class TrimmedMerkleTree extends MerkleTree
         } while ($size > 1);
 
         // We should only have one value left:
-        $this->rootCalculated = true;
+        $this->rootCalculated = \true;
         /** @var string $first */
         $first = \array_shift($hash);
         return $first;

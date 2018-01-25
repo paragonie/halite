@@ -77,7 +77,7 @@ final class Cookie
     public function fetch(string $name)
     {
         if (!isset($_COOKIE[$name])) {
-            return null;
+            return \null;
         }
         try {
             /** @var string $stored */
@@ -91,9 +91,9 @@ final class Cookie
                 $this->key,
                 $config->ENCODING
             );
-            return \json_decode($decrypted->getString(), true);
+            return \json_decode($decrypted->getString(), \true);
         } catch (InvalidMessage $e) {
-            return null;
+            return \null;
         }
     }
 

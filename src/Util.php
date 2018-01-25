@@ -2,11 +2,11 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\ConstantTime\{
+use \ParagonIE\ConstantTime\{
     Binary,
     Hex
 };
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
     InvalidType

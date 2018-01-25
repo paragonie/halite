@@ -2,8 +2,8 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
-use ParagonIE\Halite\Alerts\CannotPerformOperation;
-use ParagonIE\Halite\Util;
+use \ParagonIE\Halite\Alerts\CannotPerformOperation;
+use \ParagonIE\Halite\Util;
 
 /**
  * Class Node

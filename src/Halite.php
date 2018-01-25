@@ -2,14 +2,14 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\ConstantTime\{
+use \ParagonIE\ConstantTime\{
     Base32,
     Base32Hex,
     Base64,
     Base64UrlSafe,
     Hex
 };
-use ParagonIE\Halite\Alerts\InvalidType;
+use \ParagonIE\Halite\Alerts\InvalidType;
 
 /**
  * Class Halite
@@ -74,9 +74,9 @@ final class Halite
      */
     public static function chooseEncoder($chosen, bool $decode = false)
     {
-        if ($chosen === true) {
+        if ($chosen === \true) {
             return null;
-        } elseif ($chosen === false) {
+        } elseif ($chosen === \false) {
             return \implode(
                 '::',
                 [
@@ -143,7 +143,7 @@ final class Halite
             if ($echo) {
                 echo "You do not have the sodium extension enabled.\n";
             }
-            return false;
+            return \false;
         }
 
         // Require libsodium 1.0.15
@@ -153,8 +153,8 @@ final class Halite
                 echo 'Halite needs libsodium 1.0.15 or higher. You have: ',
                 \SODIUM_LIBRARY_VERSION, "\n";
             }
-            return false;
+            return \false;
         }
-        return true;
+        return \true;
     }
 }

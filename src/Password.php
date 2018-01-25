@@ -2,18 +2,18 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\ConstantTime\{
+use \ParagonIE\ConstantTime\{
     Base64UrlSafe,
     Binary,
     Hex
 };
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
     InvalidMessage,
     InvalidType
 };
-use ParagonIE\Halite\Symmetric\{
+use \ParagonIE\Halite\Symmetric\{
     Config as SymmetricConfig,
     Crypto,
     EncryptionKey
@@ -115,7 +115,7 @@ final class Password
             Binary::safeSubstr($hash_str, 0, 10),
             \SODIUM_CRYPTO_PWHASH_STRPREFIX
         )) {
-            return true;
+            return \true;
         }
 
         // Parse the cost parameters:
@@ -136,7 +136,7 @@ final class Password
                     Binary::safeSubstr($hash_str, 0, 33)
                 );
             default:
-                return true;
+                return \true;
         }
     }
 

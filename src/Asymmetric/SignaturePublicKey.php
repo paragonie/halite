@@ -2,13 +2,13 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
-use ParagonIE\ConstantTime\Binary;
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\ConstantTime\Binary;
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidKey,
     InvalidType
 };
-use ParagonIE\Halite\HiddenString;
+use \ParagonIE\Halite\HiddenString;
 
 /**
  * Class SignaturePublicKey

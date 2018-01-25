@@ -2,12 +2,12 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Structure;
 
-use ParagonIE\ConstantTime\Hex;
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\ConstantTime\Hex;
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength
 };
-use ParagonIE\Halite\Util;
+use \ParagonIE\Halite\Util;
 
 /**
  * Class MerkleTree
@@ -34,7 +34,7 @@ class MerkleTree
     /**
      * @var bool
      */
-    protected $rootCalculated = false;
+    protected $rootCalculated = \false;
 
     /**
      * @var string
@@ -233,7 +233,7 @@ class MerkleTree
             $order >>= 1;
         } while ($order > 1);
         // We should only have one value left:t
-        $this->rootCalculated = true;
+        $this->rootCalculated = \true;
         /** @var string $first */
         $first = \array_shift($hash);
         return $first;

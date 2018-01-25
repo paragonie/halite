@@ -2,17 +2,17 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\ConstantTime\{
+use \ParagonIE\ConstantTime\{
     Binary,
     Hex
 };
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidKey,
     InvalidSalt,
     InvalidType
 };
-use ParagonIE\Halite\{
+use \ParagonIE\Halite\{
     Asymmetric\EncryptionPublicKey,
     Asymmetric\EncryptionSecretKey,
     Asymmetric\SignaturePublicKey,
@@ -829,6 +829,6 @@ final class KeyFactory
                 )
             )
         );
-        return $saved !== false;
+        return $saved !== \false;
     }
 }

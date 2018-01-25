@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\Halite\Alerts\{
     CannotCloneKey,
     CannotPerformOperation,
     CannotSerializeKey,
@@ -30,17 +30,17 @@ class Key
     /**
      * @var bool
      */
-    protected $isPublicKey = false;
+    protected $isPublicKey = \false;
 
     /**
      * @var bool
      */
-    protected $isSigningKey = false;
+    protected $isSigningKey = \false;
 
     /**
      * @var bool
      */
-    protected $isAsymmetricKey = false;
+    protected $isAsymmetricKey = \false;
 
     /**
      * @var string

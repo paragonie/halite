@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
-use ParagonIE\Halite\Key;
+use \ParagonIE\Halite\Key;
 
 /**
  * Class SecretKey

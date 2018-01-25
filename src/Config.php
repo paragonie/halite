@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts\ConfigDirectiveNotFound;
+use \ParagonIE\Halite\Alerts\ConfigDirectiveNotFound;
 
 /**
  * Class Config
@@ -60,6 +60,6 @@ class Config
      */
     public function __set(string $key, $value = null)
     {
-        return false;
+        return \false;
     }
 }

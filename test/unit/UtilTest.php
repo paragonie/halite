@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use ParagonIE\Halite\Alerts\CannotPerformOperation;
 use ParagonIE\Halite\Util;
+use ParagonIE\Halite\Alerts\InvalidType;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,13 +15,11 @@ use PHPUnit\Framework\TestCase;
  * @license    http://opensource.org/licenses/GPL-3.0 GPL 3
  * @link       https://paragonie.com/project/halite
  */
-class UtilTest extends TestCase
+final class UtilTest extends TestCase
 {
 
     /**
      * BLAKE2b hash
-     *
-     * @covers Util::hash()
      */
     public function testHash()
     {
@@ -38,8 +37,6 @@ class UtilTest extends TestCase
 
     /**
      * BLAKE2b hash
-     *
-     * @covers Util::keyed_hash()
      */
     public function testKeyedHash()
     {
@@ -58,8 +55,6 @@ class UtilTest extends TestCase
 
     /**
      * Test our HKDF-esque construct built atop BLAKE2b
-     * 
-     * @covers Util::hkdfBlake2b()
      */
     public function testBlake2bKDF()
     {
@@ -92,12 +87,10 @@ class UtilTest extends TestCase
 
     /**
      * Verify that safeStrcpy() doesn't fall prey to interned strings.
-     *
-     * @covers Util::safeStrcpy()
      */
     public function testSafeStrcpy()
     {
-        $unique = \random_bytes(128);
+        $unique = random_bytes(128);
         $clone = Util::safeStrcpy($unique);
         $this->assertSame($unique, $clone);
         sodium_memzero($unique);
@@ -106,26 +99,24 @@ class UtilTest extends TestCase
 
     /**
      * Verify that xorStrings() produces the expected result.
-     *
-     * @covers Util::xorStrings()
      */
     public function testXorStrings()
     {
-        $a = \str_repeat("\x0f", 32);
-        $b = \str_repeat("\x88", 32);
+        $a = str_repeat("\x0f", 32);
+        $b = str_repeat("\x88", 32);
         $this->assertSame(
-            \str_repeat("\x87", 32),
+            str_repeat("\x87", 32),
             Util::xorStrings($a, $b)
         );
 
         try {
             $a .= "\x00";
             $this->assertSame(
-                \str_repeat("\x87", 32),
+                str_repeat("\x87", 32),
                 Util::xorStrings($a, $b)
             );
             $this->fail('Incorrect string length should throw an exception.');
-        } catch (\ParagonIE\Halite\Alerts\InvalidType $ex) {
+        } catch (InvalidType $ex) {
         }
     }
 }

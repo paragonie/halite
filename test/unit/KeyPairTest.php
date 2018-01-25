@@ -12,11 +12,7 @@ use ParagonIE\Halite\Asymmetric\{
 use ParagonIE\Halite\HiddenString;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
-class KeyPairTest extends TestCase
+final class KeyPairTest extends TestCase
 {
     /**
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
@@ -108,7 +104,7 @@ class KeyPairTest extends TestCase
      */
     public function testFileStorage()
     {
-        $filename = \tempnam(__DIR__.'/tmp/', 'key');
+        $filename = tempnam(__DIR__.'/tmp/', 'key');
         $key = KeyFactory::generateEncryptionKeyPair();
         KeyFactory::save($key, $filename);
         
@@ -118,12 +114,10 @@ class KeyPairTest extends TestCase
             $key->getPublicKey()->getRawKeyMaterial(),
             $copy->getPublicKey()->getRawKeyMaterial()
         );
-        \unlink($filename);
+        unlink($filename);
     }
 
     /**
-     * @covers SignatureSecretKey::getEncryptionSecretKey()
-     * @covers SignaturePublicKey::getEncryptionPublicKey()
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
@@ -142,9 +136,6 @@ class KeyPairTest extends TestCase
     }
 
     /**
-     * @covers EncryptionSecretKey::derivePublicKey()
-     * @covers SignatureSecretKey::derivePublicKey()
-     *
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidType
      */

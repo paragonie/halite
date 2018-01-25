@@ -12,16 +12,9 @@ use ParagonIE\Halite\Halite;
 use ParagonIE\Halite\HiddenString;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
-class AsymmetricTest extends TestCase
+final class AsymmetricTest extends TestCase
 {
     /**
-     * @covers Asymmetric::encrypt()
-     * @covers Asymmetric::decrypt()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidMessage
@@ -40,7 +33,7 @@ class AsymmetricTest extends TestCase
             $bob->getPublicKey()
         );
         $this->assertSame(
-            \strpos($message, Halite::VERSION_PREFIX),
+            strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -54,9 +47,6 @@ class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::encryptWithAd()
-     * @covers Asymmetric::decryptWithAd()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidMessage
@@ -69,7 +59,7 @@ class AsymmetricTest extends TestCase
         $alice = KeyFactory::generateEncryptionKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
 
-        $random = \random_bytes(32);
+        $random = random_bytes(32);
 
         $message = Asymmetric::encryptWithAd(
             new HiddenString('test message'),
@@ -78,7 +68,7 @@ class AsymmetricTest extends TestCase
             $random
         );
         $this->assertSame(
-            \strpos($message, Halite::VERSION_PREFIX),
+            strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -121,9 +111,6 @@ class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::encrypt()
-     * @covers Asymmetric::decrypt()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidMessage
@@ -143,7 +130,7 @@ class AsymmetricTest extends TestCase
         );
 
         $this->assertSame(
-            \strpos($message, Halite::VERSION_PREFIX),
+            strpos($message, Halite::VERSION_PREFIX),
             0
         );
 
@@ -156,10 +143,6 @@ class AsymmetricTest extends TestCase
         $this->assertSame('', $plain->getString());
     }
 
-    /**
-     * @covers Asymmetric::encrypt()
-     * @covers Asymmetric::decrypt()
-     */
     public function testEncryptFail()
     {
         $alice = KeyFactory::generateEncryptionKeyPair();
@@ -171,9 +154,9 @@ class AsymmetricTest extends TestCase
             $bob->getPublicKey(),
             true
         );
-        $r = random_int(0, \mb_strlen($message, '8bit') - 1);
+        $r = random_int(0, mb_strlen($message, '8bit') - 1);
         $amt = random_int(0, 7);
-        $message[$r] = \chr(\ord($message[$r]) ^ 1 << $amt);
+        $message[$r] = chr(ord($message[$r]) ^ 1 << $amt);
         
         try {
             $plain = Asymmetric::decrypt(
@@ -192,9 +175,6 @@ class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::seal()
-     * @covers Asymmetric::unseal()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
@@ -251,9 +231,6 @@ class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::seal()
-     * @covers Asymmetric::unseal()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidType
      */
@@ -272,9 +249,9 @@ class AsymmetricTest extends TestCase
         $sealed = Asymmetric::seal($message, $alice->getPublicKey(), true);
         
         // Let's flip one bit, randomly:
-        $r = random_int(0, \mb_strlen($sealed, '8bit') - 1);
+        $r = random_int(0, mb_strlen($sealed, '8bit') - 1);
         $amt = 1 << random_int(0, 7);
-        $sealed[$r] = \chr(\ord($sealed[$r]) ^ $amt);
+        $sealed[$r] = chr(ord($sealed[$r]) ^ $amt);
         
         // This should throw an exception
         try {
@@ -291,9 +268,6 @@ class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::sign()
-     * @covers Asymmetric::verify()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
@@ -313,9 +287,6 @@ class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::signAndEncrypt()
-     * @covers Asymmetric::verifyAndDecrypt()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
@@ -354,9 +325,6 @@ class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::signAndEncrypt()
-     * @covers Asymmetric::verifyAndDecrypt()
-     *
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidKey
@@ -394,9 +362,6 @@ class AsymmetricTest extends TestCase
     }
 
     /**
-     * @covers Asymmetric::sign()
-     * @covers Asymmetric::verify()
-     *
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
      * @throws TypeError
@@ -419,9 +384,9 @@ class AsymmetricTest extends TestCase
         
         $_signature = $signature;
         // Let's flip one bit, randomly:
-        $r = random_int(0, \mb_strlen($_signature, '8bit') - 1);
-        $_signature[$r] = \chr(
-            \ord($_signature[$r])
+        $r = random_int(0, mb_strlen($_signature, '8bit') - 1);
+        $_signature[$r] = chr(
+            ord($_signature[$r])
                 ^
             1 << random_int(0, 7)
         );

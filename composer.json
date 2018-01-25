@@ -1,6 +1,6 @@
 {
     "name": "paragonie/halite",
-    "description": "High-level cryptography interface powered by libsodium",
+    "type": "library",
     "keywords": [
         "encryption",
         "public-key",
@@ -21,7 +21,15 @@
         "Argon2i",
         "ext-sodium"
     ],
-    "type": "library",
+    "description": "High-level cryptography interface powered by libsodium",
+    "homepage": "https://github.com/paragonie/halite",
+    "license": "MPL-2.0",
+    "authors": [
+        {
+            "name": "Paragon Initiative Enterprises",
+            "email": "info@paragonie.com"
+        }
+    ],
     "require": {
         "php": "^7.2",
         "paragonie/constant_time_encoding": "^2",
@@ -29,18 +37,16 @@
     },
     "autoload": {
         "psr-4": {
-            "ParagonIE\\Halite\\": "src"
+            "ParagonIE\\Halite\\": "./src"
         }
     },
     "require-dev": {
         "phpunit/phpunit": "^6",
         "vimeo/psalm": "^0|^1"
     },
-    "license": "MPL-2.0",
-    "authors": [
-        {
-            "name": "Paragon Initiative Enterprises",
-            "email": "info@paragonie.com"
-        }
-    ]
+    "config": {
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

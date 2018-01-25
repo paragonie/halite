@@ -8,11 +8,7 @@ use ParagonIE\Halite\Structure\{
 };
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
-class TrimmedMerkleTreeTest extends TestCase
+final class TrimmedMerkleTreeTest extends TestCase
 {
 
     public function testExpectedBehavior()
@@ -49,8 +45,8 @@ class TrimmedMerkleTreeTest extends TestCase
             new Node('e')
         );
         $this->assertSame(
-            \get_class($treeB),
-            \get_class($treeC)
+            get_class($treeB),
+            get_class($treeC)
         );
         $this->assertSame(
             $treeB->getRoot(),
@@ -132,7 +128,7 @@ class TrimmedMerkleTreeTest extends TestCase
             $treeB->getRoot()
         );
 
-        $personal = \random_bytes(32);
+        $personal = random_bytes(32);
         $treeA->setPersonalizationString($personal);
         $treeB->setPersonalizationString($personal);
         $this->assertSame(

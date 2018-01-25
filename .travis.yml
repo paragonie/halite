@@ -1,13 +1,13 @@
 language: php
 sudo: required
 dist: trusty
+php:
+    - "7.2.0"
+    - "7.2.1"
+    - "master"
+    - "nightly"
 matrix:
     fast_finish: true
-    include:
-        - php: "7.2.0"
-        - php: "7.2.1"
-        - php: "master"
-        - php: "nightly"
     allow_failures:
         - php: "master"
         - php: "nightly"

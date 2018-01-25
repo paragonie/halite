@@ -20,6 +20,6 @@
         </whitelist>
     </filter>
     <testsuite name="Paragonie/Halite Test Suite">
-        <directory suffix="Test.php">test/unit</directory>
+        <directory suffix="Test.php">./test/unit</directory>
     </testsuite>
 </phpunit>

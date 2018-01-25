@@ -37,14 +37,14 @@ final class HiddenString
      *
      * @var bool
      */
-    protected $disallowInline = false;
+    protected $disallowInline = \false;
 
     /**
      * Disallow the contents from being accessed via __sleep()?
      *
      * @var bool
      */
-    protected $disallowSerialization = false;
+    protected $disallowSerialization = \false;
 
     /**
      * HiddenString constructor.

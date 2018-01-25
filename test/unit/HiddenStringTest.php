@@ -5,10 +5,6 @@ use ParagonIE\Halite\HiddenString;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @covers HiddenString
- */
 final class HiddenStringTest extends TestCase
 {
     public function testRandomString()

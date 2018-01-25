@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Alerts as CryptoException;
-use ParagonIE\Halite\Stream\ReadOnlyFile;
+use ParagonIE\Halite\Stream\{
+    MutableFile,
+    ReadOnlyFile
+};
 use PHPUnit\Framework\TestCase;
 
 final class StreamTest extends TestCase
@@ -51,7 +54,7 @@ final class StreamTest extends TestCase
             $this->assertSame('Could not open file for reading', $ex->getMessage());
         }
         try {
-            new \ParagonIE\Halite\Stream\MutableFile($filename);
+            new MutableFile($filename);
             $this->fail('File should not be readable');
         } catch (CryptoException\FileAccessDenied $ex) {
             $this->assertSame('Could not open file for reading', $ex->getMessage());
@@ -59,13 +62,19 @@ final class StreamTest extends TestCase
 
         chmod($filename, 0444);
         try {
-            new \ParagonIE\Halite\Stream\MutableFile($filename);
+            new MutableFile($filename);
             $this->fail('File should not be writeable');
         } catch (CryptoException\FileAccessDenied $ex) {
             $this->assertSame('Could not open file for writing', $ex->getMessage());
         }
     }
 
+    /**
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testResource()
     {
         $filename = tempnam('/tmp', 'x');
@@ -75,6 +84,25 @@ final class StreamTest extends TestCase
         $file = \fopen($filename, 'rb');
         $stream = new ReadOnlyFile($file);
         $this->assertInstanceOf(ReadOnlyFile::class, $stream);
+
+        try {
+            new MutableFile($file);
+        } catch (CryptoException\FileAccessDenied $ex) {
+            $this->assertSame(
+                'Resource is in rb mode, which is not allowed.',
+                $ex->getMessage()
+            );
+        }
+
+        $writable = \fopen($filename, 'wb');
+        try {
+            new ReadOnlyFile($writable);
+        } catch (CryptoException\FileAccessDenied $ex) {
+            $this->assertSame(
+                'Resource is in wb mode, which is not allowed.',
+                $ex->getMessage()
+            );
+        }
     }
 
     /**

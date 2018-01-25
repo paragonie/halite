@@ -28,6 +28,7 @@ use ParagonIE\Halite\Alerts\{
  */
 class MutableFile implements StreamInterface
 {
+    const ALLOWED_MODES = ['r+', 'r+b', 'wb', 'w+', 'w+b', 'c', 'c+', 'cb', 'c+b'];
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
 
     /**
@@ -80,6 +81,12 @@ class MutableFile implements StreamInterface
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
         } elseif (\is_resource($file)) {
+            $metadata = \stream_get_meta_data($file);
+            if (!\in_array($metadata['mode'], static::ALLOWED_MODES, true)) {
+                throw new FileAccessDenied(
+                    'Resource is in ' . $metadata['mode'] . ' mode, which is not allowed.'
+                );
+            }
             $this->fp = $file;
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);

@@ -71,19 +71,23 @@ final class EncryptionKeyPair extends KeyPair
                         );
                     }
                     $this->setupKeyPair(
+                    // @codeCoverageIgnoreStart
                         $keys[1] instanceof EncryptionSecretKey
                             ? $keys[1]
                             : new EncryptionSecretKey(
                                 new HiddenString($keys[1]->getRawKeyMaterial())
                             )
+                    // @codeCoverageIgnoreEnd
                     );
                 } elseif ($keys[1]->isPublicKey()) {
                     $this->setupKeyPair(
+                    // @codeCoverageIgnoreStart
                         $keys[0] instanceof EncryptionSecretKey
                             ? $keys[0]
                             : new EncryptionSecretKey(
                                 new HiddenString($keys[0]->getRawKeyMaterial())
                             )
+                    // @codeCoverageIgnoreEnd
                     );
                 } else {
                     throw new InvalidKey(
@@ -107,11 +111,13 @@ final class EncryptionKeyPair extends KeyPair
                     );
                 }
                 $this->setupKeyPair(
+                // @codeCoverageIgnoreStart
                     $keys[0] instanceof EncryptionSecretKey
                         ? $keys[0]
                         : new EncryptionSecretKey(
                             new HiddenString($keys[0]->getRawKeyMaterial())
                         )
+                // @codeCoverageIgnoreEnd
                 );
                 break;
             default:
@@ -127,8 +133,7 @@ final class EncryptionKeyPair extends KeyPair
      * @param EncryptionSecretKey $secret
      * @return void
      *
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     protected function setupKeyPair(EncryptionSecretKey $secret): void
     {

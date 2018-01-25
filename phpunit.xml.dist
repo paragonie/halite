@@ -8,7 +8,7 @@
          beStrictAboutTodoAnnotatedTests="true"
          verbose="true">
     <filter>
-        <whitelist>
+        <whitelist processUncoveredFilesFromWhitelist="true">
             <directory>./src</directory>
             <exclude>
                 <directory>./libsodium</directory>

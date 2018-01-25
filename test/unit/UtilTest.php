@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use ParagonIE\Halite\Alerts\CannotPerformOperation;
 use ParagonIE\Halite\Util;
+use ParagonIE\Halite\Alerts\InvalidType;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  * @license    http://opensource.org/licenses/GPL-3.0 GPL 3
  * @link       https://paragonie.com/project/halite
  */
-class UtilTest extends TestCase
+final class UtilTest extends TestCase
 {
 
     /**
@@ -97,7 +98,7 @@ class UtilTest extends TestCase
      */
     public function testSafeStrcpy()
     {
-        $unique = \random_bytes(128);
+        $unique = random_bytes(128);
         $clone = Util::safeStrcpy($unique);
         $this->assertSame($unique, $clone);
         sodium_memzero($unique);
@@ -111,21 +112,21 @@ class UtilTest extends TestCase
      */
     public function testXorStrings()
     {
-        $a = \str_repeat("\x0f", 32);
-        $b = \str_repeat("\x88", 32);
+        $a = str_repeat("\x0f", 32);
+        $b = str_repeat("\x88", 32);
         $this->assertSame(
-            \str_repeat("\x87", 32),
+            str_repeat("\x87", 32),
             Util::xorStrings($a, $b)
         );
 
         try {
             $a .= "\x00";
             $this->assertSame(
-                \str_repeat("\x87", 32),
+                str_repeat("\x87", 32),
                 Util::xorStrings($a, $b)
             );
             $this->fail('Incorrect string length should throw an exception.');
-        } catch (\ParagonIE\Halite\Alerts\InvalidType $ex) {
+        } catch (InvalidType $ex) {
         }
     }
 }

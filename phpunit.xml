@@ -14,6 +14,7 @@
     <filter>
         <directory>./src</directory>
         <exclude>
+            <directory>./libsodium</directory>
             <directory>./vendor</directory>
             <directory>./stub</directory>
             <directory>./test</directory>

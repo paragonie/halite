@@ -18,20 +18,6 @@ use PHPUnit\Framework\TestCase;
  */
 final class UtilTest extends TestCase
 {
-    /**
-     * @expectedException \Error
-     *
-     * @throws Error
-     * @throws InvalidType
-     */
-    public function testConstructorFail()
-    {
-        // Please ignore IDE errors here.
-        /** @noinspection Annotator */
-        $x = new Util();
-        $this->assertSame('', $x::xorStrings('', ''));
-    }
-
     public function testChrToInt()
     {
         $this->assertSame(0x61, Util::chrToInt("a"));
@@ -65,6 +51,7 @@ final class UtilTest extends TestCase
      * BLAKE2b hash
      *
      * @throws CannotPerformOperation
+     * @throws TypeError
      */
     public function testHash()
     {
@@ -84,6 +71,7 @@ final class UtilTest extends TestCase
      * BLAKE2b hash
      *
      * @throws CannotPerformOperation
+     * @throws TypeError
      */
     public function testKeyedHash()
     {

@@ -33,6 +33,7 @@ final class Util
     /**
      * Don't allow this to be instantiated.
      * @throws \Error
+     * @codeCoverageIgnore
      */
     final private function __construct()
     {
@@ -64,6 +65,7 @@ final class Util
      * @param int $length
      * @return string
      * @throws CannotPerformOperation
+     * @throws \TypeError
      */
     public static function hash(
         string $input,
@@ -203,6 +205,7 @@ final class Util
      * @param int $length
      * @return string
      * @throws CannotPerformOperation
+     * @throws \TypeError
      */
     public static function keyed_hash(
         string $input,

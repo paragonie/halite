@@ -10,6 +10,8 @@
          processIsolation="false"
          stopOnError="false"
          stopOnFailure="false"
+         failOnRisky="false"
+         failOnWarning="false"
          verbose="true">
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

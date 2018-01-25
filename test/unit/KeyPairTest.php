@@ -12,10 +12,6 @@ use ParagonIE\Halite\Asymmetric\{
 use ParagonIE\Halite\HiddenString;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 final class KeyPairTest extends TestCase
 {
     /**
@@ -122,8 +118,6 @@ final class KeyPairTest extends TestCase
     }
 
     /**
-     * @covers SignatureSecretKey::getEncryptionSecretKey()
-     * @covers SignaturePublicKey::getEncryptionPublicKey()
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
@@ -142,9 +136,6 @@ final class KeyPairTest extends TestCase
     }
 
     /**
-     * @covers EncryptionSecretKey::derivePublicKey()
-     * @covers SignatureSecretKey::derivePublicKey()
-     *
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidType
      */

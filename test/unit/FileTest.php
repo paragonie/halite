@@ -508,6 +508,11 @@ final class FileTest extends TestCase
             $this->fail('Invalid type was accepted.');
         } catch (CryptoException\InvalidType $ex) {
         }
+        try {
+            File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateEncryptionKey());
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidKey $ex) {
+        }
 
         unlink(__DIR__.'/tmp/garbage.dat');
     }

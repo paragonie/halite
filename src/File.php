@@ -81,13 +81,16 @@ final class File
     ): string {
         if (\is_resource($filePath) || \is_string($filePath)) {
             $readOnly = new ReadOnlyFile($filePath);
-            $checksum = self::checksumData(
-                $readOnly,
-                $key,
-                $encoding
-            );
-            $readOnly->close();
-            return $checksum;
+            try {
+                $checksum = self::checksumData(
+                    $readOnly,
+                    $key,
+                    $encoding
+                );
+                return $checksum;
+            } finally {
+                $readOnly->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -107,6 +110,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
@@ -123,14 +127,17 @@ final class File
         ) {
             $readOnly = new ReadOnlyFile($input);
             $mutable = new MutableFile($output);
-            $data = self::encryptData(
-                $readOnly,
-                $mutable,
-                $key
-            );
-            $readOnly->close();
-            $mutable->close();
-            return $data;
+            try {
+                $data = self::encryptData(
+                    $readOnly,
+                    $mutable,
+                    $key
+                );
+                return $data;
+            } finally {
+                $readOnly->close();
+                $mutable->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -150,6 +157,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
@@ -161,7 +169,7 @@ final class File
     ): bool {
         if (
             (\is_resource($input) || \is_string($input))
-            &&
+                &&
             (\is_resource($output) || \is_string($output))
         ) {
             try {
@@ -208,19 +216,22 @@ final class File
     ): int {
         if (
             (\is_resource($input) || \is_string($input))
-            &&
+                &&
             (\is_resource($output) || \is_string($output))
         ) {
-            $readOnly = new ReadOnlyFile($input);
-            $mutable = new MutableFile($output);
-            $data = self::sealData(
-                $readOnly,
-                $mutable,
-                $publicKey
-            );
-            $readOnly->close();
-            $mutable->close();
-            return $data;
+            try {
+                $readOnly = new ReadOnlyFile($input);
+                $mutable = new MutableFile($output);
+                $data = self::sealData(
+                    $readOnly,
+                    $mutable,
+                    $publicKey
+                );
+                return $data;
+            } finally {
+                $readOnly->close();
+                $mutable->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -302,13 +313,16 @@ final class File
     ): string {
         if (\is_resource($filename) || \is_string($filename)) {
             $readOnly = new ReadOnlyFile($filename);
-            $signature = self::signData(
-                $readOnly,
-                $secretKey,
-                $encoding
-            );
-            $readOnly->close();
-            return $signature;
+            try {
+                $signature = self::signData(
+                    $readOnly,
+                    $secretKey,
+                    $encoding
+                );
+                return $signature;
+            } finally {
+                $readOnly->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -341,14 +355,17 @@ final class File
     ): bool {
         if (\is_resource($filename) || \is_string($filename)) {
             $readOnly = new ReadOnlyFile($filename);
-            $verified = self::verifyData(
-                $readOnly,
-                $publicKey,
-                $signature,
-                $encoding
-            );
-            $readOnly->close();
-            return $verified;
+            try {
+                $verified = self::verifyData(
+                    $readOnly,
+                    $publicKey,
+                    $signature,
+                    $encoding
+                );
+                return $verified;
+            } finally {
+                $readOnly->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'

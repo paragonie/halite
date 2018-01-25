@@ -473,4 +473,18 @@ class KeyTest extends TestCase
 
         );
     }
+
+    public function testInvalidSizes()
+    {
+        try {
+            new \ParagonIE\Halite\Symmetric\AuthenticationKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+        try {
+            new \ParagonIE\Halite\Symmetric\EncryptionKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+    }
 }

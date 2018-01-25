@@ -19,6 +19,7 @@ final class KeyPairTest extends TestCase
 {
     /**
      * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
      * @throws \ParagonIE\Halite\Alerts\InvalidType
@@ -59,6 +60,7 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
      * @throws \ParagonIE\Halite\Alerts\InvalidType
@@ -203,6 +205,7 @@ final class KeyPairTest extends TestCase
      * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
     public function testFileStorage()
     {
@@ -221,6 +224,7 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      */
     public function testMutation()
     {

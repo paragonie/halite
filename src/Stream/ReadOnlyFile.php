@@ -2,16 +2,16 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Stream;
 
-use ParagonIE\ConstantTime\Binary;
-use ParagonIE\Halite\Contract\StreamInterface;
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\ConstantTime\Binary;
+use \ParagonIE\Halite\Contract\StreamInterface;
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     FileAccessDenied,
     FileError,
     FileModified,
     InvalidType,
 };
-use ParagonIE\Halite\Key;
+use \ParagonIE\Halite\Key;
 
 /**
  * Class ReadOnlyFile
@@ -34,7 +34,7 @@ class ReadOnlyFile implements StreamInterface
     /**
      * @var bool
      */
-    private $closeAfter = false;
+    private $closeAfter = \false;
 
     /**
      * @var resource
@@ -54,7 +54,7 @@ class ReadOnlyFile implements StreamInterface
     /**
      * @var null|string
      */
-    private $hashKey = null;
+    private $hashKey = \null;
 
     /**
      * @var array
@@ -83,7 +83,7 @@ class ReadOnlyFile implements StreamInterface
             }
             $this->fp = $fp;
 
-            $this->closeAfter = true;
+            $this->closeAfter = \true;
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
         } elseif (\is_resource($file)) {
@@ -116,7 +116,7 @@ class ReadOnlyFile implements StreamInterface
     public function close(): void
     {
         if ($this->closeAfter) {
-            $this->closeAfter = false;
+            $this->closeAfter = \false;
             \fclose($this->fp);
             \clearstatcache();
         }
@@ -248,7 +248,7 @@ class ReadOnlyFile implements StreamInterface
     {
         $this->pos = $position;
         if (\fseek($this->fp, $position, SEEK_SET) === 0) {
-            return true;
+            return \true;
         }
         throw new CannotPerformOperation(
             'fseek() failed'

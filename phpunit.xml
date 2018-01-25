@@ -7,7 +7,7 @@
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTodoAnnotatedTests="true"
          verbose="true">
-    <testsuite>
+    <testsuite name="Paragonie/Halite Test Suite">
         <directory suffix="Test.php">test/unit</directory>
     </testsuite>
 

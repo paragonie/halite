@@ -143,10 +143,6 @@ final class AsymmetricTest extends TestCase
         $this->assertSame('', $plain->getString());
     }
 
-    /**
-     * @covers Asymmetric::encrypt()
-     * @covers Asymmetric::decrypt()
-     */
     public function testEncryptFail()
     {
         $alice = KeyFactory::generateEncryptionKeyPair();

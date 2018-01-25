@@ -17,6 +17,35 @@ use PHPUnit\Framework\TestCase;
  */
 final class UtilTest extends TestCase
 {
+    /**
+     * @expectedException \Error
+     */
+    public function testConstructorFail()
+    {
+        // Please ignore IDE errors here.
+        $x = new Util();
+    }
+
+    public function testChrToInt()
+    {
+        $this->assertSame(0x61, Util::chrToInt("a"));
+        $this->assertSame(0xe0, Util::chrToInt("\xe0"));
+        try {
+            Util::chrToInt("ab");
+        } catch (\RangeException $ex) {
+        }
+        $random = random_int(0, 255);
+        $this->assertSame(
+            $random,
+            Util::chrToInt(Util::intToChr($random))
+        );
+    }
+
+    public function testIntArrayToSring()
+    {
+        $this->assertSame("\x00\x01\x03\x04", Util::intArrayToString([0,1,3,4]), 'Unexpected result');
+        $this->assertSame("\x00\x01\x03\x04", Util::intArrayToString([256,257,259,260]), 'Masking failed');
+    }
 
     /**
      * BLAKE2b hash
@@ -83,6 +112,12 @@ final class UtilTest extends TestCase
         $saltB = str_repeat("\x80", 31) . "\x81";
         $testSalt = Util::hkdfBlake2b($ikm, $len, $info, $saltB);
         $this->assertNotEquals($test, $testSalt);
+
+        try {
+            Util::hkdfBlake2b($ikm, -1, $info, $saltB);
+            $this->fail('Invalid digest length was accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidDigestLength $ex) {
+        }
     }
 
     /**
@@ -102,6 +137,7 @@ final class UtilTest extends TestCase
      */
     public function testXorStrings()
     {
+        $this->assertSame('', Util::xorStrings('', ''));
         $a = str_repeat("\x0f", 32);
         $b = str_repeat("\x88", 32);
         $this->assertSame(

@@ -4,10 +4,6 @@ declare(strict_types=1);
 use ParagonIE\Halite\Structure\Node;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 final class NodeTest extends TestCase
 {
     public function testHash()

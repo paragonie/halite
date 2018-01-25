@@ -933,9 +933,11 @@ final class File
                 self::getConfigChecksum($major, $minor)
             );
         }
+        // @codeCoverageIgnoreStart
         throw new InvalidType(
             'Invalid configuration mode'
         );
+        // @codeCoverageIgnoreEnd
     }
 
     /**

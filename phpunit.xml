@@ -10,7 +10,6 @@
     <testsuite name="Paragonie/Halite Test Suite">
         <directory suffix="Test.php">test/unit</directory>
     </testsuite>
-
     <filter>
         <directory>./src</directory>
         <exclude>

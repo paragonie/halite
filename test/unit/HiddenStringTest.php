@@ -9,11 +9,11 @@ use PHPUnit\Framework\TestCase;
  * @backupGlobals disabled
  * @covers HiddenString
  */
-class HiddenStringTest extends TestCase
+final class HiddenStringTest extends TestCase
 {
     public function testRandomString()
     {
-        $str = Base64UrlSafe::encode(\random_bytes(32));
+        $str = Base64UrlSafe::encode(random_bytes(32));
 
         $sets = [
             [true, true],
@@ -27,23 +27,23 @@ class HiddenStringTest extends TestCase
             ob_start();
             var_dump($hidden);
             $dump = ob_get_clean();
-            $this->assertFalse(\strpos($dump, $str));
+            $this->assertFalse(strpos($dump, $str));
 
             $print = \print_r($hidden, true);
-            $this->assertFalse(\strpos($print, $str));
+            $this->assertFalse(strpos($print, $str));
 
             $cast = (string) $hidden;
             if ($set[0]) {
-                $this->assertFalse(\strpos($cast, $str));
+                $this->assertFalse(strpos($cast, $str));
             } else {
-                $this->assertNotFalse(\strpos($cast, $str));
+                $this->assertNotFalse(strpos($cast, $str));
             }
 
-            $serial = \serialize($hidden);
+            $serial = serialize($hidden);
             if ($set[1]) {
-                $this->assertFalse(\strpos($serial, $str));
+                $this->assertFalse(strpos($serial, $str));
             } else {
-                $this->assertNotFalse(\strpos($serial, $str));
+                $this->assertNotFalse(strpos($serial, $str));
             }
         }
     }

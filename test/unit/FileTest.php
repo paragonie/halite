@@ -146,6 +146,17 @@ final class FileTest extends TestCase
             unlink(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png');
             unlink(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png');
         }
+
+        try {
+            File::encrypt(true, false, $key);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
+        try {
+            File::decrypt(true, false, $key);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
     }
 
     /**
@@ -355,6 +366,17 @@ final class FileTest extends TestCase
             unlink(__DIR__.'/tmp/paragon_avatar.seal_fail.png');
             unlink(__DIR__.'/tmp/paragon_avatar.open_fail.png');
         }
+
+        try {
+            File::seal(true, false, $publickey);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
+        try {
+            File::unseal(true, false, $secretkey);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
     }
 
     /**
@@ -437,6 +459,17 @@ final class FileTest extends TestCase
                 $signature
             )
         );
+
+        try {
+            File::sign(true, $secretkey);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
+        try {
+            File::verify(false, $publickey, '');
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
     }
 
     /**
@@ -466,6 +499,16 @@ final class FileTest extends TestCase
             $hash,
             $file
         );
+
+        File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateAuthenticationKey(), true);
+        File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateSignatureKeyPair()->getPublicKey(), true);
+
+        try {
+            File::checksum(false);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
+
         unlink(__DIR__.'/tmp/garbage.dat');
     }
 }

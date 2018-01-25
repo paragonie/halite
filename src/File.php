@@ -1175,7 +1175,9 @@ final class File
                     $cipher_end - $input->getPos()
                 );
             } else {
+                // @codeCoverageIgnoreStart
                 $read = $input->readBytes((int) $config->BUFFER);
+                // @codeCoverageIgnoreEnd
             }
 
             // Version 2+ uses a keyed BLAKE2b hash instead of HMAC

@@ -2,8 +2,8 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Asymmetric;
 
-use ParagonIE\ConstantTime\Binary;
-use ParagonIE\Halite\Alerts\{
+use \ParagonIE\ConstantTime\Binary;
+use \ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
     InvalidDigestLength,
     InvalidKey,
@@ -11,7 +11,7 @@ use ParagonIE\Halite\Alerts\{
     InvalidSignature,
     InvalidType
 };
-use ParagonIE\Halite\{
+use \ParagonIE\Halite\{
     Halite,
     HiddenString,
     Key,
@@ -312,7 +312,7 @@ final class Crypto
         } else {
             throw new InvalidKey('An invalid key type was provided');
         }
-        $signature = self::sign($message->getString(), $secretKey, true);
+        $signature = self::sign($message->getString(), $secretKey, \true);
         $plaintext = new HiddenString($signature . $message->getString());
         \sodium_memzero($signature);
 
@@ -338,7 +338,7 @@ final class Crypto
         EncryptionSecretKey $privateKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
-        $decoder = Halite::chooseEncoder($encoding, true);
+        $decoder = Halite::chooseEncoder($encoding, \true);
         if ($decoder) {
             // We were given hex data:
             try {
@@ -371,7 +371,7 @@ final class Crypto
 
         // Always memzero after retrieving a value
         \sodium_memzero($key_pair);
-        if ($message === false) {
+        if ($message === \false) {
             throw new InvalidKey(
                 'Incorrect secret key for this sealed message'
             );
@@ -400,7 +400,7 @@ final class Crypto
         string $signature,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): bool {
-        $decoder = Halite::chooseEncoder($encoding, true);
+        $decoder = Halite::chooseEncoder($encoding, \true);
         if ($decoder) {
             // We were given hex data:
             /** @var string $signature */

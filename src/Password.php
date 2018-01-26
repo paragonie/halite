@@ -165,16 +165,20 @@ final class Password
             /** @var string $decoded */
             $decoded = Base64UrlSafe::decode($stored);
             if (!\is_string($decoded)) {
+                // @codeCoverageIgnoreStart
                 \sodium_memzero($stored);
                 throw new InvalidMessage('Invalid encoding');
+                // @codeCoverageIgnoreEnd
             }
             return SymmetricConfig::getConfig(
                 $decoded,
                 'encrypt'
             );
         }
+        // @codeCoverageIgnoreStart
         $v = Hex::decode(Binary::safeSubstr($stored, 0, 8));
         return SymmetricConfig::getConfig($v, 'encrypt');
+        // @codeCoverageIgnoreEnd
     }
 
     /**

@@ -138,11 +138,13 @@ final class Util
 
         // HKDF-Expand:
         // This check is useless, but it serves as a reminder to the spec.
+        // @codeCoverageIgnoreStart
         if (Binary::safeStrlen($prk) < \SODIUM_CRYPTO_GENERICHASH_KEYBYTES) {
             throw new CannotPerformOperation(
                 'An unknown error has occurred'
             );
         }
+        // @codeCoverageIgnoreEnd
         // T(0) = ''
         $t = '';
         $last_block = '';

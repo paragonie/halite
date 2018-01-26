@@ -175,8 +175,15 @@ final class KeyPairTest extends TestCase
         }
         try {
             new EncryptionKeyPair(
+                KeyFactory::generateEncryptionKey()
+            );
+            $this->fail('Symmetric key was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+        try {
+            new EncryptionKeyPair(
                 $boxSecret,
-                KeyFactory::generateAuthenticationKey()
+                KeyFactory::generateEncryptionKey()
             );
             $this->fail('Symmetric key was erroneously accepted');
         } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
@@ -314,6 +321,13 @@ final class KeyPairTest extends TestCase
         }
         try {
             new SignatureKeyPair(
+                KeyFactory::generateAuthenticationKey()
+            );
+            $this->fail('Symmetric key was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+        try {
+            new SignatureKeyPair(
                 $signSecret,
                 KeyFactory::generateAuthenticationKey()
             );
@@ -342,6 +356,9 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
     public function testPublicDerivation()
     {

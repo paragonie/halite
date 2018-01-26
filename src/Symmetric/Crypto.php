@@ -134,7 +134,7 @@ final class Crypto
         $decoder = Halite::chooseEncoder($encoding, true);
         if (\is_callable($decoder)) {
             // We were given encoded data:
-            //  @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart
             try {
                 /** @var string $ciphertext */
                 $ciphertext = $decoder($ciphertext);
@@ -143,7 +143,7 @@ final class Crypto
                     'Invalid character encoding'
                 );
             }
-            //  @codeCoverageIgnoreEnd
+            // @codeCoverageIgnoreEnd
         }
         /** @var array $pieces */
         $pieces = self::unpackMessageForDecryption($ciphertext);
@@ -160,13 +160,13 @@ final class Crypto
         /** @var string $auth */
         $auth = $pieces[5];
 
-        //  @codeCoverageIgnoreStart
+        // @codeCoverageIgnoreStart
         if (!($config instanceof Config)) {
             throw new CannotPerformOperation(
                 'Config is not an instance of Config. This should not happen.'
             );
         }
-        //  @codeCoverageIgnoreEnd
+        // @codeCoverageIgnoreEnd
 
         /* Split our key into two keys: One for encryption, the other for
            authentication. By using separate keys, we can reasonably dismiss
@@ -209,11 +209,11 @@ final class Crypto
             (string) $encKey
         );
         if (!\is_string($plaintext)) {
-            //  @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart
             throw new InvalidMessage(
                 'Invalid message'
             );
-            //  @codeCoverageIgnoreEnd
+            // @codeCoverageIgnoreEnd
         }
         \sodium_memzero($encrypted);
         \sodium_memzero($nonce);
@@ -273,14 +273,14 @@ final class Crypto
         $config = SymmetricConfig::getConfig(Halite::HALITE_VERSION, 'encrypt');
 
         // Generate a nonce and HKDF salt:
-        //  @codeCoverageIgnoreStart
+        // @codeCoverageIgnoreStart
         try {
             $nonce = \random_bytes(\SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
             $salt = \random_bytes((int) $config->HKDF_SALT_LEN);
         } catch (\Throwable $ex) {
             throw new CannotPerformOperation($ex->getMessage());
         }
-        //  @codeCoverageIgnoreEnd
+        // @codeCoverageIgnoreEnd
 
         /* Split our key into two keys: One for encryption, the other for
            authentication. By using separate keys, we can reasonably dismiss
@@ -508,11 +508,11 @@ final class Crypto
                 (int) $config->MAC_SIZE
             );
         }
-        //  @codeCoverageIgnoreStart
+        // @codeCoverageIgnoreStart
         throw new InvalidMessage(
             'Invalid Halite version'
         );
-        //  @codeCoverageIgnoreEnd
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -535,11 +535,11 @@ final class Crypto
         SymmetricConfig $config
     ): bool {
         if (Binary::safeStrlen($mac) !== $config->MAC_SIZE) {
-            //  @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart
             throw new InvalidSignature(
                 'Argument 1: Message Authentication Code is not the correct length; is it encoded?'
             );
-            //  @codeCoverageIgnoreEnd
+            // @codeCoverageIgnoreEnd
         }
         if ($config->MAC_ALGO === 'BLAKE2b') {
             $calc = \sodium_crypto_generichash(

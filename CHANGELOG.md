@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 4.3.0 (2018-01-15)
+
+* You can now quickly turn a `SignatureKeyPair` object into a birationally
+  equivalent EncryptionKeyPair object by invoking the `getEncryptionKeyPair()`
+  method.
+* We now have 100% unit test coverage, in addition to our static analysis.
+
 ## Version 4.2.0 (2018-01-15)
 
 * Implemented `Asymmetric::signAndEncrypt()` and `Asymmetric::verifyAndDecrypt()`,

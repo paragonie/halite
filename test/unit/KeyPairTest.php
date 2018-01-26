@@ -236,6 +236,7 @@ final class KeyPairTest extends TestCase
     public function testMutation()
     {
         $sign_kp = KeyFactory::generateSignatureKeyPair();
+        $box_kp = $sign_kp->getEncryptionKeyPair();
         $sign_sk = $sign_kp->getSecretKey();
         $sign_pk = $sign_kp->getPublicKey();
 
@@ -244,6 +245,10 @@ final class KeyPairTest extends TestCase
         $this->assertSame(
             Hex::encode($enc_pk->getRawKeyMaterial()),
             Hex::encode($enc_sk->derivePublicKey()->getRawKeyMaterial())
+        );
+        $this->assertSame(
+            Hex::encode($enc_sk->getRawKeyMaterial()),
+            Hex::encode($box_kp->getSecretKey()->getRawKeyMaterial())
         );
     }
 

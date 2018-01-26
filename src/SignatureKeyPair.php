@@ -121,6 +121,19 @@ final class SignatureKeyPair extends KeyPair
     }
 
     /**
+     * @return EncryptionKeyPair
+     * @throws InvalidKey
+     * @throws \TypeError
+     */
+    public function getEncryptionKeyPair(): EncryptionKeyPair
+    {
+        return new EncryptionKeyPair(
+            $this->secretKey->getEncryptionSecretKey(),
+            $this->publicKey->getEncryptionPublicKey()
+        );
+    }
+
+    /**
      * Set up our key pair
      *
      * @param SignatureSecretKey $secret

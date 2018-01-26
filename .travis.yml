@@ -2,8 +2,7 @@ language: php
 sudo: required
 dist: trusty
 php:
-    - "7.2.0"
-    - "7.2.1"
+    - "7.2"
     - "master"
     - "nightly"
 matrix:

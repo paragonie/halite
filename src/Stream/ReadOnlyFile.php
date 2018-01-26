@@ -210,6 +210,7 @@ class ReadOnlyFile implements StreamInterface
      */
     public function readBytes(int $num, bool $skipTests = false): string
     {
+        // @codeCoverageIgnoreStart
         if ($num < 0) {
             throw new CannotPerformOperation('num < 0');
         } elseif ($num === 0) {
@@ -219,16 +220,17 @@ class ReadOnlyFile implements StreamInterface
             throw new CannotPerformOperation('Out-of-bounds read');
         }
         $buf = '';
+        // @codeCoverageIgnoreEnd
         $remaining = $num;
         if (!$skipTests) {
             $this->toctouTest();
         }
         do {
+            // @codeCoverageIgnoreStart
             if ($remaining <= 0) {
-                // @codeCoverageIgnoreStart
                 break;
-                // @codeCoverageIgnoreEnd
             }
+            // @codeCoverageIgnoreEnd
             /** @var string $read */
             $read = \fread($this->fp, $remaining);
             if (!\is_string($read)) {

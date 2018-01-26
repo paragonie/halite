@@ -185,12 +185,14 @@ final class Crypto
 
         // Check the MAC first
         if (!self::verifyMAC(
+            // @codeCoverageIgnoreStart
             (string) $auth,
             (string) $version .
                 (string) $salt .
                 (string) $nonce .
                 (string) $additionalData .
                 (string) $encrypted,
+            // @codeCoverageIgnoreEnd
             $authKey,
             $config
         )) {

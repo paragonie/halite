@@ -158,10 +158,10 @@ class MutableFile implements StreamInterface
         } elseif ($num === 0) {
             return '';
         }
-        // @codeCoverageIgnoreEnd
         if (($this->pos + $num) > $this->stat['size']) {
             throw new CannotPerformOperation('Out-of-bounds read');
         }
+        // @codeCoverageIgnoreEnd
         $buf = '';
         $remaining = $num;
         do {
@@ -250,9 +250,11 @@ class MutableFile implements StreamInterface
         // @codeCoverageIgnoreEnd
         $remaining = $num;
         do {
+            // @codeCoverageIgnoreStart
             if ($remaining <= 0) {
                 break;
             }
+            // @codeCoverageIgnoreEnd
             $written = \fwrite($this->fp, $buf, $remaining);
             if ($written === false) {
                 // @codeCoverageIgnoreStart

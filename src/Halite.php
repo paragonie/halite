@@ -57,6 +57,7 @@ final class Halite
      * Don't allow this to be instantiated.
      *
      * @throws \Error
+     * @codeCoverageIgnore
      */
     final private function __construct()
     {

@@ -216,5 +216,11 @@ final class PasswordTest extends TestCase
             Password::needsRehash($hash, $key),
             'Failure: Password always needs a rehash'
         );
+        $this->assertTrue(
+            Password::needsRehash($hash, $key, KeyFactory::SENSITIVE)
+        );
+        $this->assertTrue(
+            Password::needsRehash($hash, $key, 'anything')
+        );
     }
 }

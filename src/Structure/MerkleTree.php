@@ -65,14 +65,18 @@ class MerkleTree
     {
         $this->nodes = $nodes;
     }
-    
+
     /**
      * Get the root hash of this Merkle tree.
      *
      * @param bool $raw - Do we want a raw string instead of a hex string?
-     * 
+     *
      * @return string
      * @throws CannotPerformOperation
+     *
+     * @return string
+     * @throws CannotPerformOperation
+     * @throws \TypeError
      */
     public function getRoot(bool $raw = false): string
     {
@@ -154,6 +158,7 @@ class MerkleTree
      *
      * @return self
      * @throws CannotPerformOperation
+     * @codeCoverageIgnore
      */
     public function triggerRootCalculation(): self
     {
@@ -208,6 +213,7 @@ class MerkleTree
                 /** @var string $prev */
                 $curr = (string) ($hash[$i] ?? '');
                 if (empty($hash[$i + 1])) {
+                    // @codeCoverageIgnoreStart
                     $tmp[$j] = Util::raw_hash(
                         self::MERKLE_BRANCH .
                             $this->personalization .
@@ -215,6 +221,7 @@ class MerkleTree
                             $curr,
                         $this->outputSize
                     );
+                    // @codeCoverageIgnoreEnd
                 } else {
                     /** @var string $curr */
                     $curr = (string) ($hash[$i] ?? '');

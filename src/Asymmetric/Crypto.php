@@ -41,6 +41,7 @@ final class Crypto
      * Don't allow this to be instantiated.
      *
      * @throws \Error
+     * @codeCoverageIgnore
      */
     final private function __construct()
     {
@@ -89,6 +90,7 @@ final class Crypto
      * @return string
      *
      * @throws CannotPerformOperation
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidDigestLength
      * @throws InvalidType
@@ -105,9 +107,11 @@ final class Crypto
             $ourPrivateKey,
             $theirPublicKey
         );
+        //  @codeCoverageIgnoreStart
         if (!($ss instanceof HiddenString)) {
             throw new \TypeError();
         }
+        //  @codeCoverageIgnoreEnd
         $sharedSecretKey = new EncryptionKey($ss);
         $ciphertext = SymmetricCrypto::encryptWithAd(
             $plaintext,
@@ -163,6 +167,7 @@ final class Crypto
      *
      * @throws CannotPerformOperation
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidSignature
      * @throws InvalidType
@@ -179,9 +184,11 @@ final class Crypto
             $ourPrivateKey,
             $theirPublicKey
         );
+        //  @codeCoverageIgnoreStart
         if (!($ss instanceof HiddenString)) {
             throw new \TypeError();
         }
+        //  @codeCoverageIgnoreEnd
         $sharedSecretKey = new EncryptionKey($ss);
         $plaintext = SymmetricCrypto::decryptWithAd(
             $ciphertext,
@@ -204,6 +211,7 @@ final class Crypto
      * @param bool $get_as_object             Get as a Key object?
      * @return HiddenString|Key
      *
+     * @throws InvalidKey
      * @throws \TypeError
      */
     public static function getSharedSecret(
@@ -310,7 +318,9 @@ final class Crypto
         } elseif ($recipientPublicKey instanceof EncryptionPublicKey) {
             $publicKey = $recipientPublicKey;
         } else {
+            //  @codeCoverageIgnoreStart
             throw new InvalidKey('An invalid key type was provided');
+            //  @codeCoverageIgnoreEnd
         }
         $signature = self::sign($message->getString(), $secretKey, true);
         $plaintext = new HiddenString($signature . $message->getString());
@@ -372,9 +382,11 @@ final class Crypto
         // Always memzero after retrieving a value
         \sodium_memzero($key_pair);
         if ($message === false) {
+            //  @codeCoverageIgnoreStart
             throw new InvalidKey(
                 'Incorrect secret key for this sealed message'
             );
+            //  @codeCoverageIgnoreEnd
         }
 
         // We have our encrypted message here
@@ -407,9 +419,11 @@ final class Crypto
             $signature = $decoder($signature);
         }
         if (Binary::safeStrlen($signature) !== SODIUM_CRYPTO_SIGN_BYTES) {
+            //  @codeCoverageIgnoreStart
             throw new InvalidSignature(
                 'Signature is not the correct length; is it encoded?'
             );
+            //  @codeCoverageIgnoreEnd
         }
         
         return (bool) \sodium_crypto_sign_verify_detached(
@@ -447,7 +461,9 @@ final class Crypto
         } elseif ($givenSecretKey instanceof EncryptionSecretKey) {
             $secretKey = $givenSecretKey;
         } else {
+            //  @codeCoverageIgnoreStart
             throw new InvalidKey('An invalid key type was provided');
+            //  @codeCoverageIgnoreEnd
         }
         $senderEncKey = $senderPublicKey->getEncryptionPublicKey();
         $decrypted = self::decrypt($ciphertext, $secretKey, $senderEncKey, $encoding);

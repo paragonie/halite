@@ -48,6 +48,10 @@ final class MerkleTreeTest extends TestCase
             $treeA->getRoot(),
             $treeB->getRoot()
         );
+        $this->assertSame(
+            $treeA->getRoot(true),
+            $treeB->getRoot(true)
+        );
         
         $treeC = $treeA->getExpandedTree(
             new Node('e'),
@@ -93,6 +97,17 @@ final class MerkleTreeTest extends TestCase
             '0e97a7c708bc8350809ecbeb941d9338af894c37d5fbfb6c3aa2f7ee0bc798f07d7505f33c5b6a6200c191efc51d9c4c0fd2d1397fe7291628aee424ff9093c3',
             $treeA->getRoot()
         );
+
+        try {
+            $treeA->setHashSize(SODIUM_CRYPTO_GENERICHASH_BYTES_MIN - 1);
+            $this->fail('Invalid hash size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidDigestLength $ex) {
+        }
+        try {
+            $treeA->setHashSize(SODIUM_CRYPTO_GENERICHASH_BYTES_MAX + 1);
+            $this->fail('Invalid hash size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidDigestLength $ex) {
+        }
     }
 
     public function testPersonalizedHash()

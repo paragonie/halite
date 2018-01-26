@@ -446,13 +446,17 @@ final class File
         if ($encoder) {
             return (string) $encoder(
                 \sodium_crypto_generichash_final(
+                    // @codeCoverageIgnoreStart
                     $state,
+                    // @codeCoverageIgnoreEnd
                     (int) $config->HASH_LEN
                 )
             );
         }
         return (string) \sodium_crypto_generichash_final(
+            // @codeCoverageIgnoreStart
             $state,
+            // @codeCoverageIgnoreEnd
             (int) $config->HASH_LEN
         );
     }

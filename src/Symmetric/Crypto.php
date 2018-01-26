@@ -482,8 +482,10 @@ final class Crypto
                 $secretKey->getRawKeyMaterial(),
                 $config
             );
+        // @codeCoverageIgnoreStart
         } catch (InvalidMessage $ex) {
             return false;
+        // @codeCoverageIgnoreEnd
         }
     }
 
@@ -551,8 +553,10 @@ final class Crypto
             \sodium_memzero($calc);
             return $res;
         }
+        // @codeCoverageIgnoreStart
         throw new InvalidMessage(
             'Invalid Halite version'
         );
+        // @codeCoverageIgnoreEnd
     }
 }

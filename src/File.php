@@ -1297,7 +1297,9 @@ final class File
             /** @var string $chunkMAC */
             $chunkMAC = Util::safeStrcpy($mac);
             $chunkMACs []= \sodium_crypto_generichash_final(
+                // @codeCoverageIgnoreStart
                 $chunkMAC,
+                // @codeCoverageIgnoreEnd
                 (int) $config->MAC_SIZE
             );
         }
@@ -1306,7 +1308,9 @@ final class File
          * We should now have enough data to generate an identical MAC
          */
         $finalHMAC = \sodium_crypto_generichash_final(
+            // @codeCoverageIgnoreStart
             $mac,
+            // @codeCoverageIgnoreEnd
             (int) $config->MAC_SIZE
         );
 

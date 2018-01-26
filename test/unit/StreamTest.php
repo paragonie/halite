@@ -69,6 +69,7 @@ final class StreamTest extends TestCase
         } catch (CryptoException\FileAccessDenied $ex) {
             $this->assertSame('Could not open file for writing', $ex->getMessage());
         }
+        unlink($filename);
     }
 
     /**
@@ -162,12 +163,20 @@ final class StreamTest extends TestCase
         
         try {
             $fStream->readBytes(65537);
-            throw new Exception('fail');
+            $this->fail('File was mutated after being read');
         } catch (CryptoException\FileModified $ex) {
             $this->assertTrue(
                 $ex instanceof CryptoException\FileModified
             );
         }
+
+        $fStream = new ReadOnlyFile($filename);
+        try {
+            $fStream->writeBytes('test');
+            $this->fail('Attempt to write to ReadOnlyFile should raise exception.');
+        } catch (CryptoException\FileAccessDenied $ex) {
+        }
+
         foreach ([255, 65537] as $size) {
             $buffer = random_bytes($size);
             $fileWrite = tempnam('/tmp', 'x');

@@ -11,6 +11,22 @@ use PHPUnit\Framework\TestCase;
 
 final class FileTest extends TestCase
 {
+    public function setUp()
+    {
+        chmod(__DIR__.'/tmp/', 0777);
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testEncrypt()
     {
         touch(__DIR__.'/tmp/paragon_avatar.encrypted.png');
@@ -41,10 +57,25 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/paragon_avatar.decrypted.png');
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testEncryptEmpty()
     {
         file_put_contents(__DIR__.'/tmp/empty.txt', '');
         chmod(__DIR__.'/tmp/empty.txt', 0777);
+        touch(__DIR__.'/tmp/empty.encrypted.txt');
+        chmod(__DIR__.'/tmp/empty.encrypted.txt', 0777);
+        touch(__DIR__.'/tmp/empty.decrypted.txt');
+        chmod(__DIR__.'/tmp/empty.decrypted.txt', 0777);
 
         $key = new EncryptionKey(
             new HiddenString(\str_repeat('B', 32))
@@ -70,6 +101,17 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/empty.decrypted.txt');
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testEncryptFail()
     {
         touch(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png');
@@ -104,10 +146,36 @@ final class FileTest extends TestCase
             unlink(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png');
             unlink(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png');
         }
+
+        try {
+            File::encrypt(true, false, $key);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
+        try {
+            File::decrypt(true, false, $key);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testEncryptSmallFail()
     {
+        touch(__DIR__.'/tmp/empty.encrypted.txt');
+        chmod(__DIR__.'/tmp/empty.encrypted.txt', 0777);
+        touch(__DIR__.'/tmp/empty.decrypted.txt');
+        chmod(__DIR__.'/tmp/empty.decrypted.txt', 0777);
+
         $msg = 'Input file is too small to have been encrypted by Halite.';
         $key = new EncryptionKey(
             new HiddenString(str_repeat('B', 32))
@@ -163,6 +231,17 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/empty.decrypted.txt');
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
+     */
     public function testSeal()
     {
         touch(__DIR__.'/tmp/paragon_avatar.sealed.png');
@@ -195,10 +274,25 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/paragon_avatar.opened.png');
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
+     */
     public function testSealEmpty()
     {
         file_put_contents(__DIR__.'/tmp/empty.txt', '');
         chmod(__DIR__.'/tmp/empty.txt', 0777);
+        touch(__DIR__.'/tmp/empty.sealed.txt');
+        chmod(__DIR__.'/tmp/empty.sealed.txt', 0777);
+        touch(__DIR__.'/tmp/empty.unsealed.txt');
+        chmod(__DIR__.'/tmp/empty.unsealed.txt', 0777);
 
         $keypair = KeyFactory::generateEncryptionKeyPair();
             $secretkey = $keypair->getSecretKey();
@@ -226,6 +320,17 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/empty.unsealed.txt');
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
+     */
     public function testSealFail()
     {
         touch(__DIR__.'/tmp/paragon_avatar.seal_fail.png');
@@ -261,10 +366,35 @@ final class FileTest extends TestCase
             unlink(__DIR__.'/tmp/paragon_avatar.seal_fail.png');
             unlink(__DIR__.'/tmp/paragon_avatar.open_fail.png');
         }
+
+        try {
+            File::seal(true, false, $publickey);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
+        try {
+            File::unseal(true, false, $secretkey);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testSealSmallFail()
     {
+        touch(__DIR__.'/tmp/empty.sealed.txt');
+        chmod(__DIR__.'/tmp/empty.sealed.txt', 0777);
+        touch(__DIR__.'/tmp/empty.unsealed.txt');
+        chmod(__DIR__.'/tmp/empty.unsealed.txt', 0777);
+
         $msg = 'Input file is too small to have been encrypted by Halite.';
         $keypair = KeyFactory::generateEncryptionKeyPair();
         $secretkey = $keypair->getSecretKey();
@@ -301,6 +431,16 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/empty.unsealed.txt');
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testSign()
     {
         $keypair = KeyFactory::generateSignatureKeyPair();
@@ -319,8 +459,28 @@ final class FileTest extends TestCase
                 $signature
             )
         );
+
+        try {
+            File::sign(true, $secretkey);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
+        try {
+            File::verify(false, $publickey, '');
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testChecksum()
     {
         $csum = File::checksum(__DIR__.'/tmp/paragon_avatar.png', null, false);
@@ -339,6 +499,21 @@ final class FileTest extends TestCase
             $hash,
             $file
         );
+
+        File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateAuthenticationKey(), true);
+        File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateSignatureKeyPair()->getPublicKey(), true);
+
+        try {
+            File::checksum(false);
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidType $ex) {
+        }
+        try {
+            File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateEncryptionKey());
+            $this->fail('Invalid type was accepted.');
+        } catch (CryptoException\InvalidKey $ex) {
+        }
+
         unlink(__DIR__.'/tmp/garbage.dat');
     }
 }

@@ -48,6 +48,7 @@ final class File
      * Don't allow this to be instantiated.
      *
      * @throws \Error
+     * @codeCoverageIgnore
      */
     final private function __construct()
     {
@@ -80,13 +81,16 @@ final class File
     ): string {
         if (\is_resource($filePath) || \is_string($filePath)) {
             $readOnly = new ReadOnlyFile($filePath);
-            $checksum = self::checksumData(
-                $readOnly,
-                $key,
-                $encoding
-            );
-            $readOnly->close();
-            return $checksum;
+            try {
+                $checksum = self::checksumData(
+                    $readOnly,
+                    $key,
+                    $encoding
+                );
+                return $checksum;
+            } finally {
+                $readOnly->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -106,6 +110,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
@@ -122,14 +127,17 @@ final class File
         ) {
             $readOnly = new ReadOnlyFile($input);
             $mutable = new MutableFile($output);
-            $data = self::encryptData(
-                $readOnly,
-                $mutable,
-                $key
-            );
-            $readOnly->close();
-            $mutable->close();
-            return $data;
+            try {
+                $data = self::encryptData(
+                    $readOnly,
+                    $mutable,
+                    $key
+                );
+                return $data;
+            } finally {
+                $readOnly->close();
+                $mutable->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -149,6 +157,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
@@ -160,7 +169,7 @@ final class File
     ): bool {
         if (
             (\is_resource($input) || \is_string($input))
-            &&
+                &&
             (\is_resource($output) || \is_string($output))
         ) {
             try {
@@ -207,19 +216,22 @@ final class File
     ): int {
         if (
             (\is_resource($input) || \is_string($input))
-            &&
+                &&
             (\is_resource($output) || \is_string($output))
         ) {
-            $readOnly = new ReadOnlyFile($input);
-            $mutable = new MutableFile($output);
-            $data = self::sealData(
-                $readOnly,
-                $mutable,
-                $publicKey
-            );
-            $readOnly->close();
-            $mutable->close();
-            return $data;
+            try {
+                $readOnly = new ReadOnlyFile($input);
+                $mutable = new MutableFile($output);
+                $data = self::sealData(
+                    $readOnly,
+                    $mutable,
+                    $publicKey
+                );
+                return $data;
+            } finally {
+                $readOnly->close();
+                $mutable->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -301,13 +313,16 @@ final class File
     ): string {
         if (\is_resource($filename) || \is_string($filename)) {
             $readOnly = new ReadOnlyFile($filename);
-            $signature = self::signData(
-                $readOnly,
-                $secretKey,
-                $encoding
-            );
-            $readOnly->close();
-            return $signature;
+            try {
+                $signature = self::signData(
+                    $readOnly,
+                    $secretKey,
+                    $encoding
+                );
+                return $signature;
+            } finally {
+                $readOnly->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -340,14 +355,17 @@ final class File
     ): bool {
         if (\is_resource($filename) || \is_string($filename)) {
             $readOnly = new ReadOnlyFile($filename);
-            $verified = self::verifyData(
-                $readOnly,
-                $publicKey,
-                $signature,
-                $encoding
-            );
-            $readOnly->close();
-            return $verified;
+            try {
+                $verified = self::verifyData(
+                    $readOnly,
+                    $publicKey,
+                    $signature,
+                    $encoding
+                );
+                return $verified;
+            } finally {
+                $readOnly->close();
+            }
         }
         throw new InvalidType(
             'Argument 1: Expected a filename or resource'
@@ -393,7 +411,9 @@ final class File
                 $key->getRawKeyMaterial(),
                 (int) $config->HASH_LEN
             );
+        // @codeCoverageIgnoreStart
         } elseif (isset($key)) {
+        // @codeCoverageIgnoreEnd
             throw new InvalidKey(
                 'Argument 2: Expected an instance of AuthenticationKey or SignaturePublicKey'
             );
@@ -412,8 +432,10 @@ final class File
                 /** @var int $amount_to_read */
                 $amount_to_read = ($size - $fileStream->getPos());
             } else {
+                // @codeCoverageIgnoreStart
                 /** @var int $amount_to_read */
                 $amount_to_read = (int) $config->BUFFER;
+                // @codeCoverageIgnoreEnd
             }
             $read = $fileStream->readBytes($amount_to_read);
             \sodium_crypto_generichash_update($state, $read);
@@ -424,20 +446,22 @@ final class File
         if ($encoder) {
             return (string) $encoder(
                 \sodium_crypto_generichash_final(
+                    // @codeCoverageIgnoreStart
                     $state,
+                    // @codeCoverageIgnoreEnd
                     (int) $config->HASH_LEN
                 )
             );
         }
         return (string) \sodium_crypto_generichash_final(
+            // @codeCoverageIgnoreStart
             $state,
+            // @codeCoverageIgnoreEnd
             (int) $config->HASH_LEN
         );
     }
 
     /**
-     * Encrypt the contents of a file.
-     *
      * @param ReadOnlyFile $input
      * @param MutableFile $output
      * @param EncryptionKey $key
@@ -448,6 +472,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
@@ -460,12 +485,14 @@ final class File
         $config = self::getConfig(Halite::HALITE_VERSION_FILE, 'encrypt');
 
         // Generate a nonce and HKDF salt
+        // @codeCoverageIgnoreStart
         try {
             $firstNonce = \random_bytes((int) $config->NONCE_BYTES);
             $hkdfSalt = \random_bytes((int) $config->HKDF_SALT_LEN);
         } catch (\Throwable $ex) {
             throw new CannotPerformOperation($ex->getMessage());
         }
+        // @codeCoverageIgnoreEnd
 
         // Let's split our key
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
@@ -518,6 +545,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
@@ -623,9 +651,11 @@ final class File
 
         // Calculate the shared secret key
         $sharedSecretKey = AsymmetricCrypto::getSharedSecret($ephSecret, $publicKey, true);
+        // @codeCoverageIgnoreStart
         if (!($sharedSecretKey instanceof EncryptionKey)) {
-            throw new \TypeError();
+            throw new \TypeError('Shared secret is the wrong key type.');
         }
+        // @codeCoverageIgnoreEnd
 
         // Destroy the secret key after we have the shared secret
         unset($ephSecret);
@@ -757,9 +787,11 @@ final class File
             $ephemeral,
             true
         );
-        if (!($key instanceof Key)) {
+        // @codeCoverageIgnoreStart
+        if (!($key instanceof EncryptionKey)) {
             throw new \TypeError();
         }
+        // @codeCoverageIgnoreEnd
         unset($ephemeral);
 
         /**
@@ -884,9 +916,11 @@ final class File
         string $mode = 'encrypt'
     ): Config {
         if (\ord($header[0]) !== 49 || \ord($header[1]) !== 65) {
+            // @codeCoverageIgnoreStart
             throw new InvalidMessage(
                 'Invalid version tag'
             );
+            // @codeCoverageIgnoreEnd
         }
         $major = \ord($header[2]);
         $minor = \ord($header[3]);
@@ -903,9 +937,11 @@ final class File
                 self::getConfigChecksum($major, $minor)
             );
         }
+        // @codeCoverageIgnoreStart
         throw new InvalidType(
             'Invalid configuration mode'
         );
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -944,9 +980,11 @@ final class File
             }
         }
         // If we reach here, we've got an invalid version tag:
+        // @codeCoverageIgnoreStart
         throw new InvalidMessage(
             'Invalid version tag'
         );
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -986,9 +1024,11 @@ final class File
                     ];
             }
         }
+        // @codeCoverageIgnoreStart
         throw new InvalidMessage(
             'Invalid version tag'
         );
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -1011,9 +1051,11 @@ final class File
                     ];
             }
         }
+        // @codeCoverageIgnoreStart
         throw new InvalidMessage(
             'Invalid version tag'
         );
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -1100,9 +1142,11 @@ final class File
 
         // Check that our input file was not modified before we MAC it
         if (!\hash_equals($input->getHash(), $initHash)) {
+            // @codeCoverageIgnoreStart
             throw new FileModified(
                 'Read-only file has been modified since it was opened for reading'
             );
+            // @codeCoverageIgnoreEnd
         }
         $written += $output->writeBytes(
             \sodium_crypto_generichash_final($mac, (int) $config->MAC_SIZE),
@@ -1156,7 +1200,9 @@ final class File
                     $cipher_end - $input->getPos()
                 );
             } else {
+                // @codeCoverageIgnoreStart
                 $read = $input->readBytes((int) $config->BUFFER);
+                // @codeCoverageIgnoreEnd
             }
 
             // Version 2+ uses a keyed BLAKE2b hash instead of HMAC
@@ -1165,18 +1211,22 @@ final class File
             $calc = \sodium_crypto_generichash_final($calcMAC, (int) $config->MAC_SIZE);
 
             if (empty($chunk_macs)) {
+                // @codeCoverageIgnoreStart
                 // Someone attempted to add a chunk at the end.
                 throw new InvalidMessage(
                     'Invalid message authentication code'
                 );
+                // @codeCoverageIgnoreEnd
             } else {
                 /** @var string $chunkMAC */
                 $chunkMAC = \array_shift($chunk_macs);
                 if (!\hash_equals($chunkMAC, $calc)) {
                     // This chunk was altered after the original MAC was verified
+                    // @codeCoverageIgnoreStart
                     throw new InvalidMessage(
                         'Invalid message authentication code'
                     );
+                    // @codeCoverageIgnoreEnd
                 }
             }
 
@@ -1234,7 +1284,9 @@ final class File
                 $break = true;
                 $read = $input->readBytes($cipher_end - $input->getPos());
             } else {
+                // @codeCoverageIgnoreStart
                 $read = $input->readBytes((int) $config->BUFFER);
+                // @codeCoverageIgnoreEnd
             }
 
             /**

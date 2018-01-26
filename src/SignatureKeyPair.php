@@ -42,12 +42,11 @@ final class SignatureKeyPair extends KeyPair
 
     /**
      * Pass it a secret key, it will automatically generate a public key
-     * 
+     *
      * @param array<int, Key> $keys
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
+     * @throws \TypeError
      */
     public function __construct(Key ...$keys)
     {
@@ -69,19 +68,23 @@ final class SignatureKeyPair extends KeyPair
                         );
                     }
                     $this->setupKeyPair(
+                        // @codeCoverageIgnoreStart
                         $keys[1] instanceof SignatureSecretKey
                             ? $keys[1]
                             : new SignatureSecretKey(
                                 new HiddenString($keys[1]->getRawKeyMaterial())
                             )
+                        // @codeCoverageIgnoreEnd
                     );
                 } elseif ($keys[1]->isPublicKey()) {
                     $this->setupKeyPair(
+                    // @codeCoverageIgnoreStart
                         $keys[0] instanceof SignatureSecretKey
                             ? $keys[0]
                             : new SignatureSecretKey(
                                 new HiddenString($keys[0]->getRawKeyMaterial())
                             )
+                    // @codeCoverageIgnoreEnd
                     );
                 } else {
                     throw new InvalidKey(
@@ -105,11 +108,13 @@ final class SignatureKeyPair extends KeyPair
                     );
                 }
                 $this->setupKeyPair(
+                // @codeCoverageIgnoreStart
                     $keys[0] instanceof SignatureSecretKey
                         ? $keys[0]
                         : new SignatureSecretKey(
                             new HiddenString($keys[0]->getRawKeyMaterial())
                         )
+                // @codeCoverageIgnoreEnd
                 );
                 break;
             default:
@@ -125,8 +130,7 @@ final class SignatureKeyPair extends KeyPair
      * @param SignatureSecretKey $secret
      * @return void
      *
-     * @throws CannotPerformOperation
-     * @throws InvalidType
+     * @throws \TypeError
      */
     protected function setupKeyPair(SignatureSecretKey $secret): void
     {

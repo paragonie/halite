@@ -49,14 +49,18 @@ final class KeyFactory
      *
      * @return AuthenticationKey
      * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws \TypeError
      */
     public static function generateAuthenticationKey(): AuthenticationKey
     {
+        // @codeCoverageIgnoreStart
         try {
             $secretKey = \random_bytes(\SODIUM_CRYPTO_AUTH_KEYBYTES);
         } catch (\Throwable $ex) {
             throw new CannotPerformOperation($ex->getMessage());
         }
+        // @codeCoverageIgnoreEnd
         return new AuthenticationKey(
             new HiddenString($secretKey)
         );
@@ -67,23 +71,32 @@ final class KeyFactory
      *
      * @return EncryptionKey
      * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws \TypeError
      */
     public static function generateEncryptionKey(): EncryptionKey
     {
+        // @codeCoverageIgnoreStart
         try {
             $secretKey = \random_bytes(\SODIUM_CRYPTO_STREAM_KEYBYTES);
         } catch (\Throwable $ex) {
             throw new CannotPerformOperation($ex->getMessage());
         }
+        // @codeCoverageIgnoreEnd
         return new EncryptionKey(
             new HiddenString($secretKey)
         );
     }
-    
+
     /**
      * Generate a key pair for public key encryption
      *
      * @return \ParagonIE\Halite\EncryptionKeyPair
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
+     * @throws InvalidType
+     * @throws \TypeError
      */
     public static function generateEncryptionKeyPair(): EncryptionKeyPair
     {
@@ -104,6 +117,8 @@ final class KeyFactory
      * Generate a key pair for public key digital signatures
      *
      * @return SignatureKeyPair
+     * @throws InvalidKey
+     * @throws \TypeError
      */
     public static function generateSignatureKeyPair(): SignatureKeyPair
     {
@@ -119,8 +134,7 @@ final class KeyFactory
             )
         );
     }
-    
-    
+
     /**
      * Derive an authentication key (symmetric) from a password and salt
      *
@@ -129,8 +143,10 @@ final class KeyFactory
      * @param string $level Security level for KDF
      * @param int $alg      Which Argon2 variant to use?
      *                      (You can safely use the default)
-     * 
+     *
      * @return AuthenticationKey
+     *
+     * @throws InvalidKey
      * @throws InvalidSalt
      * @throws InvalidType
      * @throws \TypeError
@@ -144,9 +160,11 @@ final class KeyFactory
         $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
         if (Binary::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
+            // @codeCoverageIgnoreStart
             throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Binary::safeStrlen($salt)
             );
+            // @codeCoverageIgnoreEnd
         }
         /** @var string $secretKey */
         $secretKey = @\sodium_crypto_pwhash(
@@ -173,6 +191,7 @@ final class KeyFactory
      *                      (You can safely use the default)
      * 
      * @return EncryptionKey
+     * @throws InvalidKey
      * @throws InvalidSalt
      * @throws InvalidType
      * @throws \TypeError
@@ -186,9 +205,11 @@ final class KeyFactory
         $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
         if (Binary::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
+            // @codeCoverageIgnoreStart
             throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Binary::safeStrlen($salt)
             );
+            // @codeCoverageIgnoreEnd
         }
         /** @var string $secretKey */
         $secretKey = @\sodium_crypto_pwhash(
@@ -203,17 +224,20 @@ final class KeyFactory
             new HiddenString($secretKey)
         );
     }
-    
+
     /**
      * Derive a key pair for public key encryption from a password and salt
-     * 
+     *
      * @param HiddenString $password
      * @param string $salt
      * @param string $level Security level for KDF
      * @param int $alg      Which Argon2 variant to use?
      *                      (You can safely use the default)
-     * 
+     *
      * @return EncryptionKeyPair
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidKey
      * @throws InvalidSalt
      * @throws InvalidType
      * @throws \TypeError
@@ -227,9 +251,11 @@ final class KeyFactory
         $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
         if (Binary::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
+            // @codeCoverageIgnoreStart
             throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Binary::safeStrlen($salt)
             );
+            // @codeCoverageIgnoreEnd
         }
         // Diffie Hellman key exchange key pair
         /** @var string $seed */
@@ -263,6 +289,8 @@ final class KeyFactory
      *                      (You can safely use the default)
      *
      * @return SignatureKeyPair
+     *
+     * @throws InvalidKey
      * @throws InvalidSalt
      * @throws InvalidType
      * @throws \TypeError
@@ -276,9 +304,11 @@ final class KeyFactory
         $kdfLimits = self::getSecurityLevels($level, $alg);
         // VERSION 2+ (argon2)
         if (Binary::safeStrlen($salt) !== \SODIUM_CRYPTO_PWHASH_SALTBYTES) {
+            // @codeCoverageIgnoreStart
             throw new InvalidSalt(
                 'Expected ' . \SODIUM_CRYPTO_PWHASH_SALTBYTES . ' bytes, got ' . Binary::safeStrlen($salt)
             );
+            // @codeCoverageIgnoreEnd
         }
         // Digital signature keypair
         /** @var string $seed */
@@ -309,6 +339,7 @@ final class KeyFactory
      * @param int $alg
      * @return int[]
      * @throws InvalidType
+     * @codeCoverageIgnore
      */
     public static function getSecurityLevels(
         string $level = self::INTERACTIVE,
@@ -475,7 +506,9 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionKeyPair
      *
+     * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importEncryptionKeyPair(HiddenString $keyData): EncryptionKeyPair
@@ -522,6 +555,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadAuthenticationKey(string $filePath): AuthenticationKey
     {
@@ -544,6 +578,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadEncryptionKey(string $filePath): EncryptionKey
     {
@@ -566,6 +601,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadEncryptionPublicKey(string $filePath): EncryptionPublicKey
     {
@@ -588,6 +624,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadEncryptionSecretKey(string $filePath): EncryptionSecretKey
     {
@@ -610,6 +647,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadSignaturePublicKey(string $filePath): SignaturePublicKey
     {
@@ -632,6 +670,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadSignatureSecretKey(string $filePath): SignatureSecretKey
     {
@@ -644,16 +683,18 @@ final class KeyFactory
             self::loadKeyFile($filePath)
         );
     }
-    
+
     /**
      * Load an asymmetric encryption key pair from a file
-     * 
+     *
      * @param string $filePath
      * @return EncryptionKeyPair
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws InvalidType
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadEncryptionKeyPair(string $filePath): EncryptionKeyPair
     {
@@ -678,6 +719,7 @@ final class KeyFactory
      * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws \TypeError
+     * @codeCoverageIgnore
      */
     public static function loadSignatureKeyPair(string $filePath): SignatureKeyPair
     {
@@ -722,7 +764,9 @@ final class KeyFactory
                 )
             );
         }
+        // @codeCoverageIgnoreStart
         throw new \TypeError('Expected a Key.');
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -757,9 +801,11 @@ final class KeyFactory
     {
         $fileData = \file_get_contents($filePath);
         if ($fileData === false) {
+            // @codeCoverageIgnoreStart
             throw new CannotPerformOperation(
                 'Cannot load key from file: '. $filePath
             );
+            // @codeCoverageIgnoreEnd
         }
         $data = Hex::decode($fileData);
         \sodium_memzero($fileData);
@@ -796,9 +842,11 @@ final class KeyFactory
             \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
         );
         if (!\hash_equals($calc, $checksum)) {
+            // @codeCoverageIgnoreStart
             throw new InvalidKey(
                 'Checksum validation fail'
             );
+            // @codeCoverageIgnoreEnd
         }
         \sodium_memzero($data);
         \sodium_memzero($versionTag);
@@ -806,13 +854,15 @@ final class KeyFactory
         \sodium_memzero($checksum);
         return $keyData;
     }
-    
+
     /**
      * Save a key to a file
-     * 
+     *
      * @param string $filePath
      * @param string $keyData
      * @return bool
+     *
+     * @throws \TypeError
      */
     protected static function saveKeyFile(
         string $filePath,

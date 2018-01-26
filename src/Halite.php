@@ -57,6 +57,7 @@ final class Halite
      * Don't allow this to be instantiated.
      *
      * @throws \Error
+     * @codeCoverageIgnore
      */
     final private function __construct()
     {
@@ -136,6 +137,7 @@ final class Halite
      *
      * @param bool $echo
      * @return bool
+     * @codeCoverageIgnore
      */
     public static function isLibsodiumSetupCorrectly(bool $echo = false): bool
     {

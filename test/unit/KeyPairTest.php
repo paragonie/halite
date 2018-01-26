@@ -2,10 +2,13 @@
 declare(strict_types=1);
 
 use ParagonIE\ConstantTime\Hex;
-use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\{
+    EncryptionKeyPair,
+    KeyFactory,
+    SignatureKeyPair
+};
 use ParagonIE\Halite\Asymmetric\{
     Crypto as Asymmetric,
-    EncryptionSecretKey,
     SignatureSecretKey,
     SignaturePublicKey
 };
@@ -15,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 final class KeyPairTest extends TestCase
 {
     /**
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
@@ -56,7 +59,7 @@ final class KeyPairTest extends TestCase
     }
 
     /**
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
@@ -98,6 +101,115 @@ final class KeyPairTest extends TestCase
     }
 
     /**
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
+    public function testEncryptionKeyPair()
+    {
+        $boxKeypair = KeyFactory::generateEncryptionKeyPair();
+        $boxSecret = $boxKeypair->getSecretKey();
+        $boxPublic = $boxKeypair->getPublicKey();
+        $this->assertInstanceOf(\ParagonIE\Halite\Asymmetric\SecretKey::class, $boxSecret);
+        $this->assertInstanceOf(\ParagonIE\Halite\Asymmetric\PublicKey::class, $boxPublic);
+
+        $second = new EncryptionKeyPair(
+            $boxPublic,
+            $boxSecret
+        );
+        $this->assertSame(
+            Hex::encode($boxSecret->getRawKeyMaterial()),
+            Hex::encode($second->getSecretKey()->getRawKeyMaterial()),
+            'Secret keys differ'
+        );
+        $this->assertSame(
+            Hex::encode($boxPublic->getRawKeyMaterial()),
+            Hex::encode($second->getPublicKey()->getRawKeyMaterial()),
+            'Public keys differ'
+        );
+
+        $third = new EncryptionKeyPair(
+            $boxSecret,
+            $boxPublic
+        );
+        $this->assertSame(
+            Hex::encode($boxSecret->getRawKeyMaterial()),
+            Hex::encode($third->getSecretKey()->getRawKeyMaterial()),
+            'Secret keys differ'
+        );
+        $this->assertSame(
+            Hex::encode($boxPublic->getRawKeyMaterial()),
+            Hex::encode($third->getPublicKey()->getRawKeyMaterial()),
+            'Public keys differ'
+        );
+        $fourth = new EncryptionKeyPair(
+            $boxSecret
+        );
+        $this->assertSame(
+            Hex::encode($boxSecret->getRawKeyMaterial()),
+            Hex::encode($fourth->getSecretKey()->getRawKeyMaterial()),
+            'Secret keys differ'
+        );
+        $this->assertSame(
+            Hex::encode($boxPublic->getRawKeyMaterial()),
+            Hex::encode($fourth->getPublicKey()->getRawKeyMaterial()),
+            'Public keys differ'
+        );
+
+        try {
+            new EncryptionKeyPair(
+                $boxSecret,
+                $boxPublic,
+                $boxPublic
+            );
+            $this->fail('More than two public keys was erroneously accepted');
+        } catch (\InvalidArgumentException $ex) {
+        }
+        try {
+            new EncryptionKeyPair(
+                $boxPublic
+            );
+            $this->fail('Two public keys was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+        try {
+            new EncryptionKeyPair(
+                KeyFactory::generateEncryptionKey()
+            );
+            $this->fail('Symmetric key was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+        try {
+            new EncryptionKeyPair(
+                $boxSecret,
+                KeyFactory::generateEncryptionKey()
+            );
+            $this->fail('Symmetric key was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+
+        try {
+            new EncryptionKeyPair(
+                $boxSecret,
+                $boxSecret
+            );
+            $this->fail('Two secret keys was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+
+        try {
+            new EncryptionKeyPair(
+                $boxPublic,
+                $boxPublic
+            );
+            $this->fail('Two public keys was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+    }
+
+    /**
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
      * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidType
@@ -118,8 +230,8 @@ final class KeyPairTest extends TestCase
     }
 
     /**
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      */
     public function testMutation()
     {
@@ -136,7 +248,116 @@ final class KeyPairTest extends TestCase
     }
 
     /**
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     */
+    public function testSignatureKeyPair()
+    {
+        $signKeypair = KeyFactory::generateSignatureKeyPair();
+        $signSecret = $signKeypair->getSecretKey();
+        $signPublic = $signKeypair->getPublicKey();
+        $this->assertInstanceOf(\ParagonIE\Halite\Asymmetric\SecretKey::class, $signSecret);
+        $this->assertInstanceOf(\ParagonIE\Halite\Asymmetric\PublicKey::class, $signPublic);
+
+        $second = new SignatureKeyPair(
+            $signPublic,
+            $signSecret
+        );
+        $this->assertSame(
+            Hex::encode($signSecret->getRawKeyMaterial()),
+            Hex::encode($second->getSecretKey()->getRawKeyMaterial()),
+            'Secret keys differ'
+        );
+        $this->assertSame(
+            Hex::encode($signPublic->getRawKeyMaterial()),
+            Hex::encode($second->getPublicKey()->getRawKeyMaterial()),
+            'Public keys differ'
+        );
+
+        $third = new SignatureKeyPair(
+            $signSecret,
+            $signPublic
+        );
+        $this->assertSame(
+            Hex::encode($signSecret->getRawKeyMaterial()),
+            Hex::encode($third->getSecretKey()->getRawKeyMaterial()),
+            'Secret keys differ'
+        );
+        $this->assertSame(
+            Hex::encode($signPublic->getRawKeyMaterial()),
+            Hex::encode($third->getPublicKey()->getRawKeyMaterial()),
+            'Public keys differ'
+        );
+        $fourth = new SignatureKeyPair(
+            $signSecret
+        );
+        $this->assertSame(
+            Hex::encode($signSecret->getRawKeyMaterial()),
+            Hex::encode($fourth->getSecretKey()->getRawKeyMaterial()),
+            'Secret keys differ'
+        );
+        $this->assertSame(
+            Hex::encode($signPublic->getRawKeyMaterial()),
+            Hex::encode($fourth->getPublicKey()->getRawKeyMaterial()),
+            'Public keys differ'
+        );
+
+        try {
+            new SignatureKeyPair(
+                $signSecret,
+                $signPublic,
+                $signPublic
+            );
+            $this->fail('More than two public keys was erroneously accepted');
+        } catch (\InvalidArgumentException $ex) {
+        }
+        try {
+            new SignatureKeyPair(
+                $signPublic
+            );
+            $this->fail('Two public keys was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+        try {
+            new SignatureKeyPair(
+                KeyFactory::generateAuthenticationKey()
+            );
+            $this->fail('Symmetric key was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+        try {
+            new SignatureKeyPair(
+                $signSecret,
+                KeyFactory::generateAuthenticationKey()
+            );
+            $this->fail('Symmetric key was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+
+        try {
+            new SignatureKeyPair(
+                $signSecret,
+                $signSecret
+            );
+            $this->fail('Two secret keys was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+
+        try {
+            new SignatureKeyPair(
+                $signPublic,
+                $signPublic
+            );
+            $this->fail('Two public keys was erroneously accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+        }
+    }
+
+    /**
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
     public function testPublicDerivation()

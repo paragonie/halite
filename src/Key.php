@@ -51,6 +51,7 @@ class Key
      * Don't let this ever succeed
      *
      * @throws CannotCloneKey
+     * @codeCoverageIgnore
      */
     public function __clone()
     {
@@ -72,6 +73,7 @@ class Key
      * Hide this from var_dump(), etc.
      *
      * @return array
+     * @codeCoverageIgnore
      */
     public function __debugInfo()
     {
@@ -97,6 +99,7 @@ class Key
     /**
      * Don't allow this object to ever be serialized
      * @throws CannotSerializeKey
+     * @codeCoverageIgnore
      */
     public function __sleep()
     {
@@ -106,6 +109,7 @@ class Key
     /**
      * Don't allow this object to ever be unserialized
      * @throws CannotSerializeKey
+     * @codeCoverageIgnore
      */
     public function __wakeup()
     {
@@ -116,6 +120,7 @@ class Key
      * Get public keys
      *
      * @return string
+     * @codeCoverageIgnore
      */
     public function __toString()
     {

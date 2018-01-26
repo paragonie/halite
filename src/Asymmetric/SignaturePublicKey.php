@@ -44,6 +44,7 @@ final class SignaturePublicKey extends PublicKey
      *
      * @return EncryptionPublicKey
      * @throws \TypeError
+     * @throws InvalidKey
      */
     public function getEncryptionPublicKey(): EncryptionPublicKey
     {

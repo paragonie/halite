@@ -28,6 +28,7 @@ use ParagonIE\Halite\Alerts\{
  */
 class MutableFile implements StreamInterface
 {
+    const ALLOWED_MODES = ['r+b', 'w+b', 'cb', 'c+b'];
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
 
     /**
@@ -59,17 +60,36 @@ class MutableFile implements StreamInterface
     public function __construct($file)
     {
         if (\is_string($file)) {
-            $fp = \fopen($file, 'wb');
+            if (!\is_readable($file)) {
+                throw new FileAccessDenied(
+                    'Could not open file for reading'
+                );
+            }
+            if (!\is_writable($file)) {
+                throw new FileAccessDenied(
+                    'Could not open file for writing'
+                );
+            }
+            $fp = \fopen($file, 'w+b');
+            // @codeCoverageIgnoreStart
             if (!\is_resource($fp)) {
                 throw new FileAccessDenied(
                     'Could not open file for reading'
                 );
             }
+            // @codeCoverageIgnoreEnd
             $this->fp = $fp;
             $this->closeAfter = true;
             $this->pos = 0;
             $this->stat = \fstat($this->fp);
         } elseif (\is_resource($file)) {
+            /** @var array<string, string> $metadata */
+            $metadata = \stream_get_meta_data($file);
+            if (!\in_array($metadata['mode'], self::ALLOWED_MODES, true)) {
+                throw new FileAccessDenied(
+                    'Resource is in ' . $metadata['mode'] . ' mode, which is not allowed.'
+                );
+            }
             $this->fp = $file;
             $this->pos = \ftell($this->fp);
             $this->stat = \fstat($this->fp);
@@ -132,11 +152,13 @@ class MutableFile implements StreamInterface
      */
     public function readBytes(int $num, bool $skipTests = false): string
     {
+        // @codeCoverageIgnoreStart
         if ($num < 0) {
             throw new CannotPerformOperation('num < 0');
         } elseif ($num === 0) {
             return '';
         }
+        // @codeCoverageIgnoreEnd
         if (($this->pos + $num) > $this->stat['size']) {
             throw new CannotPerformOperation('Out-of-bounds read');
         }
@@ -144,14 +166,20 @@ class MutableFile implements StreamInterface
         $remaining = $num;
         do {
             if ($remaining <= 0) {
+                // @codeCoverageIgnoreStart
                 break;
+                // @codeCoverageIgnoreEnd
             }
+            /** @var int $bufSize */
+            $bufSize = \min($remaining, self::CHUNK);
             /** @var string $read */
-            $read = \fread($this->fp, $remaining);
+            $read = \fread($this->fp, $bufSize);
             if (!\is_string($read)) {
+                // @codeCoverageIgnoreStart
                 throw new FileAccessDenied(
                     'Could not read from the file'
                 );
+                // @codeCoverageIgnoreEnd
             }
             $buf .= $read;
             $readSize = Binary::safeStrlen($read);
@@ -185,6 +213,7 @@ class MutableFile implements StreamInterface
      * @param int $i
      * @return bool
      * @throws CannotPerformOperation
+     * @codeCoverageIgnore
      */
     public function reset(int $i = 0): bool
     {
@@ -214,9 +243,11 @@ class MutableFile implements StreamInterface
         if ($num === null || $num > $bufSize) {
             $num = $bufSize;
         }
+        // @codeCoverageIgnoreStart
         if ($num < 0) {
             throw new CannotPerformOperation('num < 0');
         }
+        // @codeCoverageIgnoreEnd
         $remaining = $num;
         do {
             if ($remaining <= 0) {
@@ -224,9 +255,11 @@ class MutableFile implements StreamInterface
             }
             $written = \fwrite($this->fp, $buf, $remaining);
             if ($written === false) {
+                // @codeCoverageIgnoreStart
                 throw new FileAccessDenied(
                     'Could not write to the file'
                 );
+                // @codeCoverageIgnoreEnd
             }
             $buf = Binary::safeSubstr($buf, $written, null);
             $this->pos += $written;

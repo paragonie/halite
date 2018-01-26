@@ -20,6 +20,10 @@ final class HaliteTest extends TestCase
         );
     }
 
+    /**
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     */
     public function testEncoding()
     {
         $random_bytes = random_bytes(31);
@@ -66,5 +70,11 @@ final class HaliteTest extends TestCase
             Base64UrlSafe::encode($random_bytes),
             $encoder($random_bytes)
         );
+
+        try {
+            Halite::chooseEncoder('dsfargeg');
+            $this->fail('Invalid type allowed for Encoder');
+        } catch (\ParagonIE\Halite\Alerts\InvalidType $ex) {
+        }
     }
 }

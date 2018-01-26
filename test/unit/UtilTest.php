@@ -18,20 +18,6 @@ use PHPUnit\Framework\TestCase;
  */
 final class UtilTest extends TestCase
 {
-    /**
-     * @expectedException \Error
-     *
-     * @throws Error
-     * @throws InvalidType
-     */
-    public function testConstructorFail()
-    {
-        // Please ignore IDE errors here.
-        /** @noinspection Annotator */
-        $x = new Util();
-        $this->assertSame('', $x::xorStrings('', ''));
-    }
-
     public function testChrToInt()
     {
         $this->assertSame(0x61, Util::chrToInt("a"));
@@ -65,6 +51,7 @@ final class UtilTest extends TestCase
      * BLAKE2b hash
      *
      * @throws CannotPerformOperation
+     * @throws TypeError
      */
     public function testHash()
     {
@@ -84,6 +71,7 @@ final class UtilTest extends TestCase
      * BLAKE2b hash
      *
      * @throws CannotPerformOperation
+     * @throws TypeError
      */
     public function testKeyedHash()
     {
@@ -98,6 +86,26 @@ final class UtilTest extends TestCase
             Util::keyed_hash('Large Hashron Collider', $key),
             '4cca9839943964a68a64535ea22f1cc796df6da130619a69d1022b84ef881881'
         );
+
+        try {
+            Util::keyed_hash('Large Hashron Collider', $key, 15);
+            $this->fail('Invalid size accepted (15)');
+        } catch (CannotPerformOperation $ex) {
+            $this->assertSame(
+                'Output length must be at least 16 bytes.',
+                $ex->getMessage()
+            );
+        }
+
+        try {
+            Util::keyed_hash('Large Hashron Collider', $key, 65);
+            $this->fail('Invalid size accepted (65)');
+        } catch (CannotPerformOperation $ex) {
+            $this->assertSame(
+                'Output length must be at most 64 bytes.',
+                $ex->getMessage()
+            );
+        }
     }
 
     /**

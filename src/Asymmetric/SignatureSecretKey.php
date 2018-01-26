@@ -43,6 +43,7 @@ final class SignatureSecretKey extends SecretKey
      * See the appropriate derived class.
      * 
      * @return SignaturePublicKey
+     * @throws InvalidKey
      * @throws \TypeError
      */
     public function derivePublicKey()
@@ -57,6 +58,7 @@ final class SignatureSecretKey extends SecretKey
      * Get an encryption secret key from a signing secret key.
      *
      * @return EncryptionSecretKey
+     * @throws InvalidKey
      * @throws \TypeError
      */
     public function getEncryptionSecretKey(): EncryptionSecretKey

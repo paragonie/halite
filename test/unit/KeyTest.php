@@ -18,7 +18,8 @@ class KeyTest extends TestCase
 {
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testDerive()
@@ -45,11 +46,23 @@ class KeyTest extends TestCase
         $this->assertTrue(
             $enc_secret->isEncryptionKey()
         );
+
+        $key = KeyFactory::deriveAuthenticationKey(
+            new HiddenString('apple'),
+            "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
+            KeyFactory::INTERACTIVE
+        );
+        $this->assertSame(
+            $key->getRawKeyMaterial(),
+            "\x3a\x16\x68\xc1\x45\x8a\x4f\x59\x9c\x36\x4e\xa4\x7f\xae\xfa\xe1" .
+            "\xee\xa3\xa6\xd0\x34\x26\x35\xc9\xb4\x79\xee\xab\xf4\x71\x86\xaa"
+        );
     }
 
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testDeriveOldArgon2i()
@@ -81,7 +94,7 @@ class KeyTest extends TestCase
 
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
@@ -117,7 +130,7 @@ class KeyTest extends TestCase
 
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      * @throws \ParagonIE\Halite\Alerts\InvalidSignature
@@ -154,7 +167,91 @@ class KeyTest extends TestCase
     }
 
     /**
+     * @throws InvalidType
+     * @throws TypeError
      * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     */
+    public function testImport()
+    {
+        $key = KeyFactory::generateAuthenticationKey();
+        $export = KeyFactory::export($key);
+        $import = KeyFactory::importAuthenticationKey($export);
+
+        $this->assertSame(
+            bin2hex($key->getRawKeyMaterial()),
+            bin2hex($import->getRawKeyMaterial())
+        );
+
+        $key = KeyFactory::generateEncryptionKey();
+        $export = KeyFactory::export($key);
+        $import = KeyFactory::importEncryptionKey($export);
+
+        $this->assertSame(
+            bin2hex($key->getRawKeyMaterial()),
+            bin2hex($import->getRawKeyMaterial())
+        );
+
+        $signKeypair = KeyFactory::generateSignatureKeyPair();
+
+        $export = KeyFactory::export($signKeypair);
+        $import = KeyFactory::importSignatureKeyPair($export);
+        $this->assertSame(
+            bin2hex($signKeypair->getSecretKey()->getRawKeyMaterial()),
+            bin2hex($import->getSecretKey()->getRawKeyMaterial())
+        );
+        $this->assertSame(
+            bin2hex($signKeypair->getPublicKey()->getRawKeyMaterial()),
+            bin2hex($import->getPublicKey()->getRawKeyMaterial())
+        );
+
+        $export = KeyFactory::export($signKeypair->getSecretKey());
+        $import = KeyFactory::importSignatureSecretKey($export);
+        $this->assertSame(
+            bin2hex($signKeypair->getSecretKey()->getRawKeyMaterial()),
+            bin2hex($import->getRawKeyMaterial())
+        );
+
+        $export = KeyFactory::export($signKeypair->getPublicKey());
+        $import = KeyFactory::importSignaturePublicKey($export);
+        $this->assertSame(
+            bin2hex($signKeypair->getPublicKey()->getRawKeyMaterial()),
+            bin2hex($import->getRawKeyMaterial())
+        );
+
+        $encKeypair = KeyFactory::generateEncryptionKeyPair();
+
+        $export = KeyFactory::export($encKeypair);
+        $import = KeyFactory::importEncryptionKeyPair($export);
+        $this->assertSame(
+            bin2hex($encKeypair->getSecretKey()->getRawKeyMaterial()),
+            bin2hex($import->getSecretKey()->getRawKeyMaterial())
+        );
+        $this->assertSame(
+            bin2hex($encKeypair->getPublicKey()->getRawKeyMaterial()),
+            bin2hex($import->getPublicKey()->getRawKeyMaterial())
+        );
+
+        $export = KeyFactory::export($encKeypair->getSecretKey());
+        $import = KeyFactory::importEncryptionSecretKey($export);
+        $this->assertSame(
+            bin2hex($encKeypair->getSecretKey()->getRawKeyMaterial()),
+            bin2hex($import->getRawKeyMaterial())
+        );
+
+        $export = KeyFactory::export($encKeypair->getPublicKey());
+        $import = KeyFactory::importEncryptionPublicKey($export);
+        $this->assertSame(
+            bin2hex($encKeypair->getPublicKey()->getRawKeyMaterial()),
+            bin2hex($import->getRawKeyMaterial())
+        );
+    }
+
+    /**
+     * @throws InvalidType
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      */
     public function testKeyTypes()
     {
@@ -296,7 +393,8 @@ class KeyTest extends TestCase
     }
 
     /**
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testInvalidKeyLevels()
@@ -315,14 +413,15 @@ class KeyTest extends TestCase
             );
         }
     }
+
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testKeyLevels()
     {
-        $this->markTestSkipped('This is a very slow test. Feel free to enable it to verify correctness.');
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
@@ -346,13 +445,12 @@ class KeyTest extends TestCase
 
     /**
      * @throws InvalidType
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
+     * @throws TypeError
+     * @throws \ParagonIE\Halite\Alerts\InvalidKey
      * @throws \ParagonIE\Halite\Alerts\InvalidSalt
      */
     public function testKeyLevelsOldArgon2i()
     {
-        $this->markTestSkipped('This is a very slow test. Feel free to enable it to verify correctness.');
-
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
@@ -374,5 +472,48 @@ class KeyTest extends TestCase
             sodium_bin2hex($key->getRawKeyMaterial())
 
         );
+    }
+
+    /**
+     * @throws TypeError
+     */
+    public function testInvalidSizes()
+    {
+        try {
+            new \ParagonIE\Halite\Symmetric\AuthenticationKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Authentication key must be CRYPTO_AUTH_KEYBYTES bytes long', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Symmetric\EncryptionKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Encryption key must be CRYPTO_STREAM_KEYBYTES bytes long', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Asymmetric\EncryptionSecretKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES bytes long', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Encryption public key must be CRYPTO_BOX_PUBLICKEYBYTES bytes long', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Asymmetric\SignatureSecretKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES bytes long', $ex->getMessage());
+        }
+        try {
+            new \ParagonIE\Halite\Asymmetric\SignaturePublicKey(new HiddenString(''));
+            $this->fail('Invalid key size accepted');
+        } catch (\ParagonIE\Halite\Alerts\InvalidKey $ex) {
+            $this->assertSame('Signature public key must be CRYPTO_SIGN_PUBLICKEYBYTES bytes long', $ex->getMessage());
+        }
     }
 }

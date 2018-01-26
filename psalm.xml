@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <psalm
-    name="Example Psalm config with recommended defaults"
+    name="Halite Psalm Configuration"
     stopOnFirstError="false"
     useDocblockTypes="true"
     totallyTyped="true"

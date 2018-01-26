@@ -1,16 +1,19 @@
 language: php
 sudo: required
 dist: trusty
+php:
+    - "7.2.0"
+    - "7.2.1"
+    - "master"
+    - "nightly"
 matrix:
     fast_finish: true
-    include:
-        - php: "7.2.0"
-        - php: "7.2.1"
-        - php: "master"
-        - php: "nightly"
     allow_failures:
         - php: "master"
         - php: "nightly"
+os:
+    - windows
+    - linux
 before_install:
     - git clone -b stable https://github.com/jedisct1/libsodium.git
     - cd libsodium && sudo ./configure && sudo make check && sudo make install && cd ..

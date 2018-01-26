@@ -176,6 +176,12 @@ final class StreamTest extends TestCase
             $mStream->reset(0);
 
             $this->assertSame(0, $mStream->getPos());
+            $this->assertSame($size, $mStream->remainingBytes());
+
+            $mStream->reset(127);
+            $this->assertSame($size - 127, $mStream->remainingBytes());
+            $mStream->reset(0);
+
             $this->assertSame($size, $mStream->getSize());
             $this->assertSame(bin2hex($buffer), bin2hex($mStream->readBytes($size)));
         }

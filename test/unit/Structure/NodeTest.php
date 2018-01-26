@@ -23,5 +23,6 @@ final class NodeTest extends TestCase
         $hash = sodium_crypto_generichash($stringData . $extra);
 
         $this->assertSame(bin2hex($hash), $node->getExpandedNode($extra)->getHash());
+        $this->assertSame($hash, $node->getExpandedNode($extra)->getHash(true));
     }
 }

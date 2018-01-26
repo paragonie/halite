@@ -59,6 +59,7 @@ final class Crypto
      * @return string                              Ciphertext
      *
      * @throws CannotPerformOperation
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidDigestLength
      * @throws InvalidType
@@ -135,6 +136,7 @@ final class Crypto
      *
      * @throws CannotPerformOperation
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidSignature
      * @throws InvalidType

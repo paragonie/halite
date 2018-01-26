@@ -152,11 +152,13 @@ class MutableFile implements StreamInterface
      */
     public function readBytes(int $num, bool $skipTests = false): string
     {
+        // @codeCoverageIgnoreStart
         if ($num < 0) {
             throw new CannotPerformOperation('num < 0');
         } elseif ($num === 0) {
             return '';
         }
+        // @codeCoverageIgnoreEnd
         if (($this->pos + $num) > $this->stat['size']) {
             throw new CannotPerformOperation('Out-of-bounds read');
         }
@@ -164,16 +166,20 @@ class MutableFile implements StreamInterface
         $remaining = $num;
         do {
             if ($remaining <= 0) {
+                // @codeCoverageIgnoreStart
                 break;
+                // @codeCoverageIgnoreEnd
             }
             /** @var int $bufSize */
             $bufSize = \min($remaining, self::CHUNK);
             /** @var string $read */
             $read = \fread($this->fp, $bufSize);
             if (!\is_string($read)) {
+                // @codeCoverageIgnoreStart
                 throw new FileAccessDenied(
                     'Could not read from the file'
                 );
+                // @codeCoverageIgnoreEnd
             }
             $buf .= $read;
             $readSize = Binary::safeStrlen($read);
@@ -207,6 +213,7 @@ class MutableFile implements StreamInterface
      * @param int $i
      * @return bool
      * @throws CannotPerformOperation
+     * @codeCoverageIgnore
      */
     public function reset(int $i = 0): bool
     {
@@ -236,9 +243,11 @@ class MutableFile implements StreamInterface
         if ($num === null || $num > $bufSize) {
             $num = $bufSize;
         }
+        // @codeCoverageIgnoreStart
         if ($num < 0) {
             throw new CannotPerformOperation('num < 0');
         }
+        // @codeCoverageIgnoreEnd
         $remaining = $num;
         do {
             if ($remaining <= 0) {
@@ -246,9 +255,11 @@ class MutableFile implements StreamInterface
             }
             $written = \fwrite($this->fp, $buf, $remaining);
             if ($written === false) {
+                // @codeCoverageIgnoreStart
                 throw new FileAccessDenied(
                     'Could not write to the file'
                 );
+                // @codeCoverageIgnoreEnd
             }
             $buf = Binary::safeSubstr($buf, $written, null);
             $this->pos += $written;

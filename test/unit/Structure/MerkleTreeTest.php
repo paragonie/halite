@@ -34,6 +34,10 @@ final class MerkleTreeTest extends TestCase
             '6781891a87aa476454b74dc635c5cdebfc8f887438829ce2e81423f54906c058',
             $treeA->getRoot()
         );
+        $this->assertSame(
+            hex2bin('6781891a87aa476454b74dc635c5cdebfc8f887438829ce2e81423f54906c058'),
+            $treeA->getRoot(true)
+        );
         $treeB = new MerkleTree(
             new Node('a'),
             new Node('b'),

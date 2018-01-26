@@ -4,9 +4,7 @@ namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Alerts\{
     CannotCloneKey,
-    CannotPerformOperation,
-    CannotSerializeKey,
-    InvalidType
+    CannotSerializeKey
 };
 
 /**

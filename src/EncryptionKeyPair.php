@@ -2,11 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts\{
-    CannotPerformOperation,
-    InvalidKey,
-    InvalidType
-};
+use ParagonIE\Halite\Alerts\InvalidKey;
 use ParagonIE\Halite\Asymmetric\{
     EncryptionPublicKey,
     EncryptionSecretKey
@@ -45,8 +41,6 @@ final class EncryptionKeyPair extends KeyPair
      *
      * @param array<int, Key> $keys
      *
-     * @throws CannotPerformOperation
-     * @throws InvalidType
      * @throws InvalidKey
      * @throws \InvalidArgumentException
      * @throws \TypeError
@@ -133,6 +127,7 @@ final class EncryptionKeyPair extends KeyPair
      * @param EncryptionSecretKey $secret
      * @return void
      *
+     * @throws InvalidKey
      * @throws \TypeError
      */
     protected function setupKeyPair(EncryptionSecretKey $secret): void

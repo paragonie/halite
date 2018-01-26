@@ -2,11 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts\{
-    CannotPerformOperation,
-    InvalidKey,
-    InvalidType
-};
+use ParagonIE\Halite\Alerts\InvalidKey;
 use ParagonIE\Halite\Asymmetric\{
     SignaturePublicKey,
     SignatureSecretKey
@@ -130,6 +126,7 @@ final class SignatureKeyPair extends KeyPair
      * @param SignatureSecretKey $secret
      * @return void
      *
+     * @throws InvalidKey
      * @throws \TypeError
      */
     protected function setupKeyPair(SignatureSecretKey $secret): void

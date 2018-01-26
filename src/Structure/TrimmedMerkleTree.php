@@ -37,6 +37,7 @@ class TrimmedMerkleTree extends MerkleTree
      *
      * @return string
      * @throws CannotPerformOperation
+     * @throws \TypeError
      * @psalm-suppress EmptyArrayAccess Psalm is misreading array elements
      */
     protected function calculateRoot(): string

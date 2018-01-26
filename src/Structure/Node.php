@@ -56,6 +56,7 @@ class Node
      *
      * @return string
      * @throws CannotPerformOperation
+     * @throws \TypeError
      */
     public function getHash(
         bool $raw = false,

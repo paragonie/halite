@@ -252,6 +252,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
@@ -736,6 +737,7 @@ final class File
      * @throws FileError
      * @throws FileModified
      * @throws InvalidDigestLength
+     * @throws InvalidKey
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError

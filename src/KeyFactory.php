@@ -93,9 +93,7 @@ final class KeyFactory
      *
      * @return \ParagonIE\Halite\EncryptionKeyPair
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function generateEncryptionKeyPair(): EncryptionKeyPair
@@ -236,7 +234,6 @@ final class KeyFactory
      *
      * @return EncryptionKeyPair
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws InvalidSalt
      * @throws InvalidType
@@ -506,9 +503,7 @@ final class KeyFactory
      * @param HiddenString $keyData
      * @return EncryptionKeyPair
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      */
     public static function importEncryptionKeyPair(HiddenString $keyData): EncryptionKeyPair
@@ -692,7 +687,6 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws InvalidType
      * @throws \TypeError
      * @codeCoverageIgnore
      */

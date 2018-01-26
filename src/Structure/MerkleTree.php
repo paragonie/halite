@@ -158,6 +158,7 @@ class MerkleTree
      *
      * @return self
      * @throws CannotPerformOperation
+     * @throws \TypeError
      * @codeCoverageIgnore
      */
     public function triggerRootCalculation(): self
@@ -173,6 +174,7 @@ class MerkleTree
      *
      * @return string
      * @throws CannotPerformOperation
+     * @throws \TypeError
      */
     protected function calculateRoot(): string
     {

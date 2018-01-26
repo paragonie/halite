@@ -27,6 +27,7 @@
     "authors": [
         {
             "name": "Paragon Initiative Enterprises",
+            "homepage": "https://paragonie.com",
             "email": "info@paragonie.com"
         }
     ],
@@ -45,6 +46,7 @@
         "vimeo/psalm": "^0|^1"
     },
     "config": {
+        "preferred-install": "dist",
         "optimize-autoloader": true
     },
     "minimum-stability": "stable",

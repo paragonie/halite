@@ -58,6 +58,14 @@ Once you have the prerequisites installed, install Halite through [Composer](htt
 
     composer require paragonie/halite:^4
 
+### Commercial Support for Older Halite Versions
+
+Free (gratis) support for Halite only extends to the most recent major version (currently 4).
+
+If your company requires support for an older version of Halite,
+[contact Paragon Initiative Enterprises](https://paragonie.com/contact) to inquire about
+commercial support options.
+
 ## Using Halite in Your Project
 
 Check out the [documentation](doc). The basic Halite API is designed for simplicity:

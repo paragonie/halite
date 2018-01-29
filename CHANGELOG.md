@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 3.4.0 (2018-01-29)
+
+* Fixes #89. Please upgrade to v4.3.0 or higher as soon as possible.
+  We will no longer be supporting Halite version 3.x or older for free.
+  If you need ongoing support for a legacy version of Halite, please
+  get in contact with Paragon Initiative Enterprises about purchasing
+  a long-term support contract.
+
+## Version 3.3.0 (2017-08-17)
+
+* Fixes #61, Halite now works with the new libsodium v2 API from PECL.
+  It also still works on the old v1 API.
+
 ## Version 3.2.0 (2016-12-08)
 
 * Resolved [#49](https://github.com/paragonie/halite/issues/49), which

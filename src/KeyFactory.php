@@ -121,7 +121,7 @@ final class KeyFactory
         string $salt,
         string $level = self::INTERACTIVE
     ): AuthenticationKey {
-        $kdfLimits = self::getSecurityLevels($level);
+        $kdfLimits = self::getSecurityLevels($level, true);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
@@ -133,7 +133,8 @@ final class KeyFactory
             $password->getString(),
             $salt,
             $kdfLimits[0],
-            $kdfLimits[1]
+            $kdfLimits[1],
+            \SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
         );
         return new AuthenticationKey(
             new HiddenString($secretKey)
@@ -156,7 +157,7 @@ final class KeyFactory
         string $salt,
         string $level = self::INTERACTIVE
     ): EncryptionKey {
-        $kdfLimits = self::getSecurityLevels($level);
+        $kdfLimits = self::getSecurityLevels($level, true);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
@@ -168,7 +169,8 @@ final class KeyFactory
             $password->getString(),
             $salt,
             $kdfLimits[0],
-            $kdfLimits[1]
+            $kdfLimits[1],
+            \SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
         );
         return new EncryptionKey(
             new HiddenString($secretKey)
@@ -190,7 +192,7 @@ final class KeyFactory
         string $salt,
         string $level = self::INTERACTIVE
     ): EncryptionKeyPair {
-        $kdfLimits = self::getSecurityLevels($level);
+        $kdfLimits = self::getSecurityLevels($level, true);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
@@ -203,7 +205,8 @@ final class KeyFactory
             $password->getString(),
             $salt,
             $kdfLimits[0],
-            $kdfLimits[1]
+            $kdfLimits[1],
+            \SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
         );
         $keyPair = \Sodium\crypto_box_seed_keypair($seed);
         $secretKey = \Sodium\crypto_box_secretkey($keyPair);
@@ -232,7 +235,7 @@ final class KeyFactory
         string $salt,
         string $level = self::INTERACTIVE
     ): SignatureKeyPair {
-        $kdfLimits = self::getSecurityLevels($level);
+        $kdfLimits = self::getSecurityLevels($level, true);
         // VERSION 2+ (argon2)
         if (Util::safeStrlen($salt) !== \Sodium\CRYPTO_PWHASH_SALTBYTES) {
             throw new CryptoException\InvalidSalt(
@@ -245,7 +248,8 @@ final class KeyFactory
             $password->getString(),
             $salt,
             $kdfLimits[0],
-            $kdfLimits[1]
+            $kdfLimits[1],
+            \SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13
         );
         $keyPair = \Sodium\crypto_sign_seed_keypair($seed);
         $secretKey = \Sodium\crypto_sign_secretkey($keyPair);
@@ -263,26 +267,36 @@ final class KeyFactory
      * Returns a 2D array [OPSLIMIT, MEMLIMIT] for the appropriate security level.
      *
      * @param string $level
+     * @param bool $compat
      * @return int[]
      * @throws CryptoException\InvalidType
      */
-    public static function getSecurityLevels(string $level = self::INTERACTIVE): array
+    public static function getSecurityLevels(string $level = self::INTERACTIVE, bool $compat = false): array
     {
         switch ($level) {
             case self::INTERACTIVE:
+                if ($compat) {
+                    return [4, 33554432];
+                }
                 return [
-                    \Sodium\CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-                    \Sodium\CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+                    \SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+                    \SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
                 ];
             case self::MODERATE:
+                if ($compat) {
+                    return [6, 134217728];
+                }
                 return [
-                    \Sodium\CRYPTO_PWHASH_OPSLIMIT_MODERATE,
-                    \Sodium\CRYPTO_PWHASH_MEMLIMIT_MODERATE
+                    \SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE,
+                    \SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE
                 ];
             case self::SENSITIVE:
+                if ($compat) {
+                    return [8, 536870912];
+                }
                 return [
-                    \Sodium\CRYPTO_PWHASH_OPSLIMIT_SENSITIVE,
-                    \Sodium\CRYPTO_PWHASH_MEMLIMIT_SENSITIVE
+                    \SODIUM_CRYPTO_PWHASH_OPSLIMIT_SENSITIVE,
+                    \SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE
                 ];
             default:
                 throw new CryptoException\InvalidType(

@@ -117,7 +117,9 @@ Alice will then load Bob's public key into the appropriate object like so:
 
 ```php
 $bob_public = new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(
-    sodium_hex2bin($recv_from_bob)
+    new HiddenString(
+        sodium_hex2bin($recv_from_bob)
+    )
 );
 ```
 

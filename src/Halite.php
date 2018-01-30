@@ -36,7 +36,7 @@ use ParagonIE\Halite\Alerts\InvalidType;
  */
 final class Halite
 {
-    const VERSION              = '4.2.0';
+    const VERSION              = '4.3.1';
 
     const HALITE_VERSION_KEYS  = "\x31\x40\x04\x00";
     const HALITE_VERSION_FILE  = "\x31\x41\x04\x00";

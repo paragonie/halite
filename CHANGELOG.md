@@ -1,6 +1,11 @@
 # Changelog
 
-## Version 4.3.0 (2018-01-15)
+## Version 4.3.1 (2018-01-30)
+
+* Updated the `Halite::VERSION` constant which was previously still `4.2.0`.
+* Documentation and unit testing improvements.
+
+## Version 4.3.0 (2018-01-25)
 
 * You can now quickly turn a `SignatureKeyPair` object into a birationally
   equivalent EncryptionKeyPair object by invoking the `getEncryptionKeyPair()`

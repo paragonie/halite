@@ -110,6 +110,7 @@ final class FileTest extends TestCase
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidType
+     * @throws Exception
      * @throws TypeError
      */
     public function testEncryptFail()
@@ -385,6 +386,7 @@ final class FileTest extends TestCase
      * @throws CryptoException\FileError
      * @throws CryptoException\FileModified
      * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidType
      * @throws TypeError
      */
@@ -479,6 +481,7 @@ final class FileTest extends TestCase
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidType
+     * @throws Exception
      * @throws TypeError
      */
     public function testChecksum()

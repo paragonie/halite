@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use ParagonIE\ConstantTime\Hex;
 use ParagonIE\Halite\{
+    Alerts as CryptoException,
     EncryptionKeyPair,
     KeyFactory,
     SignatureKeyPair
@@ -19,10 +20,10 @@ final class KeyPairTest extends TestCase
 {
     /**
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
-     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
      */
     public function testDeriveSigningKey()
     {
@@ -60,10 +61,10 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
-     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
      */
     public function testDeriveSigningKeyOldArgon2i()
     {
@@ -102,9 +103,8 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
      */
     public function testEncryptionKeyPair()
     {
@@ -210,9 +210,8 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
      */
     public function testFileStorage()
     {
@@ -231,7 +230,7 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws CryptoException\InvalidKey
      */
     public function testMutation()
     {
@@ -254,8 +253,8 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
      */
     public function testSignatureKeyPair()
     {
@@ -361,9 +360,7 @@ final class KeyPairTest extends TestCase
 
     /**
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws CryptoException\InvalidKey
      */
     public function testPublicDerivation()
     {

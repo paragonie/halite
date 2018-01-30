@@ -8,6 +8,7 @@ use ParagonIE\ConstantTime\{
     Base64UrlSafe,
     Hex
 };
+use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Halite;
 use PHPUnit\Framework\TestCase;
 
@@ -21,8 +22,9 @@ final class HaliteTest extends TestCase
     }
 
     /**
+     * @throws CryptoException\InvalidType
+     * @throws Exception
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
      */
     public function testEncoding()
     {

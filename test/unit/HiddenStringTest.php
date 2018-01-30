@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use PHPUnit\Framework\TestCase;
@@ -8,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 final class HiddenStringTest extends TestCase
 {
     /**
+     * @throws Exception
      * @throws TypeError
      */
     public function testEquals()
@@ -32,6 +34,7 @@ final class HiddenStringTest extends TestCase
     }
 
     /**
+     * @throws Exception
      * @throws TypeError
      */
     public function testRandomString()

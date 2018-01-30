@@ -465,9 +465,7 @@ final class Crypto
         } elseif ($givenSecretKey instanceof EncryptionSecretKey) {
             $secretKey = $givenSecretKey;
         } else {
-            // @codeCoverageIgnoreStart
             throw new InvalidKey('An invalid key type was provided');
-            // @codeCoverageIgnoreEnd
         }
         $senderEncKey = $senderPublicKey->getEncryptionPublicKey();
         $decrypted = self::decrypt($ciphertext, $secretKey, $senderEncKey, $encoding);

@@ -5,6 +5,7 @@ use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Password;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Alerts\InvalidMessage;
 use PHPUnit\Framework\TestCase;
 
@@ -13,11 +14,11 @@ final class PasswordTest extends TestCase
     /**
      * @throws InvalidMessage
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
      */
     public function testEncrypt()
     {
@@ -44,13 +45,14 @@ final class PasswordTest extends TestCase
     }
 
     /**
+     * @throws Exception
      * @throws InvalidMessage
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
      */
     public function testEncryptWithAd()
     {
@@ -120,11 +122,11 @@ final class PasswordTest extends TestCase
     /**
      * @throws InvalidMessage
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
      */
     public function testKeyLevels()
     {
@@ -143,11 +145,11 @@ final class PasswordTest extends TestCase
     /**
      * @throws InvalidMessage
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidDigestLength
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
-     * @throws \ParagonIE\Halite\Alerts\InvalidType
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
      */
     public function testRehash()
     {

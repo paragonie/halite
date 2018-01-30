@@ -15,6 +15,7 @@ final class StreamTest extends TestCase
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\FileError
      * @throws CryptoException\InvalidType
+     * @throws Exception
      * @throws TypeError
      */
     public function testFileHash()
@@ -40,6 +41,7 @@ final class StreamTest extends TestCase
     /**
      * @throws CryptoException\FileError
      * @throws CryptoException\InvalidType
+     * @throws Exception
      * @throws TypeError
      */
     public function testUnreadableFile()
@@ -76,6 +78,7 @@ final class StreamTest extends TestCase
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\FileError
      * @throws CryptoException\InvalidType
+     * @throws Exception
      * @throws TypeError
      */
     public function testResource()

@@ -18,6 +18,9 @@ use PHPUnit\Framework\TestCase;
  */
 final class UtilTest extends TestCase
 {
+    /**
+     * @throws Exception
+     */
     public function testChrToInt()
     {
         $this->assertSame(0x61, Util::chrToInt("a"));
@@ -153,6 +156,7 @@ final class UtilTest extends TestCase
     /**
      * Verify that safeStrcpy() doesn't fall prey to interned strings.
      *
+     * @throws Exception
      * @throws TypeError
      */
     public function testSafeStrcpy()

@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Alerts\InvalidType;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
@@ -19,8 +20,8 @@ class KeyTest extends TestCase
     /**
      * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
      */
     public function testDerive()
     {
@@ -62,8 +63,8 @@ class KeyTest extends TestCase
     /**
      * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
      */
     public function testDeriveOldArgon2i()
     {
@@ -95,9 +96,9 @@ class KeyTest extends TestCase
     /**
      * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
-     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
+     * @throws CryptoException\InvalidSignature
      */
     public function testDeriveSigningKey()
     {
@@ -131,9 +132,9 @@ class KeyTest extends TestCase
     /**
      * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
-     * @throws \ParagonIE\Halite\Alerts\InvalidSignature
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
+     * @throws CryptoException\InvalidSignature
      */
     public function testDeriveSigningKeyOldArgon2i()
     {
@@ -169,8 +170,8 @@ class KeyTest extends TestCase
     /**
      * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
      */
     public function testImport()
     {
@@ -248,10 +249,9 @@ class KeyTest extends TestCase
     }
 
     /**
-     * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
      */
     public function testKeyTypes()
     {
@@ -303,9 +303,9 @@ class KeyTest extends TestCase
     /**
      * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
      */
     public function testEncKeyStorage()
     {
@@ -349,9 +349,9 @@ class KeyTest extends TestCase
     /**
      * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\CannotPerformOperation
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
      */
     public function testSignKeyStorage()
     {
@@ -394,8 +394,8 @@ class KeyTest extends TestCase
 
     /**
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
      */
     public function testInvalidKeyLevels()
     {
@@ -417,8 +417,8 @@ class KeyTest extends TestCase
     /**
      * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
      */
     public function testKeyLevels()
     {
@@ -446,8 +446,8 @@ class KeyTest extends TestCase
     /**
      * @throws InvalidType
      * @throws TypeError
-     * @throws \ParagonIE\Halite\Alerts\InvalidKey
-     * @throws \ParagonIE\Halite\Alerts\InvalidSalt
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidSalt
      */
     public function testKeyLevelsOldArgon2i()
     {

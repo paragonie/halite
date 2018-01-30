@@ -17,6 +17,7 @@ final class AsymmetricTest extends TestCase
     /**
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
@@ -49,9 +50,11 @@ final class AsymmetricTest extends TestCase
     /**
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
+     * @throws Exception
      * @throws TypeError
      */
     public function testEncryptWithAd()
@@ -113,6 +116,7 @@ final class AsymmetricTest extends TestCase
     /**
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
@@ -175,10 +179,10 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidType
+     * @throws TypeError
      */
     public function testSeal()
     {
@@ -231,8 +235,10 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
      */
     public function testSealFail()
     {
@@ -268,9 +274,10 @@ final class AsymmetricTest extends TestCase
     }
 
     /**
-     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
+     * @throws TypeError
      */
     public function testSign()
     {
@@ -288,6 +295,7 @@ final class AsymmetricTest extends TestCase
 
     /**
      * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidSignature
@@ -329,7 +337,9 @@ final class AsymmetricTest extends TestCase
      * @throws CryptoException\InvalidDigestLength
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
+     * @throws Exception
      * @throws TypeError
      */
     public function testSignEncryptFail()
@@ -350,7 +360,7 @@ final class AsymmetricTest extends TestCase
             $bob->getPublicKey()
         );
         try {
-            $plaintext = Asymmetric::verifyAndDecrypt(
+            Asymmetric::verifyAndDecrypt(
                 $sealed,
                 $alice->getPublicKey(),
                 $bob->getSecretKey()
@@ -359,11 +369,47 @@ final class AsymmetricTest extends TestCase
         } catch (CryptoException\InvalidSignature $ex) {
             $this->assertTrue(true);
         }
+
+        // http://time.com/4261796/tim-cook-transcript/
+        $message = new HiddenString(
+            'When I think of civil liberties I think of the founding principles of the country. ' .
+            'The freedoms that are in the First Amendment. But also the fundamental right to privacy.'
+        );
+        try {
+            Asymmetric::signAndEncrypt(
+                $message,
+                $alice->getSecretKey(),
+                new \ParagonIE\Halite\Asymmetric\PublicKey(
+                    new HiddenString(
+                        \random_bytes(32)
+                    )
+                )
+            );
+            $this->fail('Invalid public key was accepted');
+        } catch (CryptoException\InvalidKey $ex) {
+        }
+
+        $encrypted = Asymmetric::signAndEncrypt($message, $alice->getSecretKey(), $bob->getPublicKey());
+        try {
+            Asymmetric::verifyAndDecrypt(
+                $encrypted,
+                $alice->getPublicKey(),
+                new \ParagonIE\Halite\Asymmetric\SecretKey(
+                    new HiddenString(
+                        \random_bytes(32)
+                    )
+                )
+            );
+            $this->fail('Invalid secret key was accepted');
+        } catch (CryptoException\InvalidKey $ex) {
+        }
     }
 
     /**
+     * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidSignature
      * @throws CryptoException\InvalidType
+     * @throws Exception
      * @throws TypeError
      */
     public function testSignFail()
@@ -390,7 +436,7 @@ final class AsymmetricTest extends TestCase
                 ^
             1 << random_int(0, 7)
         );
-        
+
         $this->assertFalse(
             Asymmetric::verify(
                 $message,
@@ -399,5 +445,18 @@ final class AsymmetricTest extends TestCase
                 true
             )
         );
+
+        for ($i = 0; $i < SODIUM_CRYPTO_SIGN_BYTES; ++$i) {
+            try {
+                Asymmetric::verify(
+                    $message,
+                    $alice->getPublicKey(),
+                    \ParagonIE\ConstantTime\Binary::safeSubstr($_signature, 0, $i),
+                    true
+                );
+                $this->fail('Exception was not triggered');
+            } catch (CryptoException\InvalidSignature $ex) {
+            }
+        }
     }
 }

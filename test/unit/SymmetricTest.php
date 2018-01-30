@@ -13,6 +13,13 @@ use PHPUnit\Framework\TestCase;
 
 final class SymmetricTest extends TestCase
 {
+    /**
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testAuthenticate()
     {
         $key = new AuthenticationKey(new HiddenString(str_repeat('A', 32)));
@@ -22,7 +29,15 @@ final class SymmetricTest extends TestCase
             Symmetric::verify($message, $key, $mac)
         );
     }
-    
+
+    /**
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
+     */
     public function testAuthenticateFail()
     {
         $key = new AuthenticationKey(new HiddenString(str_repeat('A', 32), true));
@@ -54,6 +69,15 @@ final class SymmetricTest extends TestCase
         );
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testEncrypt()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -70,6 +94,15 @@ final class SymmetricTest extends TestCase
         $this->assertSame($plain->getString(), 'test message');
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testEncryptWithAd()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -97,6 +130,15 @@ final class SymmetricTest extends TestCase
         }
     }
 
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testEncryptEmpty()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -109,7 +151,16 @@ final class SymmetricTest extends TestCase
         $plain = Symmetric::decrypt($message, $key);
         $this->assertSame($plain->getString(), '');
     }
-    
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testRawEncrypt()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -119,7 +170,17 @@ final class SymmetricTest extends TestCase
         $plain = Symmetric::decrypt($message, $key, true);
         $this->assertSame($plain->getString(), 'test message');
     }
-    
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
+     */
     public function testEncryptFail()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
@@ -145,7 +206,16 @@ final class SymmetricTest extends TestCase
             $this->assertTrue($e instanceof CryptoException\InvalidMessage);
         }
     }
-    
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
+     */
     public function testUnpack()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));

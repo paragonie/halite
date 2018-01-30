@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\ConstantTime\Hex;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
@@ -108,7 +109,10 @@ final class Password
         // Upon successful decryption, verify that we're using Argon2i
         if (!\hash_equals(
             Util::safeSubstr($hash_str, 0, 9),
-            \SODIUM_CRYPTO_PWHASH_STRPREFIX
+            '$argon2i$'
+        ) && !\hash_equals(
+            Util::safeSubstr($hash_str, 0, 10),
+            '$argon2id$'
         )) {
             return true;
         }
@@ -119,16 +123,25 @@ final class Password
                 return !\hash_equals(
                     '$argon2i$v=19$m=32768,t=4,p=1$',
                     Util::safeSubstr($hash_str, 0, 30)
+                ) && !\hash_equals(
+                    '$argon2id$v=19$m=65536,t=2,p=1$',
+                    Util::safeSubstr($hash_str, 0, 31)
                 );
             case KeyFactory::MODERATE:
                 return !\hash_equals(
                     '$argon2i$v=19$m=131072,t=6,p=1$',
                     Util::safeSubstr($hash_str, 0, 31)
+                ) && !\hash_equals(
+                    '$argon2id$v=19$m=262144,t=3,p=1$',
+                    Util::safeSubstr($hash_str, 0, 32)
                 );
             case KeyFactory::SENSITIVE:
                 return !\hash_equals(
                     '$argon2i$v=19$m=524288,t=8,p=1$',
                     Util::safeSubstr($hash_str, 0, 31)
+                ) && !\hash_equals(
+                    '$argon2id$v=19$m=1048576,t=4,p=1',
+                    Util::safeSubstr($hash_str, 0, 33)
                 );
             default:
                 return true;

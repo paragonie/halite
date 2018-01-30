@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 4.0.3 (2018-01-30)
+
+* [#72](https://github.com/paragonie/halite/issues/72): Fixed forward-compatibility with
+  libsodium 1.0.15.
+
 ## Version 4.0.2 (2017-12-08)
 
 This is mostly a boyscouting/documentation release. However, we now pass Psalm under the

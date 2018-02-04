@@ -28,6 +28,7 @@
  * [`Stream`](Stream)
     * [`\ParagonIE\Halite\Stream\MutableFile`](Stream/MutableFile.md)
     * [`\ParagonIE\Halite\Stream\ReadOnlyFile`](Stream/ReadOnlyFile.md)
+    * [`\ParagonIE\Halite\Stream\WeakReadOnlyFile`](Stream/WeakReadOnlyFile.md)
  * [`Structure`](Classes/Structure)
     * [`\ParagonIE\Halite\Structure\BlockChain`](Stream/BlockChain.md)
     * [`\ParagonIE\Halite\Structure\MerkleTree`](Stream/MerkleTree.md)

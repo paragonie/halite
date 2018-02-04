@@ -4,6 +4,11 @@ declare(strict_types=1);
 use ParagonIE\Halite\File;
 use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
+use ParagonIE\Halite\Stream\{
+    MutableFile,
+    MutableInputFile,
+    ReadOnlyFile
+};
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Util;
 use ParagonIE\Halite\Alerts as CryptoException;
@@ -231,6 +236,63 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/empty.encrypted.txt');
         unlink(__DIR__.'/tmp/empty.decrypted.txt');
     }
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
+    public function testEncryptVarious()
+    {
+        touch(__DIR__.'/tmp/paragon_avatar.encrypted.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.encrypted.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.decrypted.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.decrypted.png', 0777);
+
+        $key = new EncryptionKey(
+            new HiddenString(\str_repeat('B', 32))
+        );
+        File::encrypt(
+            new ReadOnlyFile(__DIR__.'/tmp/paragon_avatar.png'),
+            new MutableFile(__DIR__.'/tmp/paragon_avatar.encrypted.png'),
+            $key
+        );
+
+        File::decrypt(
+            new ReadOnlyFile(__DIR__.'/tmp/paragon_avatar.encrypted.png'),
+            new MutableFile(__DIR__.'/tmp/paragon_avatar.decrypted.png'),
+            $key
+        );
+
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted.png')
+        );
+
+        File::encrypt(
+            new MutableInputFile(__DIR__.'/tmp/paragon_avatar.png'),
+            new MutableFile(__DIR__.'/tmp/paragon_avatar.encrypted.png'),
+            $key
+        );
+
+        File::decrypt(
+            new MutableInputFile(__DIR__.'/tmp/paragon_avatar.encrypted.png'),
+            new MutableFile(__DIR__.'/tmp/paragon_avatar.decrypted.png'),
+            $key
+        );
+
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted.png')
+        );
+        unlink(__DIR__.'/tmp/paragon_avatar.encrypted.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.decrypted.png');
+    }
 
     /**
      * @throws CryptoException\CannotPerformOperation
@@ -437,6 +499,66 @@ final class FileTest extends TestCase
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
+     */
+    public function testSealVarious()
+    {
+        touch(__DIR__.'/tmp/paragon_avatar.sealed.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.sealed.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.opened.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.opened.png', 0777);
+
+        $keypair = KeyFactory::generateEncryptionKeyPair();
+        $secretkey = $keypair->getSecretKey();
+        $publickey = $keypair->getPublicKey();
+
+        File::seal(
+            new ReadOnlyFile(__DIR__.'/tmp/paragon_avatar.png'),
+            new MutableFile(__DIR__.'/tmp/paragon_avatar.sealed.png'),
+            $publickey
+        );
+
+        File::unseal(
+            new ReadOnlyFile(__DIR__.'/tmp/paragon_avatar.sealed.png'),
+            new MutableFile(__DIR__.'/tmp/paragon_avatar.opened.png'),
+            $secretkey
+        );
+
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
+        );
+
+        File::seal(
+            new MutableInputFile(__DIR__.'/tmp/paragon_avatar.png'),
+            new MutableFile(__DIR__.'/tmp/paragon_avatar.sealed.png'),
+            $publickey
+        );
+
+        File::unseal(
+            new MutableInputFile(__DIR__.'/tmp/paragon_avatar.sealed.png'),
+            new MutableFile(__DIR__.'/tmp/paragon_avatar.opened.png'),
+            $secretkey
+        );
+
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
+        );
+
+        unlink(__DIR__.'/tmp/paragon_avatar.sealed.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.opened.png');
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
      * @throws CryptoException\InvalidKey
      * @throws CryptoException\InvalidMessage
      * @throws CryptoException\InvalidSignature
@@ -446,14 +568,14 @@ final class FileTest extends TestCase
     public function testSign()
     {
         $keypair = KeyFactory::generateSignatureKeyPair();
-            $secretkey = $keypair->getSecretKey();
-            $publickey = $keypair->getPublicKey();
-        
+        $secretkey = $keypair->getSecretKey();
+        $publickey = $keypair->getPublicKey();
+
         $signature = File::sign(
             __DIR__.'/tmp/paragon_avatar.png',
             $secretkey
         );
-        
+
         $this->assertTrue(
             File::verify(
                 __DIR__.'/tmp/paragon_avatar.png',
@@ -472,6 +594,52 @@ final class FileTest extends TestCase
             $this->fail('Invalid type was accepted.');
         } catch (CryptoException\InvalidType $ex) {
         }
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
+    public function testSignVarious()
+    {
+        $keypair = KeyFactory::generateSignatureKeyPair();
+        $secretkey = $keypair->getSecretKey();
+        $publickey = $keypair->getPublicKey();
+
+        $inputFile = new ReadOnlyFile(__DIR__.'/tmp/paragon_avatar.png');
+
+        $signature = File::sign(
+            $inputFile,
+            $secretkey
+        );
+
+        $this->assertTrue(
+            File::verify(
+                $inputFile,
+                $publickey,
+                $signature
+            )
+        );
+
+        $mutable = new MutableInputFile(__DIR__.'/tmp/paragon_avatar.png');
+        $signature = File::sign(
+            $mutable,
+            $secretkey
+        );
+
+        $this->assertTrue(
+            File::verify(
+                $mutable,
+                $publickey,
+                $signature
+            )
+        );
     }
 
     /**
@@ -502,7 +670,16 @@ final class FileTest extends TestCase
             $hash,
             $file
         );
+        $this->assertSame(
+            $hash,
+            File::checksum(new ReadOnlyFile(__DIR__.'/tmp/garbage.dat'), null, true)
+        );
+        $this->assertSame(
+            $hash,
+            File::checksum(new MutableInputFile(__DIR__.'/tmp/garbage.dat'), null, true)
+        );
 
+        // No exceptions:
         File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateAuthenticationKey(), true);
         File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateSignatureKeyPair()->getPublicKey(), true);
 

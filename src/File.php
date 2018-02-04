@@ -79,6 +79,18 @@ final class File
         Key $key = null,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
+        if ($filePath instanceof ReadOnlyFile) {
+            $pos = $filePath->getPos();
+            $filePath->reset(0);
+            $checksum = self::checksumData(
+                $filePath,
+                $key,
+                $encoding
+            );
+            $filePath->reset($pos);
+            return $checksum;
+        }
+
         if (\is_resource($filePath) || \is_string($filePath)) {
             $readOnly = new ReadOnlyFile($filePath);
             try {
@@ -123,13 +135,21 @@ final class File
         EncryptionKey $key
     ): int {
         if (
-            (\is_resource($input) || \is_string($input))
-            &&
-            (\is_resource($output) || \is_string($output))
+            (\is_resource($input) || \is_string($input) || ($input instanceof ReadOnlyFile))
+                &&
+            (\is_resource($output) || \is_string($output) || ($output instanceof MutableFile))
         ) {
-            $readOnly = new ReadOnlyFile($input);
-            $mutable = new MutableFile($output);
             try {
+                if ($input instanceof ReadOnlyFile) {
+                    $readOnly = $input;
+                } else {
+                    $readOnly = new ReadOnlyFile($input);
+                }
+                if ($output instanceof MutableFile) {
+                    $mutable = $output;
+                } else {
+                    $mutable = new MutableFile($output);
+                }
                 $data = self::encryptData(
                     $readOnly,
                     $mutable,
@@ -174,13 +194,21 @@ final class File
         EncryptionKey $key
     ): bool {
         if (
-            (\is_resource($input) || \is_string($input))
+            (\is_resource($input) || \is_string($input) || ($input instanceof ReadOnlyFile))
                 &&
-            (\is_resource($output) || \is_string($output))
+            (\is_resource($output) || \is_string($output) || ($output instanceof MutableFile))
         ) {
             try {
-                $readOnly = new ReadOnlyFile($input);
-                $mutable = new MutableFile($output);
+                if ($input instanceof ReadOnlyFile) {
+                    $readOnly = $input;
+                } else {
+                    $readOnly = new ReadOnlyFile($input);
+                }
+                if ($output instanceof MutableFile) {
+                    $mutable = $output;
+                } else {
+                    $mutable = new MutableFile($output);
+                }
                 $data = self::decryptData(
                     $readOnly,
                     $mutable,
@@ -225,13 +253,21 @@ final class File
         EncryptionPublicKey $publicKey
     ): int {
         if (
-            (\is_resource($input) || \is_string($input))
+            (\is_resource($input) || \is_string($input) || ($input instanceof ReadOnlyFile))
                 &&
-            (\is_resource($output) || \is_string($output))
+            (\is_resource($output) || \is_string($output) || ($output instanceof MutableFile))
         ) {
             try {
-                $readOnly = new ReadOnlyFile($input);
-                $mutable = new MutableFile($output);
+                if ($input instanceof ReadOnlyFile) {
+                    $readOnly = $input;
+                } else {
+                    $readOnly = new ReadOnlyFile($input);
+                }
+                if ($output instanceof MutableFile) {
+                    $mutable = $output;
+                } else {
+                    $mutable = new MutableFile($output);
+                }
                 $data = self::sealData(
                     $readOnly,
                     $mutable,
@@ -277,13 +313,21 @@ final class File
         EncryptionSecretKey $secretKey
     ): bool {
         if (
-            (\is_resource($input) || \is_string($input))
-            &&
-            (\is_resource($output) || \is_string($output))
+            (\is_resource($input) || \is_string($input) || ($input instanceof ReadOnlyFile))
+                &&
+            (\is_resource($output) || \is_string($output) || ($output instanceof MutableFile))
         ) {
-            $readOnly = new ReadOnlyFile($input);
-            $mutable = new MutableFile($output);
             try {
+                if ($input instanceof ReadOnlyFile) {
+                    $readOnly = $input;
+                } else {
+                    $readOnly = new ReadOnlyFile($input);
+                }
+                if ($output instanceof MutableFile) {
+                    $mutable = $output;
+                } else {
+                    $mutable = new MutableFile($output);
+                }
                 $data = self::unsealData(
                     $readOnly,
                     $mutable,
@@ -330,6 +374,17 @@ final class File
         SignatureSecretKey $secretKey,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
+        if ($filename instanceof ReadOnlyFile) {
+            $pos = $filename->getPos();
+            $filename->reset(0);
+            $signature = self::signData(
+                $filename,
+                $secretKey,
+                $encoding
+            );
+            $filename->reset($pos);
+            return $signature;
+        }
         if (\is_resource($filename) || \is_string($filename)) {
             $readOnly = new ReadOnlyFile($filename);
             try {
@@ -374,6 +429,18 @@ final class File
         string $signature,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): bool {
+        if ($filename instanceof ReadOnlyFile) {
+            $pos = $filename->getPos();
+            $filename->reset(0);
+            $verified = self::verifyData(
+                $filename,
+                $publicKey,
+                $signature,
+                $encoding
+            );
+            $filename->reset($pos);
+            return $verified;
+        }
         if (\is_resource($filename) || \is_string($filename)) {
             $readOnly = new ReadOnlyFile($filename);
             try {

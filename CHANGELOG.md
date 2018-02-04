@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 4.4.0 (2018-02-04)
+
+* Fixed [#90](https://github.com/paragonie/halite/issues/90):
+  * Introduced [`WeakReadOnlyFile`](https://github.com/paragonie/halite/blob/master/doc/Classes/Stream/WeakReadOnlyFile.md),
+    an alternative to [`ReadOnlyFile`](https://github.com/paragonie/halite/blob/master/doc/Classes/Stream/ReadOnlyFile.md)
+    that allows file modes other than `rb`. The TOCTOU security guarantees are therefore
+    slightly weaker with this class (hence the "Weak" part of the name).
+  * Updated [`File`](https://github.com/paragonie/halite/blob/master/doc/Classes/File.md)
+    to allow stream objects (`ReadOnlyFile` and `MutableFile`) to be passed direclty instead
+    of strings (for filenames) and resources (for open file handles).
+
 ## Version 4.3.1 (2018-01-30)
 
 * Updated the `Halite::VERSION` constant which was previously still `4.2.0`.

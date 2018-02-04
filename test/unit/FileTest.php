@@ -6,7 +6,7 @@ use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Stream\{
     MutableFile,
-    MutableInputFile,
+    WeakReadOnlyFile,
     ReadOnlyFile
 };
 use ParagonIE\Halite\Symmetric\EncryptionKey;
@@ -275,13 +275,13 @@ final class FileTest extends TestCase
         );
 
         File::encrypt(
-            new MutableInputFile(__DIR__.'/tmp/paragon_avatar.png'),
+            new WeakReadOnlyFile(__DIR__.'/tmp/paragon_avatar.png'),
             new MutableFile(__DIR__.'/tmp/paragon_avatar.encrypted.png'),
             $key
         );
 
         File::decrypt(
-            new MutableInputFile(__DIR__.'/tmp/paragon_avatar.encrypted.png'),
+            new WeakReadOnlyFile(__DIR__.'/tmp/paragon_avatar.encrypted.png'),
             new MutableFile(__DIR__.'/tmp/paragon_avatar.decrypted.png'),
             $key
         );
@@ -535,13 +535,13 @@ final class FileTest extends TestCase
         );
 
         File::seal(
-            new MutableInputFile(__DIR__.'/tmp/paragon_avatar.png'),
+            new WeakReadOnlyFile(__DIR__.'/tmp/paragon_avatar.png'),
             new MutableFile(__DIR__.'/tmp/paragon_avatar.sealed.png'),
             $publickey
         );
 
         File::unseal(
-            new MutableInputFile(__DIR__.'/tmp/paragon_avatar.sealed.png'),
+            new WeakReadOnlyFile(__DIR__.'/tmp/paragon_avatar.sealed.png'),
             new MutableFile(__DIR__.'/tmp/paragon_avatar.opened.png'),
             $secretkey
         );
@@ -627,7 +627,7 @@ final class FileTest extends TestCase
             )
         );
 
-        $mutable = new MutableInputFile(__DIR__.'/tmp/paragon_avatar.png');
+        $mutable = new WeakReadOnlyFile(__DIR__.'/tmp/paragon_avatar.png');
         $signature = File::sign(
             $mutable,
             $secretkey
@@ -676,7 +676,7 @@ final class FileTest extends TestCase
         );
         $this->assertSame(
             $hash,
-            File::checksum(new MutableInputFile(__DIR__.'/tmp/garbage.dat'), null, true)
+            File::checksum(new WeakReadOnlyFile(__DIR__.'/tmp/garbage.dat'), null, true)
         );
 
         // No exceptions:

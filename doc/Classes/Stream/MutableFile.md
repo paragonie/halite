@@ -7,6 +7,7 @@ This represents a file that we are writing to, and therefore is mutable.
 ## Constants
 
 ```php
+    const ALLOWED_MODES = ['r+b', 'w+b', 'cb', 'c+b'];
     // PHP's fread() buffer is set to 8192 by default
     const CHUNK = 8192;
 ```

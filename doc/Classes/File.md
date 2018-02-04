@@ -21,7 +21,9 @@ Calculates a BLAKE2b-512 hash of the given file.
 Encrypt the contents of `$input` (either a string containing the path to a file, or an open file 
 handle), and store it in the file (handle?) at `$output`.
 
-Both `$input` and `$output` can be a string or a resource.
+Both `$input` and `$output` can be a string, a resource, or an object whose class implements `StreamInterface`.
+In the object case, `$input` must be an instance of [`ReadOnlyFile`](Stream/ReadOnlyFile.md) and `$output` must
+be an instance of [`MutableFile`](Stream/MutableFile.md).
 
 ### `decrypt()`
 
@@ -30,7 +32,9 @@ Both `$input` and `$output` can be a string or a resource.
 Decrypt the contents of `$input` (either a string containing the path to a file, or an open file 
 handle), and store it in the file (handle?) at `$output`.
 
-Both `$input` and `$output` can be a string or a resource.
+Both `$input` and `$output` can be a string, a resource, or an object whose class implements `StreamInterface`.
+In the object case, `$input` must be an instance of [`ReadOnlyFile`](Stream/ReadOnlyFile.md) and `$output` must
+be an instance of [`MutableFile`](Stream/MutableFile.md).
 
 ### `seal()`
 
@@ -39,7 +43,9 @@ Both `$input` and `$output` can be a string or a resource.
 Seals (encrypts with a public key) the contents of `$input` (either a string containing the path to a file, or an open file 
 handle), and store it in the file (handle?) at `$output`.
 
-Both `$input` and `$output` can be a string or a resource.
+Both `$input` and `$output` can be a string, a resource, or an object whose class implements `StreamInterface`.
+In the object case, `$input` must be an instance of [`ReadOnlyFile`](Stream/ReadOnlyFile.md) and `$output` must
+be an instance of [`MutableFile`](Stream/MutableFile.md).
 
 ### `unseal()`
 
@@ -48,7 +54,9 @@ Both `$input` and `$output` can be a string or a resource.
 Unseals (decrypts with a secret key) the contents of `$input` (either a string containing the path to a file, or an open file 
 handle), and store it in the file (handle?) at `$output`.
 
-Both `$input` and `$output` can be a string or a resource.
+Both `$input` and `$output` can be a string, a resource, or an object whose class implements `StreamInterface`.
+In the object case, `$input` must be an instance of [`ReadOnlyFile`](Stream/ReadOnlyFile.md) and `$output` must
+be an instance of [`MutableFile`](Stream/MutableFile.md).
 
 ### `sign()`
 
@@ -56,7 +64,7 @@ Both `$input` and `$output` can be a string or a resource.
 
 Calculate a digital signature of a file.
 
-`$input` can be a string or a resource.
+`$input` can be a string or a resource, or an instance of [`ReadOnlyFile`](Stream/ReadOnlyFile.md).
 
 ### `verify()`
 
@@ -64,4 +72,4 @@ Calculate a digital signature of a file.
 
 Verifies a digital signature of a file.
 
-`$input` can be a string or a resource.
+`$input` can be a string or a resource, or an instance of [`ReadOnlyFile`](Stream/ReadOnlyFile.md).

@@ -8,6 +8,7 @@ while our cryptography operations are being performed.
 ## Constants
 
 ```php
+    const ALLOWED_MODES = ['rb'];
     // PHP's fread() buffer is set to 8192 by default
     const CHUNK = 8192;
 ```

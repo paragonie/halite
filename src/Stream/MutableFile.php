@@ -142,6 +142,16 @@ class MutableFile implements StreamInterface
     }
 
     /**
+     * Get information about the stream.
+     *
+     * @return array
+     */
+    public function getStreamMetadata(): array
+    {
+        return \stream_get_meta_data($this->fp);
+    }
+
+    /**
      * Read from a stream; prevent partial reads
      *
      * @param int $num

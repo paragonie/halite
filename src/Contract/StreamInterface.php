@@ -40,6 +40,13 @@ interface StreamInterface
     public function getSize(): int;
 
     /**
+     * Get information about the stream.
+     *
+     * @return array
+     */
+    public function getStreamMetadata(): array;
+
+    /**
      * Read from a stream; prevent partial reads
      * 
      * @param int $num

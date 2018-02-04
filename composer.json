@@ -22,7 +22,7 @@
         "ext-sodium": "^2.0.4 - Preferred",
         "ext-libsodium": "^1.0.6 - Legacy"
     },
-    "license": "GPL3",
+    "license": "GPL-3.0-or-later",
     "authors": [
         {
             "name": "Paragon Initiative Enterprises",

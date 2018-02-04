@@ -6,8 +6,8 @@ use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Stream\{
     MutableFile,
-    WeakReadOnlyFile,
-    ReadOnlyFile
+    ReadOnlyFile,
+    WeakReadOnlyFile
 };
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Util;

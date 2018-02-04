@@ -89,7 +89,9 @@ final class File
                 );
                 return $checksum;
             } finally {
-                $readOnly->close();
+                if (isset($readOnly)) {
+                    $readOnly->close();
+                }
             }
         }
         throw new InvalidType(
@@ -135,8 +137,12 @@ final class File
                 );
                 return $data;
             } finally {
-                $readOnly->close();
-                $mutable->close();
+                if (isset($readOnly)) {
+                    $readOnly->close();
+                }
+                if (isset($mutable)) {
+                    $mutable->close();
+                }
             }
         }
         throw new InvalidType(
@@ -182,8 +188,12 @@ final class File
                 );
                 return $data;
             } finally {
-                $readOnly->close();
-                $mutable->close();
+                if (isset($readOnly)) {
+                    $readOnly->close();
+                }
+                if (isset($mutable)) {
+                    $mutable->close();
+                }
             }
         }
         throw new InvalidType(
@@ -229,8 +239,12 @@ final class File
                 );
                 return $data;
             } finally {
-                $readOnly->close();
-                $mutable->close();
+                if (isset($readOnly)) {
+                    $readOnly->close();
+                }
+                if (isset($mutable)) {
+                    $mutable->close();
+                }
             }
         }
         throw new InvalidType(
@@ -277,8 +291,12 @@ final class File
                 );
                 return $data;
             } finally {
-                $readOnly->close();
-                $mutable->close();
+                if (isset($readOnly)) {
+                    $readOnly->close();
+                }
+                if (isset($mutable)) {
+                    $mutable->close();
+                }
             }
         }
         throw new InvalidType(
@@ -322,7 +340,12 @@ final class File
                 );
                 return $signature;
             } finally {
-                $readOnly->close();
+                if (isset($readOnly)) {
+                    $readOnly->close();
+                }
+                if (isset($mutable)) {
+                    $mutable->close();
+                }
             }
         }
         throw new InvalidType(
@@ -365,7 +388,9 @@ final class File
                 );
                 return $verified;
             } finally {
-                $readOnly->close();
+                if (isset($readOnly)) {
+                    $readOnly->close();
+                }
             }
         }
         throw new InvalidType(

@@ -343,9 +343,6 @@ final class File
                 if (isset($readOnly)) {
                     $readOnly->close();
                 }
-                if (isset($mutable)) {
-                    $mutable->close();
-                }
             }
         }
         throw new InvalidType(

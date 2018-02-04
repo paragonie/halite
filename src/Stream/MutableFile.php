@@ -230,7 +230,7 @@ class MutableFile implements StreamInterface
      * Write to a stream; prevent partial writes
      *
      * @param string $buf
-     * @param int $num (number of bytes)
+     * @param int|null $num (number of bytes)
      * @return int
      *
      * @throws CannotPerformOperation
@@ -240,7 +240,7 @@ class MutableFile implements StreamInterface
     public function writeBytes(string $buf, int $num = null): int
     {
         $bufSize = Binary::safeStrlen($buf);
-        if ($num === null || $num > $bufSize) {
+        if (!\is_int($num) || $num > $bufSize) {
             $num = $bufSize;
         }
         // @codeCoverageIgnoreStart

@@ -168,8 +168,12 @@ final class File
                 );
                 return $data;
             } finally {
-                $readOnly->close();
-                $mutable->close();
+                if ($readOnly instanceof ReadOnlyFile) {
+                    $readOnly->close();
+                }
+                if ($mutable instanceof MutableFile) {
+                    $mutable->close();
+                }
             }
         }
         throw new InvalidType(
@@ -258,8 +262,12 @@ final class File
                 );
                 return $data;
             } finally {
-                $readOnly->close();
-                $mutable->close();
+                if ($readOnly instanceof ReadOnlyFile) {
+                    $readOnly->close();
+                }
+                if ($mutable instanceof MutableFile) {
+                    $mutable->close();
+                }
             }
         }
         throw new InvalidType(

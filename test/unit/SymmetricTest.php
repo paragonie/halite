@@ -103,6 +103,32 @@ final class SymmetricTest extends TestCase
      * @throws CryptoException\InvalidType
      * @throws TypeError
      */
+    public function testEncryptLarge()
+    {
+        $msg = str_repeat("\xff", 1 << 17);
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
+        $message = Symmetric::encrypt(
+            new HiddenString($msg),
+            $key
+        );
+        $this->assertSame(
+            strpos($message, Halite::VERSION_PREFIX),
+            0
+        );
+
+        $plain = Symmetric::decrypt($message, $key);
+        $this->assertSame($plain->getString(), $msg);
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testEncryptWithAd()
     {
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));

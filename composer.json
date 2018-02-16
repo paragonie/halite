@@ -48,7 +48,7 @@
     "support": {
         "issues": "https://github.com/paragonie/halite/issues",
         "docs": "https://github.com/paragonie/halite/tree/master/doc"
-    }
+    },
     "config": {
         "preferred-install": "dist",
         "optimize-autoloader": true,

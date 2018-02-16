@@ -1,18 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.0/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.0/phpunit.xsd"
+         testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
+         printerClass="PHPUnit_TextUI_ResultPrinter"
+         timeoutForSmallTests="20"
+         timeoutForMediumTests="60"
+         timeoutForLargeTests="180"
          backupGlobals="false"
          backupStaticAttributes="false"
+         bootstrap="./vendor/autoload.php"
+         cacheTokens="false"
+         colors="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutOutputDuringTests="true"
-         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         forceCoversAnnotation="false"
+         mapTestClassNameToCoveredClassName="false"
          processIsolation="false"
          stopOnError="false"
          stopOnFailure="false"
-         failOnRisky="false"
-         failOnWarning="false"
-         verbose="true">
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+         stopOnRisky="false"
+         verbose="false">
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory>./src</directory>
@@ -28,7 +39,9 @@
     <logging>
         <log type="coverage-clover" target="./build/logs/clover.xml"/>
     </logging>
-    <testsuite name="paragonie/halite Test Suite">
-        <directory suffix="Test.php">./test/unit</directory>
-    </testsuite>
+    <testsuites>
+        <testsuite name="Paragonie/Halite Test Suite">
+            <directory suffix="Test.php">./test/unit</directory>
+        </testsuite>
+    </testsuites>
 </phpunit>

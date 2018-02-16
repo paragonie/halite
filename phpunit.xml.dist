@@ -26,6 +26,7 @@
             <exclude>
                 <directory>./libsodium</directory>
                 <directory>./vendor</directory>
+                <directory>./build</directory>
                 <directory>./stub</directory>
                 <directory>./test</directory>
                 <directory>./doc</directory>

@@ -16,6 +16,8 @@
          processIsolation="false"
          stopOnError="false"
          stopOnFailure="false"
+         failOnRisky="false"
+-        failOnWarning="false"
          stopOnIncomplete="false"
          stopOnSkipped="false"
          stopOnRisky="false"

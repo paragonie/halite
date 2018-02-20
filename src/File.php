@@ -60,9 +60,9 @@ final class File
      * the entire file into memory. You may optionally supply a key to use in
      * the BLAKE2b hash.
      *
-     * @param string|resource $filePath The file
-     * @param Key $key        (optional; expects SignaturePublicKey or
-     *                         AuthenticationKey)
+     * @param string|resource|ReadOnlyFile $filePath
+     * @param Key $key (optional; expects SignaturePublicKey or
+     *                  AuthenticationKey)
      * @param mixed $encoding Which encoding scheme to use for the checksum?
      * @return string         The checksum
      *
@@ -114,10 +114,10 @@ final class File
     /**
      * Encrypt a file using symmetric authenticated encryption.
      *
-     * @param string|resource $input  File name or file handle
-     * @param string|resource $output File name or file handle
-     * @param EncryptionKey $key      Symmetric encryption key
-     * @return int                    Number of bytes written
+     * @param string|resource|ReadOnlyFile $input Input file
+     * @param string|resource|MutableFile $output Output file
+     * @param EncryptionKey $key                  Symmetric encryption key
+     * @return int                                Number of bytes written
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
@@ -173,10 +173,10 @@ final class File
     /**
      * Decrypt a file using symmetric-key authenticated encryption.
      *
-     * @param string|resource $input  File name or file handle
-     * @param string|resource $output File name or file handle
-     * @param EncryptionKey $key      Symmetric encryption key
-     * @return bool                   TRUE if successful
+     * @param string|resource|ReadOnlyFile $input Input file
+     * @param string|resource|MutableFile $output Output file
+     * @param EncryptionKey $key                  Symmetric encryption key
+     * @return bool                               TRUE if successful
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
@@ -233,9 +233,9 @@ final class File
      * Encrypt a file using anonymous public-key encryption (with ciphertext
      * authentication).
      *
-     * @param string|resource $input         File name or file handle
-     * @param string|resource $output        File name or file handle
-     * @param EncryptionPublicKey $publicKey Recipient's encryption public key
+     * @param string|resource|ReadOnlyFile $input Input file
+     * @param string|resource|MutableFile $output Output file
+     * @param EncryptionPublicKey $publicKey      Recipient's encryption public key
      * @return int
      *
      * @throws CannotPerformOperation
@@ -292,10 +292,10 @@ final class File
      * Decrypt a file using anonymous public-key encryption. Ciphertext
      * integrity is still assured thanks to the Encrypt-then-MAC construction.
      *
-     * @param string|resource $input         File name or file handle
-     * @param string|resource $output        File name or file handle
-     * @param EncryptionSecretKey $secretKey Recipient's encryption secret key
-     * @return bool                          TRUE on success
+     * @param string|resource|ReadOnlyFile $input Input file
+     * @param string|resource|MutableFile $output Output file
+     * @param EncryptionSecretKey $secretKey      Recipient's encryption secret key
+     * @return bool                               TRUE on success
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
@@ -356,7 +356,7 @@ final class File
      *    Ed25519 public key used as a BLAKE2b key.
      * 2. Sign the checksum with Ed25519, using the corresponding public key.
      *
-     * @param string|resource $filename     File name or file handle
+     * @param string|resource|ReadOnlyFile $filename     File name or file handle
      * @param SignatureSecretKey $secretKey Secret key for digital signatures
      * @param mixed $encoding               Which encoding scheme to use for the signature?
      * @return string                       Detached signature for the file
@@ -408,7 +408,7 @@ final class File
     /**
      * Verify a digital signature for a file.
      *
-     * @param string|resource $filename     File name or file handle
+     * @param string|resource|ReadOnlyFile $filename     File name or file handle
      * @param SignaturePublicKey $publicKey Other party's signature public key
      * @param string $signature             The signature we received
      * @param mixed $encoding               Which encoding scheme to use for the signature?

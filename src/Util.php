@@ -273,6 +273,9 @@ final class Util
         $return = '';
         /** @var int $chunk */
         $chunk = $length >> 1;
+        if ($chunk < 1) {
+            $chunk = 1;
+        }
         for ($i = 0; $i < $length; $i += $chunk) {
             $return .= Binary::safeSubstr($string, $i, $chunk);
         }

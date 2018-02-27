@@ -166,6 +166,13 @@ final class UtilTest extends TestCase
         $this->assertSame($unique, $clone);
         sodium_memzero($unique);
         $this->assertNotSame($unique, $clone);
+
+        // See issue #97
+        $unique = random_bytes(1);
+        $clone = Util::safeStrcpy($unique);
+        $this->assertSame($unique, $clone);
+        sodium_memzero($unique);
+        $this->assertNotSame($unique, $clone);
     }
 
     /**

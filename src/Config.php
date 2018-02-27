@@ -54,7 +54,7 @@ class Config
     /**
      * Setter (NOP)
      * 
-     * @param mixed $key
+     * @param string $key
      * @param mixed $value
      * @return bool
      * @codeCoverageIgnore

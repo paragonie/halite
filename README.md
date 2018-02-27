@@ -7,7 +7,7 @@
 [![Downloads](https://img.shields.io/packagist/dt/paragonie/halite.svg)](https://packagist.org/packages/paragonie/halite)
 [![Coverage Status](https://coveralls.io/repos/github/paragonie/halite/badge.svg?branch=master)](https://coveralls.io/github/paragonie/halite?branch=master)
 
-**Halite** is a high-level cryptography interface that relies on [libsodium](https://pecl.php.net/package/libsodium)s
+**Halite** is a high-level cryptography interface that relies on [libsodium](https://pecl.php.net/package/libsodium)
 for all of its underlying cryptography operations.
 
 Halite was created by [Paragon Initiative Enterprises](https://paragonie.com) as

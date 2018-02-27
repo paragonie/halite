@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.4.1 (2018-02-27)
+
+* Fixed [#97](https://github.com/paragonie/halite/issues/97), set the minimum chunk size to 1.
+
 ## Version 4.4.0 (2018-02-04)
 
 * Fixed [#90](https://github.com/paragonie/halite/issues/90):

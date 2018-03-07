@@ -45,7 +45,7 @@ versions of Halite are briefly highlighted below.
 If you need a version of Halite before 4.0, see the documentation relevant to that
 particular branch.
 
-To install Halite, you first need to [install libsodium](https://paragonie.com/book/pecl-libsodium/read/00-intro.md#installing-libsodium).
+**To install Halite, you first need to [install libsodium](https://paragonie.com/book/pecl-libsodium/read/00-intro.md#installing-libsodium).**
 You may or may not need the PHP extension. For most people, this means running...
 
     sudo apt-get install php7.2-sodium
@@ -166,3 +166,12 @@ $encryptionKey = KeyFactory::loadEncryptionKey('/path/outside/webroot/encryption
 
 File::encrypt('input.txt', 'output.txt', $encryptionKey);
 ```
+
+## Common Support Issues
+
+### Uncaught SodiumException: Cannot Wipe Memory
+
+> PHP Fatal error: Uncaught SodiumException: This is not implemented, as it is not possible to securely wipe memory from PHP
+
+The solution to this is to make sure libsodium is installed/enabled. See above in this
+README for more information. 

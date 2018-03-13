@@ -1,7 +1,5 @@
 <?php
 declare(strict_types=1);
-namespace ParagonIE\Halite\Alerts;
-
 /**
  * Class CannotPerformOperation
  * @package ParagonIE\Halite\Alerts
@@ -9,9 +7,13 @@ namespace ParagonIE\Halite\Alerts;
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * @codeCoverageIgnore
  */
-class CannotPerformOperation extends HaliteAlert
+
+namespace ParagonIE\Halite\Alerts;
+
+/**
+ * CannotPerformOperation
+ */
+class CannotPerformOperation extends HaliteAlert implements HaliteAlertInterface
 {
-    
 }

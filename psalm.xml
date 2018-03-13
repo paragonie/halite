@@ -1,14 +1,11 @@
 <?xml version="1.0"?>
-<psalm
-    name="Halite Psalm Configuration"
-    stopOnFirstError="false"
-    useDocblockTypes="true"
-    totallyTyped="true"
->
+<psalm name="Halite Psalm Configuration"
+       stopOnFirstError="false"
+       useDocblockTypes="true"
+       totallyTyped="true">
     <projectFiles>
-        <directory name="src" />
+        <directory name="./src" />
     </projectFiles>
-
     <issueHandlers>
         <RedundantConditionGivenDocblockType errorLevel="info" /><!-- We can clean this up later -->
         <TooFewArguments errorLevel="suppress" /> <!-- \sodium_memzero() -->

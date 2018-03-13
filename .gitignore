@@ -12,4 +12,5 @@
 /test/unit/tmp/garbage.dat
 /test/unit/tmp/key*
 /composer.lock
+/composer.phar
 /.idea/

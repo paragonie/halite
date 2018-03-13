@@ -2,6 +2,7 @@
 declare(strict_types=1);
 /**
  * Class CannotPerformOperation
+ *
  * @package ParagonIE\Halite\Alerts
  *
  * This Source Code Form is subject to the terms of the Mozilla Public

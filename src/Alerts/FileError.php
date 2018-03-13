@@ -15,6 +15,6 @@ namespace ParagonIE\Halite\Alerts;
 /**
  * FileError
  */
-class FileError extends HaliteAlert implements HalitAlertInterface
+class FileError extends HaliteAlert implements HaliteAlertInterface
 {
 }

@@ -159,15 +159,8 @@ final class Util
         }
         // ORM = first L octets of T
         /** @var string $orm */
-        $orm = Binary::safeSubstr($t, 0, $length);
+        $orm = (string) Binary::safeSubstr($t, 0, $length);
 
-        // @codeCoverageIgnoreStart
-        if (!\is_string($orm)) {
-            throw new CannotPerformOperation(
-                'An unknown error has occurred'
-            );
-        }
-        // @codeCoverageIgnoreEnd
         return $orm;
     }
 

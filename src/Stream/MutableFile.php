@@ -53,7 +53,7 @@ class MutableFile implements StreamInterface
 
     /**
      * MutableFile constructor.
-     * @param string|resource $file
+     * @param mixed $file
      * @throws InvalidType
      * @throws FileAccessDenied
      */

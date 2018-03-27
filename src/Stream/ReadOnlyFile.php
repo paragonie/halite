@@ -242,14 +242,7 @@ class ReadOnlyFile implements StreamInterface
             }
             // @codeCoverageIgnoreEnd
             /** @var string $read */
-            $read = \fread($this->fp, $remaining);
-            if (!\is_string($read)) {
-                // @codeCoverageIgnoreStart
-                throw new FileAccessDenied(
-                    'Could not read from the file'
-                );
-                // @codeCoverageIgnoreEnd
-            }
+            $read = (string) \fread($this->fp, $remaining);
             $buf .= $read;
             $readSize = Binary::safeStrlen($read);
             $this->pos += $readSize;

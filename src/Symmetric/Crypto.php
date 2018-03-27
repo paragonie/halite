@@ -205,18 +205,11 @@ final class Crypto
 
         // crypto_stream_xor() can be used to encrypt and decrypt
         /** @var string $plaintext */
-        $plaintext = \sodium_crypto_stream_xor(
+        $plaintext = (string) \sodium_crypto_stream_xor(
             (string) $encrypted,
             (string) $nonce,
             (string) $encKey
         );
-        if (!\is_string($plaintext)) {
-            // @codeCoverageIgnoreStart
-            throw new InvalidMessage(
-                'Invalid message'
-            );
-            // @codeCoverageIgnoreEnd
-        }
         \sodium_memzero($encrypted);
         \sodium_memzero($nonce);
         \sodium_memzero($encKey);

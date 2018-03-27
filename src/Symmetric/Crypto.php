@@ -160,14 +160,6 @@ final class Crypto
         /** @var string $auth */
         $auth = $pieces[5];
 
-        // @codeCoverageIgnoreStart
-        if (!($config instanceof Config)) {
-            throw new CannotPerformOperation(
-                'Config is not an instance of Config. This should not happen.'
-            );
-        }
-        // @codeCoverageIgnoreEnd
-
         /* Split our key into two keys: One for encryption, the other for
            authentication. By using separate keys, we can reasonably dismiss
            likely cross-protocol attacks.

@@ -164,14 +164,9 @@ final class Password
         ) {
             /** @var string $decoded */
             $decoded = Base64UrlSafe::decode($stored);
-            if (!\is_string($decoded)) {
-                // @codeCoverageIgnoreStart
-                \sodium_memzero($stored);
-                throw new InvalidMessage('Invalid encoding');
-                // @codeCoverageIgnoreEnd
-            }
+            \sodium_memzero($stored);
             return SymmetricConfig::getConfig(
-                $decoded,
+                (string) $decoded,
                 'encrypt'
             );
         }

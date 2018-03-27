@@ -246,6 +246,12 @@ class KeyTest extends TestCase
             bin2hex($encKeypair->getPublicKey()->getRawKeyMaterial()),
             bin2hex($import->getRawKeyMaterial())
         );
+
+        try {
+            KeyFactory::export(new stdClass());
+            $this->fail('Expected a TypeError to be raised');
+        } catch (TypeError $ex) {
+        }
     }
 
     /**

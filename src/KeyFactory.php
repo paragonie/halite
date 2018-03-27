@@ -732,7 +732,7 @@ final class KeyFactory
     /**
      * Export a cryptography key to a string (with a checksum)
      *
-     * @param Key|KeyPair $key
+     * @param object $key
      * @return HiddenString
      *
      * @throws CannotPerformOperation
@@ -745,8 +745,7 @@ final class KeyFactory
             return self::export(
                 $key->getSecretKey()
             );
-        }
-        if ($key instanceof Key) {
+        } elseif ($key instanceof Key) {
             return new HiddenString(
                 Hex::encode(
                     Halite::HALITE_VERSION_KEYS . $key->getRawKeyMaterial() .
@@ -758,9 +757,7 @@ final class KeyFactory
                 )
             );
         }
-        // @codeCoverageIgnoreStart
         throw new \TypeError('Expected a Key.');
-        // @codeCoverageIgnoreEnd
     }
 
     /**

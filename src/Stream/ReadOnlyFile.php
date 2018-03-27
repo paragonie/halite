@@ -72,6 +72,7 @@ class ReadOnlyFile implements StreamInterface
      * @throws FileError
      * @throws InvalidType
      * @throws \TypeError
+     * @psalm-suppress RedundantConditionGivenDocblockType
      */
     public function __construct($file, Key $key = null)
     {
@@ -81,6 +82,7 @@ class ReadOnlyFile implements StreamInterface
                     'Could not open file for reading'
                 );
             }
+            /** @var resource|bool $fp */
             $fp = \fopen($file, 'rb');
             // @codeCoverageIgnoreStart
             if (!\is_resource($fp)) {
@@ -241,7 +243,7 @@ class ReadOnlyFile implements StreamInterface
                 break;
             }
             // @codeCoverageIgnoreEnd
-            /** @var string $read */
+            /** @var string|bool $read */
             $read = \fread($this->fp, $remaining);
             if (!\is_string($read)) {
                 // @codeCoverageIgnoreStart

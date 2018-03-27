@@ -72,6 +72,13 @@ final class StreamTest extends TestCase
             $this->assertSame('Could not open file for writing', $ex->getMessage());
         }
         unlink($filename);
+
+        try {
+            new ReadOnlyFile('/etc/shadow');
+            $this->fail('File should not be readable');
+        } catch (CryptoException\FileAccessDenied $ex) {
+            $this->assertSame('Could not open file for reading', $ex->getMessage());
+        }
     }
 
     /**

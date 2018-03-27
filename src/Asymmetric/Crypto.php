@@ -109,11 +109,6 @@ final class Crypto
             $ourPrivateKey,
             $theirPublicKey
         );
-        // @codeCoverageIgnoreStart
-        if (!($ss instanceof HiddenString)) {
-            throw new \TypeError();
-        }
-        // @codeCoverageIgnoreEnd
         $sharedSecretKey = new EncryptionKey($ss);
         $ciphertext = SymmetricCrypto::encryptWithAd(
             $plaintext,
@@ -188,11 +183,6 @@ final class Crypto
             $ourPrivateKey,
             $theirPublicKey
         );
-        // @codeCoverageIgnoreStart
-        if (!($ss instanceof HiddenString)) {
-            throw new \TypeError();
-        }
-        // @codeCoverageIgnoreEnd
         $sharedSecretKey = new EncryptionKey($ss);
         $plaintext = SymmetricCrypto::decryptWithAd(
             $ciphertext,

@@ -149,7 +149,7 @@ final class Crypto
         $pieces = self::unpackMessageForDecryption($ciphertext);
         /** @var string $version */
         $version = $pieces[0];
-        /** @var Config|mixed $config */
+        /** @var Config $config */
         $config = $pieces[1];
         /** @var string $salt */
         $salt = $pieces[2];
@@ -159,14 +159,6 @@ final class Crypto
         $encrypted = $pieces[4];
         /** @var string $auth */
         $auth = $pieces[5];
-
-        // @codeCoverageIgnoreStart
-        if (!($config instanceof Config)) {
-            throw new CannotPerformOperation(
-                'Config is not an instance of Config. This should not happen.'
-            );
-        }
-        // @codeCoverageIgnoreEnd
 
         /* Split our key into two keys: One for encryption, the other for
            authentication. By using separate keys, we can reasonably dismiss

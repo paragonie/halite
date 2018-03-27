@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * Class InvalidSalt
+ * Interface HaliteAlertInterface
  *
  * @package ParagonIE\Halite\Alerts
  *
@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace ParagonIE\Halite\Alerts;
 
 /**
- * InvalidSalt
+ * HaliteAlertInterface
  */
-class InvalidSalt extends HaliteAlert implements HaliteAlertInterface
-{ 
+interface HaliteAlertInterface
+{
 }

@@ -732,7 +732,7 @@ final class KeyFactory
     /**
      * Export a cryptography key to a string (with a checksum)
      *
-     * @param Key|KeyPair $key
+     * @param mixed $key
      * @return HiddenString
      *
      * @throws CannotPerformOperation

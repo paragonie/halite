@@ -149,7 +149,7 @@ final class Crypto
         $pieces = self::unpackMessageForDecryption($ciphertext);
         /** @var string $version */
         $version = $pieces[0];
-        /** @var Config $config */
+        /** @var Config|mixed $config */
         $config = $pieces[1];
         /** @var string $salt */
         $salt = $pieces[2];

@@ -65,7 +65,7 @@ class ReadOnlyFile implements StreamInterface
     /**
      * ReadOnlyFile constructor.
      *
-     * @param string|resource $file
+     * @param mixed $file
      * @param Key|null $key
      *
      * @throws FileAccessDenied

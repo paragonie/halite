@@ -183,14 +183,7 @@ class MutableFile implements StreamInterface
             /** @var int $bufSize */
             $bufSize = \min($remaining, self::CHUNK);
             /** @var string $read */
-            $read = \fread($this->fp, $bufSize);
-            if (!\is_string($read)) {
-                // @codeCoverageIgnoreStart
-                throw new FileAccessDenied(
-                    'Could not read from the file'
-                );
-                // @codeCoverageIgnoreEnd
-            }
+            $read = (string) \fread($this->fp, $bufSize);
             $buf .= $read;
             $readSize = Binary::safeStrlen($read);
             $this->pos += $readSize;

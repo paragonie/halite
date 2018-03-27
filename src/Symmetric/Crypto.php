@@ -210,13 +210,6 @@ final class Crypto
             (string) $nonce,
             (string) $encKey
         );
-        if (!\is_string($plaintext)) {
-            // @codeCoverageIgnoreStart
-            throw new InvalidMessage(
-                'Invalid message'
-            );
-            // @codeCoverageIgnoreEnd
-        }
         \sodium_memzero($encrypted);
         \sodium_memzero($nonce);
         \sodium_memzero($encKey);

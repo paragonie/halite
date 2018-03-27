@@ -183,7 +183,6 @@ final class Crypto
         string $additionalData = '',
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
-        /** @var HiddenString $ss */
         $ss = self::getSharedSecret(
             $ourPrivateKey,
             $theirPublicKey

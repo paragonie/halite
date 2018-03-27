@@ -56,6 +56,7 @@ class MutableFile implements StreamInterface
      * @param string|resource $file
      * @throws InvalidType
      * @throws FileAccessDenied
+     * @psalm-suppress RedundantConditionGivenDocblockType
      */
     public function __construct($file)
     {
@@ -182,7 +183,7 @@ class MutableFile implements StreamInterface
             }
             /** @var int $bufSize */
             $bufSize = \min($remaining, self::CHUNK);
-            /** @var string $read */
+            /** @var string|bool $read */
             $read = \fread($this->fp, $bufSize);
             if (!\is_string($read)) {
                 // @codeCoverageIgnoreStart

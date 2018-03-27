@@ -82,12 +82,12 @@ final class Cookie
             return null;
         }
         try {
-            /** @var string $stored */
+            /** @var string|array|int|float|bool $stored */
             $stored = $_COOKIE[$name];
             if (!\is_string($stored)) {
                 throw new InvalidType('Cookie value is not a string');
             }
-            $config = self::getConfig((string) $stored);
+            $config = self::getConfig($stored);
             $decrypted = Crypto::decrypt(
                 $stored,
                 $this->key,
@@ -120,10 +120,6 @@ final class Cookie
         if (\hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
             /** @var string $decoded */
             $decoded = Base64UrlSafe::decode($stored);
-            if (!\is_string($decoded)) {
-                \sodium_memzero($stored);
-                throw new InvalidMessage('Incorrect encoding');
-            }
             return SymmetricConfig::getConfig(
                 $decoded,
                 'encrypt'

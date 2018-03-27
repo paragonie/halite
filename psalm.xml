@@ -7,7 +7,6 @@
         <directory name="./src" />
     </projectFiles>
     <issueHandlers>
-        <RedundantConditionGivenDocblockType errorLevel="info" /><!-- We can clean this up later -->
         <TooFewArguments errorLevel="suppress" /> <!-- \sodium_memzero() -->
         <PropertyNotSetInConstructor errorLevel="suppress" />
     </issueHandlers>

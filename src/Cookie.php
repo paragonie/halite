@@ -82,7 +82,6 @@ final class Cookie
             return null;
         }
         try {
-            /** @var string $stored */
             $stored = $_COOKIE[$name];
             if (!\is_string($stored)) {
                 throw new InvalidType('Cookie value is not a string');
@@ -118,7 +117,6 @@ final class Cookie
             );
         }
         if (\hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
-            /** @var string $decoded */
             $decoded = Base64UrlSafe::decode($stored);
             if (!\is_string($decoded)) {
                 \sodium_memzero($stored);

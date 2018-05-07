@@ -18,6 +18,7 @@ use ParagonIE\Halite\Symmetric\{
     Crypto,
     EncryptionKey
 };
+use ParagonIE\HiddenString\HiddenString;
 
 /**
  * Class Password

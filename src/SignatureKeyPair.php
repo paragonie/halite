@@ -7,6 +7,7 @@ use ParagonIE\Halite\Asymmetric\{
     SignaturePublicKey,
     SignatureSecretKey
 };
+use ParagonIE\HiddenString\HiddenString;
 
 /**
  * Class SignatureKeyPair

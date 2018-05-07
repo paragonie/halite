@@ -13,10 +13,10 @@ use ParagonIE\Halite\Alerts\{
 use ParagonIE\Halite\{
     Config as BaseConfig,
     Halite,
-    HiddenString,
     Symmetric\Config as SymmetricConfig,
     Util as CryptoUtil
 };
+use ParagonIE\HiddenString\HiddenString;
 
 /**
  * Class Crypto

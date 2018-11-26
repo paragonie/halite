@@ -4,7 +4,7 @@ namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Alerts\InvalidKey;
-use ParagonIE\Halite\HiddenString;
+use ParagonIE\HiddenString\HiddenString;
 
 /**
  * Class EncryptionSecretKey

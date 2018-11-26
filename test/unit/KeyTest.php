@@ -8,7 +8,7 @@ use ParagonIE\Halite\Asymmetric\Crypto as Asymmetric;
 use ParagonIE\Halite\Asymmetric\EncryptionPublicKey;
 use ParagonIE\Halite\Asymmetric\SignaturePublicKey;
 use ParagonIE\Halite\Asymmetric\SignatureSecretKey;
-use ParagonIE\Halite\HiddenString;
+use ParagonIE\HiddenString\HiddenString;
 use PHPUnit\Framework\TestCase;
 
 /**

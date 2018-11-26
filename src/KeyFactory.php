@@ -20,6 +20,7 @@ use ParagonIE\Halite\{
     Symmetric\AuthenticationKey,
     Symmetric\EncryptionKey
 };
+use ParagonIE\HiddenString\HiddenString;
 
 /**
  * Class KeyFactory

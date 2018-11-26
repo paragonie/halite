@@ -2,8 +2,8 @@
 namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\Alerts\CannotPerformOperation;
-use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Key;
+use ParagonIE\HiddenString\HiddenString;
 
 /**
  * Class SecretKey

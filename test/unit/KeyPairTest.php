@@ -13,7 +13,7 @@ use ParagonIE\Halite\Asymmetric\{
     SignatureSecretKey,
     SignaturePublicKey
 };
-use ParagonIE\Halite\HiddenString;
+use ParagonIE\HiddenString\HiddenString;
 use PHPUnit\Framework\TestCase;
 
 final class KeyPairTest extends TestCase

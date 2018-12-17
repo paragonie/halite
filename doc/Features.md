@@ -1,6 +1,6 @@
 # Halite Features
 
-In addition to its [core functionality](Basics.md), Halite offers some useful
+In addition to its [core functionality](Basic.md), Halite offers some useful
 APIs for solving common problems.
 
 * `Cookie` - Authenticated encryption for your HTTPS cookies

@@ -7,8 +7,8 @@ use ParagonIE\Halite\Symmetric\AuthenticationKey;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Halite;
-use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Symmetric\Config;
+use ParagonIE\HiddenString\HiddenString;
 use PHPUnit\Framework\TestCase;
 
 final class SymmetricTest extends TestCase

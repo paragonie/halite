@@ -2,7 +2,6 @@
 declare(strict_types=1);
 
 use ParagonIE\Halite\File;
-use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Stream\{
     MutableFile,
@@ -12,6 +11,7 @@ use ParagonIE\Halite\Stream\{
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\Util;
 use ParagonIE\Halite\Alerts as CryptoException;
+use ParagonIE\HiddenString\HiddenString;
 use PHPUnit\Framework\TestCase;
 
 final class FileTest extends TestCase

@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Password;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\Alerts\InvalidMessage;
+use ParagonIE\HiddenString\HiddenString;
 use PHPUnit\Framework\TestCase;
 
 final class PasswordTest extends TestCase

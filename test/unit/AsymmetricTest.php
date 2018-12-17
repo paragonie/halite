@@ -9,7 +9,7 @@ use ParagonIE\Halite\Asymmetric\{
     EncryptionSecretKey
 };
 use ParagonIE\Halite\Halite;
-use ParagonIE\Halite\HiddenString;
+use ParagonIE\HiddenString\HiddenString;
 use PHPUnit\Framework\TestCase;
 
 final class AsymmetricTest extends TestCase

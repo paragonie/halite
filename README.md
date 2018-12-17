@@ -105,9 +105,9 @@ And then you can encrypt/decrypt messages like so:
 
 ```php
 <?php
-use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Symmetric\Crypto as Symmetric;
+use ParagonIE\HiddenString\HiddenString;
 
 $encryptionKey = KeyFactory::loadEncryptionKey('/path/outside/webroot/encryption.key');
 
@@ -139,8 +139,8 @@ most use cases.
 
 ```php
 <?php
-use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\KeyFactory;
+use ParagonIE\HiddenString\HiddenString;
 
 $passwd = new HiddenString('correct horse battery staple');
 // Use random_bytes(16); to generate the salt:

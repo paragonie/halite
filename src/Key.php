@@ -6,6 +6,7 @@ use ParagonIE\Halite\Alerts\{
     CannotCloneKey,
     CannotSerializeKey
 };
+use ParagonIE\HiddenString\HiddenString;
 
 /**
  * Class Key

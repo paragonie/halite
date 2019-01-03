@@ -175,3 +175,8 @@ File::encrypt('input.txt', 'output.txt', $encryptionKey);
 
 The solution to this is to make sure libsodium is installed/enabled. See above in this
 README for more information. 
+
+## Support Contracts
+
+If your company uses this library in their products or services, you may be
+interested in [purchasing a support contract from Paragon Initiative Enterprises](https://paragonie.com/enterprise).

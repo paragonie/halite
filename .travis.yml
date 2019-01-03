@@ -3,6 +3,7 @@ sudo: required
 dist: trusty
 php:
     - "7.2"
+    - "7.3"
     - "master"
     - "nightly"
 matrix:
@@ -10,9 +11,7 @@ matrix:
     allow_failures:
         - php: "master"
         - php: "nightly"
-os:
-    - windows
-    - linux
+
 before_install:
     - git clone -b stable https://github.com/jedisct1/libsodium.git
     - cd libsodium && sudo ./configure && sudo make check && sudo make install && cd ..

@@ -19,6 +19,7 @@ use ParagonIE\Halite\Symmetric\{
     Crypto,
     EncryptionKey
 };
+use ParagonIE\HiddenString\HiddenString;
 
 /**
  * Class Cookie
@@ -146,6 +147,7 @@ final class Cookie
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
+     * @psalm-suppress MixedArgument
      */
     public function store(
         string $name,
@@ -164,11 +166,11 @@ final class Cookie
                 ),
                 $this->key
             ),
-            $expire,
-            $path,
-            $domain,
-            $secure,
-            $httpOnly
+            (int) $expire,
+            (string) $path,
+            (string) $domain,
+            (bool) $secure,
+            (bool) $httpOnly
         );
     }
 }

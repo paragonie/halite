@@ -375,7 +375,7 @@ final class Crypto
 
         // Always memzero after retrieving a value
         \sodium_memzero($key_pair);
-        if ($message === false) {
+        if (!\is_string($message)) {
             // @codeCoverageIgnoreStart
             throw new InvalidKey(
                 'Incorrect secret key for this sealed message'

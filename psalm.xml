@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <psalm name="Halite Psalm Configuration"
-       stopOnFirstError="false"
        useDocblockTypes="true"
        totallyTyped="true">
     <projectFiles>
@@ -9,5 +8,6 @@
     <issueHandlers>
         <TooFewArguments errorLevel="suppress" /> <!-- \sodium_memzero() -->
         <PropertyNotSetInConstructor errorLevel="suppress" />
+        <RedundantCondition errorLevel="suppress" />
     </issueHandlers>
 </psalm>

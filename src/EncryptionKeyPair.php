@@ -7,6 +7,7 @@ use ParagonIE\Halite\Asymmetric\{
     EncryptionPublicKey,
     EncryptionSecretKey
 };
+use ParagonIE\HiddenString\HiddenString;
 
 /**
  * Class EncryptionKeyPair

@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 4.5.0 (2019-01-03)
+
+* Updated Psalm version from `^0|^1` to `^1|^2`.
+* Moved `HiddenString` to a standalone library: https://travis-ci.org/paragonie/hidden-string
+
+## Version 4.4.2 (2018-03-27)
+
+* Updated Psalm version from `^0|^1` to `^1`.
+* Type-safety and documentation fixes.
+* Miscellaneous boyscouting. No bugs were found since 4.4.1.
+
 ## Version 4.4.1 (2018-02-27)
 
 * Fixed [#97](https://github.com/paragonie/halite/issues/97), set the minimum chunk size to 1.

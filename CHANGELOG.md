@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 4.5.1 (2019-01-08)
+
+* Use `class_alias()` for `ParagonIE\Halite\HiddenString` to the outsourced library.
+  This is **deprecated** and will be removed in version 5.
+
 ## Version 4.5.0 (2019-01-03)
 
 * Updated Psalm version from `^0|^1` to `^1|^2`.

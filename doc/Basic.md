@@ -66,6 +66,18 @@ Later, you can load it like so:
 $enc_key = \ParagonIE\Halite\KeyFactory::loadEncryptionKey('/path/to/encryption.key');
 ```
 
+Or if you want to store it in a string
+
+```php
+$key_hex = KeyFactory::export($enc_key)->getString();
+```
+
+and get it back later
+
+```php
+$enc_key = KeyFactory::importEncryptionKey(new HiddenString($key_hex));
+```
+
 --------------------------------------------------------------------------------
 
 **Encryption** should be rather straightforward:

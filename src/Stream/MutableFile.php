@@ -61,6 +61,14 @@ class MutableFile implements StreamInterface
     public function __construct($file)
     {
         if (\is_string($file)) {
+            if (!\file_exists($file)) {
+                if (!\is_writable(\dirname($file))) {
+                    throw new FileAccessDenied(
+                        'Could not write to directory that contains file'
+                    );
+                }
+                \touch($file); // Make the file exist
+            }
             if (!\is_readable($file)) {
                 throw new FileAccessDenied(
                     'Could not open file for reading'

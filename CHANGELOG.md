@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.5.2 (2019-02-11)
+
+* Fixed [#116](https://github.com/paragonie/halite/issues/116). If the output file
+  doesn't exist, it will be created. If it cannot be created, an exception will
+  still be thrown.
+
 ## Version 4.5.1 (2019-01-08)
 
 * Use `class_alias()` for `ParagonIE\Halite\HiddenString` to the outsourced library.

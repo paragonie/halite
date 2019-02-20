@@ -1233,8 +1233,10 @@ final class File
             );
             \sodium_crypto_generichash_update($mac, $encrypted);
             $written += $output->writeBytes($encrypted);
+            /** @psalm-suppress MixedArgument **/
             \sodium_increment($nonce);
         }
+        /** @psalm-suppress MixedArgument **/
         \sodium_memzero($nonce);
 
         // Check that our input file was not modified before we MAC it
@@ -1336,8 +1338,10 @@ final class File
                 $encKey->getRawKeyMaterial()
             );
             $output->writeBytes($decrypted);
+            /** @psalm-suppress MixedArgument **/
             \sodium_increment($nonce);
         }
+        /** @psalm-suppress MixedArgument **/
         \sodium_memzero($nonce);
         return true;
     }

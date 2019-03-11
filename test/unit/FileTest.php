@@ -16,7 +16,8 @@ use PHPUnit\Framework\TestCase;
 
 final class FileTest extends TestCase
 {
-    public function setUp()
+
+    public function setUp(): void
     {
         chmod(__DIR__.'/tmp/', 0777);
     }

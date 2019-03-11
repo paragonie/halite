@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.5.3 (2019-03-11)
+
+* Fixed some minor nuisances with Psalm and PHPUnit.
+* Added reference to Halite-Legacy to the README.
+* Updated docblocks.
+
 ## Version 4.5.2 (2019-02-11)
 
 * Fixed [#116](https://github.com/paragonie/halite/issues/116). If the output file

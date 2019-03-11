@@ -9,5 +9,6 @@
         <TooFewArguments errorLevel="suppress" /> <!-- \sodium_memzero() -->
         <PropertyNotSetInConstructor errorLevel="suppress" />
         <RedundantCondition errorLevel="suppress" />
+        <RedundantConditionGivenDocblockType errorLevel="suppress" />
     </issueHandlers>
 </psalm>

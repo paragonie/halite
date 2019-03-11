@@ -145,7 +145,6 @@ class ReadOnlyFile implements StreamInterface
      * Calculate a BLAKE2b hash of a file
      *
      * @return string
-     * @throws
      */
     public function getHash(): string
     {

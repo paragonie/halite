@@ -65,6 +65,7 @@ final class Util
      * @param int $length
      * @return string
      * @throws CannotPerformOperation
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function hash(
@@ -85,6 +86,7 @@ final class Util
      * @param int $length
      * @return string
      * @throws CannotPerformOperation
+     * @throws \SodiumException
      */
     public static function raw_hash(
         string $input,
@@ -111,6 +113,7 @@ final class Util
      * @throws CannotPerformOperation
      * @throws InvalidDigestLength
      * @throws \TypeError
+     * @throws \SodiumException
      */
     public static function hkdfBlake2b(
         string $ikm,
@@ -204,6 +207,7 @@ final class Util
      * @return string
      * @throws CannotPerformOperation
      * @throws \TypeError
+     * @throws \SodiumException
      */
     public static function keyed_hash(
         string $input,
@@ -226,6 +230,7 @@ final class Util
      * @param int $length
      * @return string
      * @throws CannotPerformOperation
+     * @throws \SodiumException
      */
     public static function raw_keyed_hash(
         string $input,

@@ -1205,6 +1205,7 @@ final class File
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
      * @throws FileModified
+     * @throws \SodiumException
      * @throws \TypeError
      */
     final private static function streamEncrypt(
@@ -1235,7 +1236,9 @@ final class File
             $written += $output->writeBytes($encrypted);
             \sodium_increment($nonce);
         }
-        \sodium_memzero($nonce);
+        if (\is_string($nonce)) {
+            \sodium_memzero($nonce);
+        }
 
         // Check that our input file was not modified before we MAC it
         if (!\hash_equals($input->getHash(), $initHash)) {
@@ -1338,7 +1341,9 @@ final class File
             $output->writeBytes($decrypted);
             \sodium_increment($nonce);
         }
-        \sodium_memzero($nonce);
+        if (\is_string($nonce)) {
+            \sodium_memzero($nonce);
+        }
         return true;
     }
 

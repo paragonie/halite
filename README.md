@@ -66,6 +66,8 @@ If your company requires support for an older version of Halite,
 [contact Paragon Initiative Enterprises](https://paragonie.com/contact) to inquire about
 commercial support options.
 
+If you need an easy way to migrate from older versions of Halite, check out [halite-legacy](https://github.com/paragonie/halite-legacy).
+
 ## Using Halite in Your Project
 
 Check out the [documentation](doc). The basic Halite API is designed for simplicity:

@@ -15,6 +15,6 @@ namespace ParagonIE\Halite\Alerts;
 /**
  * HaliteAlertInterface
  */
-interface HaliteAlertInterface
+interface HaliteAlertInterface extends \Throwable
 {
 }

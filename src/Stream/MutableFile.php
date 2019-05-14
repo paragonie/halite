@@ -28,7 +28,7 @@ use ParagonIE\Halite\Alerts\{
  */
 class MutableFile implements StreamInterface
 {
-    const ALLOWED_MODES = ['r+b', 'w+b', 'cb', 'c+b'];
+    const ALLOWED_MODES = ['r+b', 'w+b', 'cb', 'c+b', 'wb'];
     const CHUNK = 8192; // PHP's fread() buffer is set to 8192 by default
 
     /**

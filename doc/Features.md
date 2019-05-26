@@ -85,7 +85,7 @@ $keyed_checksum = \ParagonIE\Halite\File::checksum('/source/file/path', null, tr
 
 If you need to encrypt a file larger than the amount of memory available to PHP,
 you'll run into problems with just the basic `\ParagonIE\Halite\Symmetric\Crypto`
-API. To work around these limitations, use `File::encryptData()` instead.
+API. To work around these limitations, use `File::encrypt()` instead.
 
 For example:
 
@@ -103,7 +103,7 @@ its contents to `$outputFilename`.
 Decryption is straightforward as well:
 
 ```php
-\ParagonIE\Halite\File::decryptData(
+\ParagonIE\Halite\File::decrypt(
     $inputFilename,
     $outputFilename,
     $enc_key

@@ -10,7 +10,7 @@
 * Merged [#134](https://github.com/paragonie/halite/pull/134), which allows
   `MutableFile` to be used on resources opened in `wb` mode.
   Thanks [@christiaanbaartse](christiaanbaartse).
-
+* Other minor documentation improvements.
 
 ## Version 4.5.3 (2019-03-11)
 

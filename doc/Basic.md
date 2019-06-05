@@ -41,7 +41,7 @@ For authentication functions, Halite will typically just return `false`.
 ## Encryption
 
 Encryption functions expect your message to be encapsulated in an instance
-of the [`HiddenString`](Classes/HiddenString.md) class. Decryption functions
+of the [`HiddenString`](https://github.com/paragonie/hidden-string) class. Decryption functions
 will return the decrypted plaintext in a `HiddenString` object.
 
 ### Symmetric-Key Encryption

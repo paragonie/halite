@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 4.5.4 (2019-06-05)
+
+* Merged [#132](https://github.com/paragonie/halite/pull/132), which ensures
+  all Halite exceptions implement `Throwable`.
+* Merged [#133](https://github.com/paragonie/halite/pull/133), which updates
+  the documentation for the `File` API.
+  Thanks [@elliot-sawyer](https://github.com/elliot-sawyer). 
+* Merged [#134](https://github.com/paragonie/halite/pull/134), which allows
+  `MutableFile` to be used on resources opened in `wb` mode.
+  Thanks [@christiaanbaartse](christiaanbaartse).
+
+
 ## Version 4.5.3 (2019-03-11)
 
 * Fixed some minor nuisances with Psalm and PHPUnit.

@@ -50,20 +50,21 @@ First, you'll need is an encryption key. The easiest way to obtain one is to
 generate it:
 
 ```php
-$enc_key = \ParagonIE\Halite\KeyFactory::generateEncryptionKey();
+use ParagonIE\Halite\KeyFactory;
+$enc_key = KeyFactory::generateEncryptionKey();
 ```
 
 This generates a strong random key. If you'd like to reuse it, you can simply
 store it in a file.
 
 ```php
-\ParagonIE\Halite\KeyFactory::save($enc_key, '/path/to/encryption.key');
+KeyFactory::save($enc_key, '/path/to/encryption.key');
 ```
 
 Later, you can load it like so:
 
 ```php
-$enc_key = \ParagonIE\Halite\KeyFactory::loadEncryptionKey('/path/to/encryption.key');
+$enc_key = KeyFactory::loadEncryptionKey('/path/to/encryption.key');
 ```
 
 Or if you want to store it in a string
@@ -83,6 +84,8 @@ $enc_key = KeyFactory::importEncryptionKey(new HiddenString($key_hex));
 **Encryption** should be rather straightforward:
 
 ```php
+use ParagonIE\HiddenString\HiddenString;
+
 $ciphertext = \ParagonIE\Halite\Symmetric\Crypto::encrypt(
     new HiddenString(
         "Your message here. Any string content will do just fine."
@@ -128,6 +131,8 @@ $send_to_bob = sodium_bin2hex($alice_public->getRawKeyMaterial());
 Alice will then load Bob's public key into the appropriate object like so:
 
 ```php
+use ParagonIE\HiddenString\HiddenString;
+
 $bob_public = new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(
     new HiddenString(
         sodium_hex2bin($recv_from_bob)
@@ -183,6 +188,8 @@ You want to only keep `$seal_public` stored outside of the trusted environment.
 **Encrypting** an anonymous message:
 
 ```php
+use ParagonIE\HiddenString\HiddenString;
+
 $sealed = \ParagonIE\Halite\Asymmetric\Crypto::seal(
     new HiddenString(
         "Your message here. Any string content will do just fine."

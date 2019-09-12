@@ -349,6 +349,53 @@ final class FileTest extends TestCase
      * @throws Exception
      * @throws TypeError
      */
+    public function testSealFromStreamWrapper()
+    {
+        require_once __DIR__ . '/RemoteStream.php';
+        stream_register_wrapper('haliteTest', RemoteStream::class);
+        touch(__DIR__.'/tmp/paragon_avatar.sealed.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.sealed.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.opened.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.opened.png', 0777);
+
+        $keypair = KeyFactory::generateEncryptionKeyPair();
+        $secretkey = $keypair->getSecretKey();
+        $publickey = $keypair->getPublicKey();
+
+        $file = new ReadOnlyFile(fopen('haliteTest://paragon_avatar.png', 'rb'));
+        File::seal(
+          $file,
+            __DIR__.'/tmp/paragon_avatar.sealed.png',
+            $publickey
+        );
+
+        File::unseal(
+            __DIR__.'/tmp/paragon_avatar.sealed.png',
+            __DIR__.'/tmp/paragon_avatar.opened.png',
+            $secretkey
+        );
+
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
+        );
+
+        unlink(__DIR__.'/tmp/paragon_avatar.sealed.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.opened.png');
+        $this->assertEquals($file->getHash(), (new ReadOnlyFile(__DIR__.'/tmp/paragon_avatar.png'))->getHash());
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws Exception
+     * @throws TypeError
+     */
     public function testSealEmpty()
     {
         file_put_contents(__DIR__.'/tmp/empty.txt', '');

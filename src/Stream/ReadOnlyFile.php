@@ -95,7 +95,7 @@ class ReadOnlyFile implements StreamInterface
 
             $this->closeAfter = true;
             $this->pos = 0;
-            $this->stat = \fstat($this->fp);
+            $this->stat = $this->fstat();
         } elseif (\is_resource($file)) {
             /** @var array<string, string> $metadata */
             $metadata = \stream_get_meta_data($file);
@@ -106,7 +106,7 @@ class ReadOnlyFile implements StreamInterface
             }
             $this->fp = $file;
             $this->pos = \ftell($this->fp);
-            $this->stat = \fstat($this->fp);
+            $this->stat = $this->fstat();
         } else {
             throw new InvalidType(
                 'Argument 1: Expected a filename or resource'
@@ -148,6 +148,10 @@ class ReadOnlyFile implements StreamInterface
      */
     public function getHash(): string
     {
+        if ($this->hash) {
+            $this->toctouTest();
+            return $this->hash;
+        }
         $init = $this->pos;
         \fseek($this->fp, 0, SEEK_SET);
 
@@ -176,7 +180,7 @@ class ReadOnlyFile implements StreamInterface
 
     /**
      * Where are we in the buffer?
-     * 
+     *
      * @return int
      */
     public function getPos(): int
@@ -186,7 +190,7 @@ class ReadOnlyFile implements StreamInterface
 
     /**
      * How big is this buffer?
-     * 
+     *
      * @return int
      */
     public function getSize(): int
@@ -203,13 +207,13 @@ class ReadOnlyFile implements StreamInterface
     {
         return \stream_get_meta_data($this->fp);
     }
-    
+
     /**
      * Read from a stream; prevent partial reads (also uses run-time testing to
      * prevent partial reads -- you can turn this off if you need performance
      * and aren't concerned about race condition attacks, but this isn't a
      * decision to make lightly!)
-     * 
+     *
      * @param int $num
      * @param bool $skipTests Only set this to TRUE if you're absolutely sure
      *                           that you don't want to defend against TOCTOU /
@@ -258,10 +262,10 @@ class ReadOnlyFile implements StreamInterface
         } while ($remaining > 0);
         return $buf;
     }
-    
+
     /**
      * Get number of bytes remaining
-     * 
+     *
      * @return int
      */
     public function remainingBytes(): int
@@ -310,17 +314,17 @@ class ReadOnlyFile implements StreamInterface
             );
             // @codeCoverageIgnoreEnd
         }
-        $stat = \fstat($this->fp);
+        $stat = $this->fstat();
         if ($stat['size'] !== $this->stat['size']) {
             throw new FileModified(
                 'Read-only file has been modified since it was opened for reading'
             );
         }
     }
-    
+
     /**
      * This is a meaningless operation for a Read-Only File!
-     * 
+     *
      * @param string $buf
      * @param int $num (number of bytes)
      * @return int
@@ -333,5 +337,27 @@ class ReadOnlyFile implements StreamInterface
         throw new FileAccessDenied(
             'This is a read-only file handle.'
         );
+    }
+
+    /**
+     * Wraps fstat to allow calculation of file-size on stream wrappers.
+     *
+     * @return array
+     */
+    private function fstat() : array {
+      $stat = \fstat($this->fp);
+      if ($stat) {
+        return $stat;
+      }
+      // The resource is remote or a stream wrapper like php://input
+      $stat = [
+        'size' => 0,
+      ];
+      \fseek($this->fp, 0);
+      while (!feof($this->fp)) {
+        $stat['size'] += \strlen(\fread($this->fp, 8192));
+      }
+      \fseek($this->fp, $this->pos);
+      return $stat;
     }
 }

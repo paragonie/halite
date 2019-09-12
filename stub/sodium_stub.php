@@ -970,14 +970,14 @@ if (!\extension_loaded('sodium')) {
     /**
      * Convert from hex without side-chanels
      *
-     * @param string $binary
+     * @param string $hex
      * @return string
      */
     function sodium_hex2bin(
-        string $binary
+        string $hex
     ): string {
         if (\extension_loaded('libsodium')) {
-            return \Sodium\hex2bin($binary);
+            return \Sodium\hex2bin($hex);
         }
         return '';
     }

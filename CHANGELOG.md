@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 4.6.0 (2019-09-12)
+
+* Merged [#138](https://github.com/paragonie/halite/pull/138), which adds
+  remote stream support to `ReadOnlyFile`.
+* Merged [#140](https://github.com/paragonie/halite/pull/140), which saves
+  some overhead on hash recalculation.
+* Merged [#136](https://github.com/paragonie/halite/pull/136) and 
+  [#137](https://github.com/paragonie/halite/pull/137), which updated the
+  sodium stub files. These aren't strictly necessary anymore; with the
+  adoption of libsodium in PHP 7.2 and sodium_compat, most IDEs autocomplete
+  correctly. But fixing nits is always appreciated.
+* Update minimum sodium_compat to v1.11.0.
+
 ## Version 4.5.4 (2019-06-05)
 
 * Merged [#132](https://github.com/paragonie/halite/pull/132), which ensures

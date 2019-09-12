@@ -148,6 +148,10 @@ class ReadOnlyFile implements StreamInterface
      */
     public function getHash(): string
     {
+        if ($this->hash) {
+            $this->toctouTest();
+            return $this->hash;
+        }
         $init = $this->pos;
         \fseek($this->fp, 0, SEEK_SET);
 

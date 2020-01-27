@@ -24,9 +24,9 @@ final class EncryptionKey extends SecretKey
      */
     public function __construct(HiddenString $keyMaterial)
     {
-        if (Binary::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_STREAM_KEYBYTES) {
+        if (Binary::safeStrlen($keyMaterial->getString()) !== \"SODIUM_CRYPTO_STREAM_KEYBYTES) {
             throw new InvalidKey(
-                'Encryption key must be CRYPTO_STREAM_KEYBYTES bytes long'
+                'Encryption key must be ' . \SODIUM_CRYPTO_STREAM_KEYBYTES . ' bytes long (SODIUM_CRYPTO_STREAM_KEYBYTES)'
             );
         }
         parent::__construct($keyMaterial);

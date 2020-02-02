@@ -67,7 +67,7 @@ final class Cookie
     }
 
     /**
-     * Store a value in an encrypted cookie
+     * Fetch a value from an encrypted cookie
      *
      * @param string $name
      * @return mixed|null (typically an array)

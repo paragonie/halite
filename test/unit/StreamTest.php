@@ -20,7 +20,7 @@ final class StreamTest extends TestCase
      */
     public function testFileHash()
     {
-        $filename = tempnam('/tmp', 'x');
+        $filename = @tempnam('/tmp', 'x');
         
         $buf = random_bytes(65537);
         file_put_contents($filename, $buf);
@@ -46,13 +46,17 @@ final class StreamTest extends TestCase
      */
     public function testUnreadableFile()
     {
-        $filename = tempnam('/tmp', 'x');
+        $filename = @tempnam('/tmp', 'x');
         $buf = random_bytes(65537);
         file_put_contents($filename, $buf);
         chmod($filename, 0000);
 
         try {
             new ReadOnlyFile($filename);
+            if (DIRECTORY_SEPARATOR === '\\') {
+                $this->markTestSkipped('Windows permissions are weird.');
+                return;
+            }
             $this->fail('File should not be readable');
         } catch (CryptoException\FileAccessDenied $ex) {
             $this->assertSame('Could not open file for reading', $ex->getMessage());
@@ -90,7 +94,7 @@ final class StreamTest extends TestCase
      */
     public function testResource()
     {
-        $filename = tempnam('/tmp', 'x');
+        $filename = @tempnam('/tmp', 'x');
         $buf = random_bytes(65537);
         file_put_contents($filename, $buf);
 
@@ -142,7 +146,7 @@ final class StreamTest extends TestCase
      */
     public function testFileRead()
     {
-        $filename = tempnam('/tmp', 'x');
+        $filename = @tempnam('/tmp', 'x');
         
         $buf = random_bytes(65537);
         file_put_contents($filename, $buf);
@@ -189,7 +193,7 @@ final class StreamTest extends TestCase
 
         foreach ([255, 65537] as $size) {
             $buffer = random_bytes($size);
-            $fileWrite = tempnam('/tmp', 'x');
+            $fileWrite = @tempnam('/tmp', 'x');
             $mStream = new MutableFile($fileWrite);
             $mStream->writeBytes($buffer);
             $mStream->reset(0);

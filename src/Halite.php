@@ -72,6 +72,8 @@ final class Halite
      * @param bool $decode
      * @return callable|null
      * @throws InvalidType
+     * @psalm-suppress InvalidReturnStatement
+     * @psalm-suppress InvalidReturnType
      */
     public static function chooseEncoder($chosen, bool $decode = false)
     {

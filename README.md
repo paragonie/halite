@@ -56,7 +56,7 @@ If you're stuck, [this step-by-step guide contributed by @aolko](doc/Install-Gui
 
 Once you have the prerequisites installed, install Halite through [Composer](https://getcomposer.org/doc/00-intro.md):
 
-    composer require paragonie/halite:^4
+    composer require paragonie/halite
 
 ### Commercial Support for Older Halite Versions
 

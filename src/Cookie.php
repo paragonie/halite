@@ -140,6 +140,7 @@ final class Cookie
      * @param string $domain (defaults to NULL)
      * @param bool $secure   (defaults to TRUE)
      * @param bool $httpOnly (defaults to TRUE)
+     * @param string $samesite (defaults to ''; PHP >= 7.3.0)
      * @return bool
      *
      * @throws InvalidDigestLength
@@ -156,16 +157,34 @@ final class Cookie
         string $path = '/',
         string $domain = '',
         bool $secure = true,
-        bool $httpOnly = true
+        bool $httpOnly = true,
+        string $sameSite = ''
     ): bool {
+        $val = Crypto::encrypt(
+            new HiddenString(
+                (string) \json_encode($value)
+            ),
+            $this->key
+        );
+        if (\version_compare(PHP_VERSION, '7.3.0') >= 0) {
+            $options = [
+                'expires' => (int) $expire,
+                'path' => (string) $path,
+                'domain' => (string) $domain,
+                'secure' => (bool) $secure,
+                'httponly' => (bool) $httpOnly,
+            ];
+            if ($sameSite !== '') {
+                $options['samesite'] = (string) $sameSite;
+            }
+            return \setcookie(
+                $name,
+                $val,
+                $options);
+        }
         return \setcookie(
             $name,
-            Crypto::encrypt(
-                new HiddenString(
-                    (string) \json_encode($value)
-                ),
-                $this->key
-            ),
+            $val,
             (int) $expire,
             (string) $path,
             (string) $domain,

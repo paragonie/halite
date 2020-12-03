@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 4.7.0 (2020-12-03)
+
+* Merged [#154](https://github.com/paragonie/halite/pull/154), which supports
+  the SameSite cookie arguments on PHP 7.3+.
+* Create a wrapper for `sodium_memzero()` to support sodium_compat.
+* Added support for PHP 8.
+* [#146](https://github.com/paragonie/halite/pull/146),
+  [#155](https://github.com/paragonie/halite/pull/155),
+  [#156](https://github.com/paragonie/halite/pull/156) --
+  Various documentation improvements.
+
 ## Version 4.6.0 (2019-09-12)
 
 * Merged [#138](https://github.com/paragonie/halite/pull/138), which adds
@@ -22,7 +33,7 @@
   Thanks [@elliot-sawyer](https://github.com/elliot-sawyer). 
 * Merged [#134](https://github.com/paragonie/halite/pull/134), which allows
   `MutableFile` to be used on resources opened in `wb` mode.
-  Thanks [@christiaanbaartse](christiaanbaartse).
+  Thanks [@christiaanbaartse](https://github.com/christiaanbaartse).
 * Other minor documentation improvements.
 
 ## Version 4.5.3 (2019-03-11)

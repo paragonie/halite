@@ -90,7 +90,7 @@ class Key
     public function __destruct()
     {
         if (!$this->isPublicKey) {
-            \sodium_memzero($this->keyMaterial);
+            Util::memzero($this->keyMaterial);
             $this->keyMaterial = '';
         }
     }

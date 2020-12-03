@@ -10,12 +10,7 @@ use ParagonIE\Halite\Alerts\{
     InvalidSignature,
     InvalidType
 };
-use ParagonIE\Halite\{
-    Config as BaseConfig,
-    Halite,
-    Symmetric\Config as SymmetricConfig,
-    Util as CryptoUtil
-};
+use ParagonIE\Halite\{Config as BaseConfig, Halite, Symmetric\Config as SymmetricConfig, Util as CryptoUtil, Util};
 use ParagonIE\HiddenString\HiddenString;
 
 /**
@@ -192,8 +187,8 @@ final class Crypto
                 'Invalid message authentication code'
             );
         }
-        \sodium_memzero($salt);
-        \sodium_memzero($authKey);
+        Util::memzero($salt);
+        Util::memzero($authKey);
 
         // crypto_stream_xor() can be used to encrypt and decrypt
         /** @var string $plaintext */
@@ -202,9 +197,9 @@ final class Crypto
             (string) $nonce,
             (string) $encKey
         );
-        \sodium_memzero($encrypted);
-        \sodium_memzero($nonce);
-        \sodium_memzero($encKey);
+        Util::memzero($encrypted);
+        Util::memzero($nonce);
+        Util::memzero($encKey);
         return new HiddenString($plaintext);
     }
 
@@ -284,7 +279,7 @@ final class Crypto
             $nonce,
             $encKey
         );
-        \sodium_memzero($encKey);
+        Util::memzero($encKey);
 
         // Calculate an authentication tag:
         $auth = self::calculateMAC(
@@ -292,16 +287,16 @@ final class Crypto
             $authKey,
             $config
         );
-        \sodium_memzero($authKey);
+        Util::memzero($authKey);
 
         /** @var string $message */
         $message = Halite::HALITE_VERSION . $salt . $nonce . $encrypted . $auth;
 
         // Wipe every superfluous piece of data from memory
-        \sodium_memzero($nonce);
-        \sodium_memzero($salt);
-        \sodium_memzero($encrypted);
-        \sodium_memzero($auth);
+        Util::memzero($nonce);
+        Util::memzero($salt);
+        Util::memzero($encrypted);
+        Util::memzero($auth);
 
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
@@ -421,7 +416,7 @@ final class Crypto
         );
 
         // We don't need this anymore.
-        \sodium_memzero($ciphertext);
+        Util::memzero($ciphertext);
 
         // Now we return the pieces in a specific order:
         return [$version, $config, $salt, $nonce, $encrypted, $auth];
@@ -537,7 +532,7 @@ final class Crypto
                 (int) $config->MAC_SIZE
             );
             $res = \hash_equals($mac, $calc);
-            \sodium_memzero($calc);
+            Util::memzero($calc);
             return $res;
         }
         // @codeCoverageIgnoreStart

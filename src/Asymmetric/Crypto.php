@@ -11,12 +11,7 @@ use ParagonIE\Halite\Alerts\{
     InvalidSignature,
     InvalidType
 };
-use ParagonIE\Halite\{
-    Halite,
-    Key,
-    Symmetric\Crypto as SymmetricCrypto,
-    Symmetric\EncryptionKey
-};
+use ParagonIE\Halite\{Halite, Key, Symmetric\Crypto as SymmetricCrypto, Symmetric\EncryptionKey, Util};
 use ParagonIE\HiddenString\HiddenString;
 
 /**
@@ -318,7 +313,7 @@ final class Crypto
         }
         $signature = self::sign($message->getString(), $secretKey, true);
         $plaintext = new HiddenString($signature . $message->getString());
-        \sodium_memzero($signature);
+        Util::memzero($signature);
 
         $myEncKey = $secretKey->getEncryptionSecretKey();
         return self::encrypt($plaintext, $myEncKey, $publicKey, $encoding);
@@ -364,8 +359,8 @@ final class Crypto
         );
         
         // Wipe these immediately:
-        \sodium_memzero($secret_key);
-        \sodium_memzero($public_key);
+        Util::memzero($secret_key);
+        Util::memzero($public_key);
         
         // Now let's open that sealed box
         $message = \sodium_crypto_box_seal_open(
@@ -374,7 +369,7 @@ final class Crypto
         );
 
         // Always memzero after retrieving a value
-        \sodium_memzero($key_pair);
+        Util::memzero($key_pair);
         if (!\is_string($message)) {
             // @codeCoverageIgnoreStart
             throw new InvalidKey(

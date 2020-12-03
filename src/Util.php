@@ -319,4 +319,23 @@ final class Util
         }
         return (string) ($left ^ $right);
     }
+
+    /**
+     * Wrap memzero() without breaking on sodium_compat
+     *
+     * @param string &$var
+     * @psalm-param-out null $var
+     * @psalm-suppress InvalidOperand
+     */
+    public static function memzero(string &$var): void
+    {
+        try {
+            \sodium_memzero($var);
+        } catch (\Throwable $ex) {
+            /** @var string $var */
+            // Best-effort:
+            $var ^= $var;
+        }
+        $var = null;
+    }
 }

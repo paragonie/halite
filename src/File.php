@@ -611,8 +611,8 @@ final class File
         \sodium_crypto_generichash_update($mac, $hkdfSalt);
         /** @var string $mac */
 
-        \sodium_memzero($authKey);
-        \sodium_memzero($hkdfSalt);
+        Util::memzero($authKey);
+        Util::memzero($hkdfSalt);
 
         return self::streamEncrypt(
             $input,
@@ -690,8 +690,8 @@ final class File
 
         $old_macs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
 
-        \sodium_memzero($authKey);
-        \sodium_memzero($hkdfSalt);
+        Util::memzero($authKey);
+        Util::memzero($hkdfSalt);
 
         $ret = self::streamDecrypt(
             $input,
@@ -705,7 +705,7 @@ final class File
             $old_macs
         );
 
-        \sodium_memzero($encKey);
+        Util::memzero($encKey);
         unset($encKey);
         unset($authKey);
         unset($firstNonce);
@@ -793,14 +793,14 @@ final class File
         $mac = \sodium_crypto_generichash_init($authKey);
 
         // We no longer need $authKey after we set up the hash context
-        \sodium_memzero($authKey);
+        Util::memzero($authKey);
 
         \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
         \sodium_crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
         \sodium_crypto_generichash_update($mac, $hkdfSalt);
 
         unset($ephPublic);
-        \sodium_memzero($hkdfSalt);
+        Util::memzero($hkdfSalt);
 
         $ret = self::streamEncrypt(
             $input,
@@ -812,7 +812,7 @@ final class File
             (string) $mac,
             $config
         );
-        \sodium_memzero($encKey);
+        Util::memzero($encKey);
         unset($encKey);
         unset($nonce);
         return $ret;
@@ -908,8 +908,8 @@ final class File
         $oldMACs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
 
         // We no longer need these:
-        \sodium_memzero($authKey);
-        \sodium_memzero($hkdfSalt);
+        Util::memzero($authKey);
+        Util::memzero($hkdfSalt);
 
         $ret = self::streamDecrypt(
             $input,
@@ -923,7 +923,7 @@ final class File
             $oldMACs
         );
 
-        \sodium_memzero($encKey);
+        Util::memzero($encKey);
         unset($encKey);
         unset($nonce);
         unset($mac);
@@ -1237,7 +1237,7 @@ final class File
             \sodium_increment($nonce);
         }
         if (\is_string($nonce)) {
-            \sodium_memzero($nonce);
+            Util::memzero($nonce);
         }
 
         // Check that our input file was not modified before we MAC it
@@ -1342,7 +1342,7 @@ final class File
             \sodium_increment($nonce);
         }
         if (\is_string($nonce)) {
-            \sodium_memzero($nonce);
+            Util::memzero($nonce);
         }
         return true;
     }

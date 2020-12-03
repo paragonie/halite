@@ -96,6 +96,7 @@ final class KeyFactory
      *
      * @throws InvalidKey
      * @throws \TypeError
+     * @throws \SodiumException
      */
     public static function generateEncryptionKeyPair(): EncryptionKeyPair
     {
@@ -104,7 +105,7 @@ final class KeyFactory
         $secretKey = \sodium_crypto_box_secretkey($kp);
         
         // Let's wipe our $kp variable
-        \sodium_memzero($kp);
+        Util::memzero($kp);
         return new EncryptionKeyPair(
             new EncryptionSecretKey(
                 new HiddenString($secretKey)
@@ -117,6 +118,7 @@ final class KeyFactory
      *
      * @return SignatureKeyPair
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function generateSignatureKeyPair(): SignatureKeyPair
@@ -126,7 +128,7 @@ final class KeyFactory
         $secretKey = \sodium_crypto_sign_secretkey($kp);
         
         // Let's wipe our $kp variable
-        \sodium_memzero($kp);
+        Util::memzero($kp);
         return new SignatureKeyPair(
             new SignatureSecretKey(
                 new HiddenString($secretKey)
@@ -148,6 +150,7 @@ final class KeyFactory
      * @throws InvalidKey
      * @throws InvalidSalt
      * @throws InvalidType
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function deriveAuthenticationKey(
@@ -193,6 +196,7 @@ final class KeyFactory
      * @throws InvalidKey
      * @throws InvalidSalt
      * @throws InvalidType
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function deriveEncryptionKey(
@@ -238,6 +242,7 @@ final class KeyFactory
      * @throws InvalidKey
      * @throws InvalidSalt
      * @throws InvalidType
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function deriveEncryptionKeyPair(
@@ -269,7 +274,7 @@ final class KeyFactory
         $secretKey = \sodium_crypto_box_secretkey($keyPair);
         
         // Let's wipe our $kp variable
-        \sodium_memzero($keyPair);
+        Util::memzero($keyPair);
         return new EncryptionKeyPair(
             new EncryptionSecretKey(
                 new HiddenString($secretKey)
@@ -322,7 +327,7 @@ final class KeyFactory
         $secretKey = \sodium_crypto_sign_secretkey($keyPair);
         
         // Let's wipe our $kp variable
-        \sodium_memzero($keyPair);
+        Util::memzero($keyPair);
         return new SignatureKeyPair(
             new SignatureSecretKey(
                 new HiddenString($secretKey)
@@ -800,7 +805,7 @@ final class KeyFactory
             // @codeCoverageIgnoreEnd
         }
         $data = Hex::decode($fileData);
-        \sodium_memzero($fileData);
+        Util::memzero($fileData);
         return new HiddenString(
             self::getKeyDataFromString($data)
         );
@@ -840,10 +845,10 @@ final class KeyFactory
             );
             // @codeCoverageIgnoreEnd
         }
-        \sodium_memzero($data);
-        \sodium_memzero($versionTag);
-        \sodium_memzero($calc);
-        \sodium_memzero($checksum);
+        Util::memzero($data);
+        Util::memzero($versionTag);
+        Util::memzero($calc);
+        Util::memzero($checksum);
         return $keyData;
     }
 

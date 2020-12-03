@@ -35,7 +35,7 @@
         "php": "^7.2|^8",
         "paragonie/constant_time_encoding": "^2",
         "paragonie/hidden-string": "^1",
-        "paragonie/sodium_compat": "^1.13"
+        "paragonie/sodium_compat": "^1.14"
     },
     "autoload": {
         "psr-4": {

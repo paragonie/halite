@@ -131,6 +131,8 @@ class ReadOnlyFile implements StreamInterface
     /**
      * Close the file handle.
      * @return void
+     *
+     * @psalm-suppress InvalidPropertyAssignmentValue
      */
     public function close(): void
     {
@@ -145,6 +147,9 @@ class ReadOnlyFile implements StreamInterface
      * Calculate a BLAKE2b hash of a file
      *
      * @return string
+     * @throws \SodiumException
+     * @throws FileModified
+     * @throws FileError
      */
     public function getHash(): string
     {

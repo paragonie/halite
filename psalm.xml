@@ -10,5 +10,7 @@
         <PropertyNotSetInConstructor errorLevel="suppress" />
         <RedundantCondition errorLevel="suppress" />
         <RedundantConditionGivenDocblockType errorLevel="suppress" />
+
+        <RedundantCast errorLevel="info" />
     </issueHandlers>
 </psalm>

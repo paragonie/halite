@@ -111,6 +111,8 @@ class MutableFile implements StreamInterface
 
     /**
      * Close the file handle.
+     *
+     * @psalm-suppress InvalidPropertyAssignmentValue
      */
     public function close(): void
     {

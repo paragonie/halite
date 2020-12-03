@@ -73,10 +73,8 @@ class MerkleTree
      *
      * @return string
      * @throws CannotPerformOperation
-     *
-     * @return string
-     * @throws CannotPerformOperation
      * @throws \TypeError
+     * @throws \SodiumException
      */
     public function getRoot(bool $raw = false): string
     {
@@ -159,6 +157,7 @@ class MerkleTree
      * @return self
      * @throws CannotPerformOperation
      * @throws \TypeError
+     * @throws \SodiumException
      * @codeCoverageIgnore
      */
     public function triggerRootCalculation(): self
@@ -175,6 +174,7 @@ class MerkleTree
      * @return string
      * @throws CannotPerformOperation
      * @throws \TypeError
+     * @throws \SodiumException
      */
     protected function calculateRoot(): string
     {

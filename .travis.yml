@@ -5,11 +5,13 @@ php:
     - "7.2"
     - "7.3"
     - "7.4"
+    - "8.0"
     - "master"
     - "nightly"
 matrix:
     fast_finish: true
     allow_failures:
+        - php: "8.0"
         - php: "master"
         - php: "nightly"
 

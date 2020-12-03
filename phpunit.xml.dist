@@ -1,45 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.0/phpunit.xsd"
-         backupGlobals="false"
-         backupStaticAttributes="false"
-         bootstrap="./vendor/autoload.php"
-         cacheTokens="false"
-         colors="true"
-         beStrictAboutTestsThatDoNotTestAnything="true"
-         beStrictAboutOutputDuringTests="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         forceCoversAnnotation="false"
-         processIsolation="false"
-         stopOnError="false"
-         stopOnFailure="false"
-         failOnRisky="false"
-         failOnWarning="false"
-         stopOnIncomplete="false"
-         stopOnSkipped="false"
-         stopOnRisky="false"
-         verbose="true">
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory>./src</directory>
-            <exclude>
-                <directory>./libsodium</directory>
-                <directory>./vendor</directory>
-                <directory>./build</directory>
-                <directory>./stub</directory>
-                <directory>./test</directory>
-                <directory>./doc</directory>
-            </exclude>
-        </whitelist>
-    </filter>
-    <logging>
-        <log type="coverage-clover" target="./build/logs/clover.xml"/>
-    </logging>
-    <testsuites>
-        <testsuite name="Paragonie/Halite Test Suite">
-            <directory suffix="Test.php">./test/unit</directory>
-        </testsuite>
-    </testsuites>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" backupGlobals="false" backupStaticAttributes="false" bootstrap="./vendor/autoload.php" colors="true" beStrictAboutTestsThatDoNotTestAnything="true" beStrictAboutOutputDuringTests="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" forceCoversAnnotation="false" processIsolation="false" stopOnError="false" stopOnFailure="false" failOnRisky="false" failOnWarning="false" stopOnIncomplete="false" stopOnSkipped="false" stopOnRisky="false" verbose="true">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory>./src</directory>
+    </include>
+    <exclude>
+      <directory>./libsodium</directory>
+      <directory>./vendor</directory>
+      <directory>./build</directory>
+      <directory>./stub</directory>
+      <directory>./test</directory>
+      <directory>./doc</directory>
+    </exclude>
+    <report>
+      <clover outputFile="./build/logs/clover.xml"/>
+    </report>
+  </coverage>
+  <logging/>
+  <testsuites>
+    <testsuite name="Paragonie/Halite Test Suite">
+      <directory suffix="Test.php">./test/unit</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>

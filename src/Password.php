@@ -51,6 +51,7 @@ final class Password
      * @throws CannotPerformOperation
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function hash(
@@ -90,6 +91,7 @@ final class Password
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function needsRehash(
@@ -190,6 +192,7 @@ final class Password
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function verify(

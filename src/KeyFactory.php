@@ -296,6 +296,7 @@ final class KeyFactory
      * @throws InvalidKey
      * @throws InvalidSalt
      * @throws InvalidType
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function deriveSignatureKeyPair(
@@ -390,6 +391,7 @@ final class KeyFactory
      * @return AuthenticationKey
      *
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function importAuthenticationKey(HiddenString $keyData): AuthenticationKey
@@ -410,6 +412,7 @@ final class KeyFactory
      * @return EncryptionKey
      *
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function importEncryptionKey(HiddenString $keyData): EncryptionKey
@@ -430,6 +433,7 @@ final class KeyFactory
      * @return EncryptionPublicKey
      *
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function importEncryptionPublicKey(HiddenString $keyData): EncryptionPublicKey
@@ -450,6 +454,7 @@ final class KeyFactory
      * @return EncryptionSecretKey
      *
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function importEncryptionSecretKey(HiddenString $keyData): EncryptionSecretKey
@@ -470,6 +475,7 @@ final class KeyFactory
      * @return SignaturePublicKey
      *
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function importSignaturePublicKey(HiddenString $keyData): SignaturePublicKey
@@ -490,6 +496,7 @@ final class KeyFactory
      * @return SignatureSecretKey
      *
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function importSignatureSecretKey(HiddenString $keyData): SignatureSecretKey
@@ -510,6 +517,7 @@ final class KeyFactory
      * @return EncryptionKeyPair
      *
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function importEncryptionKeyPair(HiddenString $keyData): EncryptionKeyPair
@@ -532,6 +540,7 @@ final class KeyFactory
      * @return SignatureKeyPair
      *
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function importSignatureKeyPair(HiddenString $keyData): SignatureKeyPair
@@ -555,6 +564,7 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      * @codeCoverageIgnore
      */
@@ -578,6 +588,7 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      * @codeCoverageIgnore
      */
@@ -601,6 +612,7 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      * @codeCoverageIgnore
      */
@@ -624,6 +636,7 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      * @codeCoverageIgnore
      */
@@ -647,6 +660,7 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      * @codeCoverageIgnore
      */
@@ -670,6 +684,7 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      * @codeCoverageIgnore
      */
@@ -693,6 +708,7 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      * @codeCoverageIgnore
      */
@@ -718,6 +734,7 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      * @codeCoverageIgnore
      */
@@ -743,6 +760,7 @@ final class KeyFactory
      *
      * @throws CannotPerformOperation
      * @throws InvalidType
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function export($key): HiddenString
@@ -772,6 +790,7 @@ final class KeyFactory
      * @param Key|KeyPair $key
      * @param string $filename
      * @return bool
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function save($key, string $filename = ''): bool
@@ -792,6 +811,7 @@ final class KeyFactory
      * @return HiddenString
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     protected static function loadKeyFile(string $filePath): HiddenString
@@ -818,6 +838,7 @@ final class KeyFactory
      * @param string $data
      * @return string
      * @throws InvalidKey
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public static function getKeyDataFromString(string $data): string
@@ -859,6 +880,7 @@ final class KeyFactory
      * @param string $keyData
      * @return bool
      *
+     * @throws \SodiumException
      * @throws \TypeError
      */
     protected static function saveKeyFile(

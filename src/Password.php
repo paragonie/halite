@@ -113,7 +113,7 @@ final class Password
             $config->ENCODING
         )->getString();
 
-        // Upon successful decryption, verify that we're using Argon2i
+        // Upon successful decryption, verify that we're using Argon2id
         if (!\hash_equals(
             Binary::safeSubstr($hash_str, 0, 10),
             \SODIUM_CRYPTO_PWHASH_STRPREFIX

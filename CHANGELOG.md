@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.7.1 (2020-12-06)
+
+* Allow v2 of `paragonie/hidden-string` to be installed.
+
 ## Version 4.7.0 (2020-12-03)
 
 * Merged [#154](https://github.com/paragonie/halite/pull/154), which supports

@@ -25,6 +25,9 @@ final class AsymmetricTest extends TestCase
      */
     public function testEncrypt()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $alice = KeyFactory::generateEncryptionKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
 
@@ -59,6 +62,9 @@ final class AsymmetricTest extends TestCase
      */
     public function testEncryptWithAd()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $alice = KeyFactory::generateEncryptionKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
 
@@ -124,6 +130,9 @@ final class AsymmetricTest extends TestCase
      */
     public function testEncryptEmpty()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $alice = KeyFactory::generateEncryptionKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
 
@@ -149,6 +158,9 @@ final class AsymmetricTest extends TestCase
 
     public function testEncryptFail()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $alice = KeyFactory::generateEncryptionKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
         
@@ -186,6 +198,9 @@ final class AsymmetricTest extends TestCase
      */
     public function testSeal()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         if (
             SODIUM_LIBRARY_MAJOR_VERSION < 7 ||
             (SODIUM_LIBRARY_MAJOR_VERSION == 7 && SODIUM_LIBRARY_MINOR_VERSION < 5)
@@ -242,6 +257,9 @@ final class AsymmetricTest extends TestCase
      */
     public function testSealFail()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         if (
             SODIUM_LIBRARY_MAJOR_VERSION < 7 ||
             (SODIUM_LIBRARY_MAJOR_VERSION == 7 && SODIUM_LIBRARY_MINOR_VERSION < 5)
@@ -281,6 +299,9 @@ final class AsymmetricTest extends TestCase
      */
     public function testSign()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $alice = KeyFactory::generateSignatureKeyPair();
 
         $message = 'test message';
@@ -304,6 +325,9 @@ final class AsymmetricTest extends TestCase
      */
     public function testSignEncrypt()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $alice = KeyFactory::generateSignatureKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
 
@@ -344,6 +368,9 @@ final class AsymmetricTest extends TestCase
      */
     public function testSignEncryptFail()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $alice = KeyFactory::generateSignatureKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
 
@@ -414,6 +441,9 @@ final class AsymmetricTest extends TestCase
      */
     public function testSignFail()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $alice = KeyFactory::generateSignatureKeyPair();
         
         $message = 'test message';

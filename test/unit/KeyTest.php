@@ -25,6 +25,9 @@ class KeyTest extends TestCase
      */
     public function testDerive()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
@@ -68,6 +71,9 @@ class KeyTest extends TestCase
      */
     public function testDeriveOldArgon2i()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
@@ -102,6 +108,9 @@ class KeyTest extends TestCase
      */
     public function testDeriveSigningKey()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $keypair = KeyFactory::deriveSignatureKeyPair(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
@@ -138,6 +147,9 @@ class KeyTest extends TestCase
      */
     public function testDeriveSigningKeyOldArgon2i()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $keypair = KeyFactory::deriveSignatureKeyPair(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
@@ -175,6 +187,9 @@ class KeyTest extends TestCase
      */
     public function testImport()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = KeyFactory::generateAuthenticationKey();
         $export = KeyFactory::export($key);
         $import = KeyFactory::importAuthenticationKey($export);
@@ -261,6 +276,9 @@ class KeyTest extends TestCase
      */
     public function testKeyTypes()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = KeyFactory::generateAuthenticationKey();
             $this->assertFalse($key->isAsymmetricKey());
             $this->assertFalse($key->isEncryptionKey());
@@ -315,6 +333,9 @@ class KeyTest extends TestCase
      */
     public function testEncKeyStorage()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $enc_keypair = KeyFactory::deriveEncryptionKeyPair(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
@@ -361,6 +382,9 @@ class KeyTest extends TestCase
      */
     public function testSignKeyStorage()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $sign_keypair = KeyFactory::deriveSignatureKeyPair(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
@@ -405,6 +429,9 @@ class KeyTest extends TestCase
      */
     public function testInvalidKeyLevels()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         try {
             KeyFactory::deriveEncryptionKey(
                 new HiddenString('apple'),
@@ -428,6 +455,9 @@ class KeyTest extends TestCase
      */
     public function testKeyLevels()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
@@ -457,6 +487,9 @@ class KeyTest extends TestCase
      */
     public function testKeyLevelsOldArgon2i()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = KeyFactory::deriveEncryptionKey(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",

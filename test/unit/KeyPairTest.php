@@ -27,6 +27,9 @@ final class KeyPairTest extends TestCase
      */
     public function testDeriveSigningKey()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $keypair = KeyFactory::deriveSignatureKeyPair(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
@@ -68,6 +71,9 @@ final class KeyPairTest extends TestCase
      */
     public function testDeriveSigningKeyOldArgon2i()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $keypair = KeyFactory::deriveSignatureKeyPair(
             new HiddenString('apple'),
             "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f",
@@ -108,6 +114,9 @@ final class KeyPairTest extends TestCase
      */
     public function testEncryptionKeyPair()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $boxKeypair = KeyFactory::generateEncryptionKeyPair();
         $boxSecret = $boxKeypair->getSecretKey();
         $boxPublic = $boxKeypair->getPublicKey();
@@ -215,6 +224,9 @@ final class KeyPairTest extends TestCase
      */
     public function testFileStorage()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $filename = tempnam(__DIR__.'/tmp/', 'key');
         $key = KeyFactory::generateEncryptionKeyPair();
         KeyFactory::save($key, $filename);
@@ -234,6 +246,9 @@ final class KeyPairTest extends TestCase
      */
     public function testMutation()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $sign_kp = KeyFactory::generateSignatureKeyPair();
         $box_kp = $sign_kp->getEncryptionKeyPair();
         $sign_sk = $sign_kp->getSecretKey();
@@ -258,6 +273,9 @@ final class KeyPairTest extends TestCase
      */
     public function testSignatureKeyPair()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $signKeypair = KeyFactory::generateSignatureKeyPair();
         $signSecret = $signKeypair->getSecretKey();
         $signPublic = $signKeypair->getPublicKey();
@@ -364,6 +382,9 @@ final class KeyPairTest extends TestCase
      */
     public function testPublicDerivation()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $enc_kp = KeyFactory::generateEncryptionKeyPair();
         $enc_secret = $enc_kp->getSecretKey();
         $enc_public = $enc_kp->getPublicKey();

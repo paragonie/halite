@@ -22,6 +22,9 @@ final class PasswordTest extends TestCase
      */
     public function testEncrypt()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
 
         $hash = Password::hash(new HiddenString('test password'), $key);
@@ -56,6 +59,9 @@ final class PasswordTest extends TestCase
      */
     public function testEncryptWithAd()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         $aad = '{"userid":12}';
 
@@ -130,6 +136,9 @@ final class PasswordTest extends TestCase
      */
     public function testKeyLevels()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         $aad = '{"userid":12}';
 
@@ -153,6 +162,9 @@ final class PasswordTest extends TestCase
      */
     public function testRehash()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
 
         try {

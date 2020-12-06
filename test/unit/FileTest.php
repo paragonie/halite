@@ -308,6 +308,9 @@ final class FileTest extends TestCase
      */
     public function testSeal()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         touch(__DIR__.'/tmp/paragon_avatar.sealed.png');
         chmod(__DIR__.'/tmp/paragon_avatar.sealed.png', 0777);
         touch(__DIR__.'/tmp/paragon_avatar.opened.png');
@@ -351,6 +354,9 @@ final class FileTest extends TestCase
      */
     public function testSealFromStreamWrapper()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         require_once __DIR__ . '/RemoteStream.php';
         stream_register_wrapper('haliteTest', RemoteStream::class);
         touch(__DIR__.'/tmp/paragon_avatar.sealed.png');
@@ -398,6 +404,9 @@ final class FileTest extends TestCase
      */
     public function testSealEmpty()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         file_put_contents(__DIR__.'/tmp/empty.txt', '');
         chmod(__DIR__.'/tmp/empty.txt', 0777);
         touch(__DIR__.'/tmp/empty.sealed.txt');
@@ -444,6 +453,9 @@ final class FileTest extends TestCase
      */
     public function testSealFail()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         touch(__DIR__.'/tmp/paragon_avatar.seal_fail.png');
         chmod(__DIR__.'/tmp/paragon_avatar.seal_fail.png', 0777);
         touch(__DIR__.'/tmp/paragon_avatar.open_fail.png');
@@ -502,6 +514,9 @@ final class FileTest extends TestCase
      */
     public function testSealSmallFail()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         touch(__DIR__.'/tmp/empty.sealed.txt');
         chmod(__DIR__.'/tmp/empty.sealed.txt', 0777);
         touch(__DIR__.'/tmp/empty.unsealed.txt');
@@ -556,6 +571,9 @@ final class FileTest extends TestCase
      */
     public function testSealVarious()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         touch(__DIR__.'/tmp/paragon_avatar.sealed.png');
         chmod(__DIR__.'/tmp/paragon_avatar.sealed.png', 0777);
         touch(__DIR__.'/tmp/paragon_avatar.opened.png');
@@ -615,6 +633,9 @@ final class FileTest extends TestCase
      */
     public function testSign()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $keypair = KeyFactory::generateSignatureKeyPair();
         $secretkey = $keypair->getSecretKey();
         $publickey = $keypair->getPublicKey();
@@ -656,6 +677,9 @@ final class FileTest extends TestCase
      */
     public function testSignVarious()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $keypair = KeyFactory::generateSignatureKeyPair();
         $secretkey = $keypair->getSecretKey();
         $publickey = $keypair->getPublicKey();

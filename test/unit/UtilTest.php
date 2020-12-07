@@ -161,6 +161,9 @@ final class UtilTest extends TestCase
      */
     public function testSafeStrcpy()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $unique = random_bytes(128);
         $clone = Util::safeStrcpy($unique);
         $this->assertSame($unique, $clone);

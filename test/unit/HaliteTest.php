@@ -16,6 +16,9 @@ final class HaliteTest extends TestCase
 {
     public function testLibsodiumDetection()
     {
+        if (!\extension_loaded('sodium')) {
+            $this->markTestSkipped('Libsodium not installed');
+        }
         $this->assertTrue(
             Halite::isLibsodiumSetupCorrectly()
         );

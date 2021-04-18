@@ -119,7 +119,6 @@ final class Cookie
             );
         }
         if (\hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
-            /** @var string $decoded */
             $decoded = Base64UrlSafe::decode($stored);
             return SymmetricConfig::getConfig(
                 $decoded,

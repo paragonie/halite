@@ -521,11 +521,9 @@ final class File
         while ($fileStream->remainingBytes() > 0) {
             // Don't go past the file size even if $config->BUFFER is not an even multiple of it:
             if (($fileStream->getPos() + (int) $config->BUFFER) > $size) {
-                /** @var int $amount_to_read */
                 $amount_to_read = ($size - $fileStream->getPos());
             } else {
                 // @codeCoverageIgnoreStart
-                /** @var int $amount_to_read */
                 $amount_to_read = (int) $config->BUFFER;
                 // @codeCoverageIgnoreEnd
             }
@@ -659,7 +657,6 @@ final class File
             );
         }
         // Parse the header, ensuring we get 4 bytes
-        /** @var string $header */
         $header = $input->readBytes(Halite::VERSION_TAG_LEN);
 
         // Load the config
@@ -673,9 +670,7 @@ final class File
         }
 
         // Let's grab the first nonce and salt
-        /** @var string $firstNonce */
         $firstNonce = $input->readBytes((int) $config->NONCE_BYTES);
-        /** @var string $hkdfSalt */
         $hkdfSalt = $input->readBytes((int) $config->HKDF_SALT_LEN);
 
         // Split our keys, begin the HMAC instance
@@ -1286,7 +1281,6 @@ final class File
         array &$chunk_macs
     ): bool {
         $start = $input->getPos();
-        /** @var int $cipher_end */
         $cipher_end = $input->getSize() - (int) $config->MAC_SIZE;
         // Begin the streaming decryption
         $input->reset($start);
@@ -1368,11 +1362,9 @@ final class File
         $mac,
         Config $config
     ): array {
-        /** @var int $start */
         $start = $input->getPos();
 
         // Grab the stored MAC:
-        /** @var int $cipher_end */
         $cipher_end = $input->getSize() - (int) $config->MAC_SIZE;
         $input->reset($cipher_end);
         $stored_mac = $input->readBytes((int) $config->MAC_SIZE);
@@ -1402,7 +1394,6 @@ final class File
             \sodium_crypto_generichash_update($mac, $read);
             $mac = (string) $mac;
             // Copy the hash state then store the MAC of this chunk
-            /** @var string $chunkMAC */
             $chunkMAC = Util::safeStrcpy($mac);
             $chunkMACs []= \sodium_crypto_generichash_final(
                 // @codeCoverageIgnoreStart

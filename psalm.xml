@@ -12,5 +12,6 @@
         <RedundantConditionGivenDocblockType errorLevel="suppress" />
 
         <RedundantCast errorLevel="info" />
+        <NonInvariantDocblockPropertyType errorLevel="info" />
     </issueHandlers>
 </psalm>

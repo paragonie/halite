@@ -78,7 +78,6 @@ class TrimmedMerkleTree extends MerkleTree
                 }
                 ++$j;
             }
-            /** @var array<int, string> $hash */
             $hash = $tmp;
             $size >>= 1;
         } while ($size > 1);

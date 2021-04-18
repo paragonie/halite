@@ -51,7 +51,7 @@ final class File
      * @throws \Error
      * @codeCoverageIgnore
      */
-    final private function __construct()
+    private function __construct()
     {
         throw new \Error('Do not instantiate');
     }

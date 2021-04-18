@@ -1208,7 +1208,7 @@ final class File
      * @throws \SodiumException
      * @throws \TypeError
      */
-    final private static function streamEncrypt(
+    private static function streamEncrypt(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionKey $encKey,
@@ -1276,7 +1276,7 @@ final class File
      * @throws \TypeError
      * @throws \SodiumException
      */
-    final private static function streamDecrypt(
+    private static function streamDecrypt(
         ReadOnlyFile $input,
         MutableFile $output,
         EncryptionKey $encKey,
@@ -1363,7 +1363,7 @@ final class File
      * @throws \TypeError
      * @throws \SodiumException
      */
-    final private static function streamVerify(
+    private static function streamVerify(
         ReadOnlyFile $input,
         $mac,
         Config $config

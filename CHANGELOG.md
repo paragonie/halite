@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 4.8.0 (2021-04-18)
+
+* Merged [#158](https://github.com/paragonie/halite/pull/158), which removes
+  the `final` access modifier from private methods and guarantees PHP 8 support.
+* Migrated tests off of Travis CI, onto Github Actions instead.
+
 ## Version 4.7.1 (2020-12-06)
 
 * Allow v2 of `paragonie/hidden-string` to be installed.

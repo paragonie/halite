@@ -168,7 +168,6 @@ final class KeyFactory
             );
             // @codeCoverageIgnoreEnd
         }
-        /** @var string $secretKey */
         $secretKey = @\sodium_crypto_pwhash(
             \SODIUM_CRYPTO_AUTH_KEYBYTES,
             $password->getString(),
@@ -214,8 +213,7 @@ final class KeyFactory
             );
             // @codeCoverageIgnoreEnd
         }
-        /** @var string $secretKey */
-        $secretKey = @\sodium_crypto_pwhash(
+        $secretKey = \sodium_crypto_pwhash(
             \SODIUM_CRYPTO_STREAM_KEYBYTES,
             $password->getString(),
             $salt,
@@ -261,7 +259,6 @@ final class KeyFactory
             // @codeCoverageIgnoreEnd
         }
         // Diffie Hellman key exchange key pair
-        /** @var string $seed */
         $seed = @\sodium_crypto_pwhash(
             \SODIUM_CRYPTO_BOX_SEEDBYTES,
             $password->getString(),
@@ -315,7 +312,6 @@ final class KeyFactory
             // @codeCoverageIgnoreEnd
         }
         // Digital signature keypair
-        /** @var string $seed */
         $seed = @\sodium_crypto_pwhash(
             \SODIUM_CRYPTO_SIGN_SEEDBYTES,
             $password->getString(),

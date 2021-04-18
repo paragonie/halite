@@ -161,7 +161,6 @@ final class Util
             $t .= $last_block;
         }
         // ORM = first L octets of T
-        /** @var string $orm */
         $orm = Binary::safeSubstr($t, 0, $length);
         return $orm;
     }
@@ -268,7 +267,6 @@ final class Util
     {
         $length = Binary::safeStrlen($string);
         $return = '';
-        /** @var int $chunk */
         $chunk = $length >> 1;
         if ($chunk < 1) {
             $chunk = 1;

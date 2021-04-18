@@ -50,6 +50,11 @@ final class StreamTest extends TestCase
         $buf = random_bytes(65537);
         file_put_contents($filename, $buf);
         chmod($filename, 0000);
+        $perms = fileperms($filename);
+        if (!is_int($perms) || ($perms & 0777) !== 0 || is_readable($filename)) {
+            $this->markTestSkipped('chmod failed to remove read access, so the test will fail; skipping');
+            return;
+        }
 
         try {
             new ReadOnlyFile($filename);

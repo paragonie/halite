@@ -191,7 +191,6 @@ class MutableFile implements StreamInterface
                 break;
                 // @codeCoverageIgnoreEnd
             }
-            /** @var int $bufSize */
             $bufSize = \min($remaining, self::CHUNK);
             /** @var string|bool $read */
             $read = \fread($this->fp, $bufSize);

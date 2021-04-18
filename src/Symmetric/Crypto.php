@@ -69,7 +69,6 @@ final class Crypto
             Halite::HALITE_VERSION,
             'auth'
         );
-        /** @var string $mac */
         $mac = self::calculateMAC(
             $message,
             $secretKey->getRawKeyMaterial(),
@@ -199,7 +198,6 @@ final class Crypto
         CryptoUtil::memzero($authKey);
 
         // crypto_stream_xor() can be used to encrypt and decrypt
-        /** @var string $plaintext */
         $plaintext = \sodium_crypto_stream_xor(
             (string) $encrypted,
             (string) $nonce,
@@ -283,7 +281,6 @@ final class Crypto
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
 
         // Encrypt our message with the encryption key:
-        /** @var string $encrypted */
         $encrypted = \sodium_crypto_stream_xor(
             $plaintext->getString(),
             $nonce,

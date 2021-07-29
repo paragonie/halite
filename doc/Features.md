@@ -43,15 +43,15 @@ authenticated encryption and digital signatures. `File` allows developers to
 perform secure cryptographic operations on large files with a low memory
 footprint.
 
-The `File` API looks like this:
+The [`File`](Classes/File.md) API looks like this:
 
 * `File::checksum`(`file`, [`AuthenticationKey?`](Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
 * `File::encrypt`(`file`, `file`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
 * `File::decrypt`(`file`, `file`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md))
 * `File::seal`(`file`, `file`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md))
 * `File::unseal`(`file`, `file`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md))
-* `File::sign`(`file`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md)): `string`
-* `File::verify`(`file`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `bool`
+* `File::sign`(`file`, [`SignatureSecretKey`](Classes/Asymmetric/SignatureSecretKey.md)): `string`
+* `File::verify`(`file`, [`SignaturePublicKey`](Classes/Asymmetric/SignaturePublicKey.md)): `bool`
 
 The `file` type indicates that the argument can be either a `string` containing
 the file's path, or a `resource` (open file handle).

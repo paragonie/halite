@@ -323,6 +323,7 @@ final class Util
      *
      * @param string &$var
      * @psalm-param-out null $var
+     * @psalm-suppress UnnecessaryVarAnnotation
      * @psalm-suppress InvalidOperand
      */
     public static function memzero(string &$var): void
@@ -330,7 +331,6 @@ final class Util
         try {
             \sodium_memzero($var);
         } catch (\Throwable $ex) {
-            /** @var string $var */
             // Best-effort:
             $var ^= $var;
         }

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 5.0.0 (Unreleased)
+
+* Increased minimum PHP version to 8.0.
+
 ## Version 4.8.0 (2021-04-18)
 
 * Merged [#158](https://github.com/paragonie/halite/pull/158), which removes

@@ -6,6 +6,7 @@
 * Encryption now uses XChaCha20 instead of XSalsa20.
 * The `File` class no longer supports the `resource` type. To migrate code, wrap your 
   `resource` arguments in a `ReadOnlyFile` or `MutableFile` object.
+* Added `File::asymmetricEncrypt()` and `File::asymmetricDecrypt()`.
 
 ## Version 4.8.0 (2021-04-18)
 

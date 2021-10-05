@@ -103,12 +103,14 @@ final class KeyFactory
         // Encryption keypair
         $kp = \sodium_crypto_box_keypair();
         $secretKey = \sodium_crypto_box_secretkey($kp);
+        $publicKey = \sodium_crypto_box_publickey($kp);
         
         // Let's wipe our $kp variable
         Util::memzero($kp);
         return new EncryptionKeyPair(
             new EncryptionSecretKey(
-                new HiddenString($secretKey)
+                new HiddenString($secretKey),
+                new HiddenString($publicKey)
             )
         );
     }
@@ -126,12 +128,14 @@ final class KeyFactory
         // Encryption keypair
         $kp = \sodium_crypto_sign_keypair();
         $secretKey = \sodium_crypto_sign_secretkey($kp);
+        $publicKey = \sodium_crypto_sign_publickey($kp);
         
         // Let's wipe our $kp variable
         Util::memzero($kp);
         return new SignatureKeyPair(
             new SignatureSecretKey(
-                new HiddenString($secretKey)
+                new HiddenString($secretKey),
+                new HiddenString($publicKey)
             )
         );
     }
@@ -269,12 +273,14 @@ final class KeyFactory
         );
         $keyPair = \sodium_crypto_box_seed_keypair($seed);
         $secretKey = \sodium_crypto_box_secretkey($keyPair);
+        $publicKey = \sodium_crypto_box_publickey($keyPair);
         
         // Let's wipe our $kp variable
         Util::memzero($keyPair);
         return new EncryptionKeyPair(
             new EncryptionSecretKey(
-                new HiddenString($secretKey)
+                new HiddenString($secretKey),
+                new HiddenString($publicKey)
             )
         );
     }
@@ -322,12 +328,14 @@ final class KeyFactory
         );
         $keyPair = \sodium_crypto_sign_seed_keypair($seed);
         $secretKey = \sodium_crypto_sign_secretkey($keyPair);
+        $publicKey = \sodium_crypto_sign_publickey($keyPair);
         
         // Let's wipe our $kp variable
         Util::memzero($keyPair);
         return new SignatureKeyPair(
             new SignatureSecretKey(
-                new HiddenString($secretKey)
+                new HiddenString($secretKey),
+                new HiddenString($publicKey)
             )
         );
     }

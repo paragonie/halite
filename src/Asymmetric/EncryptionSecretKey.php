@@ -22,14 +22,14 @@ final class EncryptionSecretKey extends SecretKey
      * @throws InvalidKey
      * @throws \TypeError
      */
-    public function __construct(HiddenString $keyMaterial)
+    public function __construct(HiddenString $keyMaterial, ?HiddenString $pk = null)
     {
         if (Binary::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_BOX_SECRETKEYBYTES) {
             throw new InvalidKey(
                 'Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES bytes long'
             );
         }
-        parent::__construct($keyMaterial);
+        parent::__construct($keyMaterial, $pk);
     }
 
     /**
@@ -39,14 +39,17 @@ final class EncryptionSecretKey extends SecretKey
      *
      * @throws InvalidKey
      * @throws \TypeError
+     * @throws \SodiumException
      */
     public function derivePublicKey()
     {
-        $publicKey = \sodium_crypto_box_publickey_from_secretkey(
-            $this->getRawKeyMaterial()
-        );
+        if (is_null($this->cachedPublicKey)) {
+            $this->cachedPublicKey = \sodium_crypto_box_publickey_from_secretkey(
+                $this->getRawKeyMaterial()
+            );
+        }
         return new EncryptionPublicKey(
-            new HiddenString($publicKey)
+            new HiddenString($this->cachedPublicKey)
         );
     }
 }

@@ -26,6 +26,82 @@ final class FileTest extends TestCase
     }
 
     /**
+     * @throws CryptoException\InvalidKey
+     * @throws SodiumException
+     */
+    public function testAsymmetricEncrypt()
+    {
+        touch(__DIR__.'/tmp/paragon_avatar.a-encrypted.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.a-encrypted.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.a-decrypted.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.a-decrypted.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png', 0777);
+
+        $alice = KeyFactory::generateEncryptionKeyPair();
+        $aliceSecret = $alice->getSecretKey();
+        $alicePublic = $alice->getPublicKey();
+        $bob = KeyFactory::generateEncryptionKeyPair();
+        $bobSecret = $bob->getSecretKey();
+        $bobPublic = $bob->getPublicKey();
+
+        File::asymmetricEncrypt(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.a-encrypted.png',
+            $bobPublic,
+            $aliceSecret
+        );
+        File::asymmetricDecrypt(
+            __DIR__.'/tmp/paragon_avatar.a-encrypted.png',
+            __DIR__.'/tmp/paragon_avatar.a-decrypted.png',
+            $bobSecret,
+            $alicePublic
+        );
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.a-decrypted.png')
+        );
+
+        // Now with AAD:
+        $aad = 'Halite v5 test';
+        File::asymmetricEncrypt(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
+            $bobPublic,
+            $aliceSecret,
+            $aad
+        );
+
+        try {
+            File::asymmetricDecrypt(
+                __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
+                __DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png',
+                $bobSecret,
+                $alicePublic
+            );
+        } catch (CryptoException\HaliteAlert $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
+        File::asymmetricDecrypt(
+            __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
+            __DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png',
+            $bobSecret,
+            $alicePublic,
+            $aad
+        );
+
+        unlink(__DIR__.'/tmp/paragon_avatar.a-encrypted.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.a-decrypted.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png');
+    }
+
+    /**
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\FileError

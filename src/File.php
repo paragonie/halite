@@ -110,6 +110,134 @@ final class File
     }
 
     /**
+     * @param string|ReadOnlyFile $input
+     * @param string|MutableFile $output
+     * @param EncryptionPublicKey $recipientPK
+     * @param EncryptionSecretKey $senderSK
+     * @param string|null $aad
+     * @return int
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileError
+     * @throws FileModified
+     * @throws InvalidDigestLength
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidType
+     * @throws \SodiumException
+     */
+    public static function asymmetricEncrypt(
+        string|ReadOnlyFile $input,
+        string|MutableFile $output,
+        EncryptionPublicKey $recipientPK,
+        EncryptionSecretKey $senderSK,
+        ?string $aad = null
+    ): int {
+        try {
+            $key = new EncryptionKey(
+                new HiddenString(
+                    \sodium_crypto_generichash(
+                        \sodium_crypto_scalarmult(
+                            $senderSK->getRawKeyMaterial(),
+                            $recipientPK->getRawKeyMaterial()
+                        ) .
+                        $senderSK->derivePublicKey()->getRawKeyMaterial() .
+                        $recipientPK->getRawKeyMaterial()
+                    )
+                )
+            );
+            if ($input instanceof ReadOnlyFile) {
+                $readOnly = $input;
+            } else {
+                $readOnly = new ReadOnlyFile($input);
+            }
+            if ($output instanceof MutableFile) {
+                $mutable = $output;
+            } else {
+                $mutable = new MutableFile($output);
+            }
+            return self::encryptData(
+                $readOnly,
+                $mutable,
+                $key,
+                $aad
+            );
+        } finally {
+            if (isset($readOnly)) {
+                $readOnly->close();
+            }
+            if (isset($mutable)) {
+                $mutable->close();
+            }
+        }
+    }
+
+    /**
+     * @param string|ReadOnlyFile $input
+     * @param string|MutableFile $output
+     * @param EncryptionSecretKey $recipientSK
+     * @param EncryptionPublicKey $senderPK
+     * @param string|null $aad
+     * @return bool
+     *
+     * @throws CannotPerformOperation
+     * @throws FileAccessDenied
+     * @throws FileError
+     * @throws FileModified
+     * @throws InvalidDigestLength
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidType
+     * @throws \SodiumException
+     */
+    public static function asymmetricDecrypt(
+        string|ReadOnlyFile $input,
+        string|MutableFile $output,
+        EncryptionSecretKey $recipientSK,
+        EncryptionPublicKey $senderPK,
+        ?string $aad = null
+    ): bool {
+        try {
+            $key = new EncryptionKey(
+                new HiddenString(
+                    sodium_crypto_generichash(
+                        sodium_crypto_scalarmult(
+                            $recipientSK->getRawKeyMaterial(),
+                            $senderPK->getRawKeyMaterial()
+                        ) .
+                        $senderPK->getRawKeyMaterial() .
+                        $recipientSK->derivePublicKey()->getRawKeyMaterial()
+                    )
+                )
+            );
+            if ($input instanceof ReadOnlyFile) {
+                $readOnly = $input;
+            } else {
+                $readOnly = new ReadOnlyFile($input);
+            }
+            if ($output instanceof MutableFile) {
+                $mutable = $output;
+            } else {
+                $mutable = new MutableFile($output);
+            }
+            return self::decryptData(
+                $readOnly,
+                $mutable,
+                $key,
+                $aad
+            );
+        } finally {
+            if (isset($readOnly)) {
+                $readOnly->close();
+            }
+            if (isset($mutable)) {
+                $mutable->close();
+            }
+        }
+    }
+
+    /**
      * Encrypt a file using symmetric authenticated encryption.
      *
      * @param string|ReadOnlyFile $input Input file
@@ -1235,7 +1363,7 @@ final class File
      * @param EncryptionKey $encKey
      * @param string $nonce
      * @param string $mac (hash context for BLAKE2b)
-     * @param SymmetricConfig $config
+     * @param Config $config
      *
      * @return int (number of bytes)
      *
@@ -1309,7 +1437,7 @@ final class File
      * @param EncryptionKey $encKey
      * @param string $nonce
      * @param string $mac (hash context for BLAKE2b)
-     * @param SymmetricConfig $config
+     * @param Config $config
      * @param array &$chunk_macs
      *
      * @return bool
@@ -1328,7 +1456,7 @@ final class File
         EncryptionKey $encKey,
         string $nonce,
         string $mac,
-        SymmetricConfig $config,
+        Config $config,
         array &$chunk_macs
     ): bool {
         $start = $input->getPos();

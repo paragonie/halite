@@ -24,14 +24,14 @@ final class SignatureSecretKey extends SecretKey
      * @throws InvalidKey
      * @throws \TypeError
      */
-    public function __construct(HiddenString $keyMaterial)
+    public function __construct(HiddenString $keyMaterial, ?HiddenString $pk = null)
     {
         if (Binary::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
             throw new InvalidKey(
                 'Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES bytes long'
             );
         }
-        parent::__construct($keyMaterial);
+        parent::__construct($keyMaterial, $pk);
         $this->isSigningKey = true;
     }
     
@@ -44,10 +44,12 @@ final class SignatureSecretKey extends SecretKey
      */
     public function derivePublicKey()
     {
-        $publicKey = \sodium_crypto_sign_publickey_from_secretkey(
-            $this->getRawKeyMaterial()
-        );
-        return new SignaturePublicKey(new HiddenString($publicKey));
+        if (is_null($this->cachedPublicKey)) {
+            $this->cachedPublicKey = \sodium_crypto_sign_publickey_from_secretkey(
+                $this->getRawKeyMaterial()
+            );
+        }
+        return new SignaturePublicKey(new HiddenString($this->cachedPublicKey));
     }
 
     /**
@@ -63,6 +65,15 @@ final class SignatureSecretKey extends SecretKey
         $x25519_sk = \sodium_crypto_sign_ed25519_sk_to_curve25519(
             $ed25519_sk
         );
+        if (!is_null($this->cachedPublicKey)) {
+            $x25519_pk = \sodium_crypto_sign_ed25519_pk_to_curve25519(
+                $this->cachedPublicKey
+            );
+            return new EncryptionSecretKey(
+                new HiddenString($x25519_sk),
+                new HiddenString($x25519_pk)
+            );
+        }
         return new EncryptionSecretKey(
             new HiddenString($x25519_sk)
         );

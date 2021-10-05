@@ -24,6 +24,18 @@ use ParagonIE\Halite\{
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * @property string ENCODING
+ * @property int SHORTEST_CIPHERTEXT_LENGTH
+ * @property int NONCE_BYTES
+ * @property int HKDF_SALT_LEN
+ * @property string ENC_ALGO
+ * @property string MAC_ALGO
+ * @property int MAC_SIZE
+ * @property int PUBLICKEY_BYTES
+ * @property string HKDF_SBOX
+ * @property string HKDF_AUTH
+ * @property bool USE_PAE
  */
 final class Config extends BaseConfig
 {
@@ -76,7 +88,7 @@ final class Config extends BaseConfig
      */
     public static function getConfigEncrypt(int $major, int $minor): array
     {
-        if ($major === 3 || $major === 4) {
+        if ($major === 5) {
             switch ($minor) {
                 case 0:
                     return [
@@ -84,6 +96,25 @@ final class Config extends BaseConfig
                         'SHORTEST_CIPHERTEXT_LENGTH' => 124,
                         'NONCE_BYTES' => \SODIUM_CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
+                        'ENC_ALGO' => 'XChaCha20',
+                        'USE_PAE' => true,
+                        'MAC_ALGO' => 'BLAKE2b',
+                        'MAC_SIZE' => \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
+        }
+        if ($major === 4 || $major === 3) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'ENCODING' => Halite::ENCODE_BASE64URLSAFE,
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 124,
+                        'NONCE_BYTES' => \SODIUM_CRYPTO_STREAM_NONCEBYTES,
+                        'HKDF_SALT_LEN' => 32,
+                        'ENC_ALGO' => 'XSalsa20',
+                        'USE_PAE' => false,
                         'MAC_ALGO' => 'BLAKE2b',
                         'MAC_SIZE' => \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
@@ -106,10 +137,11 @@ final class Config extends BaseConfig
      */
     public static function getConfigAuth(int $major, int $minor): array
     {
-        if ($major === 3 || $major === 4) {
+        if ($major === 4 || $major === 5) {
             switch ($minor) {
                 case 0:
                     return [
+                        'USE_PAE' => $major >= 5,
                         'HKDF_SALT_LEN' => 32,
                         'MAC_ALGO' => 'BLAKE2b',
                         'MAC_SIZE' => \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,

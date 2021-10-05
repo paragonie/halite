@@ -3,6 +3,9 @@
 ## Version 5.0.0 (Unreleased)
 
 * Increased minimum PHP version to 8.0.
+* Encryption now uses XChaCha20 instead of XSalsa20.
+* The `File` class no longer supports the `resource` type. To migrate code, wrap your 
+  `resource` arguments in a `ReadOnlyFile` or `MutableFile` object.
 
 ## Version 4.8.0 (2021-04-18)
 

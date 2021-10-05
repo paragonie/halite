@@ -219,6 +219,22 @@ final class Util
     }
 
     /**
+     * Pre-authentication encoding
+     *
+     * @param string ...$pieces
+     * @return string
+     */
+    public static function PAE(string ...$pieces): string
+    {
+        $out = [];
+        $out[] = pack('P', count($pieces));
+        foreach ($pieces as $piece) {
+            $out[] = pack('P', Binary::safeStrlen($piece)) . $piece;
+        }
+        return implode($out);
+    }
+
+    /**
      * Wrapper around SODIUM_CRypto_generichash()
      *
      * Expects a key (binary string).

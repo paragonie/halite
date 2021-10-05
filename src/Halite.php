@@ -36,16 +36,16 @@ use ParagonIE\Halite\Alerts\InvalidType;
  */
 final class Halite
 {
-    const VERSION              = '4.4.0';
+    const VERSION              = '5.0.0';
 
-    const HALITE_VERSION_KEYS  = "\x31\x40\x04\x00";
-    const HALITE_VERSION_FILE  = "\x31\x41\x04\x00";
-    const HALITE_VERSION       = "\x31\x42\x04\x00";
+    const HALITE_VERSION_KEYS  = "\x31\x40\x05\x00";
+    const HALITE_VERSION_FILE  = "\x31\x41\x05\x00";
+    const HALITE_VERSION       = "\x31\x42\x05\x00";
 
     /* Raw bytes (decoded) of the underlying ciphertext */
     const VERSION_TAG_LEN      = 4;
-    const VERSION_PREFIX       = 'MUIEA';
-    const VERSION_OLD_PREFIX   = 'MUIDA';
+    const VERSION_PREFIX       = 'MUIFA';
+    const VERSION_OLD_PREFIX   = 'MUIEA';
 
     const ENCODE_HEX           = 'hex';
     const ENCODE_BASE32        = 'base32';

@@ -26,6 +26,7 @@ use ParagonIE\Halite\{
     Symmetric\Config as SymmetricConfig,
     Symmetric\EncryptionKey
 };
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\HiddenString\HiddenString;
 
 /**
@@ -113,8 +114,9 @@ final class File
      *
      * @param string|ReadOnlyFile $input Input file
      * @param string|MutableFile $output Output file
-     * @param EncryptionKey $key                  Symmetric encryption key
-     * @return int                                Number of bytes written
+     * @param EncryptionKey $key         Symmetric encryption key
+     * @param string|null $aad           Additional authenticated data
+     * @return int                       Number of bytes written
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
@@ -129,7 +131,8 @@ final class File
     public static function encrypt(
         string|ReadOnlyFile $input,
         string|MutableFile $output,
-        EncryptionKey $key
+        EncryptionKey $key,
+        ?string $aad = null
     ): int {
         try {
             if ($input instanceof ReadOnlyFile) {
@@ -145,7 +148,8 @@ final class File
             return self::encryptData(
                 $readOnly,
                 $mutable,
-                $key
+                $key,
+                $aad
             );
         } finally {
             if (isset($readOnly)) {
@@ -162,8 +166,9 @@ final class File
      *
      * @param string|ReadOnlyFile $input Input file
      * @param string|MutableFile $output Output file
-     * @param EncryptionKey $key                  Symmetric encryption key
-     * @return bool                               TRUE if successful
+     * @param EncryptionKey $key         Symmetric encryption key
+     * @param string|null $aad           Additional authenticated data
+     * @return bool                      TRUE if successful
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
@@ -178,7 +183,8 @@ final class File
     public static function decrypt(
         string|ReadOnlyFile $input,
         string|MutableFile $output,
-        EncryptionKey $key
+        EncryptionKey $key,
+        ?string $aad = null
     ): bool {
         try {
             if ($input instanceof ReadOnlyFile) {
@@ -194,7 +200,8 @@ final class File
             return self::decryptData(
                 $readOnly,
                 $mutable,
-                $key
+                $key,
+                $aad
             );
         } finally {
             if (isset($readOnly)) {
@@ -210,9 +217,10 @@ final class File
      * Encrypt a file using anonymous public-key encryption (with ciphertext
      * authentication).
      *
-     * @param string|ReadOnlyFile $input Input file
-     * @param string|MutableFile $output Output file
-     * @param EncryptionPublicKey $publicKey      Recipient's encryption public key
+     * @param string|ReadOnlyFile $input     Input file
+     * @param string|MutableFile $output     Output file
+     * @param EncryptionPublicKey $publicKey Recipient's encryption public key
+     * @param string|null $aad               Additional authenticated data
      * @return int
      *
      * @throws CannotPerformOperation
@@ -227,7 +235,8 @@ final class File
     public static function seal(
         string|ReadOnlyFile $input,
         string|MutableFile $output,
-        EncryptionPublicKey $publicKey
+        EncryptionPublicKey $publicKey,
+        ?string $aad = null
     ): int {
         try {
             if ($input instanceof ReadOnlyFile) {
@@ -243,7 +252,8 @@ final class File
             return self::sealData(
                 $readOnly,
                 $mutable,
-                $publicKey
+                $publicKey,
+                $aad
             );
         } finally {
             if (isset($readOnly)) {
@@ -259,10 +269,11 @@ final class File
      * Decrypt a file using anonymous public-key encryption. Ciphertext
      * integrity is still assured thanks to the Encrypt-then-MAC construction.
      *
-     * @param string|ReadOnlyFile $input Input file
-     * @param string|MutableFile $output Output file
-     * @param EncryptionSecretKey $secretKey      Recipient's encryption secret key
-     * @return bool                               TRUE on success
+     * @param string|ReadOnlyFile $input     Input file
+     * @param string|MutableFile $output     Output file
+     * @param EncryptionSecretKey $secretKey Recipient's encryption secret key
+     * @param string|null $aad               Additional authenticated data
+     * @return bool                          TRUE on success
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
@@ -277,7 +288,8 @@ final class File
     public static function unseal(
         string|ReadOnlyFile $input,
         string|MutableFile $output,
-        EncryptionSecretKey $secretKey
+        EncryptionSecretKey $secretKey,
+        ?string $aad = null
     ): bool {
         try {
             if ($input instanceof ReadOnlyFile) {
@@ -293,7 +305,8 @@ final class File
             return self::unsealData(
                 $readOnly,
                 $mutable,
-                $secretKey
+                $secretKey,
+                $aad
             );
         } finally {
             if (isset($readOnly)) {
@@ -497,6 +510,7 @@ final class File
      * @param ReadOnlyFile $input
      * @param MutableFile $output
      * @param EncryptionKey $key
+     * @param string|null $aad    Additional authenticated data
      * @return int
      *
      * @throws CannotPerformOperation
@@ -513,8 +527,10 @@ final class File
     protected static function encryptData(
         ReadOnlyFile $input,
         MutableFile $output,
-        EncryptionKey $key
+        EncryptionKey $key,
+        ?string $aad = null
     ): int {
+        /** @var SymmetricConfig $config */
         $config = self::getConfig(Halite::HALITE_VERSION_FILE, 'encrypt');
 
         // Generate a nonce and HKDF salt
@@ -546,13 +562,34 @@ final class File
 
         // VERSION 2+ uses BMAC
         $mac = \sodium_crypto_generichash_init($authKey);
+        // Number of pieces that go into MAC (header, first nonce, salt, ciphertext) -> 4
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', is_null($aad) ? 4 : 5));
+
+        // Length followed by piece
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', Halite::VERSION_TAG_LEN));
         \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', \SODIUM_CRYPTO_STREAM_NONCEBYTES));
         \sodium_crypto_generichash_update($mac, $firstNonce);
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', $config->HKDF_SALT_LEN));
         \sodium_crypto_generichash_update($mac, $hkdfSalt);
+
+        // Optional: AAD support
+        if ($config->USE_PAE && !is_null($aad)) {
+            \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
+            \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+        }
         /** @var string $mac */
 
         Util::memzero($authKey);
         Util::memzero($hkdfSalt);
+
+        // Prepend with length:
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', $input->remainingBytes()));
 
         return self::streamEncrypt(
             $input,
@@ -572,6 +609,7 @@ final class File
      * @param ReadOnlyFile $input
      * @param MutableFile $output
      * @param EncryptionKey $key
+     * @param string|null $aad    Additional authenticated data
      * @return bool
      *
      * @throws CannotPerformOperation
@@ -587,7 +625,8 @@ final class File
     protected static function decryptData(
         ReadOnlyFile $input,
         MutableFile $output,
-        EncryptionKey $key
+        EncryptionKey $key,
+        ?string $aad = null
     ): bool {
         // Rewind
         $input->reset(0);
@@ -602,6 +641,7 @@ final class File
         $header = $input->readBytes(Halite::VERSION_TAG_LEN);
 
         // Load the config
+        /** @var SymmetricConfig $config */
         $config = self::getConfig($header, 'encrypt');
 
         // Is this shorter than an encrypted empty string?
@@ -620,10 +660,29 @@ final class File
 
         // VERSION 2+ uses BMAC
         $mac = \sodium_crypto_generichash_init($authKey);
+        // Number of pieces that go into MAC (header, first nonce, salt, ciphertext) -> 4
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', is_null($aad) ? 4 : 5));
+        // Length followed by piece
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', Halite::VERSION_TAG_LEN));
         \sodium_crypto_generichash_update($mac, $header);
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', \SODIUM_CRYPTO_STREAM_NONCEBYTES));
         \sodium_crypto_generichash_update($mac, $firstNonce);
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', $config->HKDF_SALT_LEN));
         \sodium_crypto_generichash_update($mac, $hkdfSalt);
-        /** @var string $mac */
+
+        // Optional: AAD support
+        if ($config->USE_PAE && !is_null($aad)) {
+            \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
+            \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+        }
+
+        // Prepend with length:
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', $input->remainingBytes() - $config->MAC_SIZE));
 
         $old_macs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
 
@@ -659,6 +718,7 @@ final class File
      * @param ReadOnlyFile $input
      * @param MutableFile $output
      * @param EncryptionPublicKey $publicKey
+     * @param ?string $aad
      * @return int
      *
      * @throws CannotPerformOperation
@@ -673,7 +733,8 @@ final class File
     protected static function sealData(
         ReadOnlyFile $input,
         MutableFile $output,
-        EncryptionPublicKey $publicKey
+        EncryptionPublicKey $publicKey,
+        ?string $aad = null
     ): int {
         // Generate a new keypair for this encryption
         $ephemeralKeyPair = KeyFactory::generateEncryptionKeyPair();
@@ -728,13 +789,29 @@ final class File
 
         // VERSION 2+
         $mac = \sodium_crypto_generichash_init($authKey);
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', is_null($aad) ? 4 : 5));
 
         // We no longer need $authKey after we set up the hash context
         Util::memzero($authKey);
 
+        // Length followed by piece
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', Halite::VERSION_TAG_LEN));
         \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES));
         \sodium_crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', $config->HKDF_SALT_LEN));
         \sodium_crypto_generichash_update($mac, $hkdfSalt);
+        if ($config->USE_PAE && !is_null($aad)) {
+            \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
+            \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+        }
+        if ($config->USE_PAE) {
+            \sodium_crypto_generichash_update($mac, \pack('P', $input->remainingBytes()));
+        }
 
         unset($ephPublic);
         Util::memzero($hkdfSalt);
@@ -761,6 +838,8 @@ final class File
      * @param ReadOnlyFile $input
      * @param MutableFile $output
      * @param EncryptionSecretKey $secretKey
+     * @param ?string $aad
+     * @param ?string $aad
      * @return bool
      *
      * @throws CannotPerformOperation
@@ -776,7 +855,8 @@ final class File
     protected static function unsealData(
         ReadOnlyFile $input,
         MutableFile $output,
-        EncryptionSecretKey $secretKey
+        EncryptionSecretKey $secretKey,
+        ?string $aad = null
     ): bool {
         $publicKey = $secretKey
             ->derivePublicKey();
@@ -836,10 +916,27 @@ final class File
         unset($key);
 
         $mac = \sodium_crypto_generichash_init($authKey);
+        // Number of pieces:
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', is_null($aad) ? 4 : 5));
 
+        // Length followed by piece
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', Halite::VERSION_TAG_LEN));
         \sodium_crypto_generichash_update($mac, $header);
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES));
         \sodium_crypto_generichash_update($mac, $ephPublic);
+        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, \pack('P', $config->HKDF_SALT_LEN));
         \sodium_crypto_generichash_update($mac, $hkdfSalt);
+        if ($config->USE_PAE && !is_null($aad)) {
+            \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
+            \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+        }
+        if ($config->USE_PAE) {
+            \sodium_crypto_generichash_update($mac, \pack('P', $input->remainingBytes() - $config->MAC_SIZE));
+        }
 
         /** @var string $mac */
         $oldMACs = self::streamVerify($input, Util::safeStrcpy($mac), $config);

@@ -77,6 +77,62 @@ final class FileTest extends TestCase
      * @throws CryptoException\InvalidType
      * @throws TypeError
      */
+    public function testEncryptWithAAD()
+    {
+        touch(__DIR__.'/tmp/paragon_avatar.encrypted-aad.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.encrypted-aad.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.decrypted-aad.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.decrypted-aad.png', 0777);
+
+        $key = new EncryptionKey(
+            new HiddenString(\str_repeat('B', 32))
+        );
+        $aad = "Additional associated data";
+
+        File::encrypt(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
+            $key,
+            $aad
+        );
+        try {
+            File::decrypt(
+                __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
+                __DIR__.'/tmp/paragon_avatar.decrypted-aad.png',
+                $key
+            );
+        } catch (CryptoException\HaliteAlert $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
+        File::decrypt(
+            __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
+            __DIR__.'/tmp/paragon_avatar.decrypted-aad.png',
+            $key,
+            $aad
+        );
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted-aad.png')
+        );
+
+        unlink(__DIR__.'/tmp/paragon_avatar.encrypted-aad.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.decrypted-aad.png');
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
     public function testEncryptEmpty()
     {
         file_put_contents(__DIR__.'/tmp/empty.txt', '');
@@ -304,30 +360,65 @@ final class FileTest extends TestCase
         chmod(__DIR__.'/tmp/paragon_avatar.sealed.png', 0777);
         touch(__DIR__.'/tmp/paragon_avatar.opened.png');
         chmod(__DIR__.'/tmp/paragon_avatar.opened.png', 0777);
-        
+
         $keypair = KeyFactory::generateEncryptionKeyPair();
-            $secretkey = $keypair->getSecretKey();
-            $publickey = $keypair->getPublicKey();
-        
+        $secretkey = $keypair->getSecretKey();
+        $publickey = $keypair->getPublicKey();
+
         File::seal(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.sealed.png',
             $publickey
         );
-        
+
         File::unseal(
             __DIR__.'/tmp/paragon_avatar.sealed.png',
             __DIR__.'/tmp/paragon_avatar.opened.png',
             $secretkey
         );
-        
+
         $this->assertSame(
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
         );
-        
+
+        // New: Additional Associated Data tests
+        $aad = "Additional associated data";
+        File::seal(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
+            $publickey,
+            $aad
+        );
+        try {
+            File::unseal(
+                __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
+                __DIR__.'/tmp/paragon_avatar.opened-aad.png',
+                $secretkey
+            );
+        } catch (CryptoException\HaliteAlert $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
+
+        File::unseal(
+            __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
+            __DIR__.'/tmp/paragon_avatar.opened-aad.png',
+            $secretkey,
+            $aad
+        );
+
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened-aad.png')
+        );
+
         unlink(__DIR__.'/tmp/paragon_avatar.sealed.png');
         unlink(__DIR__.'/tmp/paragon_avatar.opened.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.sealed-aad.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.opened-aad.png');
     }
 
     /**

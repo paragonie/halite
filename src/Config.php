@@ -23,6 +23,17 @@ use ParagonIE\Halite\Alerts\ConfigDirectiveNotFound;
  * @property bool CHECKSUM_PUBKEY
  * @property int BUFFER
  * @property int HASH_LEN
+ * @property string ENCODING
+ * @property int SHORTEST_CIPHERTEXT_LENGTH
+ * @property int NONCE_BYTES
+ * @property int HKDF_SALT_LEN
+ * @property string ENC_ALGO
+ * @property string MAC_ALGO
+ * @property int MAC_SIZE
+ * @property int PUBLICKEY_BYTES
+ * @property string HKDF_SBOX
+ * @property string HKDF_AUTH
+ * @property bool USE_PAE
  */
 class Config
 {

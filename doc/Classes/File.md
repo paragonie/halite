@@ -96,7 +96,7 @@ Calculate a digital signature of a file.
 
 ### `verify()`
 
-> `public static` sign(`$input`, [`SignaturePublicKey`](Asymmetric/SignaturePublicKey.md) `$key`, `string $signature`, `boolean $raw_binary`): `bool`
+> `public static` verify(`$input`, [`SignaturePublicKey`](Asymmetric/SignaturePublicKey.md) `$key`, `string $signature`, `boolean $raw_binary`): `bool`
 
 Verifies a digital signature of a file.
 

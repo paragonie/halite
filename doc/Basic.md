@@ -2,24 +2,28 @@
 
 This is the Basic Halite API:
 
-  * Encryption
+* Encryption
     * Symmetric
-       * `Symmetric\Crypto::encrypt`(`HiddenString`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md), `bool?`): `string`
-       * `Symmetric\Crypto::decrypt`(`string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md), `bool?`): `HiddenString`
+        * `Symmetric\Crypto::encrypt`([`HiddenString`](Classes/HiddenString.md), [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md)): `string`
+        * `Symmetric\Crypto::encryptWithAD`([`HiddenString`](Classes/HiddenString.md), [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md), `string`): `string`
+        * `Symmetric\Crypto::decrypt`(`string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md)): [`HiddenString`](Classes/HiddenString.md)
+        * `Symmetric\Crypto::decryptWithAD`(`string`, [`EncryptionKey`](Classes/Symmetric/EncryptionKey.md), `string`): [`HiddenString`](Classes/HiddenString.md)
     * Asymmetric
-       * Anonymous
-         * `Asymmetric\Crypto::seal`(`HiddenString`, [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `string`
-         * `Asymmetric\Crypto::unseal`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), `bool?`): `HiddenString`
-       * Authenticated
-         * `Asymmetric\Crypto::encrypt`(`HiddenString`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `string`
-         * `Asymmetric\Crypto::decrypt`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `bool?`): `HiddenString`
-  * Authentication
+        * Anonymous
+            * `Asymmetric\Crypto::seal`([`HiddenString`](Classes/HiddenString.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `string`
+            * `Asymmetric\Crypto::unseal`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md)): [`HiddenString`](Classes/HiddenString.md)
+        * Authenticated
+            * `Asymmetric\Crypto::encrypt`([`HiddenString`](Classes/HiddenString.md), [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): `string`
+            * `Asymmetric\Crypto::encryptWithAD`([`HiddenString`](Classes/HiddenString.md), [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `string`): `string`
+            * `Asymmetric\Crypto::decrypt`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md)): [`HiddenString`](Classes/HiddenString.md)
+            * `Asymmetric\Crypto::decryptWithAD`(`string`, [`EncryptionSecretKey`](Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](Classes/Asymmetric/EncryptionPublicKey.md), `string`): [`HiddenString`](Classes/HiddenString.md)
+* Authentication
     * Symmetric
-       * `Symmetric\Crypto::authenticate`(`string`, [`AuthenticationKey`](Classes/Symmetric/AuthenticationKey.md), `bool?`): `string`
-       * `Symmetric\Crypto::verify`(`string`, [`AuthenticationKey`](Classes/Symmetric/AuthenticationKey.md), `string`, `bool?`): `bool`
+        * `Symmetric\Crypto::authenticate`(`string`, [`AuthenticationKey`](Classes/Symmetric/AuthenticationKey.md)): `string`
+        * `Symmetric\Crypto::verify`(`string`, [`AuthenticationKey`](Classes/Symmetric/AuthenticationKey.md), `string`): `bool`
     * Asymmetric
-       * `Asymmetric\Crypto::sign`(`string`, [`SignatureSecretKey`](Classes/Asymmetric/SignatureSecretKey.md), `bool?`): `string`
-       * `Asymmetric\Crypto::verify`(`string`, [`SignaturePublicKey`](Classes/Asymmetric/SignaturePublicKey.md), `string`, `bool?`): `bool`
+        * `Asymmetric\Crypto::sign`(`string`, [`SignatureSecretKey`](Classes/Asymmetric/SignatureSecretKey.md)): `string`
+        * `Asymmetric\Crypto::verify`(`string`, [`SignaturePublicKey`](Classes/Asymmetric/SignaturePublicKey.md), `string`): `bool`
 
 Most of the other [Halite features](Features.md) build on top of these simple APIs.
 
@@ -67,7 +71,7 @@ Later, you can load it like so:
 $enc_key = KeyFactory::loadEncryptionKey('/path/to/encryption.key');
 ```
 
-Or if you want to store it in a string
+Or if you want to store it in a string, rather than on the filesystem:
 
 ```php
 $key_hex = KeyFactory::export($enc_key)->getString();
@@ -94,7 +98,7 @@ $ciphertext = \ParagonIE\Halite\Symmetric\Crypto::encrypt(
 );
 ```
 
-By default, `Crypto::encrypt()` will return a hexadecimal encoded string. If you
+By default, `Crypto::encrypt()` will return a base64url-encoded string. If you
 want raw binary, simply pass `true` as the third argument (similar to the API
 used by PHP's `hash()` function).
 
@@ -112,6 +116,57 @@ instance of `\ParagonIE\Halite\Symmetric\EncryptionKey`.
 
 If you're attempting to decrypt a raw binary string rather than a hex-encoded
 string, pass `true` to the third argument of `Crypto::decrypt`.
+
+#### Additional Associated Data
+
+Sometimes encrypting a message isn't sufficient protection, and you also want to
+bind an encrypted message to some context. Usually, this happens when you're concerned
+with Confused Deputy Attacks.
+
+The simplest way to accomplish this is to use Halite's `EncryptWithAD()` and `DecryptWithAD()`
+methods.
+
+**Note:** The Additional Associated Data is **NOT** stored in the encrypted message.
+You must manage these strings yourself to ensure successful decryption.
+
+```php
+use ParagonIE\HiddenString\HiddenString;
+
+$ad = 'Additional data that must be passed to both encrypt and decrypt calls';
+
+$ciphertext = \ParagonIE\Halite\Symmetric\Crypto::encryptWithAD(
+    new HiddenString(
+        "Your message here. Any string content will do just fine."
+    ),
+    $enc_key,
+    $ad
+);
+```
+
+This string must also be provided in the other direction:
+
+```php
+$plaintext = \ParagonIE\Halite\Symmetric\Crypto::decryptWithAD(
+    $ciphertext,
+    $enc_key,
+    $ad
+);
+```
+
+This will not succeed:
+
+```php
+try {
+    \ParagonIE\Halite\Symmetric\Crypto::decryptWithAD(
+        $ciphertext,
+        $enc_key,
+        'Incorrect String'
+    );
+} catch (\ParagonIE\Halite\Alerts\HaliteAlert $ex) {
+    var_dump($ex->getMessage());
+    exit;
+}
+```
 
 ### Authenticated Asymmetric-Key Encryption (Encrypting)
 
@@ -131,8 +186,6 @@ $send_to_bob = sodium_bin2hex($alice_public->getRawKeyMaterial());
 Alice will then load Bob's public key into the appropriate object like so:
 
 ```php
-use ParagonIE\HiddenString\HiddenString;
-
 $bob_public = new \ParagonIE\Halite\Asymmetric\EncryptionPublicKey(
     new HiddenString(
         sodium_hex2bin($recv_from_bob)
@@ -165,6 +218,34 @@ $message = \ParagonIE\Halite\Asymmetric\Crypto::decrypt(
     $received_ciphertext,
     $alice_secret,
     $bob_public
+);
+```
+
+#### Additional Associated Data with Asymmetric Encryption
+
+If you've read the section on Symmetric Encryption, this should be unsurprising.
+
+```php
+$ad = 'Additional Data that must be asserted on decrypt';
+
+$send_to_bob = \ParagonIE\Halite\Asymmetric\Crypto::encryptWithAD(
+    new HiddenString(
+        "Your message here. Any string content will do just fine."
+    ),
+    $alice_secret,
+    $bob_public,
+    $ad
+);
+```
+
+And decryption is similarly straightforward:
+
+```php
+$message = \ParagonIE\Halite\Asymmetric\Crypto::decryptWithAD(
+    $received_ciphertext,
+    $alice_secret,
+    $bob_public,
+    $ad
 );
 ```
 

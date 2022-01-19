@@ -130,6 +130,7 @@ final class Util
      * @param string $info What sort of key are we deriving?
      * @param string $salt
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws InvalidDigestLength
      * @throws TypeError
@@ -157,6 +158,9 @@ final class Util
         // HKDF-Extract:
         // PRK = HMAC-Hash(salt, IKM)
         // The salt is the HMAC key.
+        //
+        // Note: The notation used by the RFC is backwards from what we're doing here.
+        // They use (Key, Msg) while our API is (Msg, Key).
         $prk = self::raw_keyed_hash($ikm, $salt);
 
         // HKDF-Expand:

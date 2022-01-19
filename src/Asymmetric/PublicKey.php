@@ -4,6 +4,7 @@ namespace ParagonIE\Halite\Asymmetric;
 
 use ParagonIE\Halite\Key;
 use ParagonIE\HiddenString\HiddenString;
+use TypeError;
 
 /**
  * Class PublicKey
@@ -19,7 +20,7 @@ class PublicKey extends Key
      * PublicKey constructor.
      * @param HiddenString $keyMaterial - The actual key data
      *
-     * @throws \TypeError
+     * @throws TypeError
      */
     public function __construct(HiddenString $keyMaterial)
     {

@@ -11,6 +11,26 @@ use ParagonIE\Halite\Alerts\{
     InvalidDigestLength,
     InvalidType
 };
+use Error;
+use RangeException;
+use SodiumException;
+use Throwable;
+use TypeError;
+use const
+    SODIUM_CRYPTO_GENERICHASH_BYTES,
+    SODIUM_CRYPTO_GENERICHASH_BYTES_MIN,
+    SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
+    SODIUM_CRYPTO_GENERICHASH_KEYBYTES;
+use function
+    array_values,
+    count,
+    implode,
+    pack,
+    sodium_crypto_generichash,
+    sodium_memzero,
+    sprintf,
+    str_repeat,
+    unpack;
 
 /**
  * Class Util
@@ -32,12 +52,12 @@ final class Util
 {
     /**
      * Don't allow this to be instantiated.
-     * @throws \Error
+     * @throws Error
      * @codeCoverageIgnore
      */
     final private function __construct()
     {
-        throw new \Error('Do not instantiate');
+        throw new Error('Do not instantiate');
     }
 
     /**
@@ -45,19 +65,19 @@ final class Util
      *
      * @param string $chr
      * @return int
-     * @throws \RangeException
+     * @throws RangeException
      */
     public static function chrToInt(string $chr): int
     {
         if (Binary::safeStrlen($chr) !== 1) {
-            throw new \RangeException('Must be a string with a length of 1');
+            throw new RangeException('Must be a string with a length of 1');
         }
-        $result = \unpack('C', $chr);
+        $result = unpack('C', $chr);
         return (int) $result[1];
     }
 
     /**
-     * Wrapper around SODIUM_CRypto_generichash()
+     * Wrapper around sodium_crypto_generichash()
      *
      * Returns hexadecimal characters.
      *
@@ -65,12 +85,12 @@ final class Util
      * @param int $length
      * @return string
      * @throws CannotPerformOperation
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function hash(
         string $input,
-        int $length = \SODIUM_CRYPTO_GENERICHASH_BYTES
+        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
         return Hex::encode(
             self::raw_keyed_hash($input, '', $length)
@@ -78,7 +98,7 @@ final class Util
     }
 
     /**
-     * Wrapper around SODIUM_CRypto_generichash()
+     * Wrapper around sodium_crypto_generichash()
      *
      * Returns raw binary.
      *
@@ -86,11 +106,11 @@ final class Util
      * @param int $length
      * @return string
      * @throws CannotPerformOperation
-     * @throws \SodiumException
+     * @throws SodiumException
      */
     public static function raw_hash(
         string $input,
-        int $length = \SODIUM_CRYPTO_GENERICHASH_BYTES
+        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
         return self::raw_keyed_hash($input, '', $length);
     }
@@ -112,8 +132,8 @@ final class Util
      * @return string
      * @throws CannotPerformOperation
      * @throws InvalidDigestLength
-     * @throws \TypeError
-     * @throws \SodiumException
+     * @throws TypeError
+     * @throws SodiumException
      */
     public static function hkdfBlake2b(
         string $ikm,
@@ -122,7 +142,7 @@ final class Util
         string $salt = ''
     ): string {
         // Sanity-check the desired output length.
-        if ($length < 0 || $length > (255 * \SODIUM_CRYPTO_GENERICHASH_KEYBYTES)) {
+        if ($length < 0 || $length > (255 * SODIUM_CRYPTO_GENERICHASH_KEYBYTES)) {
             throw new InvalidDigestLength(
                 'Argument 2: Bad HKDF Digest Length'
             );
@@ -130,7 +150,7 @@ final class Util
         // "If [salt] not provided, is set to a string of HashLen zeroes."
         if (empty($salt)) {
             // @codeCoverageIgnoreStart
-            $salt = \str_repeat("\x00", \SODIUM_CRYPTO_GENERICHASH_KEYBYTES);
+            $salt = str_repeat("\x00", SODIUM_CRYPTO_GENERICHASH_KEYBYTES);
             // @codeCoverageIgnoreEnd
         }
 
@@ -142,7 +162,7 @@ final class Util
         // HKDF-Expand:
         // This check is useless, but it serves as a reminder to the spec.
         // @codeCoverageIgnoreStart
-        if (Binary::safeStrlen($prk) < \SODIUM_CRYPTO_GENERICHASH_KEYBYTES) {
+        if (Binary::safeStrlen($prk) < SODIUM_CRYPTO_GENERICHASH_KEYBYTES) {
             throw new CannotPerformOperation(
                 'An unknown error has occurred'
             );
@@ -154,15 +174,14 @@ final class Util
         for ($block_index = 1; Binary::safeStrlen($t) < $length; ++$block_index) {
             // T(i) = HMAC-Hash(PRK, T(i-1) | info | 0x??)
             $last_block = self::raw_keyed_hash(
-                $last_block . $info . \chr($block_index),
+                $last_block . $info . pack('C', $block_index),
                 $prk
             );
             // T = T(1) | T(2) | T(3) | ... | T(N)
             $t .= $last_block;
         }
         // ORM = first L octets of T
-        $orm = Binary::safeSubstr($t, 0, $length);
-        return $orm;
+        return Binary::safeSubstr($t, 0, $length);
     }
 
     /**
@@ -177,8 +196,8 @@ final class Util
         foreach ($args as $i => $v) {
             $args[$i] = (int) ($v & 0xff);
         }
-        return \pack(
-            \str_repeat('C', \count($args)),
+        return pack(
+            str_repeat('C', count($args)),
             ...$args
         );
     }
@@ -191,7 +210,7 @@ final class Util
      */
     public static function intToChr(int $int): string
     {
-        return \pack('C', $int);
+        return pack('C', $int);
     }
 
     /**
@@ -205,17 +224,33 @@ final class Util
      * @param int $length
      * @return string
      * @throws CannotPerformOperation
-     * @throws \TypeError
-     * @throws \SodiumException
+     * @throws TypeError
+     * @throws SodiumException
      */
     public static function keyed_hash(
         string $input,
         string $key,
-        int $length = \SODIUM_CRYPTO_GENERICHASH_BYTES
+        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
         return Hex::encode(
             self::raw_keyed_hash($input, $key, $length)
         );
+    }
+
+    /**
+     * Pre-authentication encoding
+     *
+     * @param string ...$pieces
+     * @return string
+     */
+    public static function PAE(string ...$pieces): string
+    {
+        $out = [];
+        $out[] = pack('P', count($pieces));
+        foreach ($pieces as $piece) {
+            $out[] = pack('P', Binary::safeStrlen($piece)) . $piece;
+        }
+        return implode($out);
     }
 
     /**
@@ -229,30 +264,30 @@ final class Util
      * @param int $length
      * @return string
      * @throws CannotPerformOperation
-     * @throws \SodiumException
+     * @throws SodiumException
      */
     public static function raw_keyed_hash(
         string $input,
         string $key,
-        int $length = \SODIUM_CRYPTO_GENERICHASH_BYTES
+        int $length = SODIUM_CRYPTO_GENERICHASH_BYTES
     ): string {
-        if ($length < \SODIUM_CRYPTO_GENERICHASH_BYTES_MIN) {
+        if ($length < SODIUM_CRYPTO_GENERICHASH_BYTES_MIN) {
             throw new CannotPerformOperation(
-                \sprintf(
+                sprintf(
                     'Output length must be at least %d bytes.',
-                    \SODIUM_CRYPTO_GENERICHASH_BYTES_MIN
+                    SODIUM_CRYPTO_GENERICHASH_BYTES_MIN
                 )
             );
         }
-        if ($length > \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX) {
+        if ($length > SODIUM_CRYPTO_GENERICHASH_BYTES_MAX) {
             throw new CannotPerformOperation(
-                \sprintf(
+                sprintf(
                     'Output length must be at most %d bytes.',
-                    \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+                    SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                 )
             );
         }
-        return \sodium_crypto_generichash($input, $key, $length);
+        return sodium_crypto_generichash($input, $key, $length);
     }
 
     /**
@@ -261,7 +296,7 @@ final class Util
      *
      * @param string $string
      * @return string
-     * @throws \TypeError
+     * @throws TypeError
      */
     public static function safeStrcpy(string $string): string
     {
@@ -282,22 +317,19 @@ final class Util
      *
      * @param string $string
      * @return array<int, int>
-     * @throws \TypeError
+     * @throws TypeError
      */
     public static function stringToIntArray(string $string): array
     {
         /**
          * @var array<int, int>
          */
-        $values = \array_values(\unpack('C*', $string));
+        $values = array_values(unpack('C*', $string));
         return $values;
     }
 
     /**
      * Calculate A xor B, given two binary strings of the same length.
-     *
-     * Uses pack() and unpack() to avoid cache-timing leaks caused by
-     * chr().
      *
      * @param string $left
      * @param string $right
@@ -329,8 +361,8 @@ final class Util
     public static function memzero(string &$var): void
     {
         try {
-            \sodium_memzero($var);
-        } catch (\Throwable $ex) {
+            sodium_memzero($var);
+        } catch (Throwable $ex) {
             // Best-effort:
             $var ^= $var;
         }

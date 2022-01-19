@@ -20,6 +20,16 @@ use ParagonIE\Halite\Symmetric\{
     EncryptionKey
 };
 use ParagonIE\HiddenString\HiddenString;
+use SodiumException;
+use TypeError;
+use const PHP_VERSION;
+use function
+    hash_equals,
+    is_string,
+    json_decode,
+    json_encode,
+    setcookie,
+    version_compare;
 
 /**
  * Class Cookie
@@ -75,7 +85,8 @@ final class Cookie
      * @throws InvalidSignature
      * @throws CannotPerformOperation
      * @throws InvalidType
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public function fetch(string $name)
     {
@@ -85,7 +96,7 @@ final class Cookie
         try {
             /** @var string|array|int|float|bool $stored */
             $stored = $_COOKIE[$name];
-            if (!\is_string($stored)) {
+            if (!is_string($stored)) {
                 throw new InvalidType('Cookie value is not a string');
             }
             $config = self::getConfig($stored);
@@ -94,7 +105,7 @@ final class Cookie
                 $this->key,
                 $config->ENCODING
             );
-            return \json_decode($decrypted->getString(), true);
+            return json_decode($decrypted->getString(), true);
         } catch (InvalidMessage $e) {
             return null;
         }
@@ -107,7 +118,7 @@ final class Cookie
      * @return SymmetricConfig
      *
      * @throws InvalidMessage
-     * @throws \TypeError
+     * @throws TypeError
      */
     protected static function getConfig(string $stored): SymmetricConfig
     {
@@ -118,7 +129,7 @@ final class Cookie
                 'Encrypted password hash is way too short.'
             );
         }
-        if (\hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
+        if (hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)) {
             $decoded = Base64UrlSafe::decode($stored);
             return SymmetricConfig::getConfig(
                 $decoded,
@@ -139,14 +150,15 @@ final class Cookie
      * @param string $domain (defaults to NULL)
      * @param bool $secure   (defaults to TRUE)
      * @param bool $httpOnly (defaults to TRUE)
-     * @param string $samesite (defaults to ''; PHP >= 7.3.0)
+     * @param string $sameSite (defaults to ''; PHP >= 7.3.0)
      * @return bool
      *
      * @throws InvalidDigestLength
      * @throws CannotPerformOperation
      * @throws InvalidMessage
      * @throws InvalidType
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      *
      * @psalm-suppress InvalidArgument PHP version incompatibilities
      * @psalm-suppress MixedArgument
@@ -163,11 +175,11 @@ final class Cookie
     ): bool {
         $val = Crypto::encrypt(
             new HiddenString(
-                (string) \json_encode($value)
+                (string) json_encode($value)
             ),
             $this->key
         );
-        if (\version_compare(PHP_VERSION, '7.3.0') >= 0) {
+        if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
             $options = [
                 'expires' => (int) $expire,
                 'path' => (string) $path,
@@ -178,12 +190,12 @@ final class Cookie
             if ($sameSite !== '') {
                 $options['samesite'] = (string) $sameSite;
             }
-            return \setcookie(
+            return setcookie(
                 $name,
                 $val,
                 $options);
         }
-        return \setcookie(
+        return setcookie(
             $name,
             $val,
             (int) $expire,

@@ -19,13 +19,28 @@ use ParagonIE\Halite\Alerts\ConfigDirectiveNotFound;
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ * @property bool CHECKSUM_PUBKEY
+ * @property int BUFFER
+ * @property int HASH_LEN
+ * @property string ENCODING
+ * @property int SHORTEST_CIPHERTEXT_LENGTH
+ * @property int NONCE_BYTES
+ * @property int HKDF_SALT_LEN
+ * @property string ENC_ALGO
+ * @property string MAC_ALGO
+ * @property int MAC_SIZE
+ * @property int PUBLICKEY_BYTES
+ * @property string HKDF_SBOX
+ * @property string HKDF_AUTH
+ * @property bool USE_PAE
  */
 class Config
 {
     /**
      * @var array
      */
-    private $config;
+    private array $config;
 
     /**
      * Config constructor.
@@ -59,7 +74,7 @@ class Config
      * @return bool
      * @codeCoverageIgnore
      */
-    public function __set(string $key, $value = null)
+    public function __set(string $key, mixed $value = null)
     {
         return false;
     }

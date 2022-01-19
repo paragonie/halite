@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 5.0.0 (Unreleased)
+
+* Increased minimum PHP version to 8.0.
+* Encryption now uses XChaCha20 instead of XSalsa20.
+* The `File` class no longer supports the `resource` type. To migrate code, wrap your 
+  `resource` arguments in a `ReadOnlyFile` or `MutableFile` object.
+* Added `File::asymmetricEncrypt()` and `File::asymmetricDecrypt()`.
+* **Security:** Halite v5 uses the [PAE](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Common.md#pae-definition)
+  strategy from PASETO to prevent canonicalization attacks.
+
 ## Version 4.8.0 (2021-04-18)
 
 * Merged [#158](https://github.com/paragonie/halite/pull/158), which removes

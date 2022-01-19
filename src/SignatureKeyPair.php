@@ -8,6 +8,9 @@ use ParagonIE\Halite\Asymmetric\{
     SignatureSecretKey
 };
 use ParagonIE\HiddenString\HiddenString;
+use InvalidArgumentException;
+use TypeError;
+use function count;
 
 /**
  * Class SignatureKeyPair
@@ -30,12 +33,12 @@ final class SignatureKeyPair extends KeyPair
     /**
      * @var SignatureSecretKey
      */
-    protected $secretKey;
+    protected Asymmetric\SecretKey $secretKey;
 
     /**
      * @var SignaturePublicKey
      */
-    protected $publicKey;
+    protected Asymmetric\PublicKey $publicKey;
 
     /**
      * Pass it a secret key, it will automatically generate a public key
@@ -43,11 +46,11 @@ final class SignatureKeyPair extends KeyPair
      * @param array<int, Key> $keys
      *
      * @throws InvalidKey
-     * @throws \TypeError
+     * @throws TypeError
      */
     public function __construct(Key ...$keys)
     {
-        switch (\count($keys)) {
+        switch (count($keys)) {
             /**
              * If we received two keys, it must be an asymmetric secret key and
              * an asymmetric public key, in either order.
@@ -115,7 +118,7 @@ final class SignatureKeyPair extends KeyPair
                 );
                 break;
             default:
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     'Halite\\EncryptionKeyPair expects 1 or 2 keys'
                 );
         }
@@ -124,7 +127,7 @@ final class SignatureKeyPair extends KeyPair
     /**
      * @return EncryptionKeyPair
      * @throws InvalidKey
-     * @throws \TypeError
+     * @throws TypeError
      */
     public function getEncryptionKeyPair(): EncryptionKeyPair
     {
@@ -141,7 +144,7 @@ final class SignatureKeyPair extends KeyPair
      * @return void
      *
      * @throws InvalidKey
-     * @throws \TypeError
+     * @throws TypeError
      */
     protected function setupKeyPair(SignatureSecretKey $secret): void
     {

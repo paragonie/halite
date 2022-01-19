@@ -169,11 +169,11 @@ final class PasswordTest extends TestCase
 
         try {
             // Sorry version 1, you get no love from us anymore.
-            $legacyHash = 'MUIDAPHyUoOjV7zXTOF7nPRJP5KQTw_xOge4F9ytBnm_nqz-oKQ-yjxMRhrRLdM0X' .
-                '4HrEop9vppxhM6GPnwws9khtStJaQvrU2M6QDjA4VraKkVLMHRkTbLyYGppCbfNYy9iaxsKHaV4' .
-                'u9j5NSo3OTiRqiz8WHKLBrQ2ETMfd8iSIaHi1u7NXgT6zTvA8mwRa3a5SrWtHw8fEfVoSt47xTy' .
-                'SLnKtpUTU_YoudA4vchbPh05YqexJKmV9PAEtTORzLN3eRiucIixaEJrm4T6rLRrqjMaaOCbUu8' .
-                'oPyA==';
+            $legacyHash = 'MUIEAM8F9xoJSz0yBWtA8_DWq0tJM7RuTYPxehbgJ-CW0e-TnJz3-TrZI1ID8gujH' .
+                '5pQNzejQZEeMwaWlbIgHbpz0OUrITw5Urlv-_RxI4Ih-80uXieWfq0cOp9QqnX9uCO56OsczuPL' .
+                '5nDCUcTfnG-GnfvH6FkINGBLMkWfzUzaEBNS1zJVcszqle5GEAp6rm9S-BwnCmbKgdigq2rw-Lu' .
+                'N_lfcC4Gijx88EwW4D7L7B3r4zyVh4eFjsaU6Djqv5XIxKvH1gJPUToE_Hukd-5dV4wOI9PKtUL' .
+                'ZG0w==';
             Password::needsRehash($legacyHash, $key);
         } catch (InvalidMessage $ex) {
             $this->assertSame(
@@ -182,7 +182,7 @@ final class PasswordTest extends TestCase
             );
         }
         try {
-            $legacyHash = 'MUIDAPHyUoOjV7zXTOF7nPRJP5KQTw_xOge4F9ytBnm_nqz-oKQ-yjxMRhrRLdM0X' .
+            $legacyHash = 'MUIEAPHyUoOjV7zXTOF7nPRJP5KQTw_xOge4F9ytBnm_nqz-oKQ-yjxMRhrRLdM0X' .
                 'oPyB==';
             Password::needsRehash($legacyHash, $key);
         } catch (InvalidMessage $ex) {
@@ -192,7 +192,7 @@ final class PasswordTest extends TestCase
             );
         }
         try {
-            $legacyHash = 'MUIEAPH';
+            $legacyHash = 'MUIFAPH';
             Password::needsRehash($legacyHash, $key);
         } catch (InvalidMessage $ex) {
             $this->assertSame(
@@ -202,11 +202,11 @@ final class PasswordTest extends TestCase
         }
 
         try {
-            $legacyHash = 'MUIDAPHyUoOjV7zXTOF7nPRJP5KQTw_xOge4F9ytBnm_nqz-oKQ-yjxMRhrRLdM0X' .
-                '4HrEop9vppxhM6GPnwws9khtStJaQvrU2M6QDjA4VraKkVLMHRkTbLyYGppCbfNYy9iaxsKHaV4' .
-                'u9j5NSo3OTiRqiz8WHKLBrQ2ETMfd8iSIaHi1u7NXgT6zTvA8mwRa3a5SrWtHw8fEfVoSt47xTy' .
-                'SLnKtpUTU_YoudA4vchbPh05YqexJKmV9PAEtTORzLN3eRiucIixaEJrm4T6rLRrqjMaaOCbUu8' .
-                'oPyB==';
+            $legacyHash = 'MUIFAM8F9xoJSz0yBWtA8_DWq0tJM7RuTYPxehbgJ-CW0e-TnJz3-TrZI1ID8gujH' .
+                '5pQNzejQZEeMwaWlbIgHbpz0OUrITw5Urlv-_RxI4Ih-80uXieWfq0cOp9QqnX9uCO56OsczuPL' .
+                '5nDCUcTfnG-GnfvH6FkINGBLMkWfzUzaEBNS1zJVcszqle5GEAp6rm9S-BwnCmbKgdigq2rw-Lu' .
+                'N_lfcC4Gijx88EwW4D7L7B3r4zyVh4eFjsaU6Djqv5XIxKvH1gJPUToE_Hukd-5dV4wOI9PKtUL' .
+                'ZG0w==';
             Password::needsRehash($legacyHash, $key);
         } catch (InvalidMessage $ex) {
             $this->assertSame(
@@ -214,16 +214,6 @@ final class PasswordTest extends TestCase
                 $ex->getMessage()
             );
         }
-
-        $legacyHash = 'MUIDAPHyUoOjV7zXTOF7nPRJP5KQTw_xOge4F9ytBnm_nqz-oKQ-yjxMRhrRLdM0X' .
-            '4HrEop9vppxhM6GPnwws9khtStJaQvrU2M6QDjA4VraKkVLMHRkTbLyYGppCbfNYy9iaxsKHaV4' .
-            'u9j5NSo3OTiRqiz8WHKLBrQ2ETMfd8iSIaHi1u7NXgT6zTvA8mwRa3a5SrWtHw8fEfVoSt47xTy' .
-            'SLnKtpUTU_YoudA4vchbPh05YqexJKmV9PAEtTORzLN3eRiucIixaEJrm4T6rLRrqjMaaOCbUu8' .
-            'oPyA==';
-        $this->assertTrue(
-            Password::verify(new HiddenString('test'), $legacyHash, $key),
-            'Legacy password hash calculation.'
-        );
 
         $hash = Password::hash(new HiddenString('test password'), $key);
         $this->assertFalse(

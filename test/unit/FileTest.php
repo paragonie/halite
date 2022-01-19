@@ -26,6 +26,82 @@ final class FileTest extends TestCase
     }
 
     /**
+     * @throws CryptoException\InvalidKey
+     * @throws SodiumException
+     */
+    public function testAsymmetricEncrypt()
+    {
+        touch(__DIR__.'/tmp/paragon_avatar.a-encrypted.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.a-encrypted.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.a-decrypted.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.a-decrypted.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png', 0777);
+
+        $alice = KeyFactory::generateEncryptionKeyPair();
+        $aliceSecret = $alice->getSecretKey();
+        $alicePublic = $alice->getPublicKey();
+        $bob = KeyFactory::generateEncryptionKeyPair();
+        $bobSecret = $bob->getSecretKey();
+        $bobPublic = $bob->getPublicKey();
+
+        File::asymmetricEncrypt(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.a-encrypted.png',
+            $bobPublic,
+            $aliceSecret
+        );
+        File::asymmetricDecrypt(
+            __DIR__.'/tmp/paragon_avatar.a-encrypted.png',
+            __DIR__.'/tmp/paragon_avatar.a-decrypted.png',
+            $bobSecret,
+            $alicePublic
+        );
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.a-decrypted.png')
+        );
+
+        // Now with AAD:
+        $aad = 'Halite v5 test';
+        File::asymmetricEncrypt(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
+            $bobPublic,
+            $aliceSecret,
+            $aad
+        );
+
+        try {
+            File::asymmetricDecrypt(
+                __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
+                __DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png',
+                $bobSecret,
+                $alicePublic
+            );
+        } catch (CryptoException\HaliteAlert $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
+        File::asymmetricDecrypt(
+            __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
+            __DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png',
+            $bobSecret,
+            $alicePublic,
+            $aad
+        );
+
+        unlink(__DIR__.'/tmp/paragon_avatar.a-encrypted.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.a-decrypted.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png');
+    }
+
+    /**
      * @throws CryptoException\CannotPerformOperation
      * @throws CryptoException\FileAccessDenied
      * @throws CryptoException\FileError
@@ -64,6 +140,62 @@ final class FileTest extends TestCase
         );
         unlink(__DIR__.'/tmp/paragon_avatar.encrypted.png');
         unlink(__DIR__.'/tmp/paragon_avatar.decrypted.png');
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws TypeError
+     */
+    public function testEncryptWithAAD()
+    {
+        touch(__DIR__.'/tmp/paragon_avatar.encrypted-aad.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.encrypted-aad.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.decrypted-aad.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.decrypted-aad.png', 0777);
+
+        $key = new EncryptionKey(
+            new HiddenString(\str_repeat('B', 32))
+        );
+        $aad = "Additional associated data";
+
+        File::encrypt(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
+            $key,
+            $aad
+        );
+        try {
+            File::decrypt(
+                __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
+                __DIR__.'/tmp/paragon_avatar.decrypted-aad.png',
+                $key
+            );
+        } catch (CryptoException\HaliteAlert $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
+        File::decrypt(
+            __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
+            __DIR__.'/tmp/paragon_avatar.decrypted-aad.png',
+            $key,
+            $aad
+        );
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted-aad.png')
+        );
+
+        unlink(__DIR__.'/tmp/paragon_avatar.encrypted-aad.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.decrypted-aad.png');
     }
 
     /**
@@ -156,17 +288,6 @@ final class FileTest extends TestCase
             unlink(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png');
             unlink(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png');
         }
-
-        try {
-            File::encrypt(true, false, $key);
-            $this->fail('Invalid type was accepted.');
-        } catch (CryptoException\InvalidType $ex) {
-        }
-        try {
-            File::decrypt(true, false, $key);
-            $this->fail('Invalid type was accepted.');
-        } catch (CryptoException\InvalidType $ex) {
-        }
     }
 
     /**
@@ -208,7 +329,7 @@ final class FileTest extends TestCase
 
         file_put_contents(
             __DIR__.'/tmp/empty.encrypted.txt',
-            "\x31\x41\x03\x00\x01"
+            "\x31\x41\x04\x00\x01"
         );
         try {
             File::decrypt(
@@ -224,7 +345,7 @@ final class FileTest extends TestCase
 
         file_put_contents(
             __DIR__.'/tmp/empty.encrypted.txt',
-            "\x31\x41\x03\x00" . \str_repeat("\x00", 87)
+            "\x31\x41\x04\x00" . \str_repeat("\x00", 87)
         );
         try {
             File::decrypt(
@@ -315,30 +436,65 @@ final class FileTest extends TestCase
         chmod(__DIR__.'/tmp/paragon_avatar.sealed.png', 0777);
         touch(__DIR__.'/tmp/paragon_avatar.opened.png');
         chmod(__DIR__.'/tmp/paragon_avatar.opened.png', 0777);
-        
+
         $keypair = KeyFactory::generateEncryptionKeyPair();
-            $secretkey = $keypair->getSecretKey();
-            $publickey = $keypair->getPublicKey();
-        
+        $secretkey = $keypair->getSecretKey();
+        $publickey = $keypair->getPublicKey();
+
         File::seal(
             __DIR__.'/tmp/paragon_avatar.png',
             __DIR__.'/tmp/paragon_avatar.sealed.png',
             $publickey
         );
-        
+
         File::unseal(
             __DIR__.'/tmp/paragon_avatar.sealed.png',
             __DIR__.'/tmp/paragon_avatar.opened.png',
             $secretkey
         );
-        
+
         $this->assertSame(
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
         );
-        
+
+        // New: Additional Associated Data tests
+        $aad = "Additional associated data";
+        File::seal(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
+            $publickey,
+            $aad
+        );
+        try {
+            File::unseal(
+                __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
+                __DIR__.'/tmp/paragon_avatar.opened-aad.png',
+                $secretkey
+            );
+        } catch (CryptoException\HaliteAlert $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
+
+        File::unseal(
+            __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
+            __DIR__.'/tmp/paragon_avatar.opened-aad.png',
+            $secretkey,
+            $aad
+        );
+
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened-aad.png')
+        );
+
         unlink(__DIR__.'/tmp/paragon_avatar.sealed.png');
         unlink(__DIR__.'/tmp/paragon_avatar.opened.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.sealed-aad.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.opened-aad.png');
     }
 
     /**
@@ -480,17 +636,6 @@ final class FileTest extends TestCase
             unlink(__DIR__.'/tmp/paragon_avatar.seal_fail.png');
             unlink(__DIR__.'/tmp/paragon_avatar.open_fail.png');
         }
-
-        try {
-            File::seal(true, false, $publickey);
-            $this->fail('Invalid type was accepted.');
-        } catch (CryptoException\InvalidType $ex) {
-        }
-        try {
-            File::unseal(true, false, $secretkey);
-            $this->fail('Invalid type was accepted.');
-        } catch (CryptoException\InvalidType $ex) {
-        }
     }
 
     /**
@@ -529,7 +674,7 @@ final class FileTest extends TestCase
 
         file_put_contents(
             __DIR__.'/tmp/empty.sealed.txt',
-            "\x31\x41\x03\x00" . \str_repeat("\x00", 95)
+            "\x31\x41\x04\x00" . \str_repeat("\x00", 95)
         );
         try {
             File::unseal(
@@ -634,17 +779,6 @@ final class FileTest extends TestCase
                 $signature
             )
         );
-
-        try {
-            File::sign(true, $secretkey);
-            $this->fail('Invalid type was accepted.');
-        } catch (CryptoException\InvalidType $ex) {
-        }
-        try {
-            File::verify(false, $publickey, '');
-            $this->fail('Invalid type was accepted.');
-        } catch (CryptoException\InvalidType $ex) {
-        }
     }
 
     /**
@@ -735,11 +869,6 @@ final class FileTest extends TestCase
         File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateSignatureKeyPair()->getPublicKey(), true);
 
         try {
-            File::checksum(false);
-            $this->fail('Invalid type was accepted.');
-        } catch (CryptoException\InvalidType $ex) {
-        }
-        try {
             File::checksum(__DIR__.'/tmp/garbage.dat', KeyFactory::generateEncryptionKey());
             $this->fail('Invalid type was accepted.');
         } catch (CryptoException\InvalidKey $ex) {
@@ -785,7 +914,7 @@ final class FileTest extends TestCase
         ob_start();
         File::decrypt(
             __DIR__.'/tmp/paragon_avatar.encrypted.png',
-            $stream,
+            new MutableFile($stream),
             $key
         );
         $contents = ob_get_clean();

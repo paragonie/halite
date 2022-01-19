@@ -9,6 +9,26 @@ use ParagonIE\Halite\Alerts\{
     FileAccessDenied,
     InvalidType
 };
+use TypeError;
+use function
+    clearstatcache,
+    file_exists,
+    fclose,
+    fopen,
+    fread,
+    fseek,
+    fstat,
+    ftell,
+    fwrite,
+    in_array,
+    is_int,
+    is_readable,
+    is_resource,
+    is_string,
+    is_writable,
+    min,
+    stream_get_meta_data,
+    touch;
 
 /**
  * Class MutableFile
@@ -34,7 +54,7 @@ class MutableFile implements StreamInterface
     /**
      * @var bool
      */
-    private $closeAfter = false;
+    private bool $closeAfter = false;
 
     /**
      * @var resource
@@ -44,7 +64,7 @@ class MutableFile implements StreamInterface
     /**
      * @var int
      */
-    private $pos;
+    private int $pos;
 
     /**
      * @var array
@@ -60,28 +80,28 @@ class MutableFile implements StreamInterface
      */
     public function __construct($file)
     {
-        if (\is_string($file)) {
-            if (!\file_exists($file)) {
-                if (!\is_writable(\dirname($file))) {
+        if (is_string($file)) {
+            if (!file_exists($file)) {
+                if (!is_writable(dirname($file))) {
                     throw new FileAccessDenied(
                         'Could not write to directory that contains file'
                     );
                 }
-                \touch($file); // Make the file exist
+                touch($file); // Make the file exist
             }
-            if (!\is_readable($file)) {
+            if (!is_readable($file)) {
                 throw new FileAccessDenied(
                     'Could not open file for reading'
                 );
             }
-            if (!\is_writable($file)) {
+            if (!is_writable($file)) {
                 throw new FileAccessDenied(
                     'Could not open file for writing'
                 );
             }
-            $fp = \fopen($file, 'w+b');
+            $fp = fopen($file, 'w+b');
             // @codeCoverageIgnoreStart
-            if (!\is_resource($fp)) {
+            if (!is_resource($fp)) {
                 throw new FileAccessDenied(
                     'Could not open file for reading'
                 );
@@ -90,18 +110,18 @@ class MutableFile implements StreamInterface
             $this->fp = $fp;
             $this->closeAfter = true;
             $this->pos = 0;
-            $this->stat = \fstat($this->fp);
-        } elseif (\is_resource($file)) {
+            $this->stat = fstat($this->fp);
+        } elseif (is_resource($file)) {
             /** @var array<string, string> $metadata */
-            $metadata = \stream_get_meta_data($file);
-            if (!\in_array($metadata['mode'], self::ALLOWED_MODES, true)) {
+            $metadata = stream_get_meta_data($file);
+            if (!in_array($metadata['mode'], self::ALLOWED_MODES, true)) {
                 throw new FileAccessDenied(
                     'Resource is in ' . $metadata['mode'] . ' mode, which is not allowed.'
                 );
             }
             $this->fp = $file;
-            $this->pos = \ftell($this->fp);
-            $this->stat = \fstat($this->fp);
+            $this->pos = ftell($this->fp);
+            $this->stat = fstat($this->fp);
         } else {
             throw new InvalidType(
                 'Argument 1: Expected a filename or resource'
@@ -118,8 +138,8 @@ class MutableFile implements StreamInterface
     {
         if ($this->closeAfter) {
             $this->closeAfter = false;
-            \fclose($this->fp);
-            \clearstatcache();
+            fclose($this->fp);
+            clearstatcache();
         }
     }
 
@@ -138,7 +158,7 @@ class MutableFile implements StreamInterface
      */
     public function getPos(): int
     {
-        return \ftell($this->fp);
+        return ftell($this->fp);
     }
 
     /**
@@ -148,7 +168,7 @@ class MutableFile implements StreamInterface
      */
     public function getSize(): int
     {
-        $stat = \fstat($this->fp);
+        $stat = fstat($this->fp);
         return (int) $stat['size'];
     }
 
@@ -159,7 +179,7 @@ class MutableFile implements StreamInterface
      */
     public function getStreamMetadata(): array
     {
-        return \stream_get_meta_data($this->fp);
+        return stream_get_meta_data($this->fp);
     }
 
     /**
@@ -191,10 +211,10 @@ class MutableFile implements StreamInterface
                 break;
                 // @codeCoverageIgnoreEnd
             }
-            $bufSize = \min($remaining, self::CHUNK);
+            $bufSize = min($remaining, self::CHUNK);
             /** @var string|bool $read */
-            $read = \fread($this->fp, $bufSize);
-            if (!\is_string($read)) {
+            $read = fread($this->fp, $bufSize);
+            if (!is_string($read)) {
                 // @codeCoverageIgnoreStart
                 throw new FileAccessDenied(
                     'Could not read from the file'
@@ -217,9 +237,9 @@ class MutableFile implements StreamInterface
     public function remainingBytes(): int
     {
         /** @var array $stat */
-        $stat = \fstat($this->fp);
+        $stat = fstat($this->fp);
         /** @var int $pos */
-        $pos = \ftell($this->fp);
+        $pos = ftell($this->fp);
         return (int) (
             PHP_INT_MAX & (
                 (int) $stat['size'] - $pos
@@ -238,7 +258,7 @@ class MutableFile implements StreamInterface
     public function reset(int $i = 0): bool
     {
         $this->pos = $i;
-        if (\fseek($this->fp, $i, SEEK_SET) === 0) {
+        if (fseek($this->fp, $i, SEEK_SET) === 0) {
             return true;
         }
         throw new CannotPerformOperation(
@@ -250,17 +270,17 @@ class MutableFile implements StreamInterface
      * Write to a stream; prevent partial writes
      *
      * @param string $buf
-     * @param int|null $num (number of bytes)
+     * @param ?int $num (number of bytes)
      * @return int
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
-     * @throws \TypeError
+     * @throws TypeError
      */
-    public function writeBytes(string $buf, int $num = null): int
+    public function writeBytes(string $buf, ?int $num = null): int
     {
         $bufSize = Binary::safeStrlen($buf);
-        if (!\is_int($num) || $num > $bufSize) {
+        if (!is_int($num) || $num > $bufSize) {
             $num = $bufSize;
         }
         // @codeCoverageIgnoreStart
@@ -275,7 +295,7 @@ class MutableFile implements StreamInterface
                 break;
             }
             // @codeCoverageIgnoreEnd
-            $written = \fwrite($this->fp, $buf, $remaining);
+            $written = fwrite($this->fp, $buf, $remaining);
             if ($written === false) {
                 // @codeCoverageIgnoreStart
                 throw new FileAccessDenied(
@@ -285,7 +305,7 @@ class MutableFile implements StreamInterface
             }
             $buf = Binary::safeSubstr($buf, $written, null);
             $this->pos += $written;
-            $this->stat = \fstat($this->fp);
+            $this->stat = fstat($this->fp);
             $remaining -= $written;
         } while ($remaining > 0);
         return $num;

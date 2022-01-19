@@ -4,6 +4,9 @@ namespace ParagonIE\Halite\Structure;
 
 use ParagonIE\Halite\Alerts\CannotPerformOperation;
 use ParagonIE\Halite\Util;
+use SodiumException;
+use TypeError;
+use const SODIUM_CRYPTO_GENERICHASH_BYTES;
 
 /**
  * Class Node
@@ -24,7 +27,7 @@ class Node
     /**
      * @var string
      */
-    private $data;
+    private string $data;
 
     /**
      * Node constructor.
@@ -56,11 +59,12 @@ class Node
      *
      * @return string
      * @throws CannotPerformOperation
-     * @throws \TypeError
+     * @throws TypeError
+     * @throws SodiumException
      */
     public function getHash(
         bool $raw = false,
-        int $outputSize = \SODIUM_CRYPTO_GENERICHASH_BYTES,
+        int $outputSize = SODIUM_CRYPTO_GENERICHASH_BYTES,
         string $personalization = ''
     ): string {
         if ($raw) {

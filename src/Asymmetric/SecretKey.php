@@ -36,10 +36,10 @@ class SecretKey extends Key
     /**
      * See the appropriate derived class.
      * @throws CannotPerformOperation
-     * @return mixed
+     * @return PublicKey
      * @codeCoverageIgnore
      */
-    public function derivePublicKey()
+    public function derivePublicKey(): PublicKey
     {
         throw new CannotPerformOperation(
             'This is not implemented in the base class'

@@ -74,6 +74,7 @@ class MutableFile implements StreamInterface
     /**
      * MutableFile constructor.
      * @param string|resource $file
+     *
      * @throws InvalidType
      * @throws FileAccessDenied
      * @psalm-suppress RedundantConditionGivenDocblockType
@@ -132,6 +133,8 @@ class MutableFile implements StreamInterface
     /**
      * Close the file handle.
      *
+     * @return void
+     *
      * @psalm-suppress InvalidPropertyAssignmentValue
      */
     public function close(): void
@@ -187,7 +190,9 @@ class MutableFile implements StreamInterface
      *
      * @param int $num
      * @param bool $skipTests
+     *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
      */
@@ -250,15 +255,17 @@ class MutableFile implements StreamInterface
     /**
      * Set the current cursor position to the desired location
      * 
-     * @param int $i
+     * @param int $position
+     *
      * @return bool
+     *
      * @throws CannotPerformOperation
      * @codeCoverageIgnore
      */
-    public function reset(int $i = 0): bool
+    public function reset(int $position = 0): bool
     {
-        $this->pos = $i;
-        if (fseek($this->fp, $i, SEEK_SET) === 0) {
+        $this->pos = $position;
+        if (fseek($this->fp, $position, SEEK_SET) === 0) {
             return true;
         }
         throw new CannotPerformOperation(
@@ -271,6 +278,7 @@ class MutableFile implements StreamInterface
      *
      * @param string $buf
      * @param ?int $num (number of bytes)
+     *
      * @return int
      *
      * @throws CannotPerformOperation

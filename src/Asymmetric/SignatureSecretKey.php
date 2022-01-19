@@ -55,7 +55,7 @@ final class SignatureSecretKey extends SecretKey
      * @throws SodiumException
      * @throws TypeError
      */
-    public function derivePublicKey()
+    public function derivePublicKey(): SignaturePublicKey
     {
         if (is_null($this->cachedPublicKey)) {
             $this->cachedPublicKey = sodium_crypto_sign_publickey_from_secretkey(

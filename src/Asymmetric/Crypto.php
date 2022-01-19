@@ -23,6 +23,9 @@ use Error;
 use RangeException;
 use SodiumException;
 use TypeError;
+use const
+    SODIUM_CRYPTO_STREAM_KEYBYTES,
+    SODIUM_CRYPTO_SIGN_BYTES;
 use function
     is_string,
     sodium_crypto_box_keypair_from_secretkey_and_publickey,
@@ -86,7 +89,7 @@ final class Crypto
         EncryptionPublicKey $theirPublicKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
-        return self::encryptWithAd(
+        return self::encryptWithAD(
             $plaintext,
             $ourPrivateKey,
             $theirPublicKey,
@@ -114,7 +117,7 @@ final class Crypto
      * @throws SodiumException
      * @throws TypeError
      */
-    public static function encryptWithAd(
+    public static function encryptWithAD(
         HiddenString $plaintext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
@@ -129,7 +132,7 @@ final class Crypto
             self::getAsymmetricConfig(Halite::HALITE_VERSION, true)
         );
         $sharedSecretKey = new EncryptionKey($ss);
-        $ciphertext = SymmetricCrypto::encryptWithAd(
+        $ciphertext = SymmetricCrypto::encryptWithAD(
             $plaintext,
             $sharedSecretKey,
             $additionalData,
@@ -164,7 +167,7 @@ final class Crypto
         EncryptionPublicKey $theirPublicKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
-        return self::decryptWithAd(
+        return self::decryptWithAD(
             $ciphertext,
             $ourPrivateKey,
             $theirPublicKey,
@@ -193,7 +196,7 @@ final class Crypto
      * @throws SodiumException
      * @throws TypeError
      */
-    public static function decryptWithAd(
+    public static function decryptWithAD(
         string $ciphertext,
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
@@ -208,7 +211,7 @@ final class Crypto
             self::getAsymmetricConfig($ciphertext, $encoding)
         );
         $sharedSecretKey = new EncryptionKey($ss);
-        $plaintext = SymmetricCrypto::decryptWithAd(
+        $plaintext = SymmetricCrypto::decryptWithAD(
             $ciphertext,
             $sharedSecretKey,
             $additionalData,
@@ -228,8 +231,11 @@ final class Crypto
      * @param EncryptionPublicKey $publicKey  Public key (theirs)
      * @param bool $get_as_object             Get as a Key object?
      * @param ?Config $config                 Asymmetric Config
+     *
      * @return HiddenString|Key
      *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
      * @throws InvalidKey
      * @throws SodiumException
      * @throws TypeError
@@ -248,7 +254,7 @@ final class Crypto
                             $privateKey->getRawKeyMaterial(),
                             $publicKey->getRawKeyMaterial()
                         ),
-                        32,
+                        SODIUM_CRYPTO_STREAM_KEYBYTES,
                         (string) $config->HASH_DOMAIN_SEPARATION
                     )
                 );
@@ -484,6 +490,7 @@ final class Crypto
      * @param SignaturePublicKey $senderPublicKey  Private signing key
      * @param SecretKey $givenSecretKey            Public encryption key
      * @param string|bool $encoding                Which encoding scheme to use?
+     *
      * @return HiddenString
      *
      * @throws CannotPerformOperation
@@ -552,6 +559,6 @@ final class Crypto
             0,
             Halite::VERSION_TAG_LEN
         );
-        return Config::getConfig($version, 'encrypt');
+        return Config::getConfig($version);
     }
 }

@@ -121,7 +121,7 @@ final class Crypto
         EncryptionKey $secretKey,
         bool|string $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
-        return self::decryptWithAd(
+        return self::decryptWithAD(
             $ciphertext,
             $secretKey,
             '',
@@ -131,6 +131,14 @@ final class Crypto
 
     /**
      * Decrypt a message using the Halite encryption protocol
+     *
+     * Verifies the MAC before decryption
+     * - Halite 5+ verifies the BLAKE2b-MAC before decrypting with XChaCha20
+     * - Halite 4 and below verifies the BLAKE2b-MAC before decrypting with XSalsa20
+     *
+     * You don't need to worry about chosen-ciphertext attacks.
+     * You don't need to worry about Invisible Salamanders.
+     * You don't need to worry about timing attacks on MAC validation.
      *
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
@@ -147,7 +155,7 @@ final class Crypto
      * @throws SodiumException
      * @throws TypeError
      */
-    public static function decryptWithAd(
+    public static function decryptWithAD(
         string $ciphertext,
         EncryptionKey $secretKey,
         string $additionalData = '',
@@ -245,9 +253,6 @@ final class Crypto
     /**
      * Encrypt a message using the Halite encryption protocol
      *
-     * (Encrypt then MAC -- xsalsa20 then keyed-Blake2b)
-     * You don't need to worry about chosen-ciphertext attacks.
-     *
      * @param HiddenString $plaintext
      * @param EncryptionKey $secretKey
      * @param string|bool $encoding
@@ -266,7 +271,7 @@ final class Crypto
         EncryptionKey $secretKey,
         bool|string $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
-        return self::encryptWithAd(
+        return self::encryptWithAD(
             $plaintext,
             $secretKey,
             '',
@@ -275,6 +280,15 @@ final class Crypto
     }
 
     /**
+     * Encrypt a message using the Halite encryption protocol
+     *
+     * Encrypt then MAC.
+     * - Halite 5+ uses XChaCha20 then BLAKE2b-MAC
+     * - Halite 4 and below use XSalsa20 then BLAKE2b-MAC
+     *
+     * You don't need to worry about chosen-ciphertext attacks.
+     * You don't need to worry about Invisible Salamanders.
+     *
      * @param HiddenString $plaintext
      * @param EncryptionKey $secretKey
      * @param string $additionalData
@@ -289,7 +303,7 @@ final class Crypto
      * @throws SodiumException
      * @throws TypeError
      */
-    public static function encryptWithAd(
+    public static function encryptWithAD(
         HiddenString $plaintext,
         EncryptionKey $secretKey,
         string $additionalData = '',

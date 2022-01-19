@@ -50,7 +50,7 @@ final class EncryptionSecretKey extends SecretKey
      * @throws TypeError
      * @throws SodiumException
      */
-    public function derivePublicKey()
+    public function derivePublicKey(): EncryptionPublicKey
     {
         if (is_null($this->cachedPublicKey)) {
             $this->cachedPublicKey = sodium_crypto_box_publickey_from_secretkey(

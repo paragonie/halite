@@ -35,6 +35,7 @@ final class Config extends BaseConfig
      *
      * @param string $header
      * @param string $mode
+     *
      * @return self
      *
      * @throws InvalidMessage
@@ -74,7 +75,9 @@ final class Config extends BaseConfig
      * 
      * @param int $major
      * @param int $minor
+     *
      * @return array
+     *
      * @throws InvalidMessage
      */
     public static function getConfigEncrypt(int $major, int $minor): array
@@ -123,7 +126,9 @@ final class Config extends BaseConfig
      * 
      * @param int $major
      * @param int $minor
+     *
      * @return array
+     *
      * @throws InvalidMessage
      */
     public static function getConfigAuth(int $major, int $minor): array

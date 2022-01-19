@@ -24,13 +24,11 @@ use const SODIUM_CRYPTO_GENERICHASH_BYTES;
  */
 class Node
 {
-    /**
-     * @var string
-     */
     private string $data;
 
     /**
      * Node constructor.
+     *
      * @param string $data
      */
     public function __construct(string $data)
@@ -58,6 +56,7 @@ class Node
      * @param string $personalization
      *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws TypeError
      * @throws SodiumException
@@ -83,6 +82,7 @@ class Node
      * Nodes are immutable, but you can create one with extra data.
      *
      * @param string $concat
+     *
      * @return Node
      */
     public function getExpandedNode(string $concat): Node

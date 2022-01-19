@@ -151,7 +151,8 @@ class ReadOnlyFile implements StreamInterface
      * Calculate a BLAKE2b hash of a file
      *
      * @return string
-     * @throws \SodiumException
+     *
+     * @throws SodiumException
      * @throws FileModified
      * @throws FileError
      */
@@ -224,10 +225,12 @@ class ReadOnlyFile implements StreamInterface
      * decision to make lightly!)
      *
      * @param int $num
-     * @param bool $skipTests Only set this to TRUE if you're absolutely sure
-     *                           that you don't want to defend against TOCTOU /
-     *                           race condition attacks on the filesystem!
+     * @param bool $skipTests  Only set this to TRUE if you're absolutely sure
+     *                         that you don't want to defend against TOCTOU /
+     *                         race condition attacks on the filesystem!
+     *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
      * @throws FileModified
@@ -255,7 +258,6 @@ class ReadOnlyFile implements StreamInterface
                 break;
             }
             // @codeCoverageIgnoreEnd
-            /** @var string|bool $read */
             $read = fread($this->fp, $remaining);
             if (!is_string($read)) {
                 // @codeCoverageIgnoreStart
@@ -290,7 +292,9 @@ class ReadOnlyFile implements StreamInterface
      * Set the current cursor position to the desired location
      *
      * @param int $position
+     *
      * @return bool
+     *
      * @throws CannotPerformOperation
      */
     public function reset(int $position = 0): bool
@@ -311,8 +315,9 @@ class ReadOnlyFile implements StreamInterface
      * verifying that the hash matches and the current cursor position/file
      * size matches their values when the file was first opened.
      *
-     * @throws FileModified
      * @return void
+     *
+     * @throws FileModified
      */
     public function toctouTest(): void
     {
@@ -336,7 +341,9 @@ class ReadOnlyFile implements StreamInterface
      *
      * @param string $buf
      * @param ?int $num (number of bytes)
+     *
      * @return int
+     *
      * @throws FileAccessDenied
      */
     public function writeBytes(string $buf, ?int $num = null): int

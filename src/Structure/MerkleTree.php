@@ -47,15 +47,7 @@ class MerkleTree
      * @var Node[]
      */
     protected array $nodes = [];
-
-    /**
-     * @var string
-     */
     protected string $personalization = '';
-    
-    /**
-     * @var int
-     */
     protected int $outputSize = SODIUM_CRYPTO_GENERICHASH_BYTES;
     
     /**
@@ -74,6 +66,7 @@ class MerkleTree
      * @param bool $raw - Do we want a raw string instead of a hex string?
      *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws TypeError
      * @throws SodiumException
@@ -92,7 +85,9 @@ class MerkleTree
      * Merkle Trees are immutable. Return a replacement with extra nodes.
      *
      * @param array<int, Node> $nodes
+     *
      * @return MerkleTree
+     *
      * @throws InvalidDigestLength
      */
     public function getExpandedTree(Node ...$nodes): MerkleTree
@@ -110,7 +105,9 @@ class MerkleTree
      * Set the hash output size.
      *
      * @param int $size
+     *
      * @return self
+     *
      * @throws InvalidDigestLength
      */
     public function setHashSize(int $size): self
@@ -142,6 +139,7 @@ class MerkleTree
      * Sets the personalization string for the Merkle root calculation
      *
      * @param string $str
+     *
      * @return self
      */
     public function setPersonalizationString(string $str = ''): self
@@ -157,9 +155,10 @@ class MerkleTree
      * Explicitly recalculate the Merkle root
      *
      * @return self
+     *
      * @throws CannotPerformOperation
-     * @throws \TypeError
-     * @throws \SodiumException
+     * @throws TypeError
+     * @throws SodiumException
      * @codeCoverageIgnore
      */
     public function triggerRootCalculation(): self
@@ -174,6 +173,7 @@ class MerkleTree
      * to protect against second-preimage attacks
      *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws TypeError
      * @throws SodiumException
@@ -250,6 +250,7 @@ class MerkleTree
      * Let's go ahead and round up to the nearest multiple of 2
      *
      * @param int $inputSize
+     *
      * @return int
      */
     public static function getSizeRoundedUp(int $inputSize): int

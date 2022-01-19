@@ -39,6 +39,7 @@ class TrimmedMerkleTree extends MerkleTree
      * to protect against second-preimage attacks
      *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws SodiumException
      * @throws TypeError
@@ -95,10 +96,12 @@ class TrimmedMerkleTree extends MerkleTree
      * Merkle Trees are immutable. Return a replacement with extra nodes.
      *
      * @param array<int, Node> $nodes
+     *
      * @return TrimmedMerkleTree
+     *
      * @throws InvalidDigestLength
      */
-    public function getExpandedTree(Node ...$nodes): MerkleTree
+    public function getExpandedTree(Node ...$nodes): TrimmedMerkleTree
     {
         $thisTree = $this->nodes;
         foreach ($nodes as $node) {

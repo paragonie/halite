@@ -21,6 +21,7 @@ final class AuthenticationKey extends SecretKey
 {
     /**
      * AuthenticationKey constructor.
+     *
      * @param HiddenString $keyMaterial - The actual key data
      *
      * @throws InvalidKey

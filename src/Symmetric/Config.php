@@ -17,8 +17,6 @@ use const
 /**
  * Class Config
  *
- * Secure encrypted cookies
- *
  * This library makes heavy use of return-type declarations,
  * which are a PHP 7 only feature. Read more about them here:
  *

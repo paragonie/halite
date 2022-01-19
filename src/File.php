@@ -906,7 +906,12 @@ final class File
         unset($ephemeralKeyPair);
 
         // Calculate the shared secret key
-        $sharedSecretKey = AsymmetricCrypto::getSharedSecret($ephSecret, $publicKey, true);
+        $sharedSecretKey = AsymmetricCrypto::getSharedSecret(
+            $ephSecret,
+            $publicKey,
+            true,
+            AsymmetricCrypto::getAsymmetricConfig(Halite::HALITE_VERSION_FILE, true)
+        );
         // @codeCoverageIgnoreStart
         if (!($sharedSecretKey instanceof EncryptionKey)) {
             throw new TypeError('Shared secret is the wrong key type.');
@@ -1064,7 +1069,8 @@ final class File
         $key = AsymmetricCrypto::getSharedSecret(
             $secretKey,
             $ephemeral,
-            true
+            true,
+            AsymmetricCrypto::getAsymmetricConfig($header, true)
         );
         // @codeCoverageIgnoreStart
         if (!($key instanceof EncryptionKey)) {

@@ -7,6 +7,12 @@
 * The `File` class no longer supports the `resource` type. To migrate code, wrap your 
   `resource` arguments in a `ReadOnlyFile` or `MutableFile` object.
 * Added `File::asymmetricEncrypt()` and `File::asymmetricDecrypt()`.
+* **Security:** Asymmetric encryption now uses HKDF-BLAKE2b to extract a 256-bit
+  uniformly random bit string for the encryption key, rather than using the raw
+  X25519 output directly as an encryption key.
+
+  This is important because Elliptic Curve Diffie-Hellman results in a random
+  group element, but that isn't necessarily a uniformly random bit string.
 * **Security:** Halite v5 uses the [PAE](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Common.md#pae-definition)
   strategy from PASETO to prevent canonicalization attacks.
 

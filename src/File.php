@@ -691,33 +691,34 @@ final class File
         // VERSION 2+ uses BMAC
         $mac = \sodium_crypto_generichash_init($authKey);
         // Number of pieces that go into MAC (header, first nonce, salt, ciphertext) -> 4
-        if ($config->USE_PAE)
+        if ($config->USE_PAE) {
+            // Number of pieces:
             \sodium_crypto_generichash_update($mac, \pack('P', is_null($aad) ? 4 : 5));
 
-        // Length followed by piece
-        if ($config->USE_PAE)
+            // Length followed by piece:
             \sodium_crypto_generichash_update($mac, \pack('P', Halite::VERSION_TAG_LEN));
-        \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
-        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
             \sodium_crypto_generichash_update($mac, \pack('P', \SODIUM_CRYPTO_STREAM_NONCEBYTES));
-        \sodium_crypto_generichash_update($mac, $firstNonce);
-        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, $firstNonce);
             \sodium_crypto_generichash_update($mac, \pack('P', $config->HKDF_SALT_LEN));
-        \sodium_crypto_generichash_update($mac, $hkdfSalt);
-
-        // Optional: AAD support
-        if ($config->USE_PAE && !is_null($aad)) {
-            \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
-            \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+            \sodium_crypto_generichash_update($mac, $hkdfSalt);
+            if (!is_null($aad)) {
+                \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
+                \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+            }
+            \sodium_crypto_generichash_update($mac, \pack('P', $input->remainingBytes()));
+        } else {
+            // Legacy version: No PAE
+            \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            \sodium_crypto_generichash_update($mac, $firstNonce);
+            \sodium_crypto_generichash_update($mac, $hkdfSalt);
         }
-        /** @var string $mac */
+        if (!is_string($mac)) {
+            throw new CannotPerformOperation('Internal error with BLAKE2b implementation');
+        }
 
         Util::memzero($authKey);
         Util::memzero($hkdfSalt);
-
-        // Prepend with length:
-        if ($config->USE_PAE)
-            \sodium_crypto_generichash_update($mac, \pack('P', $input->remainingBytes()));
 
         return self::streamEncrypt(
             $input,
@@ -725,7 +726,7 @@ final class File
             new EncryptionKey(
                 new HiddenString($encKey)
             ),
-            (string) $firstNonce,
+            $firstNonce,
             (string) $mac,
             $config
         );
@@ -788,30 +789,36 @@ final class File
 
         // VERSION 2+ uses BMAC
         $mac = \sodium_crypto_generichash_init($authKey);
-        // Number of pieces that go into MAC (header, first nonce, salt, ciphertext) -> 4
-        if ($config->USE_PAE)
+        if ($config->USE_PAE) {
+            // Number of pieces:
             \sodium_crypto_generichash_update($mac, \pack('P', is_null($aad) ? 4 : 5));
-        // Length followed by piece
-        if ($config->USE_PAE)
+
+            // Length followed by piece:
             \sodium_crypto_generichash_update($mac, \pack('P', Halite::VERSION_TAG_LEN));
-        \sodium_crypto_generichash_update($mac, $header);
-        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, $header);
             \sodium_crypto_generichash_update($mac, \pack('P', \SODIUM_CRYPTO_STREAM_NONCEBYTES));
-        \sodium_crypto_generichash_update($mac, $firstNonce);
-        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, $firstNonce);
             \sodium_crypto_generichash_update($mac, \pack('P', $config->HKDF_SALT_LEN));
-        \sodium_crypto_generichash_update($mac, $hkdfSalt);
+            \sodium_crypto_generichash_update($mac, $hkdfSalt);
 
-        // Optional: AAD support
-        if ($config->USE_PAE && !is_null($aad)) {
-            \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
-            \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+
+            if (!is_null($aad)) {
+                \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
+                \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+            }
+            \sodium_crypto_generichash_update(
+                $mac,
+                \pack('P', $input->remainingBytes() - ((int) $config->MAC_SIZE))
+            );
+        } else {
+            // Legacy version: No PAE
+            \sodium_crypto_generichash_update($mac, $header);
+            \sodium_crypto_generichash_update($mac, $firstNonce);
+            \sodium_crypto_generichash_update($mac, $hkdfSalt);
         }
-
-        // Prepend with length:
-        if ($config->USE_PAE)
-            \sodium_crypto_generichash_update($mac, \pack('P', $input->remainingBytes() - $config->MAC_SIZE));
-
+        if (!is_string($mac)) {
+            throw new CannotPerformOperation('Internal error with BLAKE2b implementation');
+        }
         $old_macs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
 
         Util::memzero($authKey);
@@ -917,28 +924,31 @@ final class File
 
         // VERSION 2+
         $mac = \sodium_crypto_generichash_init($authKey);
-        if ($config->USE_PAE)
+        Util::memzero($authKey);
+        if ($config->USE_PAE) {
+            // Number of pieces:
             \sodium_crypto_generichash_update($mac, \pack('P', is_null($aad) ? 4 : 5));
 
-        // We no longer need $authKey after we set up the hash context
-        Util::memzero($authKey);
-
-        // Length followed by piece
-        if ($config->USE_PAE)
+            // Length followed by piece:
             \sodium_crypto_generichash_update($mac, \pack('P', Halite::VERSION_TAG_LEN));
-        \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
-        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
             \sodium_crypto_generichash_update($mac, \pack('P', \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES));
-        \sodium_crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
-        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
             \sodium_crypto_generichash_update($mac, \pack('P', $config->HKDF_SALT_LEN));
-        \sodium_crypto_generichash_update($mac, $hkdfSalt);
-        if ($config->USE_PAE && !is_null($aad)) {
-            \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
-            \sodium_crypto_generichash_update($mac, \pack('P', $aad));
-        }
-        if ($config->USE_PAE) {
+            \sodium_crypto_generichash_update($mac, $hkdfSalt);
+            if (!is_null($aad)) {
+                \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
+                \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+            }
             \sodium_crypto_generichash_update($mac, \pack('P', $input->remainingBytes()));
+        } else {
+            // Legacy version: No PAE
+            \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            \sodium_crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
+            \sodium_crypto_generichash_update($mac, $hkdfSalt);
+        }
+        if (!is_string($mac)) {
+            throw new CannotPerformOperation('Internal error with BLAKE2b implementation');
         }
 
         unset($ephPublic);
@@ -967,7 +977,6 @@ final class File
      * @param MutableFile $output
      * @param EncryptionSecretKey $secretKey
      * @param ?string $aad
-     * @param ?string $aad
      * @return bool
      *
      * @throws CannotPerformOperation
@@ -979,6 +988,7 @@ final class File
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
+     * @throws \SodiumException
      */
     protected static function unsealData(
         ReadOnlyFile $input,
@@ -1044,29 +1054,36 @@ final class File
         unset($key);
 
         $mac = \sodium_crypto_generichash_init($authKey);
-        // Number of pieces:
-        if ($config->USE_PAE)
+
+        if ($config->USE_PAE) {
+            // Number of pieces:
             \sodium_crypto_generichash_update($mac, \pack('P', is_null($aad) ? 4 : 5));
 
-        // Length followed by piece
-        if ($config->USE_PAE)
+            // Length followed by piece:
             \sodium_crypto_generichash_update($mac, \pack('P', Halite::VERSION_TAG_LEN));
-        \sodium_crypto_generichash_update($mac, $header);
-        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, $header);
             \sodium_crypto_generichash_update($mac, \pack('P', \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES));
-        \sodium_crypto_generichash_update($mac, $ephPublic);
-        if ($config->USE_PAE)
+            \sodium_crypto_generichash_update($mac, $ephPublic);
             \sodium_crypto_generichash_update($mac, \pack('P', $config->HKDF_SALT_LEN));
-        \sodium_crypto_generichash_update($mac, $hkdfSalt);
-        if ($config->USE_PAE && !is_null($aad)) {
-            \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
-            \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+            \sodium_crypto_generichash_update($mac, $hkdfSalt);
+            if (!is_null($aad)) {
+                \sodium_crypto_generichash_update($mac, \pack('P', Binary::safeStrlen($aad)));
+                \sodium_crypto_generichash_update($mac, \pack('P', $aad));
+            }
+            \sodium_crypto_generichash_update(
+                $mac,
+                \pack('P', $input->remainingBytes() - ((int) $config->MAC_SIZE))
+            );
+        } else {
+            // Legacy version: No PAE
+            \sodium_crypto_generichash_update($mac, $header);
+            \sodium_crypto_generichash_update($mac, $ephPublic);
+            \sodium_crypto_generichash_update($mac, $hkdfSalt);
         }
-        if ($config->USE_PAE) {
-            \sodium_crypto_generichash_update($mac, \pack('P', $input->remainingBytes() - $config->MAC_SIZE));
+        if (!is_string($mac)) {
+            throw new CannotPerformOperation('Internal error with BLAKE2b implementation');
         }
 
-        /** @var string $mac */
         $oldMACs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
 
         // We no longer need these:

@@ -37,7 +37,7 @@ versions of Halite are briefly highlighted below.
 |                                                              | PHP   | libsodium | PECL libsodium | Support                   |
 |--------------------------------------------------------------|-------|-----------|----------------|---------------------------|
 | Halite 5.0 and newer                                         | 8.0.0 | 1.0.18    | N/A (standard) | :heavy_check_mark: Active |
-| [Halite 4.1+](https://github.com/paragonie/halite/tree/v4.x) | 7.2.0 | 1.0.15    | N/A (standard) | :heavy_check_mark: Active |
+| [Halite 4.1+](https://github.com/paragonie/halite/tree/v4.x) | 7.2.0 | 1.0.15    | N/A (standard) | :x: Not Supported         |
 | [Halite 4.0](https://github.com/paragonie/halite/tree/v4.0)  | 7.2.0 | 1.0.13    | N/A (standard) | :x: Not Supported         |
 | [Halite 3](https://github.com/paragonie/halite/tree/v3.x)    | 7.0.0 | 1.0.9     | 1.0.6 / 2.0.4  | :x: Not Supported         |
 | [Halite 2](https://github.com/paragonie/halite/tree/v2.2)    | 7.0.0 | 1.0.9     | 1.0.6          | :x: Not Supported         |
@@ -61,7 +61,7 @@ Once you have the prerequisites installed, install Halite through [Composer](htt
 
 ### Commercial Support for Older Halite Versions
 
-Free (gratis) support for Halite only extends to the most recent major version (currently 4).
+Free (gratis) support for Halite only extends to the most recent major version (currently 5).
 
 If your company requires support for an older version of Halite,
 [contact Paragon Initiative Enterprises](https://paragonie.com/contact) to inquire about
@@ -76,14 +76,18 @@ Check out the [documentation](doc). The basic Halite API is designed for simplic
   * Encryption
     * Symmetric
        * `Symmetric\Crypto::encrypt`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionKey`](doc/Classes/Symmetric/EncryptionKey.md)): `string`
+       * `Symmetric\Crypto::encryptWithAD`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionKey`](doc/Classes/Symmetric/EncryptionKey.md), `string`): `string`
        * `Symmetric\Crypto::decrypt`(`string`, [`EncryptionKey`](doc/Classes/Symmetric/EncryptionKey.md)): [`HiddenString`](doc/Classes/HiddenString.md)
+       * `Symmetric\Crypto::decryptWithAD`(`string`, [`EncryptionKey`](doc/Classes/Symmetric/EncryptionKey.md), `string`): [`HiddenString`](doc/Classes/HiddenString.md)
     * Asymmetric
        * Anonymous
          * `Asymmetric\Crypto::seal`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md)): `string`
          * `Asymmetric\Crypto::unseal`(`string`, [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md)): [`HiddenString`](doc/Classes/HiddenString.md)
        * Authenticated
          * `Asymmetric\Crypto::encrypt`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md)): `string`
+         * `Asymmetric\Crypto::encryptWithAD`([`HiddenString`](doc/Classes/HiddenString.md), [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md), `string`): `string`
          * `Asymmetric\Crypto::decrypt`(`string`, [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md)): [`HiddenString`](doc/Classes/HiddenString.md)
+         * `Asymmetric\Crypto::decryptWithAD`(`string`, [`EncryptionSecretKey`](doc/Classes/Asymmetric/EncryptionSecretKey.md), [`EncryptionPublicKey`](doc/Classes/Asymmetric/EncryptionPublicKey.md), `string`): [`HiddenString`](doc/Classes/HiddenString.md)
   * Authentication
     * Symmetric
        * `Symmetric\Crypto::authenticate`(`string`, [`AuthenticationKey`](doc/Classes/Symmetric/AuthenticationKey.md)): `string`

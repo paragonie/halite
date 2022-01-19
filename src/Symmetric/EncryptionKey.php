@@ -7,6 +7,7 @@ use ParagonIE\Halite\Alerts\InvalidKey;
 use ParagonIE\HiddenString\HiddenString;
 use TypeError;
 use const SODIUM_CRYPTO_STREAM_KEYBYTES;
+use function sprintf;
 
 /**
  * Class EncryptionKey
@@ -28,7 +29,10 @@ final class EncryptionKey extends SecretKey
     {
         if (Binary::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_STREAM_KEYBYTES) {
             throw new InvalidKey(
-                'Encryption key must be CRYPTO_STREAM_KEYBYTES bytes long'
+                sprintf(
+                    'Encryption key must be CRYPTO_STREAM_KEYBYTES (%d) bytes long',
+                    SODIUM_CRYPTO_STREAM_KEYBYTES
+                )
             );
         }
         parent::__construct($keyMaterial);

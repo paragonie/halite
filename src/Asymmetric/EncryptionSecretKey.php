@@ -8,7 +8,9 @@ use ParagonIE\HiddenString\HiddenString;
 use SodiumException;
 use TypeError;
 use const SODIUM_CRYPTO_BOX_SECRETKEYBYTES;
-use function sodium_crypto_box_publickey_from_secretkey;
+use function
+    sodium_crypto_box_publickey_from_secretkey,
+    sprintf;
 
 /**
  * Class EncryptionSecretKey
@@ -30,7 +32,10 @@ final class EncryptionSecretKey extends SecretKey
     {
         if (Binary::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_BOX_SECRETKEYBYTES) {
             throw new InvalidKey(
-                'Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES bytes long'
+                sprintf(
+                    'Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES (%d) bytes long',
+                    SODIUM_CRYPTO_BOX_SECRETKEYBYTES
+                )
             );
         }
         parent::__construct($keyMaterial, $pk);

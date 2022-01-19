@@ -12,7 +12,8 @@ use const
 use function
     sodium_crypto_sign_ed25519_sk_to_curve25519,
     sodium_crypto_sign_ed25519_pk_to_curve25519,
-    sodium_crypto_sign_publickey_from_secretkey;
+    sodium_crypto_sign_publickey_from_secretkey,
+    sprintf;
 
 /**
  * Class SignatureSecretKey
@@ -36,7 +37,10 @@ final class SignatureSecretKey extends SecretKey
     {
         if (Binary::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
             throw new InvalidKey(
-                'Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES bytes long'
+                sprintf(
+                    'Signature secret key must be CRYPTO_SIGN_SECRETKEYBYTES (%d) bytes long',
+                    SODIUM_CRYPTO_SIGN_SECRETKEYBYTES
+                )
             );
         }
         parent::__construct($keyMaterial, $pk);

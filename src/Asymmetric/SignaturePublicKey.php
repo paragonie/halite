@@ -7,8 +7,10 @@ use ParagonIE\Halite\Alerts\InvalidKey;
 use ParagonIE\HiddenString\HiddenString;
 use SodiumException;
 use TypeError;
-use function sodium_crypto_sign_ed25519_pk_to_curve25519;
 use const SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES;
+use function
+    sodium_crypto_sign_ed25519_pk_to_curve25519,
+    sprintf;
 
 /**
  * Class SignaturePublicKey
@@ -32,7 +34,10 @@ final class SignaturePublicKey extends PublicKey
     {
         if (Binary::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) {
             throw new InvalidKey(
-                'Signature public key must be CRYPTO_SIGN_PUBLICKEYBYTES bytes long'
+                sprintf(
+                    'Signature public key must be CRYPTO_SIGN_PUBLICKEYBYTES (%d) bytes long',
+                    SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES
+                )
             );
         }
         parent::__construct($keyMaterial);

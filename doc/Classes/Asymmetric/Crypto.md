@@ -6,10 +6,13 @@
 
 ### `getSharedSecret()`
 
-> `public` getSharedSecret([`EncryptionSecretKey`](EncryptionSecretKey.md) `$privateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `$get_as_object = false`) : [`EncryptionKey`](../Symmetric/EncryptionKey.md)
+> `public` getSharedSecret([`EncryptionSecretKey`](EncryptionSecretKey.md) `$privateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$publicKey`, `$get_as_object = false`, [`?Config`](Config.md) `$config = null`) : [`EncryptionKey`](../Symmetric/EncryptionKey.md)
 
 This method calculates a shared [`EncryptionKey`](../Symmetric/EncryptionKey.md)
 using X25519 (Elliptic Curve Diffie Hellman key agreement over Curve25519).
+
+In Halite v5+, this X25519 output is processed with HKDF-BLAKE2b to ensure a uniformly
+random bit string is returned, rather than merely a random group element.
 
 ### `encrypt()`
 
@@ -44,17 +47,23 @@ This method will:
    key (step 4).
 7. Return what should be the original plaintext.
 
-### `encryptWithAd()`
+### `encryptWithAD()`
 
-> `public` encryptWithAd(`HiddenString $plaintext`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `string`
+> `public` encryptWithAD(`HiddenString $plaintext`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `string`
 
-This is similar to `encrypt()`, except the `$additionalData` string is prepended to the ciphertext (after the nonce) when calculating the Message Authentication Code (MAC).
+This is similar to `encrypt()`, except the `$additionalData` string is covered by the Message Authentication Code (MAC).
 
-### `decryptWithAd()`
+Since Halite v5, this uses the [PAE](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Common.md#pae-definition)
+concept from PASETO.
 
-> `public` decryptWithAd(`string $ciphertext`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `HiddenString`
+### `decryptWithAD()`
 
-This is similar to `decrypt()`, except the `$additionalData` string is prepended to the ciphertext (after the nonce) when calculating the Message Authentication Code (MAC).
+> `public` decryptWithAD(`string $ciphertext`, [`EncryptionSecretKey`](EncryptionSecretKey.md) `$ourPrivateKey`, [`EncryptionPublicKey`](EncryptionPublicKey.md) `$theirPublicKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `HiddenString`
+
+This is similar to `decrypt()`, except the `$additionalData` string is covered by the Message Authentication Code (MAC).
+
+Since Halite v5, this uses the [PAE](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Common.md#pae-definition)
+concept from PASETO.
 
 ### `seal()`
 

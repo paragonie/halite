@@ -15,6 +15,9 @@
   group element, but that isn't necessarily a uniformly random bit string.
 * **Security:** Halite v5 uses the [PAE](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Common.md#pae-definition)
   strategy from PASETO to prevent canonicalization attacks.
+* **Security:** Halite v5 appends the random salt to HKDF's `info` parameter instead of
+  the `salt` parameter. This allows us to meet the KDF Security Definition (which is
+  stronger than a mere Pseudo-Random Function).
 
 ## Version 4.8.0 (2021-04-18)
 

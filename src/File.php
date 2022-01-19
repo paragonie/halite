@@ -701,7 +701,7 @@ final class File
         // @codeCoverageIgnoreEnd
 
         // Let's split our key
-        list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
+        list ($encKey, $authKey) = Util::splitKeys($key, $hkdfSalt, $config);
 
         // Write the header
         $output->writeBytes(
@@ -814,7 +814,7 @@ final class File
         $hkdfSalt = $input->readBytes((int) $config->HKDF_SALT_LEN);
 
         // Split our keys, begin the HMAC instance
-        list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
+        list ($encKey, $authKey) = Util::splitKeys($key, $hkdfSalt, $config);
 
         // VERSION 2+ uses BMAC
         $mac = sodium_crypto_generichash_init($authKey);
@@ -939,7 +939,7 @@ final class File
          * @var string $encKey
          * @var string $authKey
          */
-        list ($encKey, $authKey) = self::splitKeys($sharedSecretKey, $hkdfSalt, $config);
+        list ($encKey, $authKey) = Util::splitKeys($sharedSecretKey, $hkdfSalt, $config);
 
         // Write the header:
         $output->writeBytes(
@@ -1083,7 +1083,7 @@ final class File
          * @var string $encKey
          * @var string $authKey
          */
-        list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
+        list ($encKey, $authKey) = Util::splitKeys($key, $hkdfSalt, $config);
         // We no longer need the original key after we split it
         unset($key);
 
@@ -1274,6 +1274,7 @@ final class File
                 'MAC_SIZE' => 32,
                 'ENC_ALGO' => 'XChaCha20',
                 'USE_PAE' => true,
+                'HKDF_USE_INFO' => true,
                 'HKDF_SBOX' => 'Halite|EncryptionKey',
                 'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
             ];
@@ -1286,6 +1287,7 @@ final class File
                 'MAC_SIZE' => 32,
                 'ENC_ALGO' => 'XSalsa20',
                 'USE_PAE' => false,
+                'HKDF_USE_INFO' => false,
                 'HKDF_SBOX' => 'Halite|EncryptionKey',
                 'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
             ];
@@ -1319,6 +1321,7 @@ final class File
                         'PUBLICKEY_BYTES' => SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
                         'ENC_ALGO' => 'XChaCha20',
                         'USE_PAE' => true,
+                        'HKDF_USE_INFO' => true,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
@@ -1334,6 +1337,7 @@ final class File
                             'PUBLICKEY_BYTES' => SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
                             'ENC_ALGO' => 'XSalsa20',
                             'USE_PAE' => false,
+                            'HKDF_USE_INFO' => false,
                             'HKDF_SBOX' => 'Halite|EncryptionKey',
                             'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                         ];
@@ -1371,41 +1375,6 @@ final class File
             'Invalid version tag'
         );
         // @codeCoverageIgnoreEnd
-    }
-
-    /**
-     * Split a key using HKDF-BLAKE2b
-     *
-     * @param Key $master
-     * @param string $salt
-     * @param Config $config
-     * @return array<int, string>
-     *
-     * @throws InvalidDigestLength
-     * @throws CannotPerformOperation
-     * @throws SodiumException
-     * @throws TypeError
-     */
-    protected static function splitKeys(
-        Key $master,
-        string $salt,
-        Config $config
-    ): array {
-        $binary = $master->getRawKeyMaterial();
-        return [
-            Util::hkdfBlake2b(
-                $binary,
-                SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
-                (string) $config->HKDF_SBOX,
-                $salt
-            ),
-            Util::hkdfBlake2b(
-                $binary,
-                SODIUM_CRYPTO_AUTH_KEYBYTES,
-                (string) $config->HKDF_AUTH,
-                $salt
-            )
-        ];
     }
 
     /**

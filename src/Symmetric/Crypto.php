@@ -33,7 +33,8 @@ use function
     random_bytes,
     sodium_crypto_generichash,
     sodium_crypto_stream_xchacha20_xor,
-    sodium_crypto_stream_xor;
+    sodium_crypto_stream_xor,
+    str_repeat;
 
 /**
  * Class Crypto
@@ -203,7 +204,7 @@ final class Crypto
          * @var string $encKey
          * @var string $authKey
          */
-        $split = self::splitKeys($secretKey, $salt, $config);
+        $split = Util::splitKeys($secretKey, $salt, $config);
         $encKey = $split[0];
         $authKey = $split[1];
 
@@ -327,7 +328,7 @@ final class Crypto
 
            This uses salted HKDF to split the keys, which is why we need the
            salt in the first place. */
-        [$encKey, $authKey] = self::splitKeys($secretKey, $salt, $config);
+        [$encKey, $authKey] = Util::splitKeys($secretKey, $salt, $config);
 
         // Encrypt our message with the encryption key:
 
@@ -381,42 +382,6 @@ final class Crypto
             return (string) $encoder($message);
         }
         return $message;
-    }
-
-    /**
-     * Split a key (using HKDF-BLAKE2b instead of HKDF-HMAC-*)
-     *
-     * @param EncryptionKey $master
-     * @param string $salt
-     * @param BaseConfig $config
-     *
-     * @return string[]
-     *
-     * @throws CannotPerformOperation
-     * @throws InvalidDigestLength
-     * @throws SodiumException
-     * @throws TypeError
-     */
-    public static function splitKeys(
-        EncryptionKey $master,
-        string $salt,
-        BaseConfig $config
-    ): array {
-        $binary = $master->getRawKeyMaterial();
-        return [
-            Util::hkdfBlake2b(
-                $binary,
-                SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
-                (string) $config->HKDF_SBOX,
-                $salt
-            ),
-            Util::hkdfBlake2b(
-                $binary,
-                SODIUM_CRYPTO_AUTH_KEYBYTES,
-                (string) $config->HKDF_AUTH,
-                $salt
-            )
-        ];
     }
 
     /**

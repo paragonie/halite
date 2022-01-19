@@ -94,6 +94,7 @@ final class Config extends BaseConfig
                         'USE_PAE' => true,
                         'MAC_ALGO' => 'BLAKE2b',
                         'MAC_SIZE' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
+                        'HKDF_USE_INFO' => true,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
@@ -111,6 +112,7 @@ final class Config extends BaseConfig
                         'USE_PAE' => false,
                         'MAC_ALGO' => 'BLAKE2b',
                         'MAC_SIZE' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
+                        'HKDF_USE_INFO' => false,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
@@ -142,6 +144,7 @@ final class Config extends BaseConfig
                         'MAC_ALGO' => 'BLAKE2b',
                         'MAC_SIZE' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
                         'PUBLICKEY_BYTES' => SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
+                        'HKDF_USE_INFO' => $major > 4,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];

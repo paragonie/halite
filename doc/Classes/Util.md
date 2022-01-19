@@ -51,6 +51,16 @@ Returns a copy of a string without triggering PHP's optimizations. The
 string returned by this method can safely be used with `sodium_memzero()`
 without corrupting other copies of the same string.
 
+### `splitKeys()`
+
+Splits a single key into two distinct keys (one for encryption, one for authentication).
+
+Since Halite v5, the HKDF salt parameter is not used. Instead, this randomness is appended
+to the HKDF info parameter, in order to meet the [standard security definition for HKDF](https://eprint.iacr.org/2010/264).
+
+Additionally, this allows us to reuse the PRK (the value affected by the HKDF salt) value
+for both derived keys, which results in a nice performance gain.
+
 ### `xorStrings()`
 
 > `public static` xorStrings(`string $left`, `string $right`): `string`

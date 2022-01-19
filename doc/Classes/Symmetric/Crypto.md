@@ -45,13 +45,19 @@ Verify-then-decrypt a message. This method will:
 
 > `public` encryptWithAd(`HiddenString $plaintext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `string`
 
-This is similar to `encrypt()`, except the `$additionalData` string is prepended to the ciphertext (after the nonce) when calculating the Message Authentication Code (MAC).
+This is similar to `encrypt()`, except the `$additionalData` string is covered by the Message Authentication Code (MAC).
 
-### `decryptWithAd()`
+Since Halite v5, this uses the [PAE](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Common.md#pae-definition)
+concept from PASETO.
 
-> `public` decryptWithAd(`string $ciphertext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `HiddenString`
+### `decryptWithAD()`
 
-This is similar to `decrypt()`, except the `$additionalData` string is prepended to the ciphertext (after the nonce) when calculating the Message Authentication Code (MAC).
+> `public` decryptWithAD(`string $ciphertext`, [`EncryptionKey`](EncryptionKey.md) `$secretKey`, `string $additionalData = ''`, `$encoding = Halite::ENCODE_BASE64URLSAFE`): `HiddenString`
+
+This is similar to `decrypt()`, except the `$additionalData` string is covered by the Message Authentication Code (MAC).
+
+Since Halite v5, this uses the [PAE](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Common.md#pae-definition)
+concept from PASETO.
 
 ### `verify()`
 

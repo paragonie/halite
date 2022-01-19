@@ -1,4 +1,4 @@
-# FileModified extends [HaliteAlert](HaliteAlert.md)
+# FileModified extends [FileError](FileError.md)
 
 **Namespace**: `\ParagonIE\Halite\Alerts`
 

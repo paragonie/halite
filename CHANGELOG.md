@@ -1,23 +1,24 @@
 # Changelog
 
-## Version 5.0.0 (Unreleased)
+## Version 5.0.0 (2022-01-19)
 
 * Increased minimum PHP version to 8.0.
-* Encryption now uses XChaCha20 instead of XSalsa20.
-* The `File` class no longer supports the `resource` type. To migrate code, wrap your 
-  `resource` arguments in a `ReadOnlyFile` or `MutableFile` object.
-* Added `File::asymmetricEncrypt()` and `File::asymmetricDecrypt()`.
-* **Security:** Asymmetric encryption now uses HKDF-BLAKE2b to extract a 256-bit
-  uniformly random bit string for the encryption key, rather than using the raw
-  X25519 output directly as an encryption key.
-
-  This is important because Elliptic Curve Diffie-Hellman results in a random
-  group element, but that isn't necessarily a uniformly random bit string.
+* **Security:** Asymmetric encryption now uses HKDF-BLAKE2b to extract a 256-bit uniformly random bit string for the
+  encryption key, rather than using the raw X25519 output directly as an encryption key. This is important because 
+  Elliptic Curve Diffie-Hellman results in a random group element, but that isn't necessarily a uniformly random bit
+  string.
+  * Because Halite v4 and earlier did not perform this step, it's superficially susceptible to
+    [Cheon's attack](https://crypto.stackexchange.com/a/67609). This reduces the effective security
+    from 125 bits (Pollard's rho) to 123 bits, but neither is a practical concern today.
 * **Security:** Halite v5 uses the [PAE](https://github.com/paseto-standard/paseto-spec/blob/master/docs/01-Protocol-Versions/Common.md#pae-definition)
   strategy from PASETO to prevent canonicalization attacks.
 * **Security:** Halite v5 appends the random salt to HKDF's `info` parameter instead of
   the `salt` parameter. This allows us to meet the KDF Security Definition (which is
   stronger than a mere Pseudo-Random Function).
+* Encryption now uses XChaCha20 instead of XSalsa20.
+* The `File` class no longer supports the `resource` type. To migrate code, wrap your 
+  `resource` arguments in a `ReadOnlyFile` or `MutableFile` object.
+* Added `File::asymmetricEncrypt()` and `File::asymmetricDecrypt()`.
 
 ## Version 4.8.0 (2021-04-18)
 

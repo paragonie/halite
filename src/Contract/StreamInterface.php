@@ -68,9 +68,9 @@ interface StreamInterface
      * Write to a stream; prevent partial writes
      * 
      * @param string $buf
-     * @param int $num (number of bytes)
+     * @param ?int $num (number of bytes)
      * @return int
      * @throws FileAccessDenied
      */
-    public function writeBytes(string $buf, int $num = null): int;
+    public function writeBytes(string $buf, ?int $num = null): int;
 }

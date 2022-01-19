@@ -5,6 +5,10 @@ namespace ParagonIE\Halite\Asymmetric;
 use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Alerts\InvalidKey;
 use ParagonIE\HiddenString\HiddenString;
+use SodiumException;
+use TypeError;
+use const SODIUM_CRYPTO_BOX_SECRETKEYBYTES;
+use function sodium_crypto_box_publickey_from_secretkey;
 
 /**
  * Class EncryptionSecretKey
@@ -20,11 +24,11 @@ final class EncryptionSecretKey extends SecretKey
      * EncryptionSecretKey constructor.
      * @param HiddenString $keyMaterial - The actual key data
      * @throws InvalidKey
-     * @throws \TypeError
+     * @throws TypeError
      */
     public function __construct(HiddenString $keyMaterial, ?HiddenString $pk = null)
     {
-        if (Binary::safeStrlen($keyMaterial->getString()) !== \SODIUM_CRYPTO_BOX_SECRETKEYBYTES) {
+        if (Binary::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_BOX_SECRETKEYBYTES) {
             throw new InvalidKey(
                 'Encryption secret key must be CRYPTO_BOX_SECRETKEYBYTES bytes long'
             );
@@ -38,13 +42,13 @@ final class EncryptionSecretKey extends SecretKey
      * @return EncryptionPublicKey
      *
      * @throws InvalidKey
-     * @throws \TypeError
-     * @throws \SodiumException
+     * @throws TypeError
+     * @throws SodiumException
      */
     public function derivePublicKey()
     {
         if (is_null($this->cachedPublicKey)) {
-            $this->cachedPublicKey = \sodium_crypto_box_publickey_from_secretkey(
+            $this->cachedPublicKey = sodium_crypto_box_publickey_from_secretkey(
                 $this->getRawKeyMaterial()
             );
         }

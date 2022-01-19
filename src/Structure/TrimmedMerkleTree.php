@@ -7,6 +7,9 @@ use ParagonIE\Halite\Alerts\{
     InvalidDigestLength
 };
 use ParagonIE\Halite\Util;
+use SodiumException;
+use TypeError;
+use function count;
 
 /**
  * Class TrimmedMerkleTree
@@ -37,12 +40,13 @@ class TrimmedMerkleTree extends MerkleTree
      *
      * @return string
      * @throws CannotPerformOperation
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      * @psalm-suppress EmptyArrayAccess Psalm is misreading array elements
      */
     protected function calculateRoot(): string
     {
-        $size = \count($this->nodes);
+        $size = count($this->nodes);
         if ($size < 1) {
             return '';
         }
@@ -84,9 +88,7 @@ class TrimmedMerkleTree extends MerkleTree
 
         // We should only have one value left:
         $this->rootCalculated = true;
-        /** @var string $first */
-        $first = \array_shift($hash);
-        return $first;
+        return (string) array_shift($hash);
     }
 
     /**

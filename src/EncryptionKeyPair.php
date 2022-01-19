@@ -30,12 +30,12 @@ final class EncryptionKeyPair extends KeyPair
     /**
      * @var EncryptionSecretKey
      */
-    protected $secretKey;
+    protected Asymmetric\SecretKey $secretKey;
 
     /**
      * @var EncryptionPublicKey
      */
-    protected $publicKey;
+    protected Asymmetric\PublicKey $publicKey;
 
     /**
      * Pass it a secret key, it will automatically generate a public key

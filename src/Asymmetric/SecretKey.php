@@ -4,6 +4,7 @@ namespace ParagonIE\Halite\Asymmetric;
 use ParagonIE\Halite\Alerts\CannotPerformOperation;
 use ParagonIE\Halite\Key;
 use ParagonIE\HiddenString\HiddenString;
+use TypeError;
 
 /**
  * Class SecretKey
@@ -21,7 +22,7 @@ class SecretKey extends Key
      * SecretKey constructor.
      * @param HiddenString $keyMaterial - The actual key data
      *
-     * @throws \TypeError
+     * @throws TypeError
      */
     public function __construct(HiddenString $keyMaterial, ?HiddenString $pk = null)
     {

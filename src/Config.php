@@ -40,7 +40,7 @@ class Config
     /**
      * @var array
      */
-    private $config;
+    private array $config;
 
     /**
      * Config constructor.
@@ -74,7 +74,7 @@ class Config
      * @return bool
      * @codeCoverageIgnore
      */
-    public function __set(string $key, $value = null)
+    public function __set(string $key, mixed $value = null)
     {
         return false;
     }

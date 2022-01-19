@@ -10,6 +10,7 @@ use ParagonIE\ConstantTime\{
     Hex
 };
 use ParagonIE\Halite\Alerts\InvalidType;
+use function extension_loaded, implode;
 
 /**
  * Class Halite
@@ -80,7 +81,7 @@ final class Halite
         if ($chosen === true) {
             return null;
         } elseif ($chosen === false) {
-            return \implode(
+            return implode(
                 '::',
                 [
                     Hex::class,
@@ -88,7 +89,7 @@ final class Halite
                 ]
             );
         } elseif ($chosen === self::ENCODE_BASE32) {
-            return \implode(
+            return implode(
                 '::',
                 [
                     Base32::class,
@@ -96,7 +97,7 @@ final class Halite
                 ]
             );
         } elseif ($chosen === self::ENCODE_BASE32HEX) {
-            return \implode(
+            return implode(
                 '::',
                 [
                     Base32Hex::class,
@@ -104,7 +105,7 @@ final class Halite
                 ]
             );
         } elseif ($chosen === self::ENCODE_BASE64) {
-            return \implode(
+            return implode(
                 '::',
                 [
                     Base64::class,
@@ -112,7 +113,7 @@ final class Halite
                 ]
             );
         } elseif ($chosen === self::ENCODE_BASE64URLSAFE) {
-            return \implode(
+            return implode(
                 '::',
                 [
                     Base64UrlSafe::class,
@@ -120,7 +121,7 @@ final class Halite
                 ]
             );
         } elseif ($chosen === self::ENCODE_HEX) {
-            return \implode(
+            return implode(
                 '::',
                 [
                     Hex::class,
@@ -143,7 +144,7 @@ final class Halite
      */
     public static function isLibsodiumSetupCorrectly(bool $echo = false): bool
     {
-        if (!\extension_loaded('sodium')) {
+        if (!extension_loaded('sodium')) {
             if ($echo) {
                 echo "You do not have the sodium extension enabled.\n";
             }
@@ -151,11 +152,11 @@ final class Halite
         }
 
         // Require libsodium 1.0.15
-        $major = \SODIUM_LIBRARY_MAJOR_VERSION;
+        $major = SODIUM_LIBRARY_MAJOR_VERSION;
         if ($major < 10) {
             if ($echo) {
                 echo 'Halite needs libsodium 1.0.15 or higher. You have: ',
-                \SODIUM_LIBRARY_VERSION, "\n";
+                SODIUM_LIBRARY_VERSION, "\n";
             }
             return false;
         }

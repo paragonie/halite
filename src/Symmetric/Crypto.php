@@ -10,8 +10,30 @@ use ParagonIE\Halite\Alerts\{
     InvalidSignature,
     InvalidType
 };
-use ParagonIE\Halite\{Config as BaseConfig, Halite, Symmetric\Config as SymmetricConfig, Util as CryptoUtil, Util};
+use ParagonIE\Halite\{
+    Config as BaseConfig, 
+    Halite, 
+    Symmetric\Config as SymmetricConfig,
+    Util
+};
 use ParagonIE\HiddenString\HiddenString;
+use Error;
+use RangeException;
+use SodiumException;
+use Throwable;
+use TypeError;
+use const
+    SODIUM_CRYPTO_AUTH_KEYBYTES,
+    SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
+    SODIUM_CRYPTO_STREAM_NONCEBYTES;
+use function
+    hash_equals,
+    is_callable,
+    is_null,
+    random_bytes,
+    sodium_crypto_generichash,
+    sodium_crypto_stream_xchacha20_xor,
+    sodium_crypto_stream_xor;
 
 /**
  * Class Crypto
@@ -34,12 +56,12 @@ final class Crypto
     /**
      * Don't allow this to be instantiated.
      *
-     * @throws \Error
+     * @throws Error
      * @codeCoverageIgnore
      */
     final private function __construct()
     {
-        throw new \Error('Do not instantiate');
+        throw new Error('Do not instantiate');
     }
 
     /**
@@ -47,18 +69,18 @@ final class Crypto
      *
      * @param string $message
      * @param AuthenticationKey $secretKey
-     * @param mixed $encoding
+     * @param string|bool $encoding
      * @return string
      *
      * @throws InvalidMessage
      * @throws InvalidType
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function authenticate(
         string $message,
         AuthenticationKey $secretKey,
-        $encoding = Halite::ENCODE_BASE64URLSAFE
+        bool|string $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $config = SymmetricConfig::getConfig(
             Halite::HALITE_VERSION,
@@ -89,8 +111,8 @@ final class Crypto
      * @throws InvalidMessage
      * @throws InvalidSignature
      * @throws InvalidType
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function decrypt(
         string $ciphertext,
@@ -119,8 +141,8 @@ final class Crypto
      * @throws InvalidMessage
      * @throws InvalidSignature
      * @throws InvalidType
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function decryptWithAd(
         string $ciphertext,
@@ -129,13 +151,13 @@ final class Crypto
         bool|string $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
         $decoder = Halite::chooseEncoder($encoding, true);
-        if (\is_callable($decoder)) {
+        if (is_callable($decoder)) {
             // We were given encoded data:
             // @codeCoverageIgnoreStart
             try {
                 /** @var string $ciphertext */
                 $ciphertext = $decoder($ciphertext);
-            } catch (\RangeException $ex) {
+            } catch (RangeException $ex) {
                 throw new InvalidMessage(
                     'Invalid character encoding'
                 );
@@ -200,18 +222,18 @@ final class Crypto
                 'Invalid message authentication code'
             );
         }
-        CryptoUtil::memzero($salt);
-        CryptoUtil::memzero($authKey);
+        Util::memzero($salt);
+        Util::memzero($authKey);
 
         // crypto_stream_xor() can be used to encrypt and decrypt
         if ($config->ENC_ALGO === 'XChaCha20') {
-            $plaintext = \sodium_crypto_stream_xchacha20_xor($encrypted, $nonce, $encKey);
+            $plaintext = sodium_crypto_stream_xchacha20_xor($encrypted, $nonce, $encKey);
         } else {
-            $plaintext = \sodium_crypto_stream_xor($encrypted, $nonce, $encKey);
+            $plaintext = sodium_crypto_stream_xor($encrypted, $nonce, $encKey);
         }
-        CryptoUtil::memzero($encrypted);
-        CryptoUtil::memzero($nonce);
-        CryptoUtil::memzero($encKey);
+        Util::memzero($encrypted);
+        Util::memzero($nonce);
+        Util::memzero($encKey);
         return new HiddenString($plaintext);
     }
 
@@ -230,8 +252,8 @@ final class Crypto
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function encrypt(
         HiddenString $plaintext,
@@ -257,8 +279,8 @@ final class Crypto
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function encryptWithAd(
         HiddenString $plaintext,
@@ -271,9 +293,9 @@ final class Crypto
         // Generate a nonce and HKDF salt:
         // @codeCoverageIgnoreStart
         try {
-            $nonce = \random_bytes(\SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-            $salt = \random_bytes((int) $config->HKDF_SALT_LEN);
-        } catch (\Throwable $ex) {
+            $nonce = random_bytes(\SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+            $salt = random_bytes((int) $config->HKDF_SALT_LEN);
+        } catch (Throwable $ex) {
             throw new CannotPerformOperation($ex->getMessage());
         }
         // @codeCoverageIgnoreEnd
@@ -289,19 +311,19 @@ final class Crypto
         // Encrypt our message with the encryption key:
 
         if ($config->ENC_ALGO === 'XChaCha20') {
-            $encrypted = \sodium_crypto_stream_xchacha20_xor(
+            $encrypted = sodium_crypto_stream_xchacha20_xor(
                 $plaintext->getString(),
                 $nonce,
                 $encKey
             );
         } else {
-            $encrypted = \sodium_crypto_stream_xor(
+            $encrypted = sodium_crypto_stream_xor(
                 $plaintext->getString(),
                 $nonce,
                 $encKey
             );
         }
-        CryptoUtil::memzero($encKey);
+        Util::memzero($encKey);
 
         // Calculate an authentication tag:
         if ($config->USE_PAE) {
@@ -323,23 +345,21 @@ final class Crypto
                 $config
             );
         }
-        CryptoUtil::memzero($authKey);
+        Util::memzero($authKey);
 
-        /** @var string $message */
         $message = Halite::HALITE_VERSION . $salt . $nonce . $encrypted . $auth;
 
         // Wipe every superfluous piece of data from memory
-        CryptoUtil::memzero($nonce);
-        CryptoUtil::memzero($salt);
-        CryptoUtil::memzero($encrypted);
-        CryptoUtil::memzero($auth);
+        Util::memzero($nonce);
+        Util::memzero($salt);
+        Util::memzero($encrypted);
+        Util::memzero($auth);
 
         $encoder = Halite::chooseEncoder($encoding);
         if ($encoder) {
             return (string) $encoder($message);
         }
         return (string) $message;
-
     }
 
     /**
@@ -352,8 +372,8 @@ final class Crypto
      *
      * @throws CannotPerformOperation
      * @throws InvalidDigestLength
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function splitKeys(
         EncryptionKey $master,
@@ -362,15 +382,15 @@ final class Crypto
     ): array {
         $binary = $master->getRawKeyMaterial();
         return [
-            CryptoUtil::hkdfBlake2b(
+            Util::hkdfBlake2b(
                 $binary,
-                \SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
+                SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
                 (string) $config->HKDF_SBOX,
                 $salt
             ),
-            CryptoUtil::hkdfBlake2b(
+            Util::hkdfBlake2b(
                 $binary,
-                \SODIUM_CRYPTO_AUTH_KEYBYTES,
+                SODIUM_CRYPTO_AUTH_KEYBYTES,
                 (string) $config->HKDF_AUTH,
                 $salt
             )
@@ -386,7 +406,7 @@ final class Crypto
      * @return array<int, mixed>
      *
      * @throws InvalidMessage
-     * @throws \TypeError
+     * @throws TypeError
      * @codeCoverageIgnore
      */
     public static function unpackMessageForDecryption(string $ciphertext): array
@@ -427,7 +447,7 @@ final class Crypto
             // 36:
             Halite::VERSION_TAG_LEN + (int) $config->HKDF_SALT_LEN,
             // 24:
-            \SODIUM_CRYPTO_STREAM_NONCEBYTES
+            SODIUM_CRYPTO_STREAM_NONCEBYTES
         );
 
         // This is the crypto_stream_xor()ed ciphertext
@@ -436,12 +456,12 @@ final class Crypto
             // 60:
             Halite::VERSION_TAG_LEN +
             (int) $config->HKDF_SALT_LEN +
-            \SODIUM_CRYPTO_STREAM_NONCEBYTES,
+            SODIUM_CRYPTO_STREAM_NONCEBYTES,
             // $length - 124
             $length - (
                 Halite::VERSION_TAG_LEN +
                 (int) $config->HKDF_SALT_LEN +
-                \SODIUM_CRYPTO_STREAM_NONCEBYTES +
+                SODIUM_CRYPTO_STREAM_NONCEBYTES +
                 (int) $config->MAC_SIZE
             )
         );
@@ -453,7 +473,7 @@ final class Crypto
         );
 
         // We don't need this anymore.
-        CryptoUtil::memzero($ciphertext);
+        Util::memzero($ciphertext);
 
         // Now we return the pieces in a specific order:
         return [$version, $config, $salt, $nonce, $encrypted, $auth];
@@ -465,22 +485,22 @@ final class Crypto
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param string $mac
-     * @param mixed $encoding
-     * @param SymmetricConfig $config
+     * @param string|bool $encoding
+     * @param ?SymmetricConfig $config
      * @return bool
      *
      * @throws InvalidMessage
      * @throws InvalidSignature
      * @throws InvalidType
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function verify(
         string $message,
         AuthenticationKey $secretKey,
         string $mac,
-        $encoding = Halite::ENCODE_BASE64URLSAFE,
-        SymmetricConfig $config = null
+        string|bool $encoding = Halite::ENCODE_BASE64URLSAFE,
+        ?SymmetricConfig $config = null
     ): bool {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {
@@ -488,7 +508,7 @@ final class Crypto
             /** @var string $mac */
             $mac = $decoder($mac);
         }
-        if ($config === null) {
+        if (is_null($config)) {
             // Default to the current version
             $config = SymmetricConfig::getConfig(
                 Halite::HALITE_VERSION,
@@ -525,7 +545,7 @@ final class Crypto
         SymmetricConfig $config
     ): string {
         if ($config->MAC_ALGO === 'BLAKE2b') {
-            return \sodium_crypto_generichash(
+            return sodium_crypto_generichash(
                 $message,
                 $authKey,
                 (int) $config->MAC_SIZE
@@ -550,7 +570,7 @@ final class Crypto
      *
      * @throws InvalidMessage
      * @throws InvalidSignature
-     * @throws \SodiumException
+     * @throws SodiumException
      */
     protected static function verifyMAC(
         string $mac,
@@ -566,13 +586,13 @@ final class Crypto
             // @codeCoverageIgnoreEnd
         }
         if ($config->MAC_ALGO === 'BLAKE2b') {
-            $calc = \sodium_crypto_generichash(
+            $calc = sodium_crypto_generichash(
                 $message,
                 $authKey,
                 (int) $config->MAC_SIZE
             );
-            $res = \hash_equals($mac, $calc);
-            CryptoUtil::memzero($calc);
+            $res = hash_equals($mac, $calc);
+            Util::memzero($calc);
             return $res;
         }
         // @codeCoverageIgnoreStart

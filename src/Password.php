@@ -19,6 +19,12 @@ use ParagonIE\Halite\Symmetric\{
     EncryptionKey
 };
 use ParagonIE\HiddenString\HiddenString;
+use SodiumException;
+use TypeError;
+use function
+    hash_equals,
+    sodium_crypto_pwhash_str,
+    sodium_crypto_pwhash_str_verify;
 
 /**
  * Class Password
@@ -51,8 +57,8 @@ final class Password
      * @throws CannotPerformOperation
      * @throws InvalidMessage
      * @throws InvalidType
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function hash(
         HiddenString $password,
@@ -62,7 +68,7 @@ final class Password
     ): string {
         $kdfLimits = KeyFactory::getSecurityLevels($level);
         // First, let's calculate the hash
-        $hashed = \sodium_crypto_pwhash_str(
+        $hashed = sodium_crypto_pwhash_str(
             $password->getString(),
             $kdfLimits[0],
             $kdfLimits[1]
@@ -91,8 +97,8 @@ final class Password
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function needsRehash(
         string $stored,
@@ -114,7 +120,7 @@ final class Password
         )->getString();
 
         // Upon successful decryption, verify that we're using Argon2id
-        if (!\hash_equals(
+        if (!hash_equals(
             Binary::safeSubstr($hash_str, 0, 10),
             \SODIUM_CRYPTO_PWHASH_STRPREFIX
         )) {
@@ -124,17 +130,17 @@ final class Password
         // Parse the cost parameters:
         switch ($level) {
             case KeyFactory::INTERACTIVE:
-                return !\hash_equals(
+                return !hash_equals(
                     '$argon2id$v=19$m=65536,t=2,p=1$',
                     Binary::safeSubstr($hash_str, 0, 31)
                 );
             case KeyFactory::MODERATE:
-                return !\hash_equals(
+                return !hash_equals(
                     '$argon2id$v=19$m=262144,t=3,p=1$',
                     Binary::safeSubstr($hash_str, 0, 32)
                 );
             case KeyFactory::SENSITIVE:
-                return !\hash_equals(
+                return !hash_equals(
                     '$argon2id$v=19$m=1048576,t=4,p=1$',
                     Binary::safeSubstr($hash_str, 0, 33)
                 );
@@ -161,9 +167,9 @@ final class Password
             );
         }
         if (
-            \hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)
+            hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)
                 ||
-            \hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_OLD_PREFIX)
+            hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_OLD_PREFIX)
         ) {
             $decoded = Base64UrlSafe::decode($stored);
             return SymmetricConfig::getConfig(
@@ -191,8 +197,8 @@ final class Password
      * @throws InvalidDigestLength
      * @throws InvalidMessage
      * @throws InvalidType
-     * @throws \SodiumException
-     * @throws \TypeError
+     * @throws SodiumException
+     * @throws TypeError
      */
     public static function verify(
         HiddenString $password,
@@ -210,7 +216,7 @@ final class Password
         // First let's decrypt the hash
         $hash_str = Crypto::decryptWithAd($stored, $secretKey, $additionalData, $config->ENCODING);
         // Upon successful decryption, verify the password is correct
-        return \sodium_crypto_pwhash_str_verify(
+        return sodium_crypto_pwhash_str_verify(
             $hash_str->getString(),
             $password->getString()
         );

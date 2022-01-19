@@ -8,6 +8,15 @@ use ParagonIE\Halite\Alerts\{
     InvalidDigestLength
 };
 use ParagonIE\Halite\Util;
+use SodiumException;
+use TypeError;
+use const SODIUM_CRYPTO_GENERICHASH_BYTES,
+    SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
+    SODIUM_CRYPTO_GENERICHASH_BYTES_MIN;
+use function
+    array_shift,
+    count,
+    sprintf;
 
 /**
  * Class MerkleTree
@@ -31,30 +40,23 @@ class MerkleTree
     const MERKLE_LEAF =   "\x01";
     const MERKLE_BRANCH = "\x00";
 
-    /**
-     * @var bool
-     */
-    protected $rootCalculated = false;
-
-    /**
-     * @var string
-     */
-    protected $root = '';
+    protected bool $rootCalculated = false;
+    protected string $root = '';
 
     /**
      * @var Node[]
      */
-    protected $nodes = [];
+    protected array $nodes = [];
 
     /**
      * @var string
      */
-    protected $personalization = '';
+    protected string $personalization = '';
     
     /**
      * @var int
      */
-    protected $outputSize = \SODIUM_CRYPTO_GENERICHASH_BYTES;
+    protected int $outputSize = SODIUM_CRYPTO_GENERICHASH_BYTES;
     
     /**
      * Instantiate a Merkle tree
@@ -73,8 +75,8 @@ class MerkleTree
      *
      * @return string
      * @throws CannotPerformOperation
-     * @throws \TypeError
-     * @throws \SodiumException
+     * @throws TypeError
+     * @throws SodiumException
      */
     public function getRoot(bool $raw = false): string
     {
@@ -113,19 +115,19 @@ class MerkleTree
      */
     public function setHashSize(int $size): self
     {
-        if ($size < \SODIUM_CRYPTO_GENERICHASH_BYTES_MIN) {
+        if ($size < SODIUM_CRYPTO_GENERICHASH_BYTES_MIN) {
             throw new InvalidDigestLength(
-                \sprintf(
+                sprintf(
                     'Merkle roots must be at least %d long.',
-                    \SODIUM_CRYPTO_GENERICHASH_BYTES_MIN
+                    SODIUM_CRYPTO_GENERICHASH_BYTES_MIN
                 )
             );
         }
-        if ($size > \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX) {
+        if ($size > SODIUM_CRYPTO_GENERICHASH_BYTES_MAX) {
             throw new InvalidDigestLength(
-                \sprintf(
+                sprintf(
                     'Merkle roots must be at most %d long.',
-                    \SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+                    SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
                 )
             );
         }
@@ -173,12 +175,12 @@ class MerkleTree
      *
      * @return string
      * @throws CannotPerformOperation
-     * @throws \TypeError
-     * @throws \SodiumException
+     * @throws TypeError
+     * @throws SodiumException
      */
     protected function calculateRoot(): string
     {
-        $size = \count($this->nodes);
+        $size = count($this->nodes);
         if ($size < 1) {
             return '';
         }
@@ -239,11 +241,9 @@ class MerkleTree
             $hash = $tmp;
             $order >>= 1;
         } while ($order > 1);
-        // We should only have one value left:t
+        // We should only have one value left:
         $this->rootCalculated = true;
-        /** @var string $first */
-        $first = \array_shift($hash);
-        return $first;
+        return (string) array_shift($hash);
     }
 
     /**

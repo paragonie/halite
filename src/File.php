@@ -49,7 +49,8 @@ use function
     sodium_crypto_generichash_init,
     sodium_crypto_generichash_update,
     sodium_crypto_generichash_final,
-    sodium_crypto_scalarmult;
+    sodium_crypto_scalarmult,
+    sodium_increment;
 
 /**
  * Class File
@@ -529,6 +530,7 @@ final class File
      * @param string|bool $encoding         Which encoding scheme to use for the signature?
      *
      * @return bool
+     *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
      * @throws FileError
@@ -577,6 +579,7 @@ final class File
      * @param StreamInterface $fileStream
      * @param ?Key $key
      * @param string|bool $encoding Which encoding scheme to use for the checksum?
+     *
      * @return string
      *
      * @throws CannotPerformOperation
@@ -664,6 +667,7 @@ final class File
      * @param MutableFile $output
      * @param EncryptionKey $key
      * @param string|null $aad    Additional authenticated data
+     *
      * @return int
      *
      * @throws CannotPerformOperation
@@ -1481,7 +1485,7 @@ final class File
      * @param string $nonce
      * @param string $mac (hash context for BLAKE2b)
      * @param Config $config
-     * @param array &$chunk_macs
+     * @param string[] &$chunk_macs
      *
      * @return bool
      *
@@ -1524,7 +1528,9 @@ final class File
 
             // Version 2+ uses a keyed BLAKE2b hash instead of HMAC
             sodium_crypto_generichash_update($mac, $read);
-            /** @var string $mac */
+            if (!is_string($mac)) {
+                throw new CannotPerformOperation('Internal error with BLAKE2b implementation');
+            }
             $calcMAC = Util::safeStrcpy($mac);
             $calc = sodium_crypto_generichash_final($calcMAC, (int) $config->MAC_SIZE);
 
@@ -1536,7 +1542,6 @@ final class File
                 );
                 // @codeCoverageIgnoreEnd
             } else {
-                /** @var string $chunkMAC */
                 $chunkMAC = array_shift($chunk_macs);
                 if (!hash_equals($chunkMAC, $calc)) {
                     // This chunk was altered after the original MAC was verified
@@ -1575,10 +1580,10 @@ final class File
      * Recalculate and verify the HMAC of the input file
      *
      * @param ReadOnlyFile $input  The file we are verifying
-     * @param string $mac (hash context)
+     * @param string $mac          (hash context)
      * @param Config $config       Version-specific settings
      *
-     * @return array               Hashes of various chunks
+     * @return string[]            Hashes of various chunks
      *
      * @throws CannotPerformOperation
      * @throws FileAccessDenied
@@ -1589,7 +1594,7 @@ final class File
      */
     private static function streamVerify(
         ReadOnlyFile $input,
-        $mac,
+        string $mac,
         Config $config
     ): array {
         $start = $input->getPos();
@@ -1604,7 +1609,6 @@ final class File
 
         $break = false;
         while (!$break && $input->getPos() < $cipher_end) {
-
             /**
              * Would a full BUFFER read put it past the end of the
              * ciphertext? If so, only return a portion of the file.
@@ -1622,7 +1626,9 @@ final class File
              * We're updating our HMAC and nothing else
              */
             sodium_crypto_generichash_update($mac, $read);
-            $mac = (string) $mac;
+            if (!is_string($mac)) {
+                throw new CannotPerformOperation('Internal error with BLAKE2b implementation');
+            }
             // Copy the hash state then store the MAC of this chunk
             $chunkMAC = Util::safeStrcpy($mac);
             $chunkMACs []= sodium_crypto_generichash_final(

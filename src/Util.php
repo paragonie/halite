@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use Error;
 use ParagonIE\ConstantTime\{
     Binary,
     Hex
@@ -11,7 +12,6 @@ use ParagonIE\Halite\Alerts\{
     InvalidDigestLength,
     InvalidType
 };
-use Error;
 use RangeException;
 use SodiumException;
 use Throwable;
@@ -64,7 +64,9 @@ final class Util
      * Convert a character to an integer (without cache-timing side-channels)
      *
      * @param string $chr
+     *
      * @return int
+     *
      * @throws RangeException
      */
     public static function chrToInt(string $chr): int
@@ -83,7 +85,9 @@ final class Util
      *
      * @param string $input
      * @param int $length
+     *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws SodiumException
      * @throws TypeError
@@ -104,7 +108,9 @@ final class Util
      *
      * @param string $input
      * @param int $length
+     *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws SodiumException
      */
@@ -129,6 +135,7 @@ final class Util
      * @param int $length How many bytes?
      * @param string $info What sort of key are we deriving?
      * @param string $salt
+     *
      * @return string
      *
      * @throws CannotPerformOperation
@@ -192,6 +199,7 @@ final class Util
      * Convert an array of integers to a string
      *
      * @param array<int, int> $integers
+     *
      * @return string
      */
     public static function intArrayToString(array $integers): string
@@ -226,7 +234,9 @@ final class Util
      * @param string $input
      * @param string $key
      * @param int $length
+     *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws TypeError
      * @throws SodiumException
@@ -245,6 +255,7 @@ final class Util
      * Pre-authentication encoding
      *
      * @param string ...$pieces
+     *
      * @return string
      */
     public static function PAE(string ...$pieces): string
@@ -266,7 +277,9 @@ final class Util
      * @param string $input
      * @param string $key
      * @param int $length
+     *
      * @return string
+     *
      * @throws CannotPerformOperation
      * @throws SodiumException
      */
@@ -299,7 +312,9 @@ final class Util
      * the original string.
      *
      * @param string $string
+     *
      * @return string
+     *
      * @throws TypeError
      */
     public static function safeStrcpy(string $string): string
@@ -320,7 +335,9 @@ final class Util
      * Turn a string into an array of integers
      *
      * @param string $string
+     *
      * @return array<int, int>
+     *
      * @throws TypeError
      */
     public static function stringToIntArray(string $string): array
@@ -337,7 +354,9 @@ final class Util
      *
      * @param string $left
      * @param string $right
+     *
      * @return string
+     *
      * @throws InvalidType
      */
     public static function xorStrings(string $left, string $right): string
@@ -358,6 +377,9 @@ final class Util
      * Wrap memzero() without breaking on sodium_compat
      *
      * @param string &$var
+     *
+     * @return void
+     *
      * @psalm-param-out null $var
      * @psalm-suppress UnnecessaryVarAnnotation
      * @psalm-suppress InvalidOperand
@@ -370,6 +392,6 @@ final class Util
             // Best-effort:
             $var ^= $var;
         }
-        $var = null;
+        unset($var);
     }
 }

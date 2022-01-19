@@ -26,7 +26,6 @@ use ParagonIE\Halite\Asymmetric\{
 class KeyPair
 {
     protected SecretKey $secretKey;
-
     protected PublicKey $publicKey;
 
     /**

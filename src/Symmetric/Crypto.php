@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite\Symmetric;
 
+use Error;
 use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Halite\Alerts\{
     CannotPerformOperation,
@@ -17,7 +18,6 @@ use ParagonIE\Halite\{
     Util
 };
 use ParagonIE\HiddenString\HiddenString;
-use Error;
 use RangeException;
 use SodiumException;
 use Throwable;
@@ -70,6 +70,7 @@ final class Crypto
      * @param string $message
      * @param AuthenticationKey $secretKey
      * @param string|bool $encoding
+     *
      * @return string
      *
      * @throws InvalidMessage
@@ -95,7 +96,7 @@ final class Crypto
         if ($encoder) {
             return (string) $encoder($mac);
         }
-        return (string) $mac;
+        return $mac;
     }
 
     /**
@@ -103,7 +104,8 @@ final class Crypto
      *
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
-     * @param mixed $encoding
+     * @param string|bool $encoding
+     *
      * @return HiddenString
      *
      * @throws CannotPerformOperation
@@ -133,7 +135,8 @@ final class Crypto
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
      * @param string $additionalData
-     * @param mixed $encoding
+     * @param string|bool $encoding
+     *
      * @return HiddenString
      *
      * @throws CannotPerformOperation
@@ -164,20 +167,22 @@ final class Crypto
             }
             // @codeCoverageIgnoreEnd
         }
-        /** @var array $pieces */
-        $pieces = self::unpackMessageForDecryption($ciphertext);
-        /** @var string $version */
-        $version = $pieces[0];
-        /** @var Config $config */
-        $config = $pieces[1];
-        /** @var string $salt */
-        $salt = $pieces[2];
-        /** @var string $nonce */
-        $nonce = $pieces[3];
-        /** @var string $encrypted */
-        $encrypted = $pieces[4];
-        /** @var string $auth */
-        $auth = $pieces[5];
+        /**
+         * @var string $version
+         * @var Config $config
+         * @var string $salt
+         * @var string $nonce
+         * @var string $encrypted
+         * @var string $auth
+         */
+        [
+            $version,
+            $config,
+            $salt,
+            $nonce,
+            $encrypted,
+            $auth
+        ] = self::unpackMessageForDecryption($ciphertext);
 
         /* Split our key into two keys: One for encryption, the other for
            authentication. By using separate keys, we can reasonably dismiss
@@ -190,14 +195,14 @@ final class Crypto
          * @var string $encKey
          * @var string $authKey
          */
-        $split = self::splitKeys($secretKey, (string) $salt, $config);
+        $split = self::splitKeys($secretKey, $salt, $config);
         $encKey = $split[0];
         $authKey = $split[1];
 
         // Check the MAC first
         if ($config->USE_PAE) {
             $verified = self::verifyMAC(
-                (string) $auth,
+                $auth,
                 Util::PAE($version, $salt, $nonce, $additionalData, $encrypted),
                 $authKey,
                 $config
@@ -205,12 +210,12 @@ final class Crypto
         } else {
             $verified = self::verifyMAC(
             // @codeCoverageIgnoreStart
-                (string) $auth,
-                (string) $version .
-                (string) $salt .
-                (string) $nonce .
-                (string) $additionalData .
-                (string) $encrypted,
+                $auth,
+                $version .
+                    $salt .
+                    $nonce .
+                    $additionalData .
+                    $encrypted,
                 // @codeCoverageIgnoreEnd
                 $authKey,
                 $config
@@ -246,6 +251,7 @@ final class Crypto
      * @param HiddenString $plaintext
      * @param EncryptionKey $secretKey
      * @param string|bool $encoding
+     *
      * @return string
      *
      * @throws CannotPerformOperation
@@ -273,6 +279,7 @@ final class Crypto
      * @param EncryptionKey $secretKey
      * @param string $additionalData
      * @param bool|string $encoding
+     *
      * @return string
      *
      * @throws CannotPerformOperation
@@ -306,7 +313,7 @@ final class Crypto
 
            This uses salted HKDF to split the keys, which is why we need the
            salt in the first place. */
-        list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
+        [$encKey, $authKey] = self::splitKeys($secretKey, $salt, $config);
 
         // Encrypt our message with the encryption key:
 
@@ -359,7 +366,7 @@ final class Crypto
         if ($encoder) {
             return (string) $encoder($message);
         }
-        return (string) $message;
+        return $message;
     }
 
     /**
@@ -368,6 +375,7 @@ final class Crypto
      * @param EncryptionKey $master
      * @param string $salt
      * @param BaseConfig $config
+     *
      * @return string[]
      *
      * @throws CannotPerformOperation
@@ -403,6 +411,7 @@ final class Crypto
      * Should return exactly 6 elements.
      *
      * @param string $ciphertext
+     *
      * @return array<int, mixed>
      *
      * @throws InvalidMessage
@@ -487,6 +496,7 @@ final class Crypto
      * @param string $mac
      * @param string|bool $encoding
      * @param ?SymmetricConfig $config
+     *
      * @return bool
      *
      * @throws InvalidMessage
@@ -535,9 +545,11 @@ final class Crypto
      * @param string $message
      * @param string $authKey
      * @param SymmetricConfig $config
+     *
      * @return string
+     *
      * @throws InvalidMessage
-     * @throws \SodiumException
+     * @throws SodiumException
      */
     protected static function calculateMAC(
         string $message,
@@ -562,10 +574,11 @@ final class Crypto
      * Verify a Message Authentication Code (MAC) of a message, with a shared
      * key.
      *
-     * @param string $mac             Message Authentication Code
-     * @param string $message         The message to verify
-     * @param string $authKey         Authentication key (symmetric)
-     * @param SymmetricConfig $config Configuration object
+     * @param string $mac              Message Authentication Code
+     * @param string $message          The message to verify
+     * @param string $authKey          Authentication key (symmetric)
+     * @param SymmetricConfig $config  Configuration object
+     *
      * @return bool
      *
      * @throws InvalidMessage

@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace ParagonIE\Halite;
 
 use ParagonIE\Halite\Alerts\ConfigDirectiveNotFound;
+use function array_key_exists;
 
 /**
  * Class Config
@@ -23,7 +24,7 @@ use ParagonIE\Halite\Alerts\ConfigDirectiveNotFound;
  * @property bool CHECKSUM_PUBKEY
  * @property int BUFFER
  * @property int HASH_LEN
- * @property string ENCODING
+ * @property string|bool ENCODING
  * @property int SHORTEST_CIPHERTEXT_LENGTH
  * @property int NONCE_BYTES
  * @property int HKDF_SALT_LEN
@@ -60,7 +61,7 @@ class Config
      */
     public function __get(string $key)
     {
-        if (\array_key_exists($key, $this->config)) {
+        if (array_key_exists($key, $this->config)) {
             return $this->config[$key];
         }
         throw new ConfigDirectiveNotFound($key);

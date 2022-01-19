@@ -2,13 +2,19 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
-use ParagonIE\Halite\Alerts\InvalidKey;
+use InvalidArgumentException;
+use ParagonIE\Halite\Alerts\{
+    CannotPerformOperation,
+    InvalidKey
+};
 use ParagonIE\Halite\Asymmetric\{
+    PublicKey,
+    SecretKey,
     SignaturePublicKey,
     SignatureSecretKey
 };
 use ParagonIE\HiddenString\HiddenString;
-use InvalidArgumentException;
+use SodiumException;
 use TypeError;
 use function count;
 
@@ -33,19 +39,21 @@ final class SignatureKeyPair extends KeyPair
     /**
      * @var SignatureSecretKey
      */
-    protected Asymmetric\SecretKey $secretKey;
+    protected SecretKey $secretKey;
 
     /**
      * @var SignaturePublicKey
      */
-    protected Asymmetric\PublicKey $publicKey;
+    protected PublicKey $publicKey;
 
     /**
      * Pass it a secret key, it will automatically generate a public key
      *
      * @param array<int, Key> $keys
      *
+     * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws SodiumException
      * @throws TypeError
      */
     public function __construct(Key ...$keys)
@@ -119,14 +127,16 @@ final class SignatureKeyPair extends KeyPair
                 break;
             default:
                 throw new InvalidArgumentException(
-                    'Halite\\EncryptionKeyPair expects 1 or 2 keys'
+                    'EncryptionKeyPair expects 1 or 2 keys'
                 );
         }
     }
 
     /**
      * @return EncryptionKeyPair
+     *
      * @throws InvalidKey
+     * @throws SodiumException
      * @throws TypeError
      */
     public function getEncryptionKeyPair(): EncryptionKeyPair
@@ -143,8 +153,9 @@ final class SignatureKeyPair extends KeyPair
      * @param SignatureSecretKey $secret
      * @return void
      *
+     * @throws CannotPerformOperation
      * @throws InvalidKey
-     * @throws TypeError
+     * @throws SodiumException
      */
     protected function setupKeyPair(SignatureSecretKey $secret): void
     {

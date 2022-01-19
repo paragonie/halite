@@ -103,6 +103,7 @@ final class Crypto
      * @param EncryptionPublicKey $theirPublicKey
      * @param string $additionalData
      * @param string|bool $encoding
+     *
      * @return string
      *
      * @throws CannotPerformOperation
@@ -161,7 +162,7 @@ final class Crypto
         EncryptionPublicKey $theirPublicKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
-        return static::decryptWithAd(
+        return self::decryptWithAd(
             $ciphertext,
             $ourPrivateKey,
             $theirPublicKey,
@@ -178,6 +179,7 @@ final class Crypto
      * @param EncryptionPublicKey $theirPublicKey
      * @param string $additionalData
      * @param string|bool $encoding
+     *
      * @return HiddenString
      *
      * @throws CannotPerformOperation
@@ -351,7 +353,7 @@ final class Crypto
      *
      * @param string $ciphertext              Encrypted message
      * @param EncryptionSecretKey $privateKey Private decryption key
-     * @param mixed $encoding                 Which encoding scheme to use?
+     * @param string|bool $encoding           Which encoding scheme to use?
      * @return HiddenString
      *
      * @throws InvalidKey

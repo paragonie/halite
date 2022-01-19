@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Halite;
 
+use Error;
 use ParagonIE\ConstantTime\{
     Base32,
     Base32Hex,
@@ -10,7 +11,12 @@ use ParagonIE\ConstantTime\{
     Hex
 };
 use ParagonIE\Halite\Alerts\InvalidType;
-use function extension_loaded, implode;
+use const
+    SODIUM_LIBRARY_MAJOR_VERSION,
+    SODIUM_LIBRARY_VERSION;
+use function
+    extension_loaded,
+    implode;
 
 /**
  * Class Halite
@@ -57,26 +63,28 @@ final class Halite
     /**
      * Don't allow this to be instantiated.
      *
-     * @throws \Error
+     * @throws Error
      * @codeCoverageIgnore
      */
     final private function __construct()
     {
-        throw new \Error('Do not instantiate');
+        throw new Error('Do not instantiate');
     }
 
     /**
      * Select which encoding/decoding function to use.
      *
      * @internal
-     * @param mixed $chosen
+     * @param string|bool $chosen
      * @param bool $decode
-     * @return callable|null
+     * @return ?callable
+     *
      * @throws InvalidType
+     *
      * @psalm-suppress InvalidReturnStatement
      * @psalm-suppress InvalidReturnType
      */
-    public static function chooseEncoder($chosen, bool $decode = false)
+    public static function chooseEncoder(string|bool $chosen, bool $decode = false)
     {
         if ($chosen === true) {
             return null;

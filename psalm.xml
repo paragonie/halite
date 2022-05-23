@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm name="Halite Psalm Configuration"
        useDocblockTypes="true"
-       totallyTyped="true">
+>
     <projectFiles>
         <directory name="./src" />
     </projectFiles>
@@ -11,6 +11,7 @@
         <RedundantCondition errorLevel="suppress" />
         <RedundantConditionGivenDocblockType errorLevel="suppress" />
 
+        <ArgumentTypeCoercion errorLevel="info" />
         <RedundantCast errorLevel="info" />
         <NonInvariantDocblockPropertyType errorLevel="info" />
     </issueHandlers>

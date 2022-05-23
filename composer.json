@@ -32,7 +32,7 @@
         }
     ],
     "require": {
-        "php": "^8",
+        "php": "^8.1",
         "ext-json": "*",
         "paragonie/constant_time_encoding": "^2",
         "paragonie/hidden-string": "^1|^2",

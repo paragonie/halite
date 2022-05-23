@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 5.1.0 (2202-05-23)
+
+* Dropped PHP 8.0 support, increased minimum PHP version to 8.1.
+  * This is due to the significant performance difference between ext/sodium
+    and sodium_compat, and the functions we use in 5.x aren't available until
+    PHP 8.1. See [#178](https://github.com/paragonie/halite/issues/178).
+* The 5.0.x branch will continue to *function* on PHP 8.0 but performance is
+  not guaranteed.
+
 ## Version 5.0.0 (2022-01-19)
 
 * Increased minimum PHP version to 8.0.

@@ -1,4 +1,4 @@
-name: CI
+name: Psalm
 
 on:
   push:
@@ -7,14 +7,13 @@ on:
     branches: [ master ]
 
 jobs:
-  phpunit:
-    name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
+  psalm:
+    name: Psalm on PHP ${{ matrix.php-versions }}
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
         php-versions: ['8.1']
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -23,12 +22,13 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, intl, sodium
-          ini-values: error_reporting=-1, display_errors=On
+          tools: psalm:4
           coverage: none
 
       - name: Install Composer dependencies
         uses: "ramsey/composer-install@v1"
+        with:
+          composer-options: --no-dev
 
-      - name: PHPUnit tests
-        run: vendor/bin/phpunit
+      - name: Static Analysis
+        run: psalm

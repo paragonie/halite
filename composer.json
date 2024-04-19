@@ -36,7 +36,7 @@
         "ext-json": "*",
         "paragonie/constant_time_encoding": "^2",
         "paragonie/hidden-string": "^1|^2",
-        "paragonie/sodium_compat": "^1.17"
+        "paragonie/sodium_compat": "^1|^2"
     },
     "autoload": {
         "psr-4": {

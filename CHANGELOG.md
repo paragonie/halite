@@ -1,6 +1,11 @@
 # Changelog
 
-## Version 5.1.0 (2202-05-23)
+## Version 5.1.1 (2024-04-19)
+
+* Support both sodium_compat v1 and v2. 
+  [Learn more here](https://paragonie.com/blog/2024/04/release-sodium-compat-v2-and-future-our-polyfill-libraries).
+
+## Version 5.1.0 (2022-05-23)
 
 * Dropped PHP 8.0 support, increased minimum PHP version to 8.1.
   * This is due to the significant performance difference between ext/sodium

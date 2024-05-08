@@ -27,8 +27,10 @@ final class AuthenticationKey extends SecretKey
      * @throws InvalidKey
      * @throws TypeError
      */
-    public function __construct(HiddenString $keyMaterial)
-    {
+    public function __construct(
+        #[\SensitiveParameter]
+        HiddenString $keyMaterial
+    ) {
         if (Binary::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_AUTH_KEYBYTES) {
             throw new InvalidKey(
                 sprintf(

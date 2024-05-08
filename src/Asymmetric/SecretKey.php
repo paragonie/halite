@@ -24,8 +24,11 @@ class SecretKey extends Key
      *
      * @throws TypeError
      */
-    public function __construct(HiddenString $keyMaterial, ?HiddenString $pk = null)
-    {
+    public function __construct(
+        #[\SensitiveParameter]
+        HiddenString $keyMaterial,
+        ?HiddenString $pk = null
+    ) {
         parent::__construct($keyMaterial);
         if (!is_null($pk)) {
             $this->cachedPublicKey = $pk->getString();

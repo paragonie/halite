@@ -33,8 +33,11 @@ final class SignatureSecretKey extends SecretKey
      * @throws InvalidKey
      * @throws TypeError
      */
-    public function __construct(HiddenString $keyMaterial, ?HiddenString $pk = null)
-    {
+    public function __construct(
+        #[\SensitiveParameter]
+        HiddenString $keyMaterial,
+        ?HiddenString $pk = null
+    ) {
         if (Binary::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
             throw new InvalidKey(
                 sprintf(

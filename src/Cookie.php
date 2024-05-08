@@ -86,8 +86,10 @@ final class Cookie
      * @throws SodiumException
      * @throws TypeError
      */
-    public function fetch(string $name)
-    {
+    public function fetch(
+        #[\SensitiveParameter]
+        string $name
+    ) {
         if (!isset($_COOKIE[$name])) {
             return null;
         }
@@ -165,7 +167,9 @@ final class Cookie
      * @psalm-suppress MixedArgument
      */
     public function store(
+        #[\SensitiveParameter]
         string $name,
+        #[\SensitiveParameter]
         $value,
         int $expire = 0,
         string $path = '/',

@@ -157,8 +157,10 @@ final class SignatureKeyPair extends KeyPair
      * @throws InvalidKey
      * @throws SodiumException
      */
-    protected function setupKeyPair(SignatureSecretKey $secret): void
-    {
+    protected function setupKeyPair(
+        #[\SensitiveParameter]
+        SignatureSecretKey $secret
+    ): void {
         $this->secretKey = $secret;
         $this->publicKey = $this->secretKey->derivePublicKey();
     }

@@ -131,8 +131,10 @@ final class EncryptionKeyPair extends KeyPair
      * @throws InvalidKey
      * @throws \TypeError
      */
-    protected function setupKeyPair(EncryptionSecretKey $secret): void
-    {
+    protected function setupKeyPair(
+        #[\SensitiveParameter]
+        EncryptionSecretKey $secret
+    ): void {
         $this->secretKey = $secret;
         $this->publicKey = $this->secretKey->derivePublicKey();
     }

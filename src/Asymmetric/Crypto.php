@@ -84,7 +84,9 @@ final class Crypto
      * @throws TypeError
      */
     public static function encrypt(
+        #[\SensitiveParameter]
         HiddenString $plaintext,
+        #[\SensitiveParameter]
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
@@ -118,9 +120,12 @@ final class Crypto
      * @throws TypeError
      */
     public static function encryptWithAD(
+        #[\SensitiveParameter]
         HiddenString $plaintext,
+        #[\SensitiveParameter]
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
+        #[\SensitiveParameter]
         string $additionalData = '',
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
@@ -163,6 +168,7 @@ final class Crypto
      */
     public static function decrypt(
         string $ciphertext,
+        #[\SensitiveParameter]
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
@@ -198,8 +204,10 @@ final class Crypto
      */
     public static function decryptWithAD(
         string $ciphertext,
+        #[\SensitiveParameter]
         EncryptionSecretKey $ourPrivateKey,
         EncryptionPublicKey $theirPublicKey,
+        #[\SensitiveParameter]
         string $additionalData = '',
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
@@ -241,6 +249,7 @@ final class Crypto
      * @throws TypeError
      */
     public static function getSharedSecret(
+        #[\SensitiveParameter]
         EncryptionSecretKey $privateKey,
         EncryptionPublicKey $publicKey,
         bool $get_as_object = false,
@@ -291,6 +300,7 @@ final class Crypto
      * @throws TypeError
      */
     public static function seal(
+        #[\SensitiveParameter]
         HiddenString $plaintext,
         EncryptionPublicKey $publicKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
@@ -321,6 +331,7 @@ final class Crypto
      */
     public static function sign(
         string $message,
+        #[\SensitiveParameter]
         SignatureSecretKey $privateKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
@@ -355,6 +366,7 @@ final class Crypto
      */
     public static function signAndEncrypt(
         HiddenString $message,
+        #[\SensitiveParameter]
         SignatureSecretKey $secretKey,
         PublicKey $recipientPublicKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
@@ -393,6 +405,7 @@ final class Crypto
      */
     public static function unseal(
         string $ciphertext,
+        #[\SensitiveParameter]
         EncryptionSecretKey $privateKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {
@@ -505,6 +518,7 @@ final class Crypto
     public static function verifyAndDecrypt(
         string $ciphertext,
         SignaturePublicKey $senderPublicKey,
+        #[\SensitiveParameter]
         SecretKey $givenSecretKey,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
     ): HiddenString {

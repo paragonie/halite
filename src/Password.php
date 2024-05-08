@@ -64,9 +64,12 @@ final class Password
      * @throws TypeError
      */
     public static function hash(
+        #[\SensitiveParameter]
         HiddenString $password,
+        #[\SensitiveParameter]
         EncryptionKey $secretKey,
         string $level = KeyFactory::INTERACTIVE,
+        #[\SensitiveParameter]
         string $additionalData = ''
     ): string {
         $kdfLimits = KeyFactory::getSecurityLevels($level);
@@ -105,9 +108,12 @@ final class Password
      * @throws TypeError
      */
     public static function needsRehash(
+        #[\SensitiveParameter]
         string $stored,
+        #[\SensitiveParameter]
         EncryptionKey $secretKey,
         string $level = KeyFactory::INTERACTIVE,
+        #[\SensitiveParameter]
         string $additionalData = ''
     ): bool {
         $config = self::getConfig($stored);
@@ -203,9 +209,13 @@ final class Password
      * @throws TypeError
      */
     public static function verify(
+        #[\SensitiveParameter]
         HiddenString $password,
+        #[\SensitiveParameter]
         string $stored,
+        #[\SensitiveParameter]
         EncryptionKey $secretKey,
+        #[\SensitiveParameter]
         string $additionalData = ''
     ): bool {
         $config = self::getConfig($stored);

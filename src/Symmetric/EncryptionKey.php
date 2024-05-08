@@ -25,8 +25,10 @@ final class EncryptionKey extends SecretKey
      * @throws InvalidKey
      * @throws TypeError
      */
-    public function __construct(HiddenString $keyMaterial)
-    {
+    public function __construct(
+        #[\SensitiveParameter]
+        HiddenString $keyMaterial
+    ) {
         if (Binary::safeStrlen($keyMaterial->getString()) !== SODIUM_CRYPTO_STREAM_KEYBYTES) {
             throw new InvalidKey(
                 sprintf(

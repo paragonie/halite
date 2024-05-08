@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 5.1.2 (2024-05-08)
+
+* Use `#[SensitiveParameter]` annotation on some inputs
+  * This is defense in depth; we already wrapped most in `HiddenString`
+* Updated dependencies
+
 ## Version 5.1.1 (2024-04-19)
 
 * Support both sodium_compat v1 and v2. 

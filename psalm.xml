@@ -11,6 +11,7 @@
         <RedundantCondition errorLevel="suppress" />
         <RedundantConditionGivenDocblockType errorLevel="suppress" />
 
+        <TypeDoesNotContainType errorLevel="info" />
         <ArgumentTypeCoercion errorLevel="info" />
         <RedundantCast errorLevel="info" />
         <NonInvariantDocblockPropertyType errorLevel="info" />

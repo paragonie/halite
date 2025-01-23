@@ -21,27 +21,27 @@ use function array_key_exists;
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * @property string|bool ENCODING
+ * @property string|bool $ENCODING
  *
  * AsymmetricCrypto:
- * @property string HASH_DOMAIN_SEPARATION
- * @property bool HASH_SCALARMULT
+ * @property string $HASH_DOMAIN_SEPARATION
+ * @property bool $HASH_SCALARMULT
  *
  * SymmetricCrypto:
- * @property bool CHECKSUM_PUBKEY
- * @property int BUFFER
- * @property int HASH_LEN
- * @property int SHORTEST_CIPHERTEXT_LENGTH
- * @property int NONCE_BYTES
- * @property int HKDF_SALT_LEN
- * @property string ENC_ALGO
- * @property string MAC_ALGO
- * @property int MAC_SIZE
- * @property int PUBLICKEY_BYTES
- * @property bool HKDF_USE_INFO
- * @property string HKDF_SBOX
- * @property string HKDF_AUTH
- * @property bool USE_PAE
+ * @property bool $CHECKSUM_PUBKEY
+ * @property int $BUFFER
+ * @property int $HASH_LEN
+ * @property int $SHORTEST_CIPHERTEXT_LENGTH
+ * @property int $NONCE_BYTES
+ * @property int $HKDF_SALT_LEN
+ * @property string $ENC_ALGO
+ * @property string $MAC_ALGO
+ * @property int $MAC_SIZE
+ * @property int $PUBLICKEY_BYTES
+ * @property bool $HKDF_USE_INFO
+ * @property string $HKDF_SBOX
+ * @property string $HKDF_AUTH
+ * @property bool $USE_PAE
  */
 class Config
 {
@@ -79,11 +79,10 @@ class Config
      * 
      * @param string $key
      * @param mixed $value
-     * @return bool
+     * @return void
      * @codeCoverageIgnore
      */
-    public function __set(string $key, mixed $value = null)
+    public function __set(string $key, mixed $value = null): void
     {
-        return false;
     }
 }

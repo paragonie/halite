@@ -44,6 +44,7 @@
         }
     },
     "require-dev": {
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9",
         "vimeo/psalm": "^4"
     },

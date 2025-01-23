@@ -78,7 +78,7 @@ class ReadOnlyFile implements StreamInterface
      * @throws TypeError
      * @psalm-suppress RedundantConditionGivenDocblockType
      */
-    public function __construct($file, Key $key = null)
+    public function __construct($file, ?Key $key = null)
     {
         if (is_string($file)) {
             if (!is_readable($file)) {

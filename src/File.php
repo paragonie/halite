@@ -103,7 +103,7 @@ final class File
      */
     public static function checksum(
         string|ReadonlyFile $filePath,
-        Key $key = null,
+        ?Key $key = null,
         bool|string $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         if ($filePath instanceof ReadOnlyFile) {
@@ -593,7 +593,7 @@ final class File
      */
     protected static function checksumData(
         StreamInterface $fileStream,
-        Key $key = null,
+        ?Key $key = null,
         string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $config = self::getConfig(

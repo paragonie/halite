@@ -95,7 +95,7 @@ class TrimmedMerkleTree extends MerkleTree
     /**
      * Merkle Trees are immutable. Return a replacement with extra nodes.
      *
-     * @param array<int, Node> $nodes
+     * @param Node ...$nodes
      *
      * @return TrimmedMerkleTree
      *

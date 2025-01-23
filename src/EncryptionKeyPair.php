@@ -40,7 +40,7 @@ final class EncryptionKeyPair extends KeyPair
     /**
      * Pass it a secret key, it will automatically generate a public key
      *
-     * @param array<int, Key> $keys
+     * @param Key ...$keys
      *
      * @throws InvalidKey
      * @throws \InvalidArgumentException

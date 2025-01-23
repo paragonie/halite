@@ -53,7 +53,7 @@ class MerkleTree
     /**
      * Instantiate a Merkle tree
      * 
-     * @param array<int, Node> $nodes
+     * @param Node ...$nodes
      */
     public function __construct(Node ...$nodes)
     {
@@ -84,7 +84,7 @@ class MerkleTree
     /**
      * Merkle Trees are immutable. Return a replacement with extra nodes.
      *
-     * @param array<int, Node> $nodes
+     * @param Node ...$nodes
      *
      * @return MerkleTree
      *

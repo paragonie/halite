@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 5.1.3 (2025-01-23)
+
+* Merged [#184](https://github.com/paragonie/halite/pull/194), which fixes PHP 8.4 deprecations with nullable types.
+
 ## Version 5.1.2 (2024-05-08)
 
 * Use `#[SensitiveParameter]` annotation on some inputs

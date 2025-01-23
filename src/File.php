@@ -130,7 +130,6 @@ final class File
                 $readOnly->close();
             }
         }
-        throw new InvalidType('Argument 1: Expected a filename');
     }
 
     /**

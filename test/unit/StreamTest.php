@@ -53,14 +53,12 @@ final class StreamTest extends TestCase
         $perms = fileperms($filename);
         if (!is_int($perms) || ($perms & 0777) !== 0 || is_readable($filename)) {
             $this->markTestSkipped('chmod failed to remove read access, so the test will fail; skipping');
-            return;
         }
 
         try {
             new ReadOnlyFile($filename);
             if (DIRECTORY_SEPARATOR === '\\') {
                 $this->markTestSkipped('Windows permissions are weird.');
-                return;
             }
             $this->fail('File should not be readable');
         } catch (CryptoException\FileAccessDenied $ex) {

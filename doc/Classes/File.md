@@ -6,7 +6,7 @@
 
 ### `checksum()`
 
-> `public static` checksum(`$filepath`, [`Key`](Key.md) `$key = null`, `$raw = false`) : `string`
+> `public static` checksum(`$filepath`, [`?Key`](Key.md) `$key = null`, `$raw = false`) : `string`
 
 Calculates a BLAKE2b-512 hash of the given file.
 

@@ -49,7 +49,7 @@
         "vimeo/psalm": "^4"
     },
     "scripts": {
-        "test": "phpunit && psalm"
+        "test": "phpunit && phpstan && psalm"
     },
     "support": {
         "docs": "https://github.com/paragonie/halite/tree/master/doc"

@@ -65,7 +65,7 @@ final class Cookie
      * 
      * @return array
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return [
             'key' => 'private'

@@ -214,7 +214,6 @@ class MerkleTree
             $tmp = [];
             $j = 0;
             for ($i = 0; $i < $order; $i += 2) {
-                /** @var string $prev */
                 $curr = (string) ($hash[$i] ?? '');
                 if (empty($hash[$i + 1])) {
                     // @codeCoverageIgnoreStart

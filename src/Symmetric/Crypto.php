@@ -199,11 +199,7 @@ final class Crypto
 
            This uses salted HKDF to split the keys, which is why we need the
            salt in the first place. */
-        /**
-         * @var array<int, string> $split
-         * @var string $encKey
-         * @var string $authKey
-         */
+        /** @var array<int, string> $split */
         $split = Util::splitKeys($secretKey, $salt, $config);
         $encKey = $split[0];
         $authKey = $split[1];

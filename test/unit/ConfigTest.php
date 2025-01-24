@@ -9,6 +9,7 @@ class ConfigTest extends TestCase
 {
     public function testConfig()
     {
+        /** @var object{abc:12345}&Config $config */
         $config = new Config([
             'abc' => 12345
         ]);

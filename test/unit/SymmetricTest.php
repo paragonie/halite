@@ -262,21 +262,17 @@ final class SymmetricTest extends TestCase
         $this->assertSame(Binary::safeStrlen($unpacked[0]), Halite::VERSION_TAG_LEN);
         $this->assertTrue($unpacked[1] instanceof Config);
         $config = $unpacked[1];
-        if ($config instanceof Config) {
-            $this->assertSame(Binary::safeStrlen($unpacked[2]), $config->HKDF_SALT_LEN);
-            $this->assertSame(Binary::safeStrlen($unpacked[3]), SODIUM_CRYPTO_STREAM_NONCEBYTES);
-            $this->assertSame(
-                Binary::safeStrlen($unpacked[4]),
-                Binary::safeStrlen($message) - (
-                    Halite::VERSION_TAG_LEN +
-                    $config->HKDF_SALT_LEN +
-                    SODIUM_CRYPTO_STREAM_NONCEBYTES +
-                    $config->MAC_SIZE
-                )
-            );
-            $this->assertSame(Binary::safeStrlen($unpacked[5]), $config->MAC_SIZE);
-        } else {
-            $this->fail('Cannot continue');
-        }
+        $this->assertSame(Binary::safeStrlen($unpacked[2]), $config->HKDF_SALT_LEN);
+        $this->assertSame(Binary::safeStrlen($unpacked[3]), SODIUM_CRYPTO_STREAM_NONCEBYTES);
+        $this->assertSame(
+            Binary::safeStrlen($unpacked[4]),
+            Binary::safeStrlen($message) - (
+                Halite::VERSION_TAG_LEN +
+                $config->HKDF_SALT_LEN +
+                SODIUM_CRYPTO_STREAM_NONCEBYTES +
+                $config->MAC_SIZE
+            )
+        );
+        $this->assertSame(Binary::safeStrlen($unpacked[5]), $config->MAC_SIZE);
     }
 }

@@ -229,7 +229,7 @@ final class SymmetricTest extends TestCase
                 'This should have thrown an InvalidMessage exception!'
             );
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertTrue($e instanceof CryptoException\InvalidMessage);
+            $this->assertInstanceOf(CryptoException\InvalidMessage::class, $e);
         }
     }
 

@@ -118,8 +118,8 @@ class KeyTest extends TestCase
         $sign_secret = $keypair->getSecretKey();
         $sign_public = $keypair->getPublicKey();
 
-        $this->assertTrue($sign_secret instanceof SignatureSecretKey);
-        $this->assertTrue($sign_public instanceof SignaturePublicKey);
+        $this->assertInstanceOf(SignatureSecretKey::class, $sign_secret);
+        $this->assertInstanceOf(SignaturePublicKey::class, $sign_public);
 
         // Can this be used?
         $message = 'This is a test message';
@@ -159,8 +159,8 @@ class KeyTest extends TestCase
         $sign_secret = $keypair->getSecretKey();
         $sign_public = $keypair->getPublicKey();
 
-        $this->assertTrue($sign_secret instanceof SignatureSecretKey);
-        $this->assertTrue($sign_public instanceof SignaturePublicKey);
+        $this->assertInstanceOf(SignatureSecretKey::class, $sign_secret);
+        $this->assertInstanceOf(SignaturePublicKey::class, $sign_public);
 
         // Can this be used?        
         $message = 'This is a test message';
@@ -354,9 +354,7 @@ class KeyTest extends TestCase
         );
         
         $load_public = KeyFactory::loadEncryptionPublicKey($file_public);
-        $this->assertTrue(
-            $load_public instanceof EncryptionPublicKey
-        );
+        $this->assertInstanceOf(EncryptionPublicKey::class, $load_public);
         $this->assertTrue(
             \hash_equals($enc_public->getRawKeyMaterial(), $load_public->getRawKeyMaterial())
         );
@@ -403,9 +401,7 @@ class KeyTest extends TestCase
         );
         
         $load_public = KeyFactory::loadSignaturePublicKey($file_public);
-        $this->assertTrue(
-            $load_public instanceof SignaturePublicKey
-        );
+        $this->assertInstanceOf(SignaturePublicKey::class, $load_public);
         $this->assertTrue(
             \hash_equals($sign_public->getRawKeyMaterial(), $load_public->getRawKeyMaterial())
         );

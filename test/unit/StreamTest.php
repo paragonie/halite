@@ -182,9 +182,7 @@ final class StreamTest extends TestCase
             $fStream->readBytes(65537);
             $this->fail('File was mutated after being read');
         } catch (CryptoException\FileModified $ex) {
-            $this->assertTrue(
-                $ex instanceof CryptoException\FileModified
-            );
+            $this->assertInstanceOf(CryptoException\FileModified::class, $ex);
         }
 
         $fStream = new ReadOnlyFile($filename);

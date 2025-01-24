@@ -53,6 +53,7 @@ final class SignatureKeyPair extends KeyPair
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws InvalidArgumentException
      * @throws SodiumException
      * @throws TypeError
      */
@@ -153,7 +154,6 @@ final class SignatureKeyPair extends KeyPair
      * @param SignatureSecretKey $secret
      * @return void
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws SodiumException
      */

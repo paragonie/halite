@@ -28,7 +28,7 @@ final class PasswordTest extends TestCase
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
 
         $hash = Password::hash(new HiddenString('test password'), $key);
-        $this->assertTrue(is_string($hash));
+        $this->assertIsString($hash);
 
         $this->assertTrue(
             Password::verify(
@@ -71,7 +71,7 @@ final class PasswordTest extends TestCase
             KeyFactory::INTERACTIVE,
             $aad
         );
-        $this->assertTrue(is_string($hash));
+        $this->assertIsString($hash);
 
         $this->assertTrue(
             Password::verify(
@@ -145,7 +145,7 @@ final class PasswordTest extends TestCase
         $passwd = new HiddenString('test password');
         foreach ([KeyFactory::INTERACTIVE, KeyFactory::MODERATE, KeyFactory::SENSITIVE] as $level) {
             $hash = Password::hash($passwd, $key, $level, $aad);
-            $this->assertTrue(is_string($hash));
+            $this->assertIsString($hash);
             $this->assertFalse(Password::needsRehash($hash, $key, $level, $aad));
             $this->assertTrue(Password::verify($passwd, $hash, $key, $aad));
         }

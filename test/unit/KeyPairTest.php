@@ -37,8 +37,8 @@ final class KeyPairTest extends TestCase
         $sign_secret = $keypair->getSecretKey();
         $sign_public = $keypair->getPublicKey();
 
-        $this->assertTrue($sign_secret instanceof SignatureSecretKey);
-        $this->assertTrue($sign_public instanceof SignaturePublicKey);
+        $this->assertInstanceOf(SignatureSecretKey::class, $sign_secret);
+        $this->assertInstanceOf(SignaturePublicKey::class, $sign_public);
 
         // Can this be used?
         $message = 'This is a test message';
@@ -83,8 +83,8 @@ final class KeyPairTest extends TestCase
         $sign_secret = $keypair->getSecretKey();
         $sign_public = $keypair->getPublicKey();
         
-        $this->assertTrue($sign_secret instanceof SignatureSecretKey);
-        $this->assertTrue($sign_public instanceof SignaturePublicKey);
+        $this->assertInstanceOf(SignatureSecretKey::class, $sign_secret);
+        $this->assertInstanceOf(SignaturePublicKey::class, $sign_public);
         
         // Can this be used?        
         $message = 'This is a test message';

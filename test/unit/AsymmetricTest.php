@@ -186,7 +186,7 @@ final class AsymmetricTest extends TestCase
                 'This should have thrown an InvalidMessage exception!'
             );
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertTrue($e instanceof CryptoException\InvalidMessage);
+            $this->assertInstanceOf(CryptoException\InvalidMessage::class, $e);
         }
     }
 
@@ -285,9 +285,9 @@ final class AsymmetricTest extends TestCase
                 'This should have thrown an InvalidMessage exception!'
             );
         } catch (CryptoException\InvalidKey $e) {
-            $this->assertTrue($e instanceof CryptoException\InvalidKey);
+            $this->assertInstanceOf(CryptoException\InvalidKey::class, $e);
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertTrue($e instanceof CryptoException\InvalidMessage);
+            $this->assertInstanceOf(CryptoException\InvalidMessage::class, $e);
         }
     }
 
@@ -394,7 +394,7 @@ final class AsymmetricTest extends TestCase
             );
             $this->fail('Invalid signature was accepted.');
         } catch (CryptoException\InvalidSignature $ex) {
-            $this->assertTrue(true);
+            $this->assertInstanceOf(CryptoException\InvalidSignature::class, $ex);
         }
 
         // http://time.com/4261796/tim-cook-transcript/

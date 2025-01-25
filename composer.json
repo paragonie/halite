@@ -44,11 +44,12 @@
         }
     },
     "require-dev": {
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9",
         "vimeo/psalm": "^4"
     },
     "scripts": {
-        "test": "phpunit && psalm"
+        "test": "phpunit && phpstan && psalm"
     },
     "support": {
         "docs": "https://github.com/paragonie/halite/tree/master/doc"

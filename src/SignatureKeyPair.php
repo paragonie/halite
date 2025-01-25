@@ -49,10 +49,11 @@ final class SignatureKeyPair extends KeyPair
     /**
      * Pass it a secret key, it will automatically generate a public key
      *
-     * @param array<int, Key> $keys
+     * @param Key ...$keys
      *
      * @throws CannotPerformOperation
      * @throws InvalidKey
+     * @throws InvalidArgumentException
      * @throws SodiumException
      * @throws TypeError
      */
@@ -153,7 +154,6 @@ final class SignatureKeyPair extends KeyPair
      * @param SignatureSecretKey $secret
      * @return void
      *
-     * @throws CannotPerformOperation
      * @throws InvalidKey
      * @throws SodiumException
      */

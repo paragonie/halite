@@ -284,7 +284,7 @@ final class FileTest extends TestCase
                 'This should have thrown an InvalidMessage exception!'
             );
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertTrue($e instanceof CryptoException\InvalidMessage);
+            $this->assertInstanceOf(CryptoException\InvalidMessage::class, $e);
             unlink(__DIR__.'/tmp/paragon_avatar.encrypt_fail.png');
             unlink(__DIR__.'/tmp/paragon_avatar.decrypt_fail.png');
         }
@@ -632,7 +632,7 @@ final class FileTest extends TestCase
                 'This should have thrown an InvalidMessage exception!'
             );
         } catch (CryptoException\InvalidMessage $e) {
-            $this->assertTrue($e instanceof CryptoException\InvalidMessage);
+            $this->assertInstanceOf(CryptoException\InvalidMessage::class, $e);
             unlink(__DIR__.'/tmp/paragon_avatar.seal_fail.png');
             unlink(__DIR__.'/tmp/paragon_avatar.open_fail.png');
         }

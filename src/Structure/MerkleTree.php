@@ -53,7 +53,7 @@ class MerkleTree
     /**
      * Instantiate a Merkle tree
      * 
-     * @param array<int, Node> $nodes
+     * @param Node ...$nodes
      */
     public function __construct(Node ...$nodes)
     {
@@ -84,7 +84,7 @@ class MerkleTree
     /**
      * Merkle Trees are immutable. Return a replacement with extra nodes.
      *
-     * @param array<int, Node> $nodes
+     * @param Node ...$nodes
      *
      * @return MerkleTree
      *
@@ -214,7 +214,6 @@ class MerkleTree
             $tmp = [];
             $j = 0;
             for ($i = 0; $i < $order; $i += 2) {
-                /** @var string $prev */
                 $curr = (string) ($hash[$i] ?? '');
                 if (empty($hash[$i + 1])) {
                     // @codeCoverageIgnoreStart

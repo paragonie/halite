@@ -118,19 +118,16 @@ final class File
             return $checksum;
         }
 
-        if (is_string($filePath)) {
-            $readOnly = new ReadOnlyFile($filePath);
-            try {
-                return self::checksumData(
-                    $readOnly,
-                    $key,
-                    $encoding
-                );
-            } finally {
-                $readOnly->close();
-            }
+        $readOnly = new ReadOnlyFile($filePath);
+        try {
+            return self::checksumData(
+                $readOnly,
+                $key,
+                $encoding
+            );
+        } finally {
+            $readOnly->close();
         }
-        throw new InvalidType('Argument 1: Expected a filename');
     }
 
     /**

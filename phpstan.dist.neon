@@ -1,0 +1,9 @@
+parameters:
+    paths:
+        - src
+        - test
+    level: 5
+    bootstrapFiles:
+        - src/HiddenString.php
+includes:
+    - phpstan-baseline.neon

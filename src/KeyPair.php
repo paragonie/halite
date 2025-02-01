@@ -15,13 +15,13 @@ use ParagonIE\Halite\Asymmetric\{
  * This library makes heavy use of return-type declarations,
  * which are a PHP 7 only feature. Read more about them here:
  *
- * @ref http://php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
+ * @ref https://www.php.net/manual/en/functions.returning-values.php#functions.returning-values.type-declaration
  *
  * @package ParagonIE\Halite
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one at https://www.mozilla.org/en-US/MPL/2.0/.
  */
 class KeyPair
 {

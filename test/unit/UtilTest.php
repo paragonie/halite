@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  * @category   HaliteTest
  * @package    Halite
  * @author     Stefanie Schmidt <stefanie@reneschmidt.de>
- * @license    http://opensource.org/licenses/GPL-3.0 GPL 3
+ * @license    https://opensource.org/license/GPL-3.0 GPL 3
  * @link       https://paragonie.com/project/halite
  */
 final class UtilTest extends TestCase

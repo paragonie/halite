@@ -331,7 +331,7 @@ final class AsymmetricTest extends TestCase
         $alice = KeyFactory::generateSignatureKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
 
-        // http://time.com/4261796/tim-cook-transcript/
+        // https://time.com/4261796/tim-cook-transcript/
         $message = new HiddenString(
             'When I think of civil liberties I think of the founding principles of the country. ' .
             'The freedoms that are in the First Amendment. But also the fundamental right to privacy.'
@@ -374,7 +374,7 @@ final class AsymmetricTest extends TestCase
         $alice = KeyFactory::generateSignatureKeyPair();
         $bob = KeyFactory::generateEncryptionKeyPair();
 
-        // http://time.com/4261796/tim-cook-transcript/
+        // https://time.com/4261796/tim-cook-transcript/
         $junk = new HiddenString(
             // Instead of a signature, it's 64 random bytes
             random_bytes(SODIUM_CRYPTO_SIGN_BYTES) .
@@ -397,7 +397,7 @@ final class AsymmetricTest extends TestCase
             $this->assertInstanceOf(CryptoException\InvalidSignature::class, $ex);
         }
 
-        // http://time.com/4261796/tim-cook-transcript/
+        // https://time.com/4261796/tim-cook-transcript/
         $message = new HiddenString(
             'When I think of civil liberties I think of the founding principles of the country. ' .
             'The freedoms that are in the First Amendment. But also the fundamental right to privacy.'

@@ -44,6 +44,7 @@ final class Halite
 
     /* Raw bytes (decoded) of the underlying ciphertext */
     const VERSION_TAG_LEN      = 4;
+    const VERSION_5_PREFIX     = 'MUIFA';
     const VERSION_PREFIX       = 'MUIEA';
     const VERSION_OLD_PREFIX   = 'MUIDA';
 

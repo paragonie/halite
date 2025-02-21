@@ -161,6 +161,8 @@ final class Password
             );
         }
         if (
+            \hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_5_PREFIX)
+                ||
             \hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_PREFIX)
                 ||
             \hash_equals(Binary::safeSubstr($stored, 0, 5), Halite::VERSION_OLD_PREFIX)

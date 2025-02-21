@@ -113,10 +113,15 @@ final class Crypto
     /**
      * Decrypt a message using the Halite encryption protocol
      *
+     * Verifies the MAC before decryption
+     * - Halite 5+ verifies the BLAKE2b-MAC before decrypting with XChaCha20
+     * - Halite 4 and below verifies the BLAKE2b-MAC before decrypting with XSalsa20
+     *
      * @param string $ciphertext
      * @param EncryptionKey $secretKey
      * @param string $additionalData
      * @param mixed $encoding
+     *
      * @return HiddenString
      *
      * @throws CannotPerformOperation
@@ -178,31 +183,43 @@ final class Crypto
         $authKey = $split[1];
 
         // Check the MAC first
-        if (!self::verifyMAC(
+        if ($config->USE_PAE) {
+            $verified = self::verifyMAC(
+                $auth,
+                CryptoUtil::PAE($version, $salt, $nonce, $additionalData, $encrypted),
+                $authKey,
+                $config
+            );
+        } else {
+            $verified = self::verifyMAC(
             // @codeCoverageIgnoreStart
-            (string) $auth,
-            (string) $version .
+                (string) $auth,
+                (string) $version .
                 (string) $salt .
                 (string) $nonce .
                 (string) $additionalData .
                 (string) $encrypted,
-            // @codeCoverageIgnoreEnd
-            $authKey,
-            $config
-        )) {
+                // @codeCoverageIgnoreEnd
+                $authKey,
+                $config
+            );
+        }
+
+        if (!$verified) {
             throw new InvalidMessage(
                 'Invalid message authentication code'
             );
         }
+
         CryptoUtil::memzero($salt);
         CryptoUtil::memzero($authKey);
 
         // crypto_stream_xor() can be used to encrypt and decrypt
-        $plaintext = \sodium_crypto_stream_xor(
-            (string) $encrypted,
-            (string) $nonce,
-            (string) $encKey
-        );
+        if ($config->ENC_ALGO === 'XChaCha20') {
+            $plaintext = sodium_crypto_stream_xchacha20_xor($encrypted, $nonce, $encKey);
+        } else {
+            $plaintext = sodium_crypto_stream_xor($encrypted, $nonce, $encKey);
+        }
         CryptoUtil::memzero($encrypted);
         CryptoUtil::memzero($nonce);
         CryptoUtil::memzero($encKey);
@@ -281,22 +298,43 @@ final class Crypto
         list($encKey, $authKey) = self::splitKeys($secretKey, $salt, $config);
 
         // Encrypt our message with the encryption key:
-        $encrypted = \sodium_crypto_stream_xor(
-            $plaintext->getString(),
-            $nonce,
-            $encKey
-        );
+        if ($config->ENC_ALGO === 'XChaCha20') {
+            $encrypted = \sodium_crypto_stream_xchacha20_xor(
+                $plaintext->getString(),
+                $nonce,
+                $encKey
+            );
+        } else {
+            $encrypted = \sodium_crypto_stream_xor(
+                $plaintext->getString(),
+                $nonce,
+                $encKey
+            );
+        }
         CryptoUtil::memzero($encKey);
 
         // Calculate an authentication tag:
-        $auth = self::calculateMAC(
-            Halite::HALITE_VERSION . $salt . $nonce . $additionalData . $encrypted,
-            $authKey,
-            $config
-        );
+        if ($config->USE_PAE) {
+            $auth = self::calculateMAC(
+                CryptoUtil::PAE(
+                    Halite::HALITE_VERSION,
+                    $salt,
+                    $nonce,
+                    $additionalData,
+                    $encrypted
+                ),
+                $authKey,
+                $config
+            );
+        } else {
+            $auth = self::calculateMAC(
+                Halite::HALITE_VERSION . $salt . $nonce . $additionalData . $encrypted,
+                $authKey,
+                $config
+            );
+        }
         CryptoUtil::memzero($authKey);
 
-        /** @var string $message */
         $message = Halite::HALITE_VERSION . $salt . $nonce . $encrypted . $auth;
 
         // Wipe every superfluous piece of data from memory
@@ -331,21 +369,7 @@ final class Crypto
         string $salt,
         BaseConfig $config
     ): array {
-        $binary = $master->getRawKeyMaterial();
-        return [
-            CryptoUtil::hkdfBlake2b(
-                $binary,
-                \SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
-                (string) $config->HKDF_SBOX,
-                $salt
-            ),
-            CryptoUtil::hkdfBlake2b(
-                $binary,
-                \SODIUM_CRYPTO_AUTH_KEYBYTES,
-                (string) $config->HKDF_AUTH,
-                $salt
-            )
-        ];
+        return CryptoUtil::splitKeys($master, $salt, $config);
     }
 
     /**

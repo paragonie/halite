@@ -11,6 +11,9 @@ use ParagonIE\Halite\Alerts\{
     InvalidDigestLength,
     InvalidType
 };
+use ParagonIE\Halite\Symmetric\EncryptionKey;
+use SodiumException;
+use TypeError;
 
 /**
  * Class Util
@@ -219,6 +222,23 @@ final class Util
     }
 
     /**
+     * Pre-authentication encoding
+     *
+     * @param string ...$pieces
+     *
+     * @return string
+     */
+    public static function PAE(string ...$pieces): string
+    {
+        $out = [];
+        $out[] = pack('P', count($pieces));
+        foreach ($pieces as $piece) {
+            $out[] = pack('P', Binary::safeStrlen($piece)) . $piece;
+        }
+        return implode($out);
+    }
+
+    /**
      * Wrapper around SODIUM_CRypto_generichash()
      *
      * Expects a key (binary string).
@@ -253,6 +273,66 @@ final class Util
             );
         }
         return \sodium_crypto_generichash($input, $key, $length);
+    }
+
+    /**
+     * Split a key (using HKDF-BLAKE2b instead of HKDF-HMAC-*)
+     *
+     * @param EncryptionKey $master
+     * @param string $salt
+     * @param Config $config
+     *
+     * @return string[]
+     *
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
+     * @throws SodiumException
+     * @throws TypeError
+     */
+    public static function splitKeys(
+        EncryptionKey $master,
+        string $salt,
+        Config $config
+    ): array {
+        $binary = $master->getRawKeyMaterial();
+
+        /*
+         * From Halite version 5, we use the HKDF info parameter instead of the salt.
+         * This does two things:
+         *
+         * 1. It allows us to use the HKDF security definition (which is stronger than a PRF)
+         * 2. It allows us to reuse the intermediary step and make key derivation faster.
+         */
+        if ($config->HKDF_USE_INFO) {
+            $prk = self::raw_keyed_hash(
+                $binary,
+                str_repeat("\x00", SODIUM_CRYPTO_GENERICHASH_KEYBYTES)
+            );
+            $return = [
+                self::raw_keyed_hash(((string) $config->HKDF_SBOX) . $salt . "\x01", $prk),
+                self::raw_keyed_hash(((string) $config->HKDF_AUTH) . $salt . "\x01", $prk)
+            ];
+            self::memzero($prk);
+            return $return;
+        }
+
+        /*
+         * Halite 4 and blow used this strategy:
+         */
+        return [
+            Util::hkdfBlake2b(
+                $binary,
+                SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
+                (string) $config->HKDF_SBOX,
+                $salt
+            ),
+            Util::hkdfBlake2b(
+                $binary,
+                SODIUM_CRYPTO_AUTH_KEYBYTES,
+                (string) $config->HKDF_AUTH,
+                $salt
+            )
+        ];
     }
 
     /**

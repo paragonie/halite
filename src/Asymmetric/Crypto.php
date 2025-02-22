@@ -511,7 +511,7 @@ final class Crypto
      */
     public static function getAsymmetricConfig(
         string $ciphertext,
-        string|bool $encoding = Halite::ENCODE_BASE64URLSAFE
+        $encoding = Halite::ENCODE_BASE64URLSAFE
     ): Config {
         $decoder = Halite::chooseEncoder($encoding, true);
         if (is_callable($decoder)) {

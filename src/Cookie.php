@@ -147,6 +147,8 @@ final class Cookie
      * @throws InvalidMessage
      * @throws InvalidType
      * @throws \TypeError
+     *
+     * @psalm-suppress InvalidArgument PHP version incompatibilities
      * @psalm-suppress MixedArgument
      */
     public function store(

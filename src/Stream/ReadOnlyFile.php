@@ -86,7 +86,6 @@ class ReadOnlyFile implements StreamInterface
                     'Could not open file for reading'
                 );
             }
-            /** @var resource|false $fp */
             $fp = fopen($file, 'rb');
             // @codeCoverageIgnoreStart
             if (!is_resource($fp)) {

@@ -10,10 +10,24 @@
         <PropertyNotSetInConstructor errorLevel="suppress" />
         <RedundantCondition errorLevel="suppress" />
         <RedundantConditionGivenDocblockType errorLevel="suppress" />
+        <UnusedClass errorLevel="suppress" />
+        <UnusedConstructor errorLevel="suppress" />
+        <UnusedParam errorLevel="suppress" />
+        <PossiblyUnusedMethod errorLevel="suppress" />
+        <PossiblyUnusedParam errorLevel="suppress" />
+        <PossiblyUnusedReturnValue errorLevel="suppress" />
 
         <TypeDoesNotContainType errorLevel="info" />
         <ArgumentTypeCoercion errorLevel="info" />
         <RedundantCast errorLevel="info" />
         <NonInvariantDocblockPropertyType errorLevel="info" />
+        <ClassMustBeFinal errorLevel="info" />
+        <MissingOverrideAttribute errorLevel="info" />
+        <RiskyTruthyFalsyComparison errorLevel="info" />
+        <InvalidFalsableReturnType errorLevel="info" />
+        <FalsableReturnStatement errorLevel="info" />
+        <PossiblyFalsePropertyAssignmentValue errorLevel="info" />
+        <PossiblyFalseArgument errorLevel="info" />
+        <PossiblyInvalidArrayAccess errorLevel="info" />
     </issueHandlers>
 </psalm>

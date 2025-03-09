@@ -100,7 +100,6 @@ final class Cookie
                 throw new InvalidType('Cookie value is not a string');
             }
             $config = self::getConfig($stored);
-            /** @var string|bool $encoding */
             $encoding = $config->ENCODING;
             $decrypted = Crypto::decrypt(
                 $stored,

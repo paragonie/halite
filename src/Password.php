@@ -120,7 +120,6 @@ final class Password
         if (Binary::safeStrlen($stored) < ((int) $config->SHORTEST_CIPHERTEXT_LENGTH * 4 / 3)) {
             throw new InvalidMessage('Encrypted password hash is too short.');
         }
-        /** @var string|bool $encoding */
         $encoding = $config->ENCODING;
 
         // First let's decrypt the hash
@@ -225,7 +224,6 @@ final class Password
                 'Encrypted password hash is too short.'
             );
         }
-        /** @var string|bool $encoding */
         $encoding = $config->ENCODING;
 
         // First let's decrypt the hash

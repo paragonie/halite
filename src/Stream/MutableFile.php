@@ -226,10 +226,10 @@ class MutableFile implements StreamInterface
             )
         );
     }
-    
+
     /**
      * Set the current cursor position to the desired location
-     * 
+     *
      * @param int $i
      * @return bool
      * @throws CannotPerformOperation
@@ -257,7 +257,7 @@ class MutableFile implements StreamInterface
      * @throws FileAccessDenied
      * @throws \TypeError
      */
-    public function writeBytes(string $buf, int $num = null): int
+    public function writeBytes(string $buf, ?int $num = null): int
     {
         $bufSize = Binary::safeStrlen($buf);
         if (!\is_int($num) || $num > $bufSize) {

@@ -8,6 +8,7 @@ final class RemoteStream
 {
     private $contents;
     private $position = 0;
+    public $context;
 
     function stream_open($path, $mode, $options, &$opened_path)
     {

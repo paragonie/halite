@@ -25,6 +25,7 @@ use ParagonIE\Halite\{
     Symmetric\AuthenticationKey,
     Symmetric\EncryptionKey
 };
+use ParagonIE\ConstantTime\Binary;
 use ParagonIE\HiddenString\HiddenString;
 
 /**
@@ -603,10 +604,26 @@ final class File
         );
 
         // VERSION 2+ uses BMAC
-        $mac = \sodium_crypto_generichash_init($authKey);
-        \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
-        \sodium_crypto_generichash_update($mac, $firstNonce);
-        \sodium_crypto_generichash_update($mac, $hkdfSalt);
+        $mac = sodium_crypto_generichash_init($authKey);
+        // Number of pieces that go into MAC (header, first nonce, salt, ciphertext) -> 4
+        if ($config->USE_PAE) {
+            // Number of pieces:
+            sodium_crypto_generichash_update($mac, pack('P', 4));
+
+            // Length followed by piece:
+            sodium_crypto_generichash_update($mac, pack('P', Halite::VERSION_TAG_LEN));
+            sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            sodium_crypto_generichash_update($mac, pack('P', SODIUM_CRYPTO_STREAM_NONCEBYTES));
+            sodium_crypto_generichash_update($mac, $firstNonce);
+            sodium_crypto_generichash_update($mac, pack('P', $config->HKDF_SALT_LEN));
+            sodium_crypto_generichash_update($mac, $hkdfSalt);
+            sodium_crypto_generichash_update($mac, pack('P', $input->remainingBytes()));
+        } else {
+            // Legacy version: No PAE
+            sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            sodium_crypto_generichash_update($mac, $firstNonce);
+            sodium_crypto_generichash_update($mac, $hkdfSalt);
+        }
         /** @var string $mac */
 
         Util::memzero($authKey);
@@ -677,10 +694,26 @@ final class File
         list ($encKey, $authKey) = self::splitKeys($key, $hkdfSalt, $config);
 
         // VERSION 2+ uses BMAC
-        $mac = \sodium_crypto_generichash_init($authKey);
-        \sodium_crypto_generichash_update($mac, $header);
-        \sodium_crypto_generichash_update($mac, $firstNonce);
-        \sodium_crypto_generichash_update($mac, $hkdfSalt);
+        $mac = sodium_crypto_generichash_init($authKey);
+        // Number of pieces that go into MAC (header, first nonce, salt, ciphertext) -> 4
+        if ($config->USE_PAE) {
+            // Number of pieces:
+            sodium_crypto_generichash_update($mac, pack('P', 4));
+
+            // Length followed by piece:
+            sodium_crypto_generichash_update($mac, pack('P', Halite::VERSION_TAG_LEN));
+            sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            sodium_crypto_generichash_update($mac, pack('P', SODIUM_CRYPTO_STREAM_NONCEBYTES));
+            sodium_crypto_generichash_update($mac, $firstNonce);
+            sodium_crypto_generichash_update($mac, pack('P', $config->HKDF_SALT_LEN));
+            sodium_crypto_generichash_update($mac, $hkdfSalt);
+            sodium_crypto_generichash_update($mac, pack('P', $input->remainingBytes()));
+        } else {
+            // Legacy version: No PAE
+            sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            sodium_crypto_generichash_update($mac, $firstNonce);
+            sodium_crypto_generichash_update($mac, $hkdfSalt);
+        }
         /** @var string $mac */
 
         $old_macs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
@@ -740,7 +773,12 @@ final class File
         unset($ephemeralKeyPair);
 
         // Calculate the shared secret key
-        $sharedSecretKey = AsymmetricCrypto::getSharedSecret($ephSecret, $publicKey, true);
+        $sharedSecretKey = AsymmetricCrypto::getSharedSecret(
+            $ephSecret,
+            $publicKey,
+            true,
+            AsymmetricCrypto::getAsymmetricConfig(Halite::HALITE_VERSION_FILE, true)
+        );
         // @codeCoverageIgnoreStart
         if (!($sharedSecretKey instanceof EncryptionKey)) {
             throw new \TypeError('Shared secret is the wrong key type.');
@@ -790,9 +828,24 @@ final class File
         // We no longer need $authKey after we set up the hash context
         Util::memzero($authKey);
 
-        \sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
-        \sodium_crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
-        \sodium_crypto_generichash_update($mac, $hkdfSalt);
+        if ($config->USE_PAE) {
+            // Number of pieces:
+            sodium_crypto_generichash_update($mac, pack('P', 4));
+
+            // Length followed by piece:
+            sodium_crypto_generichash_update($mac, pack('P', Halite::VERSION_TAG_LEN));
+            sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            sodium_crypto_generichash_update($mac, pack('P', SODIUM_CRYPTO_BOX_PUBLICKEYBYTES));
+            sodium_crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
+            sodium_crypto_generichash_update($mac, pack('P', $config->HKDF_SALT_LEN));
+            sodium_crypto_generichash_update($mac, $hkdfSalt);
+            sodium_crypto_generichash_update($mac, pack('P', $input->remainingBytes()));
+        } else {
+            // Legacy version: No PAE
+            sodium_crypto_generichash_update($mac, Halite::HALITE_VERSION_FILE);
+            sodium_crypto_generichash_update($mac, $ephPublic->getRawKeyMaterial());
+            sodium_crypto_generichash_update($mac, $hkdfSalt);
+        }
 
         unset($ephPublic);
         Util::memzero($hkdfSalt);
@@ -876,7 +929,8 @@ final class File
         $key = AsymmetricCrypto::getSharedSecret(
             $secretKey,
             $ephemeral,
-            true
+            true,
+            AsymmetricCrypto::getAsymmetricConfig($header, true)
         );
         // @codeCoverageIgnoreStart
         if (!($key instanceof EncryptionKey)) {
@@ -893,11 +947,29 @@ final class File
         // We no longer need the original key after we split it
         unset($key);
 
-        $mac = \sodium_crypto_generichash_init($authKey);
+        $mac = sodium_crypto_generichash_init($authKey);
 
-        \sodium_crypto_generichash_update($mac, $header);
-        \sodium_crypto_generichash_update($mac, $ephPublic);
-        \sodium_crypto_generichash_update($mac, $hkdfSalt);
+        if ($config->USE_PAE) {
+            // Number of pieces:
+            sodium_crypto_generichash_update($mac, pack('P', 4));
+
+            // Length followed by piece:
+            sodium_crypto_generichash_update($mac, pack('P', Halite::VERSION_TAG_LEN));
+            sodium_crypto_generichash_update($mac, $header);
+            sodium_crypto_generichash_update($mac, pack('P', SODIUM_CRYPTO_BOX_PUBLICKEYBYTES));
+            sodium_crypto_generichash_update($mac, $ephPublic);
+            sodium_crypto_generichash_update($mac, pack('P', $config->HKDF_SALT_LEN));
+            sodium_crypto_generichash_update($mac, $hkdfSalt);
+            sodium_crypto_generichash_update(
+                $mac,
+                pack('P', $input->remainingBytes() - ((int) $config->MAC_SIZE))
+            );
+        } else {
+            // Legacy version: No PAE
+            sodium_crypto_generichash_update($mac, $header);
+            sodium_crypto_generichash_update($mac, $ephPublic);
+            sodium_crypto_generichash_update($mac, $hkdfSalt);
+        }
 
         /** @var string $mac */
         $oldMACs = self::streamVerify($input, Util::safeStrcpy($mac), $config);
@@ -1046,14 +1118,29 @@ final class File
      */
     protected static function getConfigEncrypt(int $major, int $minor): array
     {
-
-        if ($major === 4) {
+        if ($major === 5) {
+            return [
+                'SHORTEST_CIPHERTEXT_LENGTH' => 92,
+                'BUFFER' => 1048576,
+                'NONCE_BYTES' => SODIUM_CRYPTO_STREAM_NONCEBYTES,
+                'HKDF_SALT_LEN' => 32,
+                'MAC_SIZE' => 32,
+                'ENC_ALGO' => 'XChaCha20',
+                'USE_PAE' => true,
+                'HKDF_USE_INFO' => true,
+                'HKDF_SBOX' => 'Halite|EncryptionKey',
+                'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+            ];
+        } elseif ($major === 4) {
             return [
                 'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                 'BUFFER' => 1048576,
                 'NONCE_BYTES' => \SODIUM_CRYPTO_STREAM_NONCEBYTES,
                 'HKDF_SALT_LEN' => 32,
                 'MAC_SIZE' => 32,
+                'ENC_ALGO' => 'XSalsa20',
+                'USE_PAE' => false,
+                'HKDF_USE_INFO' => false,
                 'HKDF_SBOX' => 'Halite|EncryptionKey',
                 'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
             ];
@@ -1065,7 +1152,10 @@ final class File
                         'BUFFER' => 1048576,
                         'NONCE_BYTES' => \SODIUM_CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
+                        'ENC_ALGO' => 'XSalsa20',
                         'MAC_SIZE' => 32,
+                        'USE_PAE' => false,
+                        'HKDF_USE_INFO' => false,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
@@ -1089,7 +1179,23 @@ final class File
      */
     protected static function getConfigSeal(int $major, int $minor): array
     {
-        if ($major === 4) {
+        if ($major === 5) {
+            switch ($minor) {
+                case 0:
+                    return [
+                        'SHORTEST_CIPHERTEXT_LENGTH' => 100,
+                        'BUFFER' => 1048576,
+                        'HKDF_SALT_LEN' => 32,
+                        'MAC_SIZE' => 32,
+                        'PUBLICKEY_BYTES' => SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
+                        'ENC_ALGO' => 'XChaCha20',
+                        'USE_PAE' => true,
+                        'HKDF_USE_INFO' => true,
+                        'HKDF_SBOX' => 'Halite|EncryptionKey',
+                        'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
+                    ];
+            }
+        } elseif ($major === 4) {
             switch ($minor) {
                 case 0:
                     return [
@@ -1098,6 +1204,9 @@ final class File
                         'HKDF_SALT_LEN' => 32,
                         'MAC_SIZE' => 32,
                         'PUBLICKEY_BYTES' => \SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
+                        'ENC_ALGO' => 'XSalsa20',
+                        'USE_PAE' => false,
+                        'HKDF_USE_INFO' => false,
                         'HKDF_SBOX' => 'Halite|EncryptionKey',
                         'HKDF_AUTH' => 'AuthenticationKeyFor_|Halite'
                     ];
@@ -1133,7 +1242,7 @@ final class File
      */
     protected static function getConfigChecksum(int $major, int $minor): array
     {
-        if ($major === 3 || $major === 4) {
+        if ($major === 3 || $major === 4 || $major === 5) {
             switch ($minor) {
                 case 0:
                     return [
@@ -1153,7 +1262,7 @@ final class File
     /**
      * Split a key using HKDF-BLAKE2b
      *
-     * @param Key $master
+     * @param EncryptionKey $master
      * @param string $salt
      * @param Config $config
      * @return array<int, string>
@@ -1163,25 +1272,11 @@ final class File
      * @throws \TypeError
      */
     protected static function splitKeys(
-        Key $master,
+        EncryptionKey $master,
         string $salt,
         Config $config
     ): array {
-        $binary = $master->getRawKeyMaterial();
-        return [
-            Util::hkdfBlake2b(
-                $binary,
-                \SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
-                (string) $config->HKDF_SBOX,
-                $salt
-            ),
-            Util::hkdfBlake2b(
-                $binary,
-                \SODIUM_CRYPTO_AUTH_KEYBYTES,
-                (string) $config->HKDF_AUTH,
-                $salt
-            )
-        ];
+        return Util::splitKeys($master, $salt, $config);
     }
 
     /**
@@ -1327,11 +1422,19 @@ final class File
             }
 
             // This is where the decryption actually occurs:
-            $decrypted = \sodium_crypto_stream_xor(
-                $read,
-                (string) $nonce,
-                $encKey->getRawKeyMaterial()
-            );
+            if ($config->ENC_ALGO === 'XChaCha20') {
+                $decrypted = sodium_crypto_stream_xchacha20_xor(
+                    $read,
+                    $nonce,
+                    $encKey->getRawKeyMaterial()
+                );
+            } else {
+                $decrypted = sodium_crypto_stream_xor(
+                    $read,
+                    $nonce,
+                    $encKey->getRawKeyMaterial()
+                );
+            }
             $output->writeBytes($decrypted);
             \sodium_increment($nonce);
         }

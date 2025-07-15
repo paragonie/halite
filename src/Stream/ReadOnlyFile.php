@@ -74,7 +74,7 @@ class ReadOnlyFile implements StreamInterface
      * @throws \TypeError
      * @psalm-suppress RedundantConditionGivenDocblockType
      */
-    public function __construct($file, Key $key = null)
+    public function __construct($file, ?Key $key = null)
     {
         if (\is_string($file)) {
             if (!\is_readable($file)) {
@@ -331,11 +331,11 @@ class ReadOnlyFile implements StreamInterface
      * This is a meaningless operation for a Read-Only File!
      *
      * @param string $buf
-     * @param int $num (number of bytes)
+     * @param ?int $num (number of bytes)
      * @return int
      * @throws FileAccessDenied
      */
-    public function writeBytes(string $buf, int $num = null): int
+    public function writeBytes(string $buf, ?int $num = null): int
     {
         unset($buf);
         unset($num);

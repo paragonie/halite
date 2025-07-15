@@ -62,7 +62,7 @@ final class File
      * the BLAKE2b hash.
      *
      * @param string|resource|ReadOnlyFile $filePath
-     * @param Key $key (optional; expects SignaturePublicKey or
+     * @param ?Key $key (optional; expects SignaturePublicKey or
      *                  AuthenticationKey)
      * @param mixed $encoding Which encoding scheme to use for the checksum?
      * @return string         The checksum
@@ -77,7 +77,7 @@ final class File
      */
     public static function checksum(
         $filePath,
-        Key $key = null,
+        ?Key $key = null,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         if ($filePath instanceof ReadOnlyFile) {
@@ -467,7 +467,7 @@ final class File
      * Calculate the BLAKE2b checksum of the contents of a file
      *
      * @param StreamInterface $fileStream
-     * @param Key $key
+     * @param ?Key $key
      * @param mixed $encoding Which encoding scheme to use for the checksum?
      * @return string
      *
@@ -482,7 +482,7 @@ final class File
      */
     protected static function checksumData(
         StreamInterface $fileStream,
-        Key $key = null,
+        ?Key $key = null,
         $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
         $config = self::getConfig(

@@ -437,7 +437,7 @@ final class Crypto
      * @param AuthenticationKey $secretKey
      * @param string $mac
      * @param mixed $encoding
-     * @param SymmetricConfig $config
+     * @param ?SymmetricConfig $config
      * @return bool
      *
      * @throws InvalidMessage
@@ -451,7 +451,7 @@ final class Crypto
         AuthenticationKey $secretKey,
         string $mac,
         $encoding = Halite::ENCODE_BASE64URLSAFE,
-        SymmetricConfig $config = null
+        ?SymmetricConfig $config = null
     ): bool {
         $decoder = Halite::chooseEncoder($encoding, true);
         if ($decoder) {

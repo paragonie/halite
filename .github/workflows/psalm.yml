@@ -13,8 +13,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['8.1', '8.2', '8.3', '8.4']
-
+        php-versions: ['8.1']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,10 +22,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
+          tools: psalm:4
           coverage: none
 
       - name: Install Composer dependencies
         uses: "ramsey/composer-install@v3"
 
-      - name: Psalm static analysis
-        run: vendor/bin/psalm
+      - name: Static Analysis
+        run: psalm
+
+      - name: Taint Analysis
+        run: psalm --taint-analysis

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.9.0 (2025-07-15)
+
+* Fix PHP 8.4 compatibility.
+
 ## Version 4.8.0 (2021-04-18)
 
 * Merged [#158](https://github.com/paragonie/halite/pull/158), which removes

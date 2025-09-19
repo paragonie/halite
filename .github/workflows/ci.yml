@@ -24,9 +24,12 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, intl, pcov, sodium
+          extensions: mbstring, intl, sodium
           ini-values: error_reporting=-1, display_errors=On
           coverage: none
+
+      - name: Install PCOV
+        run: pecl install pcov
 
       - name: Install Composer dependencies
         uses: "ramsey/composer-install@v3"

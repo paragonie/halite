@@ -4,9 +4,11 @@ declare(strict_types=1);
 use ParagonIE\Halite\Alerts as CryptoException;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Asymmetric\{
+    Config,
     Crypto as Asymmetric,
     EncryptionPublicKey,
-    EncryptionSecretKey
+    EncryptionSecretKey,
+    SignatureSecretKey
 };
 use ParagonIE\Halite\Halite;
 use ParagonIE\HiddenString\HiddenString;
@@ -488,5 +490,49 @@ final class AsymmetricTest extends TestCase
             } catch (CryptoException\InvalidSignature $ex) {
             }
         }
+    }
+
+    /**
+     * @return void
+     * @throws CryptoException\InvalidMessage
+     */
+    public function testGetConfigInvalidMode(): void
+    {
+        $this->expectException(CryptoException\InvalidMessage::class);
+        $this->expectExceptionMessage('Invalid configuration mode: decrypt');
+        Config::getConfig(str_repeat('A', 4), 'decrypt');
+    }
+
+    /**
+     * @throws CryptoException\InvalidMessage
+     */
+    public function testGetConfigEncryptInvalidVersion(): void
+    {
+        $this->expectException(CryptoException\InvalidMessage::class);
+        $this->expectExceptionMessage('Invalid version tag');
+        Config::getConfigEncrypt(1, 0);
+    }
+
+    /**
+     * @throws CryptoException\InvalidKey
+     */
+    public function testInvalidSignatureSecretKey(): void
+    {
+        $this->expectException(CryptoException\InvalidKey::class);
+        new SignatureSecretKey(new HiddenString('invalid'));
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidKey
+     * @throws SodiumException
+     */
+    public function testCachedPublicKey(): void
+    {
+        $keypair = KeyFactory::generateSignatureKeyPair();
+        $secretKey = $keypair->getSecretKey();
+        $secretKey->derivePublicKey();
+        $encryptionSecretKey = $secretKey->getEncryptionSecretKey();
+        $this->assertInstanceOf(\ParagonIE\Halite\Asymmetric\EncryptionSecretKey::class, $encryptionSecretKey);
     }
 }

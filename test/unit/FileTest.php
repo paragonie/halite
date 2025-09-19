@@ -925,4 +925,48 @@ final class FileTest extends TestCase
         );
         unlink(__DIR__.'/tmp/paragon_avatar.encrypted.png');
     }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws SodiumException
+     */
+    public function testInvalidChecksumKey(): void
+    {
+        $this->expectException(CryptoException\InvalidKey::class);
+        File::checksum(__DIR__.'/tmp/paragon_avatar.png', KeyFactory::generateEncryptionKey());
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\FileModified
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidType
+     * @throws SodiumException
+     */
+    public function testInvalidConfigHeader(): void
+    {
+        touch(__DIR__.'/tmp/invalid.txt');
+        chmod(__DIR__.'/tmp/invalid.txt', 0777);
+        file_put_contents(__DIR__.'/tmp/invalid.txt', 'invalid');
+        touch(__DIR__.'/tmp/invalid-out.txt');
+        chmod(__DIR__.'/tmp/invalid-out.txt', 0777);
+        $this->expectException(CryptoException\InvalidMessage::class);
+        File::decrypt(
+            __DIR__.'/tmp/invalid.txt',
+            __DIR__.'/tmp/invalid-out.txt',
+            KeyFactory::generateEncryptionKey()
+        );
+        unlink(__DIR__.'/tmp/invalid.txt');
+        unlink(__DIR__.'/tmp/invalid-out.txt');
+    }
+
 }

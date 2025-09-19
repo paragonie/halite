@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" backupGlobals="false" backupStaticAttributes="false" bootstrap="./vendor/autoload.php" colors="true" beStrictAboutTestsThatDoNotTestAnything="true" beStrictAboutOutputDuringTests="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" forceCoversAnnotation="false" processIsolation="false" stopOnError="false" stopOnFailure="false" failOnRisky="false" failOnWarning="false" stopOnIncomplete="false" stopOnSkipped="false" stopOnRisky="false" verbose="true">
-  <coverage processUncoveredFiles="true">
+  <coverage cacheDirectory=".phpunit.cache/code-coverage" processUncoveredFiles="true">
     <include>
       <directory>./src</directory>
     </include>
@@ -13,7 +13,7 @@
       <directory>./doc</directory>
     </exclude>
     <report>
-      <clover outputFile="./build/logs/clover.xml"/>
+      <clover outputFile="./clover.xml" />
     </report>
   </coverage>
   <logging/>

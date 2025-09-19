@@ -10,6 +10,7 @@ jobs:
   phpunit:
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     runs-on: ${{ matrix.operating-system }}
+    if: "!contains(github.event.head_commit.message, '[ci]')"
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']

@@ -7,14 +7,14 @@ on:
     branches: [ master ]
 
 jobs:
-  phpunit:
+  coverage:
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     runs-on: ${{ matrix.operating-system }}
     if: "!contains(github.event.head_commit.message, '[ci]')"
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['8.1', '8.2', '8.3', '8.4']
+        php-versions: ['8.4']
 
     steps:
       - name: Checkout
@@ -28,11 +28,29 @@ jobs:
           ini-values: error_reporting=-1, display_errors=On
           coverage: none
 
+      - name: Install PCOV
+        run: pecl install pcov
+
       - name: Install Composer dependencies
         uses: "ramsey/composer-install@v3"
 
       - name: PHPUnit tests
-        run: vendor/bin/phpunit
+        run: vendor/bin/phpunit --coverage-clover clover.xml
+
+      - name: phpunit-coverage-badge
+        uses: timkrase/phpunit-coverage-badge@v1.2.1
+        with:
+          coverage_badge_path: .github/coverage.svg
+          push_badge: false
+
+      - name: Git push to image-data branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_dir: .github
+          publish_branch: image-data
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
 
       - name: PHPStan analysis
         run: vendor/bin/phpstan

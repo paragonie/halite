@@ -45,12 +45,13 @@ jobs:
         with:
           coverage_badge_path: .github/coverage.svg
           push_badge: true
+          github_token: ${{ secrets.TOKEN }}
 
       - name: Git push to image-data branch
         uses: peaceiris/actions-gh-pages@v3
         with:
           publish_dir: .github
           publish_branch: image-data
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.TOKEN }}
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'

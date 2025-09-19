@@ -1,4 +1,4 @@
-name: CI
+name: Coverage
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   coverage:
-    name: Code Coverage - PHPP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
     runs-on: ${{ matrix.operating-system }}
     if: "!contains(github.event.head_commit.message, '[ci]')"
     strategy:

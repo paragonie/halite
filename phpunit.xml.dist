@@ -13,7 +13,7 @@
       <directory>./doc</directory>
     </exclude>
     <report>
-      <clover outputFile="clover.xml" />
+      <clover outputFile="./clover.xml" />
     </report>
   </coverage>
   <logging/>

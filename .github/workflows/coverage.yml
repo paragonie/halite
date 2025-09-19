@@ -43,13 +43,13 @@ jobs:
       - name: phpunit-coverage-badge
         uses: timkrase/phpunit-coverage-badge@v1.2.1
         with:
-          coverage_badge_path: .github/coverage.svg
+          coverage_badge_path: .github/output/coverage.svg
           push_badge: false
 
       - name: Git push to image-data branch
         uses: peaceiris/actions-gh-pages@v3
         with:
-          publish_dir: .github
+          publish_dir: .github/output
           publish_branch: image-data
           github_token: ${{ secrets.TOKEN }}
           user_name: 'github-actions[bot]'

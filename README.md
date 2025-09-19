@@ -6,7 +6,7 @@
 [![Latest Unstable Version](https://poser.pugx.org/paragonie/halite/v/unstable)](https://packagist.org/packages/paragonie/halite)
 [![License](https://poser.pugx.org/paragonie/halite/license)](https://packagist.org/packages/paragonie/halite)
 [![Downloads](https://img.shields.io/packagist/dt/paragonie/halite.svg)](https://packagist.org/packages/paragonie/halite)
-[![Coverage Status](https://raw.githubusercontent.com/paragonie/halite/image-data/coverage.svg)](https://github.com/paragonie/halite/actions/workflows/coverage.yml)
+[![Coverage Status](https://raw.githubusercontent.com/paragonie/halite/refs/heads/image-data/coverage.svg)](https://github.com/paragonie/halite/actions/workflows/coverage.yml)
 
 **Halite** is a high-level cryptography interface that relies on [libsodium](https://pecl.php.net/package/libsodium)
 for all of its underlying cryptography operations.

@@ -37,9 +37,6 @@ jobs:
       - name: PHPUnit tests with coverage
         run: vendor/bin/phpunit --coverage-clover clover.xml --coverage-html build/coverage-report
 
-      - name: Copy clover.xml
-        run: cp clover.xml /github/workspace/clover.xml
-
       - name: phpunit-coverage-badge
         uses: timkrase/phpunit-coverage-badge@v1.2.1
         with:

@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 5.1.4 (2025-09-18)
+
+* Add PHPStan analysis, level 5 by @spaze in https://github.com/paragonie/halite/pull/195
+* Replace all `http://` links with the `https://` URL they redirect to by @GrahamCampbell in https://github.com/paragonie/halite/pull/196
+* Use Psalm 6 by @spaze in https://github.com/paragonie/halite/pull/198
+* Remove access modifier `final` from private methods by @junaidbinfarooq in https://github.com/paragonie/halite/pull/204
+* Ignore tests, workflows and .MD docs with "export-ignore" on .gitattr… by @erikn69 in https://github.com/paragonie/halite/pull/205
+* Expand test coverage by @paragonie-security in https://github.com/paragonie/halite/pull/206
+* Fixed the broken test coverage badge (https://github.com/paragonie/halite/pull/207 and https://github.com/paragonie/halite/pull/208)
+
 ## Version 5.1.3 (2025-01-23)
 
 * Merged [#184](https://github.com/paragonie/halite/pull/194), which fixes PHP 8.4 deprecations with nullable types.

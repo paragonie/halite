@@ -26,7 +26,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, intl, sodium, xdebug
           ini-values: error_reporting=-1, display_errors=On
-          coverage: none
+          coverage: xdebug
 
       - name: Install Composer dependencies
         uses: "ramsey/composer-install@v3"

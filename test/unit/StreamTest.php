@@ -210,4 +210,51 @@ final class StreamTest extends TestCase
             $this->assertSame(bin2hex($buffer), bin2hex($mStream->readBytes($size)));
         }
     }
+
+
+    public function testMutableFileResource()
+    {
+        $fp = fopen('php://temp', 'w+b');
+        $mStream = new MutableFile($fp);
+        $mStream->writeBytes('test');
+        $mStream->reset();
+        $this->assertSame('test', $mStream->readBytes(4));
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\InvalidType
+     */
+    public function testWriteBytesNull(): void
+    {
+        $mStream = new MutableFile(fopen('php://temp', 'w+b'));
+        $this->assertSame(4, $mStream->writeBytes('test', null));
+    }
+
+    /**
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\InvalidType
+     * @throws SodiumException
+     */
+    public function testReadOnlyFileResource(): void
+    {
+        $fp = fopen('php://temp', 'rb');
+        $rStream = new ReadOnlyFile($fp);
+        $this->assertInstanceOf(ReadOnlyFile::class, $rStream);
+    }
+
+    /**
+     * @throws CryptoException\FileAccessDenied
+     * @throws CryptoException\FileError
+     * @throws CryptoException\InvalidType
+     * @throws SodiumException
+     */
+    public function testReadOnlyFileWriteBytes(): void
+    {
+        $this->expectException(CryptoException\FileAccessDenied::class);
+        $rStream = new ReadOnlyFile(fopen('php://temp', 'rb'));
+        $rStream->writeBytes('test');
+    }
 }

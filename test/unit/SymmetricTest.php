@@ -275,4 +275,36 @@ final class SymmetricTest extends TestCase
         );
         $this->assertSame(Binary::safeStrlen($unpacked[5]), $config->MAC_SIZE);
     }
+
+    /**
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidType
+     * @throws CryptoException\InvalidMessage
+     * @throws SodiumException
+     */
+    public function testInvalidMac(): void
+    {
+        $key = new AuthenticationKey(new HiddenString(str_repeat('A', 32)));
+        try {
+            Symmetric::verify('test', $key, 'invalid');
+            $this->fail('Invalid MAC was accepted');
+        } catch (CryptoException\InvalidSignature $ex) {
+            $this->assertInstanceOf(CryptoException\InvalidSignature::class, $ex);
+        }
+    }
+
+    /**
+     * @throws CryptoException\CannotPerformOperation
+     * @throws CryptoException\InvalidDigestLength
+     * @throws CryptoException\InvalidKey
+     * @throws CryptoException\InvalidMessage
+     * @throws CryptoException\InvalidSignature
+     * @throws CryptoException\InvalidType
+     * @throws SodiumException
+     */
+    public function testInvalidEncodedCiphertext(): void
+    {
+        $this->expectException(CryptoException\InvalidMessage::class);
+        Symmetric::decrypt('invalid', new EncryptionKey(new HiddenString(str_repeat('A', 32))));
+    }
 }

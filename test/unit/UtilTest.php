@@ -34,6 +34,9 @@ final class UtilTest extends TestCase
             $random,
             Util::chrToInt(Util::intToChr($random))
         );
+
+        $this->expectException(\RangeException::class);
+        Util::chrToInt("ab");
     }
 
     public function testIntArrayToString()

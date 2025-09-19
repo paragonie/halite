@@ -24,12 +24,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, intl, sodium
+          extensions: mbstring, intl, sodium, xdebug
           ini-values: error_reporting=-1, display_errors=On
           coverage: none
-
-      - name: Install PCOV
-        run: pecl install pcov
 
       - name: Install Composer dependencies
         uses: "ramsey/composer-install@v3"
@@ -51,6 +48,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
-
-      - name: PHPStan analysis
-        run: vendor/bin/phpstan

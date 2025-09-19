@@ -31,14 +31,14 @@ jobs:
       - name: Install Composer dependencies
         uses: "ramsey/composer-install@v3"
 
-      - name: PHPUnit tests
-        run: vendor/bin/phpunit --coverage-clover clover.xml
+      - name: PHPUnit tests with coverage
+        run: vendor/bin/phpunit --coverage-clover clover.xml --coverage-html build/coverage-report
 
       - name: phpunit-coverage-badge
         uses: timkrase/phpunit-coverage-badge@v1.2.1
         with:
           coverage_badge_path: .github/coverage.svg
-          push_badge: false
+          push_badge: true
 
       - name: Git push to image-data branch
         uses: peaceiris/actions-gh-pages@v3

@@ -44,8 +44,7 @@ jobs:
         uses: timkrase/phpunit-coverage-badge@v1.2.1
         with:
           coverage_badge_path: .github/coverage.svg
-          push_badge: true
-          github_token: ${{ secrets.TOKEN }}
+          push_badge: false
 
       - name: Git push to image-data branch
         uses: peaceiris/actions-gh-pages@v3

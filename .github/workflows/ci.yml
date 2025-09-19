@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  phpunit:
+  latest:
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     runs-on: ${{ matrix.operating-system }}
     if: "!contains(github.event.head_commit.message, '[ci]')"
@@ -32,7 +32,7 @@ jobs:
         uses: "ramsey/composer-install@v3"
 
       - name: PHPUnit tests
-        run: vendor/bin/phpunit
+        run: vendor/bin/phpunit --coverage-clover clover.xml
 
       - name: phpunit-coverage-badge
         uses: timkrase/phpunit-coverage-badge@v1.2.1

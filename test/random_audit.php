@@ -38,8 +38,8 @@ function list_all_files(string $folder, string $extension = '*'): array
     return $fileList;
 }
 
-if ($argc > 1) {
-    $extensions = array_slice($argv, 1);
+if ($_SERVER['argc'] > 1) {
+    $extensions = array_slice($_SERVER['argv'], 1);
 } else {
     $extensions = ['php', 'twig'];
 }

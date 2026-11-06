@@ -131,6 +131,7 @@ final class TrimmedMerkleTreeTest extends TestCase
         $personal = random_bytes(32);
         $treeA->setPersonalizationString($personal);
         $treeB->setPersonalizationString($personal);
+        // @phpstan-ignore method.alreadyNarrowedType (Personalization changes both previously compared roots.)
         $this->assertSame(
             $treeA->getRoot(),
             $treeB->getRoot()

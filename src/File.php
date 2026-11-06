@@ -102,7 +102,7 @@ final class File
      * @throws TypeError
      */
     public static function checksum(
-        string|ReadonlyFile $filePath,
+        string|ReadOnlyFile $filePath,
         ?Key $key = null,
         bool|string $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {
@@ -730,7 +730,8 @@ final class File
             sodium_crypto_generichash_update($mac, $hkdfSalt);
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
-                sodium_crypto_generichash_update($mac, pack('P', $aad));
+                // we do not support encrypting with insecure AAD values:
+                sodium_crypto_generichash_update($mac, $aad);
             }
             sodium_crypto_generichash_update($mac, pack('P', $input->remainingBytes()));
         } else {
@@ -829,7 +830,17 @@ final class File
 
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
-                sodium_crypto_generichash_update($mac, pack('P', $aad));
+                if ($config->HALITE_5_AAD_COMPAT) {
+                    // decrypt-only quirk we still support for decrypting old files to re-encrypt them:
+                    trigger_error(
+                        'Please re-encrypt this to ensure it is properly bound to AAD',
+                        E_USER_WARNING
+                    );
+                    sodium_crypto_generichash_update($mac, pack('P', $aad));
+                } else {
+                    // correct and secure behavior:
+                    sodium_crypto_generichash_update($mac, $aad);
+                }
             }
             sodium_crypto_generichash_update(
                 $mac,
@@ -968,7 +979,7 @@ final class File
             sodium_crypto_generichash_update($mac, $hkdfSalt);
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
-                sodium_crypto_generichash_update($mac, pack('P', $aad));
+                sodium_crypto_generichash_update($mac, $aad);
             }
             sodium_crypto_generichash_update($mac, pack('P', $input->remainingBytes()));
         } else {
@@ -1099,7 +1110,17 @@ final class File
             sodium_crypto_generichash_update($mac, $hkdfSalt);
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
-                sodium_crypto_generichash_update($mac, pack('P', $aad));
+                if ($config->HALITE_5_AAD_COMPAT) {
+                    // decrypt-only quirk we still support for decrypting old files to re-encrypt them:
+                    trigger_error(
+                        'Please re-encrypt this to ensure it is properly bound to AAD',
+                        E_USER_WARNING
+                    );
+                    sodium_crypto_generichash_update($mac, pack('P', $aad));
+                } else {
+                    // correct behavior:
+                    sodium_crypto_generichash_update($mac, $aad);
+                }
             }
             sodium_crypto_generichash_update(
                 $mac,
@@ -1267,6 +1288,7 @@ final class File
                 'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                 'BUFFER' => 1048576,
                 'NONCE_BYTES' => SODIUM_CRYPTO_STREAM_NONCEBYTES,
+                'HALITE_5_AAD_COMPAT' => ($minor < 1),
                 'HKDF_SALT_LEN' => 32,
                 'MAC_SIZE' => 32,
                 'ENC_ALGO' => 'XChaCha20',
@@ -1280,6 +1302,7 @@ final class File
                 'SHORTEST_CIPHERTEXT_LENGTH' => 92,
                 'BUFFER' => 1048576,
                 'NONCE_BYTES' => SODIUM_CRYPTO_STREAM_NONCEBYTES,
+                'HALITE_5_AAD_COMPAT' => false,
                 'HKDF_SALT_LEN' => 32,
                 'MAC_SIZE' => 32,
                 'ENC_ALGO' => 'XSalsa20',
@@ -1309,11 +1332,13 @@ final class File
     {
         if ($major === 5) {
             switch ($minor) {
+                case 1:
                 case 0:
                     return [
                         'SHORTEST_CIPHERTEXT_LENGTH' => 100,
                         'BUFFER' => 1048576,
                         'HKDF_SALT_LEN' => 32,
+                        'HALITE_5_AAD_COMPAT' => ($minor < 1),
                         'MAC_SIZE' => 32,
                         'PUBLICKEY_BYTES' => SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
                         'ENC_ALGO' => 'XChaCha20',
@@ -1330,6 +1355,7 @@ final class File
                             'SHORTEST_CIPHERTEXT_LENGTH' => 100,
                             'BUFFER' => 1048576,
                             'HKDF_SALT_LEN' => 32,
+                            'HALITE_5_AAD_COMPAT' => false,
                             'MAC_SIZE' => 32,
                             'PUBLICKEY_BYTES' => SODIUM_CRYPTO_BOX_PUBLICKEYBYTES,
                             'ENC_ALGO' => 'XSalsa20',
@@ -1357,15 +1383,20 @@ final class File
      */
     protected static function getConfigChecksum(int $major, int $minor): array
     {
-        if ($major === 3 || $major === 4 || $major === 5) {
-            switch ($minor) {
-                case 0:
-                    return [
-                        'CHECKSUM_PUBKEY' => true,
-                        'BUFFER' => 1048576,
-                        'HASH_LEN' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
-                    ];
-            }
+        if ($major === 5) {
+            return [
+                'CHECKSUM_PUBKEY' => true,
+                'HALITE_5_AAD_COMPAT' => ($minor < 1),
+                'BUFFER' => 1048576,
+                'HASH_LEN' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+            ];
+        } elseif ($major === 3 || $major === 4) {
+            return [
+                'CHECKSUM_PUBKEY' => true,
+                'HALITE_5_AAD_COMPAT' => false,
+                'BUFFER' => 1048576,
+                'HASH_LEN' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX
+            ];
         }
         // @codeCoverageIgnoreStart
         throw new InvalidMessage(

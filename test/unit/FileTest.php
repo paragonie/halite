@@ -134,9 +134,9 @@ final class FileTest extends TestCase
             $key
         );
 
-        $this->assertSame(
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted.png')
+        $this->assertFileEquals(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.decrypted.png'
         );
         unlink(__DIR__.'/tmp/paragon_avatar.encrypted.png');
         unlink(__DIR__.'/tmp/paragon_avatar.decrypted.png');
@@ -196,6 +196,53 @@ final class FileTest extends TestCase
 
         unlink(__DIR__.'/tmp/paragon_avatar.encrypted-aad.png');
         unlink(__DIR__.'/tmp/paragon_avatar.decrypted-aad.png');
+    }
+
+    public function testEncryptWithAADSameLength()
+    {
+        touch(__DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png', 0777);
+        touch(__DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png');
+        chmod(__DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png', 0777);
+
+        $key = new EncryptionKey(
+            new HiddenString(\str_repeat('B', 32))
+        );
+        $aad1 = "Additional associated data1";
+        $aad2 = "Additional associated data2";
+
+        File::encrypt(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png',
+            $key,
+            $aad1
+        );
+        try {
+            File::decrypt(
+                __DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png',
+                __DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png',
+                $key,
+                $aad2
+            );
+        } catch (CryptoException\HaliteAlert $ex) {
+            $this->assertSame(
+                'Invalid message authentication code',
+                $ex->getMessage()
+            );
+        }
+        File::decrypt(
+            __DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png',
+            __DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png',
+            $key,
+            $aad1
+        );
+        $this->assertSame(
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
+            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png')
+        );
+
+        unlink(__DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png');
+        unlink(__DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png');
     }
 
     /**
@@ -394,9 +441,9 @@ final class FileTest extends TestCase
             $key
         );
 
-        $this->assertSame(
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted.png')
+        $this->assertFileEquals(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.decrypted.png'
         );
 
         File::encrypt(
@@ -411,9 +458,9 @@ final class FileTest extends TestCase
             $key
         );
 
-        $this->assertSame(
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted.png')
+        $this->assertFileEquals(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.decrypted.png'
         );
         unlink(__DIR__.'/tmp/paragon_avatar.encrypted.png');
         unlink(__DIR__.'/tmp/paragon_avatar.decrypted.png');
@@ -453,9 +500,9 @@ final class FileTest extends TestCase
             $secretkey
         );
 
-        $this->assertSame(
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
+        $this->assertFileEquals(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.opened.png'
         );
 
         // New: Additional Associated Data tests
@@ -534,9 +581,9 @@ final class FileTest extends TestCase
             $secretkey
         );
 
-        $this->assertSame(
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
+        $this->assertFileEquals(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.opened.png'
         );
 
         unlink(__DIR__.'/tmp/paragon_avatar.sealed.png');
@@ -725,9 +772,9 @@ final class FileTest extends TestCase
             $secretkey
         );
 
-        $this->assertSame(
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
+        $this->assertFileEquals(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.opened.png'
         );
 
         File::seal(
@@ -742,9 +789,9 @@ final class FileTest extends TestCase
             $secretkey
         );
 
-        $this->assertSame(
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.opened.png')
+        $this->assertFileEquals(
+            __DIR__.'/tmp/paragon_avatar.png',
+            __DIR__.'/tmp/paragon_avatar.opened.png'
         );
 
         unlink(__DIR__.'/tmp/paragon_avatar.sealed.png');

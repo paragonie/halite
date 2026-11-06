@@ -1,7 +1,7 @@
 name: Coverage
 
 permissions:
-  contents: write
+  contents: read
 
 on:
   push:
@@ -9,22 +9,30 @@ on:
   pull_request:
     branches: [ master ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   coverage:
+    permissions:
+      contents: write # Publish the coverage badge to the image-data branch on master pushes.
     name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
     runs-on: ${{ matrix.operating-system }}
     if: "!contains(github.event.head_commit.message, '[ci]')"
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['8.4']
+        php-versions: ['8.5']
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, intl, sodium, xdebug
@@ -32,7 +40,7 @@ jobs:
           coverage: xdebug
 
       - name: Install Composer dependencies
-        uses: "ramsey/composer-install@v3"
+        uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
 
       - name: Ensure XML file is being loaded
         run: cp phpunit.xml.dist phpunit.xml
@@ -41,16 +49,17 @@ jobs:
         run: vendor/bin/phpunit --coverage-clover clover.xml --coverage-html build/coverage-report
 
       - name: phpunit-coverage-badge
-        uses: timkrase/phpunit-coverage-badge@v1.2.1
+        uses: timkrase/phpunit-coverage-badge@b2cec23f5564ebf1030a6aa5b1e0fcadc5674d79 # v1.2.1
         with:
           coverage_badge_path: .github/output/coverage.svg
           push_badge: false
 
-      - name: Git push to image-data branch
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Publish coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         with:
           publish_dir: .github/output
           publish_branch: image-data
-          github_token: ${{ secrets.TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'

@@ -22,6 +22,7 @@ use function array_key_exists;
  * file, You can obtain one at https://www.mozilla.org/en-US/MPL/2.0/.
  *
  * @property string|bool $ENCODING
+ * @property bool $HALITE_5_AAD_COMPAT
  *
  * AsymmetricCrypto:
  * @property string $HASH_DOMAIN_SEPARATION

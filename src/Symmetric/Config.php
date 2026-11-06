@@ -84,6 +84,7 @@ final class Config extends BaseConfig
     {
         if ($major === 5) {
             switch ($minor) {
+                case 1:
                 case 0:
                     return [
                         'ENCODING' => Halite::ENCODE_BASE64URLSAFE,
@@ -91,6 +92,7 @@ final class Config extends BaseConfig
                         'NONCE_BYTES' => SODIUM_CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
                         'ENC_ALGO' => 'XChaCha20',
+                        'HALITE_5_AAD_COMPAT' => ($minor < 1),
                         'USE_PAE' => true,
                         'MAC_ALGO' => 'BLAKE2b',
                         'MAC_SIZE' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
@@ -109,6 +111,7 @@ final class Config extends BaseConfig
                         'NONCE_BYTES' => SODIUM_CRYPTO_STREAM_NONCEBYTES,
                         'HKDF_SALT_LEN' => 32,
                         'ENC_ALGO' => 'XSalsa20',
+                        'HALITE_5_AAD_COMPAT' => false,
                         'USE_PAE' => false,
                         'MAC_ALGO' => 'BLAKE2b',
                         'MAC_SIZE' => SODIUM_CRYPTO_GENERICHASH_BYTES_MAX,
@@ -138,6 +141,7 @@ final class Config extends BaseConfig
         if ($major === 4 || $major === 5) {
             switch ($minor) {
                 case 0:
+                case 1:
                     return [
                         'USE_PAE' => $major >= 5,
                         'HKDF_SALT_LEN' => 32,

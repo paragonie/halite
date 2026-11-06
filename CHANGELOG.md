@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 5.1.5 (2026-11-06)
+
+* Fixed AAD parameter in File::encrypt() and File::seal(). Previously, it committed to the
+  length of the AAD followed by the packed integer representation of the AAD, not its contents.
+  Reported by @kta1kri. Fixed in https://github.com/paragonie/halite/pull/214
+
 ## Version 5.1.4 (2025-09-18)
 
 * Add PHPStan analysis, level 5 by @spaze in https://github.com/paragonie/halite/pull/195

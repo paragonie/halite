@@ -43,11 +43,11 @@ use function
  */
 final class Halite
 {
-    const VERSION              = '5.0.0';
+    const VERSION              = '5.1.5';
 
-    const HALITE_VERSION_KEYS  = "\x31\x40\x05\x00";
-    const HALITE_VERSION_FILE  = "\x31\x41\x05\x00";
-    const HALITE_VERSION       = "\x31\x42\x05\x00";
+    const HALITE_VERSION_KEYS  = "\x31\x40\x05\x01";
+    const HALITE_VERSION_FILE  = "\x31\x41\x05\x01";
+    const HALITE_VERSION       = "\x31\x42\x05\x01";
 
     /* Raw bytes (decoded) of the underlying ciphertext */
     const VERSION_TAG_LEN      = 4;

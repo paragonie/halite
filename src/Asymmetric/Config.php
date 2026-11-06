@@ -73,9 +73,17 @@ final class Config extends BaseConfig
     {
         if ($major === 5) {
             switch ($minor) {
+                case 1:
+                    return [
+                        'ENCODING' => Halite::ENCODE_BASE64URLSAFE,
+                        'HALITE_5_AAD_COMPAT' => false,
+                        'HASH_DOMAIN_SEPARATION' => 'HaliteVersion5X25519SharedSecret',
+                        'HASH_SCALARMULT' => true,
+                    ];
                 case 0:
                     return [
                         'ENCODING' => Halite::ENCODE_BASE64URLSAFE,
+                        'HALITE_5_AAD_COMPAT' => true,
                         'HASH_DOMAIN_SEPARATION' => 'HaliteVersion5X25519SharedSecret',
                         'HASH_SCALARMULT' => true,
                     ];
@@ -86,6 +94,7 @@ final class Config extends BaseConfig
                 case 0:
                     return [
                         'ENCODING' => Halite::ENCODE_BASE64URLSAFE,
+                        'HALITE_5_AAD_COMPAT' => false,
                         'HASH_DOMAIN_SEPARATION' => '',
                         'HASH_SCALARMULT' => false,
                     ];

@@ -979,7 +979,7 @@ final class File
             sodium_crypto_generichash_update($mac, $hkdfSalt);
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
-                sodium_crypto_generichash_update($mac, pack('P', $aad));
+                sodium_crypto_generichash_update($mac, $aad);
             }
             sodium_crypto_generichash_update($mac, pack('P', $input->remainingBytes()));
         } else {
@@ -1110,7 +1110,17 @@ final class File
             sodium_crypto_generichash_update($mac, $hkdfSalt);
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
-                sodium_crypto_generichash_update($mac, pack('P', $aad));
+                if ($config->HALITE_5_AAD_COMPAT) {
+                    // decrypt-only quirk we still support for decrypting old files to re-encrypt them:
+                    trigger_error(
+                        'Please re-encrypt this to ensure it is properly bound to AAD',
+                        E_USER_WARNING
+                    );
+                    sodium_crypto_generichash_update($mac, pack('P', $aad));
+                } else {
+                    // correct behavior:
+                    sodium_crypto_generichash_update($mac, $aad);
+                }
             }
             sodium_crypto_generichash_update(
                 $mac,

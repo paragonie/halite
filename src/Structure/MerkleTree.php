@@ -227,7 +227,7 @@ class MerkleTree
                     // @codeCoverageIgnoreEnd
                 } else {
                     $curr = ($hash[$i] ?? '');
-                    $next = ($hash[$i + 1] ?? '');
+                    $next = $hash[$i + 1];
                     $tmp[$j] = Util::raw_hash(
                         self::MERKLE_BRANCH .
                             $this->personalization .

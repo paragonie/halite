@@ -102,7 +102,7 @@ final class File
      * @throws TypeError
      */
     public static function checksum(
-        string|ReadonlyFile $filePath,
+        string|ReadOnlyFile $filePath,
         ?Key $key = null,
         bool|string $encoding = Halite::ENCODE_BASE64URLSAFE
     ): string {

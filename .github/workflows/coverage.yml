@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['8.4']
+        php-versions: ['8.5']
 
     steps:
       - name: Checkout

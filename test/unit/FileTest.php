@@ -87,13 +87,15 @@ final class FileTest extends TestCase
                 $ex->getMessage()
             );
         }
-        File::asymmetricDecrypt(
-            __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
-            __DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png',
-            $bobSecret,
-            $alicePublic,
-            $aad
-        );
+        $this->withLegacyAadWarning(static function () use ($bobSecret, $alicePublic, $aad): void {
+            File::asymmetricDecrypt(
+                __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
+                __DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png',
+                $bobSecret,
+                $alicePublic,
+                $aad
+            );
+        });
 
         unlink(__DIR__.'/tmp/paragon_avatar.a-encrypted.png');
         unlink(__DIR__.'/tmp/paragon_avatar.a-decrypted.png');
@@ -183,12 +185,14 @@ final class FileTest extends TestCase
                 $ex->getMessage()
             );
         }
-        File::decrypt(
-            __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
-            __DIR__.'/tmp/paragon_avatar.decrypted-aad.png',
-            $key,
-            $aad
-        );
+        $this->withLegacyAadWarning(static function () use ($key, $aad): void {
+            File::decrypt(
+                __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
+                __DIR__.'/tmp/paragon_avatar.decrypted-aad.png',
+                $key,
+                $aad
+            );
+        });
         $this->assertSame(
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted-aad.png')
@@ -198,51 +202,45 @@ final class FileTest extends TestCase
         unlink(__DIR__.'/tmp/paragon_avatar.decrypted-aad.png');
     }
 
+    private function withLegacyAadWarning(callable $operation): void
+    {
+        $warnings = [];
+        set_error_handler(static function (int $severity, string $message) use (&$warnings): bool {
+            if ($severity !== E_USER_WARNING || $message !== 'Please re-encrypt this to ensure it is properly bound to AAD') {
+                return false;
+            }
+            $warnings[] = $message;
+            return true;
+        });
+        try {
+            $operation();
+        } finally {
+            restore_error_handler();
+        }
+        $this->assertCount(1, $warnings);
+    }
+
     public function testEncryptWithAADSameLength()
     {
-        touch(__DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png');
-        chmod(__DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png', 0777);
-        touch(__DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png');
-        chmod(__DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png', 0777);
-
-        $key = new EncryptionKey(
-            new HiddenString(\str_repeat('B', 32))
-        );
-        $aad1 = "Additional associated data1";
-        $aad2 = "Additional associated data2";
-
-        File::encrypt(
-            __DIR__.'/tmp/paragon_avatar.png',
-            __DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png',
-            $key,
-            $aad1
-        );
+        // A 5.1.5 fixture keeps testing the corrected read path while 5.1.6 writes the old format.
+        $input = tempnam(sys_get_temp_dir(), 'halite-aad-');
+        $output = tempnam(sys_get_temp_dir(), 'halite-plain-');
+        $ciphertext = 'MUEFAeGN3jBJHGk3UMD6E9BO3vracpKNytfgS3A+EQIbbAioOC0dMo9taH6AG7RhJBabCFaa2unjDQ8O+QFyCv5yEJoijpAPC9wmjD1wwVBVA8zmEPkgSt2WAKoD8x6YzKdrAnu9Qb9JKg==';
+        file_put_contents($input, base64_decode($ciphertext));
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         try {
-            File::decrypt(
-                __DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png',
-                __DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png',
-                $key,
-                $aad2
-            );
-        } catch (CryptoException\HaliteAlert $ex) {
-            $this->assertSame(
-                'Invalid message authentication code',
-                $ex->getMessage()
-            );
+            try {
+                File::decrypt($input, $output, $key, 'migration bad');
+                $this->fail('Modified AAD was accepted');
+            } catch (CryptoException\InvalidMessage $ex) {
+                $this->assertSame('Invalid message authentication code', $ex->getMessage());
+            }
+            File::decrypt($input, $output, $key, 'migration aad');
+            $this->assertSame('migration test', file_get_contents($output));
+        } finally {
+            unlink($input);
+            unlink($output);
         }
-        File::decrypt(
-            __DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png',
-            __DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png',
-            $key,
-            $aad1
-        );
-        $this->assertSame(
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
-            hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png')
-        );
-
-        unlink(__DIR__.'/tmp/paragon_avatar.encrypted-aad-samelength.png');
-        unlink(__DIR__.'/tmp/paragon_avatar.decrypted-aad-samelength.png');
     }
 
     /**
@@ -526,12 +524,14 @@ final class FileTest extends TestCase
             );
         }
 
-        File::unseal(
-            __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
-            __DIR__.'/tmp/paragon_avatar.opened-aad.png',
-            $secretkey,
-            $aad
-        );
+        $this->withLegacyAadWarning(static function () use ($secretkey, $aad): void {
+            File::unseal(
+                __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
+                __DIR__.'/tmp/paragon_avatar.opened-aad.png',
+                $secretkey,
+                $aad
+            );
+        });
 
         $this->assertSame(
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),

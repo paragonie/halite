@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 5.2.0 (2026-11-26)
+
+* Enable the newer message, file, and key write formats introduced in 5.1.5.
+  * **Migration strategy for fleets**: Deploy 5.1.6 to every reader before upgrading writers to 5.2.0, including 
+    background workers and long-running processes. Readers on 5.1.4 and earlier cannot read the newer ciphertext.
+  * See [#217](https://github.com/paragonie/halite/issues/217) for more information.
+* Restore corrected AAD handling for file encryption and sealing. Re-encrypt files written with the old AAD behavior
+  after upgrading to bind their AAD correctly.
+* Continue reading both formats, including files written by 5.1.6 and earlier.
+  * **Versions 5.3.0 and 6.0.0** will drop support for pre-5.2 ciphertexts.
+
 ## Version 5.1.6 (2026-11-26)
 
 * Restore the pre-5.1.5 default message, file, and key write formats, while continuing to read both formats.

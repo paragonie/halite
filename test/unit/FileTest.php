@@ -87,15 +87,13 @@ final class FileTest extends TestCase
                 $ex->getMessage()
             );
         }
-        $this->withLegacyAadWarning(static function () use ($bobSecret, $alicePublic, $aad): void {
-            File::asymmetricDecrypt(
-                __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
-                __DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png',
-                $bobSecret,
-                $alicePublic,
-                $aad
-            );
-        });
+        File::asymmetricDecrypt(
+            __DIR__.'/tmp/paragon_avatar.a-encrypted-aad.png',
+            __DIR__.'/tmp/paragon_avatar.a-decrypted-aad.png',
+            $bobSecret,
+            $alicePublic,
+            $aad
+        );
 
         unlink(__DIR__.'/tmp/paragon_avatar.a-encrypted.png');
         unlink(__DIR__.'/tmp/paragon_avatar.a-decrypted.png');
@@ -185,14 +183,12 @@ final class FileTest extends TestCase
                 $ex->getMessage()
             );
         }
-        $this->withLegacyAadWarning(static function () use ($key, $aad): void {
-            File::decrypt(
-                __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
-                __DIR__.'/tmp/paragon_avatar.decrypted-aad.png',
-                $key,
-                $aad
-            );
-        });
+        File::decrypt(
+            __DIR__.'/tmp/paragon_avatar.encrypted-aad.png',
+            __DIR__.'/tmp/paragon_avatar.decrypted-aad.png',
+            $key,
+            $aad
+        );
         $this->assertSame(
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.decrypted-aad.png')
@@ -220,9 +216,36 @@ final class FileTest extends TestCase
         $this->assertCount(1, $warnings);
     }
 
+    public function testReadVersion516FilesWithAAD(): void
+    {
+        // Generated with the released 5.1.6 write behavior.
+        $encrypted = 'MUEFAOoin30gwRdRatoHEvW2y8PccpGllMqGYFppPjLLvK4Npu/aOPoTqhkEGct7xW90YsIFn9/0N3vr2nygDFC1tLuDxNH4fvO+h9awQ7HbQviWSxRQiAsuvd9QqQ4++z8YYozGIuo7TA==';
+        $sealed = 'MUEFANjEnNkp5qIQES79S6w3iShfb6CsI8XRAbiINds524Um0yQ91NU2Qc5n99HqZTJtYcE6wiCbIuaaj/g+cWEY4RwmcrbY4RKWNtyRxSUg6SwJPbcUIJ2o9I04aqIMviFl72j3fpNfZg5/gbJuIttE';
+        $input = tempnam(sys_get_temp_dir(), 'halite-legacy-');
+        $output = tempnam(sys_get_temp_dir(), 'halite-plain-');
+        $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
+        $secret = new \ParagonIE\Halite\Asymmetric\EncryptionSecretKey(new HiddenString(str_repeat('B', 32)));
+        try {
+            file_put_contents($input, base64_decode($encrypted));
+            $this->withLegacyAadWarning(static function () use ($input, $output, $key): void {
+                File::decrypt($input, $output, $key, 'migration aad');
+            });
+            $this->assertSame('migration test', file_get_contents($output));
+
+            file_put_contents($input, base64_decode($sealed));
+            $this->withLegacyAadWarning(static function () use ($input, $output, $secret): void {
+                File::unseal($input, $output, $secret, 'migration aad');
+            });
+            $this->assertSame('migration test', file_get_contents($output));
+        } finally {
+            unlink($input);
+            unlink($output);
+        }
+    }
+
     public function testEncryptWithAADSameLength()
     {
-        // A 5.1.5 fixture keeps testing the corrected read path while 5.1.6 writes the old format.
+        // A 5.1.5 fixture verifies the corrected AAD read path.
         $input = tempnam(sys_get_temp_dir(), 'halite-aad-');
         $output = tempnam(sys_get_temp_dir(), 'halite-plain-');
         $ciphertext = 'MUEFAeGN3jBJHGk3UMD6E9BO3vracpKNytfgS3A+EQIbbAioOC0dMo9taH6AG7RhJBabCFaa2unjDQ8O+QFyCv5yEJoijpAPC9wmjD1wwVBVA8zmEPkgSt2WAKoD8x6YzKdrAnu9Qb9JKg==';
@@ -524,14 +547,12 @@ final class FileTest extends TestCase
             );
         }
 
-        $this->withLegacyAadWarning(static function () use ($secretkey, $aad): void {
-            File::unseal(
-                __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
-                __DIR__.'/tmp/paragon_avatar.opened-aad.png',
-                $secretkey,
-                $aad
-            );
-        });
+        File::unseal(
+            __DIR__.'/tmp/paragon_avatar.sealed-aad.png',
+            __DIR__.'/tmp/paragon_avatar.opened-aad.png',
+            $secretkey,
+            $aad
+        );
 
         $this->assertSame(
             hash_file('sha256', __DIR__.'/tmp/paragon_avatar.png'),

@@ -730,8 +730,8 @@ final class File
             sodium_crypto_generichash_update($mac, $hkdfSalt);
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
-                // Keep legacy writes for the 5.1.6 migration release.
-                sodium_crypto_generichash_update($mac, pack('P', $aad));
+                // Bind the AAD contents in the newer file format.
+                sodium_crypto_generichash_update($mac, $aad);
             }
             sodium_crypto_generichash_update($mac, pack('P', $input->remainingBytes()));
         } else {
@@ -831,7 +831,7 @@ final class File
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
                 if ($config->HALITE_5_AAD_COMPAT) {
-                    // Legacy AAD behavior, retained for the 5.1.6 migration release:
+                    // Legacy AAD behavior, retained for reading old files:
                     trigger_error(
                         'Please re-encrypt this to ensure it is properly bound to AAD',
                         E_USER_WARNING
@@ -979,8 +979,8 @@ final class File
             sodium_crypto_generichash_update($mac, $hkdfSalt);
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
-                // Keep legacy writes for the 5.1.6 migration release.
-                sodium_crypto_generichash_update($mac, pack('P', $aad));
+                // Bind the AAD contents in the newer file format.
+                sodium_crypto_generichash_update($mac, $aad);
             }
             sodium_crypto_generichash_update($mac, pack('P', $input->remainingBytes()));
         } else {
@@ -1112,7 +1112,7 @@ final class File
             if (!is_null($aad)) {
                 sodium_crypto_generichash_update($mac, pack('P', Binary::safeStrlen($aad)));
                 if ($config->HALITE_5_AAD_COMPAT) {
-                    // Legacy AAD behavior, retained for the 5.1.6 migration release:
+                    // Legacy AAD behavior, retained for reading old files:
                     trigger_error(
                         'Please re-encrypt this to ensure it is properly bound to AAD',
                         E_USER_WARNING

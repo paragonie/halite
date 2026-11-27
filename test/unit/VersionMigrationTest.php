@@ -44,15 +44,15 @@ final class VersionMigrationTest extends TestCase
             'migration aad',
             true
         );
-        $this->assertSame("\x31\x42\x05\x00", substr($ciphertext, 0, 4));
+        $this->assertSame("\x31\x42\x05\x01", substr($ciphertext, 0, 4));
         $this->assertSame(
             'migration test',
             Crypto::decryptWithAD($ciphertext, $key, 'migration aad', true)
                 ->getString()
         );
-        $this->assertSame('31400500', substr(KeyFactory::export($key)->getString(), 0, 8));
+        $this->assertSame('31400501', substr(KeyFactory::export($key)->getString(), 0, 8));
 
-        $this->assertSame("\x31\x41\x05\x00", Halite::HALITE_VERSION_FILE);
+        $this->assertSame("\x31\x41\x05\x01", Halite::HALITE_VERSION_FILE);
     }
 
     /**
@@ -75,20 +75,32 @@ final class VersionMigrationTest extends TestCase
         $key = new EncryptionKey(new HiddenString(str_repeat('A', 32)));
         $secret = new EncryptionSecretKey(new HiddenString(str_repeat('B', 32)));
         try {
-            File::encrypt($input, $output, $key);
+            File::encrypt($input, $output, $key, 'migration aad');
             $this->assertSame(
-                "\x31\x41\x05\x00",
+                "\x31\x41\x05\x01",
                 file_get_contents($output, false, null, 0, 4)
             );
-            File::decrypt($output, $plain, $key);
+            try {
+                File::decrypt($output, $plain, $key, 'migration bad');
+                $this->fail('Modified AAD was accepted');
+            } catch (InvalidMessage $ex) {
+                $this->assertSame('Invalid message authentication code', $ex->getMessage());
+            }
+            File::decrypt($output, $plain, $key, 'migration aad');
             $this->assertSame('migration test', file_get_contents($plain));
 
-            File::seal($input, $output, $secret->derivePublicKey());
+            File::seal($input, $output, $secret->derivePublicKey(), 'migration aad');
             $this->assertSame(
-                "\x31\x41\x05\x00",
+                "\x31\x41\x05\x01",
                 file_get_contents($output, false, null, 0, 4)
             );
-            File::unseal($output, $plain, $secret);
+            try {
+                File::unseal($output, $plain, $secret, 'migration bad');
+                $this->fail('Modified AAD was accepted');
+            } catch (InvalidMessage $ex) {
+                $this->assertSame('Invalid message authentication code', $ex->getMessage());
+            }
+            File::unseal($output, $plain, $secret, 'migration aad');
             $this->assertSame('migration test', file_get_contents($plain));
         } finally {
             unlink($input);

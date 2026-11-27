@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 5.1.6 (2026-11-26)
+
+* Restore the pre-5.1.5 default message, file, and key write formats, while continuing to read both formats.
+  This allows rolling upgrades alongside 5.1.4 and earlier 5.x readers. See [#217](https://github.com/paragonie/halite/issues/217).
+* File writes retain the old AAD behavior during this migration release. The corrected AAD behavior introduced
+  in 5.1.5 remains supported for reads and will become the write default in 5.2.0.
+* Add regression coverage for migration compatibility. Deploy 5.1.6 to all readers before upgrading writers to
+  the planned 5.2.0 message and file formats.
+
 ## Version 5.1.5 (2026-11-06)
 
 * Fixed AAD parameter in File::encrypt() and File::seal(). Previously, it committed to the
